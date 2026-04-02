@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
-import 'package:root2route/screens/Organizations/organizations_list_screen.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
 import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/services/storage_service.dart';
@@ -17,7 +16,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _Animation;
+  late Animation<double> _animation;
   late Animation<double> _scaleAnimation;
 
   @override
@@ -26,36 +25,30 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 2000),
     );
 
-    _Animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.forward();
 
-    // Start routing logic after a brief splash display
     _initializeAndRoute();
   }
 
   Future<void> _initializeAndRoute() async {
-    // Show splash for at least 1.5s for a smooth UX
-    await Future.delayed(const Duration(milliseconds: 1500));
+    await Future.delayed(const Duration(milliseconds: 2000));
 
     if (!mounted) return;
 
     final isLoggedIn = StorageService().isLoggedIn;
     final isTokenValid = StorageService().isTokenValid;
 
-    // ── Not logged in or token expired → LoginScreen ──
     if (!isLoggedIn || !isTokenValid) {
-      // Clear stale data if token expired
       if (isLoggedIn && !isTokenValid) {
         await StorageService().logout();
       }
@@ -70,7 +63,6 @@ class _SplashScreenState extends State<SplashScreen>
       return;
     }
 
-    // ── Logged in → Route based on hasOrganization flag ──
     final hasOrganization = StorageService().hasOrganization;
 
     if (hasOrganization) {
@@ -113,15 +105,14 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ),
         child: FadeTransition(
-          opacity: _Animation,
+          opacity: _animation,
           child: ScaleTransition(
             scale: _scaleAnimation,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // App Icon
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.15),
                     shape: BoxShape.circle,
@@ -130,16 +121,15 @@ class _SplashScreenState extends State<SplashScreen>
                       width: 2,
                     ),
                   ),
-                  child: const Icon(
-                    Icons.eco,
-                    size: 64,
-                    color: Colors.white,
+                  child: Image.asset(
+                    "assets/images/SplashScreen.png",
+                    width: 260,
+                    height: 260,
+                    fit: BoxFit.contain,
                   ),
                 ),
-
                 const SizedBox(height: 28),
 
-                // App Name
                 const Text(
                   'Root2Route',
                   style: TextStyle(
@@ -153,18 +143,17 @@ class _SplashScreenState extends State<SplashScreen>
                 const SizedBox(height: 8),
 
                 Text(
-                  'From Farm to Table',
+                  "Manage  • Connect  •  Grow",
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withOpacity(0.85),
                     fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.8,
                   ),
                 ),
 
                 const SizedBox(height: 48),
 
-                // Loading indicator
                 SizedBox(
                   width: 28,
                   height: 28,

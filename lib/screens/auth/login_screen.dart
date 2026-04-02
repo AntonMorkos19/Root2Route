@@ -7,13 +7,13 @@ import 'package:root2route/components/custom_auth/auth_header.dart';
 import 'package:root2route/components/custom_button.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
-import 'package:root2route/screens/auth/configuration_screen.dart';
-import 'package:root2route/screens/auth/forgot_password_screen.dart';
+ import 'package:root2route/screens/auth/forgot_password_screen.dart';
+import 'package:root2route/screens/auth/otp_verification_screen.dart';
 import 'package:root2route/screens/auth/register_screen.dart';
 import 'package:root2route/screens/guest/guest_home_screen.dart';
-import 'package:root2route/screens/Organizations/ProfileScreen.dart'; // ✅ أضف هذا الـ import
+import 'package:root2route/screens/Organizations/ProfileScreen.dart';
 import 'package:root2route/services/api.dart';
-import 'package:root2route/services/storage_service.dart'; // ✅ أضف هذا الـ import
+import 'package:root2route/services/storage_service.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = '/loginScreen';
@@ -25,12 +25,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Login Form
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   ApiService api = ApiService();
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,7 +73,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             key: formKey,
                             child: Column(
                               children: [
-                                /// Tabs
                                 Container(
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
@@ -216,43 +214,47 @@ class _LoginScreenState extends State<LoginScreen> {
                                       );
 
                                       try {
-                                        // ✅ تسجيل الدخول
                                         await api.loginUser(
                                           emailController.text,
                                           passwordController.text,
                                         );
 
                                         if (context.mounted) {
-                                          Navigator.pop(context); // إغلاق الـ Loading
+                                          Navigator.pop(context);
                                         }
 
-                                        // ✅ بعد نجاح تسجيل الدخول، نتحقق من حالة وجود شركة
-                                        final hasOrganization = StorageService().hasOrganization;
-                                        print("🔍 After login - hasOrganization: $hasOrganization");
-                                        
+                                        final hasOrganization =
+                                            StorageService().hasOrganization;
+                                        print(
+                                          " After login - hasOrganization: $hasOrganization",
+                                        );
+
                                         if (context.mounted) {
-                                          // ✅ التوجيه بناءً على hasOrganization
                                           if (hasOrganization) {
-                                            // المستخدم عنده شركة → يروح للـ ProfileScreen
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
-                                                builder: (_) => const ProfileScreen(),
+                                                builder:
+                                                    (_) =>
+                                                        const ProfileScreen(),
                                               ),
                                             );
                                           } else {
-                                            // المستخدم ماعندوش شركة → يروح للـ GuestHomeScreen
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
-                                                builder: (_) => const GuestHomeScreen(),
+                                                builder:
+                                                    (_) =>
+                                                        const GuestHomeScreen(),
                                               ),
                                             );
                                           }
                                         }
                                       } catch (e) {
                                         if (context.mounted) {
-                                          Navigator.pop(context); // إغلاق الـ Loading
+                                          Navigator.pop(
+                                            context,
+                                          ); // إغلاق الـ Loading
                                         }
 
                                         String errorMessage = e
@@ -293,14 +295,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 if (context.mounted) {
                                                   Navigator.pop(context);
 
-                                                  Navigator.push(
+                                                 Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
                                                       builder:
-                                                          (context) => ConfigurationScreen(
+                                                          (
+                                                            context,
+                                                          ) => OtpVerificationScreen(
                                                             email:
                                                                 emailController
                                                                     .text,
+                                                            type:
+                                                                OtpType
+                                                                    .emailVerification, // بنقولها إن دي حالة تأكيد إيميل
                                                           ),
                                                     ),
                                                   );
@@ -323,6 +330,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                             context: context,
                                             type: QuickAlertType.error,
                                             text: errorMessage,
+                                            title: "Failed ",
                                           );
                                         }
                                       }

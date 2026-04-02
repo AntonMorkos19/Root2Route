@@ -67,64 +67,66 @@ class ApiService {
   }
 
   Future<void> loginUser(String userName, String password) async {
-  try {
-    final response = await _dio.post(
-      '/auth/login',
-      data: {
-        "userName": userName,
-        "password": password,
-        "isRememberMe": true,
-      },
-    );
-
-    print("📱 Login API Response: ${response.data}");
-
-    final data = response.data['data'];
-    if (data != null) {
-      final accessToken = data['accessToken'];
-      final fullName = data['fullName'];
-      final expireAt = data['expireAt'];
-
-      final userId = _extractUserIdFromToken(accessToken);
-      final isVerified = data['user']?['isVerified'] ?? true;
-
-      // ✅ الخطوة 1: حفظ بيانات المصادقة أولاً
-      await StorageService().saveAuthData(
-        token: accessToken,
-        userId: userId,
-        email: userName,
-        fullName: fullName ?? '',
-        expireAt: expireAt ?? '',
+    try {
+      final response = await _dio.post(
+        '/auth/login',
+        data: {
+          "userName": userName,
+          "password": password,
+          "isRememberMe": true,
+        },
       );
 
-      await StorageService().saveIsVerified(isVerified);
+      print("📱 Login API Response: ${response.data}");
 
-      print("✅ Auth data saved, token: $accessToken");
-      
-      // ✅ الخطوة 2: نضبط التوكن في الـ Dio headers بشكل مباشر
-      _dio.options.headers['Authorization'] = 'Bearer $accessToken';
-      
-      // ✅ الخطوة 3: ننتظر شوية عشان نتأكد إن التوكن اتثبت
-      await Future.delayed(const Duration(milliseconds: 500));
-      
-      // ✅ الخطوة 4: نتحقق من وجود شركات
-      final hasOrganization = await _checkUserHasOrganizations();
-      
-      // حفظ حالة وجود منظمة
-      await StorageService().saveHasOrganization(hasOrganization);
+      final data = response.data['data'];
+      if (data != null) {
+        final accessToken = data['accessToken'];
+        final fullName = data['fullName'];
+        final expireAt = data['expireAt'];
 
-      print("✅ Login Successfully!");
-      print("   - User ID: $userId");
-      print("   - Full Name: $fullName");
-      print("   - Email: $userName");
-      print("   - isVerified: $isVerified");
-      print("   - hasOrganization: $hasOrganization"); // ✅ اتأكد من القيمة هنا
-      print("   - Token Expiry: $expireAt");
-    } else {
-      print("⚠️ No data field in login response");
-      throw Exception("Invalid login response format");
-    }
-  } on DioException catch (e) {
+        final userId = _extractUserIdFromToken(accessToken);
+        final isVerified = data['user']?['isVerified'] ?? true;
+
+        // ✅ الخطوة 1: حفظ بيانات المصادقة أولاً
+        await StorageService().saveAuthData(
+          token: accessToken,
+          userId: userId,
+          email: userName,
+          fullName: fullName ?? '',
+          expireAt: expireAt ?? '',
+        );
+
+        await StorageService().saveIsVerified(isVerified);
+
+        print("✅ Auth data saved, token: $accessToken");
+
+        // ✅ الخطوة 2: نضبط التوكن في الـ Dio headers بشكل مباشر
+        _dio.options.headers['Authorization'] = 'Bearer $accessToken';
+
+        // ✅ الخطوة 3: ننتظر شوية عشان نتأكد إن التوكن اتثبت
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        // ✅ الخطوة 4: نتحقق من وجود شركات
+        final hasOrganization = await _checkUserHasOrganizations();
+
+        // حفظ حالة وجود منظمة
+        await StorageService().saveHasOrganization(hasOrganization);
+
+        print("✅ Login Successfully!");
+        print("   - User ID: $userId");
+        print("   - Full Name: $fullName");
+        print("   - Email: $userName");
+        print("   - isVerified: $isVerified");
+        print(
+          "   - hasOrganization: $hasOrganization",
+        ); // ✅ اتأكد من القيمة هنا
+        print("   - Token Expiry: $expireAt");
+      } else {
+        print("⚠️ No data field in login response");
+        throw Exception("Invalid login response format");
+      }
+    } on DioException catch (e) {
       print("❌ Login Error - DioException:");
       if (e.response != null) {
         print("   Status Code: ${e.response?.statusCode}");
@@ -168,55 +170,59 @@ class ApiService {
   }
 
   Future<bool> _checkUserHasOrganizations() async {
-  try {
-    print("🔍 Checking user organizations...");
-    
-    // ✅ نضبط التوكن في الـ request headers بشكل صريح
-    final token = StorageService().token;
-    print("🔍 Token being used: ${token != null ? "Token exists (${token.substring(0, min(20, token.length))}...)" : "No token"}");
-    
-    final response = await _dio.get(
-      '/organizations/my',
-      options: Options(
-        headers: {
-          'Authorization': 'Bearer $token',
-          'X-Organization-Id': _defaultOrgId,
-        },
-      ),
-    );
-    
-    print("🔍 Organizations API Response: ${response.data}");
-    
-    if (response.data != null && response.data['data'] != null) {
-      final organizations = response.data['data'];
-      
-      // إذا كان فيه شركات وعددها أكبر من 0
-      if (organizations is List && organizations.isNotEmpty) {
-        print("✅ User has ${organizations.length} organization(s)");
-        // طباعة تفاصيل أول شركة للتأكد
-        print("   First organization: ${organizations[0]['name'] ?? 'No name'}");
-        return true;
+    try {
+      print("🔍 Checking user organizations...");
+
+      // ✅ نضبط التوكن في الـ request headers بشكل صريح
+      final token = StorageService().token;
+      print(
+        "🔍 Token being used: ${token != null ? "Token exists (${token.substring(0, min(20, token.length))}...)" : "No token"}",
+      );
+
+      final response = await _dio.get(
+        '/organizations/my',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'X-Organization-Id': _defaultOrgId,
+          },
+        ),
+      );
+
+      print("🔍 Organizations API Response: ${response.data}");
+
+      if (response.data != null && response.data['data'] != null) {
+        final organizations = response.data['data'];
+
+        // إذا كان فيه شركات وعددها أكبر من 0
+        if (organizations is List && organizations.isNotEmpty) {
+          print("✅ User has ${organizations.length} organization(s)");
+          // طباعة تفاصيل أول شركة للتأكد
+          print(
+            "   First organization: ${organizations[0]['name'] ?? 'No name'}",
+          );
+          return true;
+        } else {
+          print("ℹ️ Organizations list is empty");
+        }
       } else {
-        print("ℹ️ Organizations list is empty");
+        print("ℹ️ No data field in response");
       }
-    } else {
-      print("ℹ️ No data field in response");
+
+      print("ℹ️ User has no organizations");
+      return false;
+    } on DioException catch (e) {
+      print("❌ Error checking organizations: ${e.response?.data}");
+      print("❌ Status code: ${e.response?.statusCode}");
+      print("❌ Headers sent: ${e.requestOptions.headers}");
+
+      // لو حصل خطأ، نعتبر مفيش شركات
+      return false;
+    } catch (e) {
+      print("❌ Unexpected error checking organizations: $e");
+      return false;
     }
-    
-    print("ℹ️ User has no organizations");
-    return false;
-  } on DioException catch (e) {
-    print("❌ Error checking organizations: ${e.response?.data}");
-    print("❌ Status code: ${e.response?.statusCode}");
-    print("❌ Headers sent: ${e.requestOptions.headers}");
-    
-    // لو حصل خطأ، نعتبر مفيش شركات
-    return false;
-  } catch (e) {
-    print("❌ Unexpected error checking organizations: $e");
-    return false;
   }
-}
 
   String _extractUserIdFromToken(String token) {
     try {
@@ -312,10 +318,10 @@ class ApiService {
   }) async {
     try {
       final response = await _dio.post(
-        '/auth/reset-password',
+        '/auth/reset-password', // ✅ التعديل هنا: رجعناها لأصلها
         data: {
           "email": email.trim().toLowerCase(),
-          "otp": otp.trim(),
+          "otp": otp.trim(), // دلوقتي هيتبعت 6 أرقام صح مش null
           "newPassword": newPassword,
         },
         options: Options(
@@ -325,6 +331,17 @@ class ApiService {
           },
         ),
       );
+
+      if (response.data != null && response.data is Map) {
+        if (response.data['success'] == false ||
+            response.data['isSuccess'] == false) {
+          return {
+            "success": false,
+            "message": response.data['message'] ?? "فشل تغيير كلمة المرور.",
+          };
+        }
+      }
+
       return {
         "success": true,
         "message": response.data['message'] ?? "تم تغيير كلمة المرور بنجاح",
@@ -334,7 +351,6 @@ class ApiService {
       if (e.response?.data is Map) {
         errorMsg = e.response?.data['message'] ?? errorMsg;
       }
-      debugPrint("🛑 Reset Password Error: ${e.response?.data}");
       return {"success": false, "message": errorMsg};
     } catch (err) {
       return {"success": false, "message": "حدث خطأ غير متوقع: $err"};
@@ -421,11 +437,7 @@ class ApiService {
           ),
       });
 
-      final response = await _dio.post(
-        '/organizations',
-        data: formData,
-        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
-      );
+      final response = await _dio.post('/organizations', data: formData);
 
       print("✅ Organization created successfully: ${response.data}");
 
@@ -459,21 +471,15 @@ class ApiService {
     }
   }
 
-  // ✅ دالة مساعدة لتنسيق رقم الهاتف
   String _formatPhoneNumber(String phone) {
-    // إزالة أي مسافات أو شرطات
     String cleaned = phone.replaceAll(RegExp(r'[\s\-]'), '');
 
-    // إذا كان الرقم بيبدأ بـ 0، نحوله للصيغة الدولية
     if (cleaned.startsWith('0')) {
       // مثال: 01234567890 -> +201234567890
       cleaned = '+2$cleaned';
-    }
-    // إذا كان الرقم مش بيبدأ بـ +، نضيف +
-    else if (!cleaned.startsWith('+')) {
+    } else if (!cleaned.startsWith('+')) {
       cleaned = '+$cleaned';
     }
-
     return cleaned;
   }
 
@@ -559,119 +565,115 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> updateOrganization({
-  required String organizationId,
-  required String name,
-  required String description,
-  required String address,
-  required String contactEmail,
-  required String contactPhone,
-  required int type,
-  File? logo,
-}) async {
-  try {
-    final ownerId = StorageService().userId;
+    required String organizationId,
+    required String name,
+    required String description,
+    required String address,
+    required String contactEmail,
+    required String contactPhone,
+    required int type,
+    File? logo,
+  }) async {
+    try {
+      final ownerId = StorageService().userId;
 
-    if (ownerId == null || ownerId.isEmpty) {
-      throw Exception("User not logged in");
-    }
-
-    print("============================================");
-    print("📦 STARTING ORGANIZATION UPDATE...");
-    print("📦 organizationId: '$organizationId'");
-    print("📦 OwnerId: '$ownerId'");
-
-    if (organizationId.isEmpty) {
-      return {
-        "success": false,
-        "message": "Organization ID is missing in the app!",
-      };
-    }
-
-    // تنسيق رقم الهاتف
-    String formattedPhone = _formatPhoneNumber(contactPhone);
-
-    // إنشاء FormData
-    final formData = FormData();
-
-    // إضافة الحقول النصية - ملاحظة: إضافة OrganizationId هنا!
-    formData.fields.add(MapEntry('OrganizationId', organizationId)); // ✅ المفتاح
-    formData.fields.add(MapEntry('OwnerId', ownerId));
-    formData.fields.add(MapEntry('Name', name));
-    formData.fields.add(MapEntry('Description', description));
-    formData.fields.add(MapEntry('Address', address));
-    formData.fields.add(MapEntry('ContactEmail', contactEmail));
-    formData.fields.add(MapEntry('ContactPhone', formattedPhone));
-    formData.fields.add(MapEntry('Type', type.toString()));
-
-    // إضافة الصورة لو موجودة
-    if (logo != null) {
-      formData.files.add(
-        MapEntry(
-          'Logo',
-          await MultipartFile.fromFile(
-            logo.path,
-            filename: 'logo_${DateTime.now().millisecondsSinceEpoch}.png',
-          ),
-        ),
-      );
-    }
-
-    print("🚀 Sending to: /organizations");
-    print("   OrganizationId: $organizationId"); // ✅ مطبوع للتأكد
-    print("   OwnerId: $ownerId");
-    print("   Name: $name");
-    print("   Type: $type");
-
-    // ✅ استخدم PUT على /organizations (بدون ID في الرابط)
-    final response = await _dio.put(
-      '/organizations', // ✅ هنا التغيير المهم
-      data: formData,
-      options: Options(
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      ),
-    );
-
-    print("✅ Organization updated successfully: ${response.data}");
-
-    return {
-      "success": true,
-      "data": response.data,
-      "message": "تم تحديث المنظمة بنجاح",
-    };
-  } on DioException catch (e) {
-    print("❌ Error updating organization: ${e.response?.data}");
-
-    String errorMsg = "فشل تحديث الشركة";
-    if (e.response?.data != null) {
-      if (e.response?.data is Map) {
-        final errors = e.response?.data['errors'];
-        if (errors != null && errors is Map && errors.isNotEmpty) {
-          final firstErrorKey = errors.keys.first;
-          final firstErrorValue = errors[firstErrorKey];
-          if (firstErrorValue is List && firstErrorValue.isNotEmpty) {
-            errorMsg = firstErrorValue[0].toString();
-          } else {
-            errorMsg = firstErrorValue.toString();
-          }
-        } else {
-          errorMsg = e.response?.data['message'] ??
-              e.response?.data['title'] ??
-              errorMsg;
-        }
-      } else if (e.response?.data is String) {
-        errorMsg = e.response?.data;
+      if (ownerId == null || ownerId.isEmpty) {
+        throw Exception("User not logged in");
       }
+
+      print("============================================");
+      print(" STARTING ORGANIZATION UPDATE...");
+      print(" organizationId: '$organizationId'");
+      print(" OwnerId: '$ownerId'");
+
+      if (organizationId.isEmpty) {
+        return {
+          "success": false,
+          "message": "Organization ID is missing in the app!",
+        };
+      }
+
+      // تنسيق رقم الهاتف
+      String formattedPhone = _formatPhoneNumber(contactPhone);
+
+      // إنشاء FormData
+      final formData = FormData();
+
+      // إضافة الحقول النصية - ملاحظة: إضافة OrganizationId هنا!
+      formData.fields.add(
+        MapEntry('OrganizationId', organizationId),
+      ); // ✅ المفتاح
+      formData.fields.add(MapEntry('OwnerId', ownerId));
+      formData.fields.add(MapEntry('Name', name));
+      formData.fields.add(MapEntry('Description', description));
+      formData.fields.add(MapEntry('Address', address));
+      formData.fields.add(MapEntry('ContactEmail', contactEmail));
+      formData.fields.add(MapEntry('ContactPhone', formattedPhone));
+      formData.fields.add(MapEntry('Type', type.toString()));
+
+      // إضافة الصورة لو موجودة
+      if (logo != null) {
+        formData.files.add(
+          MapEntry(
+            'Logo',
+            await MultipartFile.fromFile(
+              logo.path,
+              filename: 'logo_${DateTime.now().millisecondsSinceEpoch}.png',
+            ),
+          ),
+        );
+      }
+
+      print("🚀 Sending to: /organizations");
+      print("   OrganizationId: $organizationId"); // ✅ مطبوع للتأكد
+      print("   OwnerId: $ownerId");
+      print("   Name: $name");
+      print("   Type: $type");
+
+      // ✅ استخدم PUT على /organizations (بدون ID في الرابط)
+      final response = await _dio.put(
+        '/organizations', // ✅ هنا التغيير المهم
+        data: formData,
+      );
+
+      print("✅ Organization updated successfully: ${response.data}");
+
+      return {
+        "success": true,
+        "data": response.data,
+        "message": "تم تحديث المنظمة بنجاح",
+      };
+    } on DioException catch (e) {
+      print("❌ Error updating organization: ${e.response?.data}");
+
+      String errorMsg = "فشل تحديث الشركة";
+      if (e.response?.data != null) {
+        if (e.response?.data is Map) {
+          final errors = e.response?.data['errors'];
+          if (errors != null && errors is Map && errors.isNotEmpty) {
+            final firstErrorKey = errors.keys.first;
+            final firstErrorValue = errors[firstErrorKey];
+            if (firstErrorValue is List && firstErrorValue.isNotEmpty) {
+              errorMsg = firstErrorValue[0].toString();
+            } else {
+              errorMsg = firstErrorValue.toString();
+            }
+          } else {
+            errorMsg =
+                e.response?.data['message'] ??
+                e.response?.data['title'] ??
+                errorMsg;
+          }
+        } else if (e.response?.data is String) {
+          errorMsg = e.response?.data;
+        }
+      }
+      return {"success": false, "message": errorMsg};
+    } catch (e) {
+      print("❌ Unexpected error: $e");
+      return {"success": false, "message": "حدث خطأ غير متوقع: $e"};
     }
-    return {"success": false, "message": errorMsg};
-  } catch (e) {
-    print("❌ Unexpected error: $e");
-    return {"success": false, "message": "حدث خطأ غير متوقع: $e"};
   }
-}
-
-
 
   Future<Map<String, dynamic>> deleteOrganization(String id) async {
     try {
@@ -724,7 +726,10 @@ class ApiService {
       return {"success": false, "message": errorMsg};
     } catch (e) {
       print("❌ Unexpected error: $e");
-      return {"success": false, "message": "حدث خطأ غير متوقع: $e"};
+      return {
+        "success": false,
+        "message": "    An unexpected error occurred:   $e",
+      };
     }
   }
 
@@ -744,12 +749,12 @@ class ApiService {
       return {
         "success": true,
         "data": response.data,
-        "message": "تم نقل الملكية بنجاح",
+        "message": "The transfer of ownership was successful.",
       };
     } on DioException catch (e) {
       print("❌ Error changing owner: ${e.response?.data}");
 
-      String errorMsg = "فشل نقل الملكية";
+      String errorMsg = "Failed to transfer ownership";
       if (e.response?.data is Map) {
         errorMsg = e.response?.data['message'] ?? errorMsg;
       } else if (e.response?.data is String) {
@@ -759,7 +764,10 @@ class ApiService {
       return {"success": false, "message": errorMsg};
     } catch (e) {
       print("❌ Unexpected error: $e");
-      return {"success": false, "message": "حدث خطأ غير متوقع: $e"};
+      return {
+        "success": false,
+        "message": "    An unexpected error occurred:  : $e",
+      };
     }
   }
 

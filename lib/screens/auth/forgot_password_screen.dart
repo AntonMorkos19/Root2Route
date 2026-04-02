@@ -7,7 +7,7 @@ import 'package:root2route/components/custom_auth/auth_header.dart';
 import 'package:root2route/components/custom_button.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
-import 'package:root2route/screens/auth/recovery_screen.dart';
+import 'package:root2route/screens/auth/otp_verification_screen.dart';
 import 'package:root2route/services/api.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -100,60 +100,71 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                     final result = await ApiService()
                                         .forgetPassword(emailController.text);
 
-                                    // 2. Close Loading Alert
-                                    Navigator.pop(context);
+                                    // 1. إغلاق رسالة التحميل
+                                    if (mounted) Navigator.pop(context);
 
                                     if (result['success']) {
-                                      // 3. Show Success Alert
-                                      // 1. إظهار الـ Alert
-                                      QuickAlert.show(
-                                        context: context,
-                                        type: QuickAlertType.success,
-                                        title: 'Success',
-                                        text:
-                                            "Verification code sent to your email address",
-                                        showConfirmBtn:
-                                            false, // اختياري: لو عايز تخفي الزرار خالص بما إنه هينقل لوحده
-                                      );
+                                      // 2. إظهار رسالة النجاح
+                                      if (mounted) {
+                                        QuickAlert.show(
+                                          context: context,
+                                          type: QuickAlertType.success,
+                                          title: 'Success',
+                                          text:
+                                              "Verification code sent to your email address",
+                                          showConfirmBtn: false, // إخفاء الزرار
+                                        );
+                                      }
 
-                                      // 2. الانتظار لمدة 3 ثواني ثم التنفيذ
+                                      // 3. الانتظار لمدة 3 ثواني ثم الانتقال
                                       Future.delayed(
                                         const Duration(seconds: 3),
                                         () {
                                           if (mounted) {
-                                            // إغلاق الـ Alert أولاً
+                                            // أ. إغلاق رسالة النجاح أولاً
                                             Navigator.pop(context);
 
-                                            // الانتقال للصفحة التالية
-                                            Navigator.pushNamedAndRemoveUntil(
+                                            // ب. الانتقال للشاشة الموحدة بالطريقة الصحيحة
+                                            Navigator.push(
                                               context,
-                                              RecoveryScreen.id,
-                                              (route) => false,
-                                              arguments: emailController.text,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (
+                                                      context,
+                                                    ) => OtpVerificationScreen(
+                                                      email:
+                                                          emailController.text,
+                                                      type:
+                                                          OtpType
+                                                              .passwordRecovery, // ✅ بنقولها إن دي استرجاع باسورد
+                                                    ),
+                                              ),
                                             );
                                           }
                                         },
                                       );
                                     } else {
-                                      // 4. Show Error Alert (e.g., Email not found)
+                                      if (mounted) {
+                                        QuickAlert.show(
+                                          context: context,
+                                          type: QuickAlertType.error,
+                                          title: 'Oops...',
+                                          text: result['message'],
+                                          confirmBtnText: 'Try Again',
+                                        );
+                                      }
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      Navigator.pop(context);  
                                       QuickAlert.show(
                                         context: context,
                                         type: QuickAlertType.error,
-                                        title: 'Oops...',
+                                        title: 'Failed',
                                         text:
-                                            result['message'], // This will show the server error in English
-                                        confirmBtnText: 'Try Again',
+                                            'Something went wrong. Please check your connection.',
                                       );
                                     }
-                                  } catch (e) {
-                                    Navigator.pop(context); // Close Loading
-                                    QuickAlert.show(
-                                      context: context,
-                                      type: QuickAlertType.error,
-                                      title: 'Error',
-                                      text:
-                                          'Something went wrong. Please check your connection.',
-                                    );
                                   }
                                 },
                               ),

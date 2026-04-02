@@ -1,44 +1,54 @@
-import 'dart:async'; // ضروري جداً للـ Timer
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/custom_auth/auth_background.dart';
 import 'package:root2route/components/custom_auth/auth_header.dart';
 import 'package:root2route/components/custom_auth/otp_field.dart';
 import 'package:root2route/components/custom_button.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
-import 'package:quickalert/quickalert.dart';
 import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/screens/auth/create_new_password.dart';
 import 'package:root2route/screens/guest/guest_home_screen.dart';
-import 'package:root2route/screens/guest/products_screen.dart';
 import 'package:root2route/services/api.dart';
 
-class ConfigurationScreen extends StatefulWidget {
-  static const String id = 'configuration-screen';
-  final String email;
-
-  const ConfigurationScreen({super.key, required this.email});
-
-  @override
-  State<ConfigurationScreen> createState() => _ConfigurationScreenState();
+ enum OtpType {
+  emailVerification,  
+  passwordRecovery,  
 }
 
-class _ConfigurationScreenState extends State<ConfigurationScreen> {
+class OtpVerificationScreen extends StatefulWidget {
+  static const String id = '/otpVerificationScreen';
+
+  final String email;
+  final OtpType type; 
+
+  const OtpVerificationScreen({
+    super.key,
+    required this.email,
+    required this.type,
+  });
+
+  @override
+  State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
+}
+
+class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   static const Color green = Color(0xFF2ECC71);
 
   int secondsLeft = 30;
-  Timer? _timer; // تعريف التايمر
+  Timer? _timer;
   String otpCode = "";
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _startTimer(); // يبدأ العد التنازلي أول ما الصفحة تفتح
+    _startTimer();
   }
 
-  // دالة تشغيل التايمر
   void _startTimer() {
-    secondsLeft = 30; // إعادة ضبط الوقت
+    setState(() => secondsLeft = 30);
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (secondsLeft > 0) {
         setState(() => secondsLeft--);
@@ -50,19 +60,31 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
 
   @override
   void dispose() {
-    _timer?.cancel(); // تنظيف الذاكرة عند إغلاق الصفحة
+    _timer?.cancel();
     super.dispose();
   }
 
+  // ✅ 2. الدالة الذكية اللي بتفصل بين الوظيفتين
   void _verifyOtp() async {
-    // تعديل الشرط ليكون 6 أرقام
     if (otpCode.length < 6) {
       _showError("Please enter the full 6-digit code");
       return;
     }
 
-    setState(() => isLoading = true);
+    // --- حالة استرجاع كلمة المرور ---
+    if (widget.type == OtpType.passwordRecovery) {
+      print("Proceeding to create new password with code: $otpCode");
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        CreateNewPassword.id,
+        (route) => false,
+        arguments: {"email": widget.email, "code": otpCode},
+      );
+      return; // نوقف الكود هنا
+    }
 
+    // --- حالة تأكيد الإيميل ---
+    setState(() => isLoading = true);
     try {
       await ApiService().verifyOTP(email: widget.email, otpCode: otpCode);
 
@@ -70,7 +92,9 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
+          title: "Success",
           text: "Email Verified Successfully!",
+          confirmBtnColor: green,
           onConfirmBtnTap: () {
             Navigator.pushNamedAndRemoveUntil(
               context,
@@ -87,10 +111,28 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     }
   }
 
+  void _resendOtp() async {
+    try {
+      await ApiService().resendOTP(email: widget.email);
+      _startTimer();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Code resent successfully"),
+            backgroundColor: green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) _showError("Failed to resend code. Try again.");
+    }
+  }
+
   void _showError(String message) {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
+      title: "Error",
       text: message,
     );
   }
@@ -113,10 +155,11 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
                   AuthHeader(
                     title: 'Verification Code',
                     description:
-                        'Enter the 6-digit code sent to \n ${widget.email}',
+                        'Enter the 6-digit code sent to \n${widget.email}',
                     icon: Icons.verified_outlined,
                   ),
                   const SizedBox(height: 16),
+
                   ClipRRect(
                     borderRadius: BorderRadius.circular(18),
                     child: BackdropFilter(
@@ -136,18 +179,16 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const SizedBox(height: 10),
-                            OtpField(
-                              onChanged: (value) {
-                                otpCode = value;
-                              },
-                            ),
+                            OtpField(onChanged: (value) => otpCode = value),
                             const SizedBox(height: 26),
+
                             isLoading
                                 ? const CircularProgressIndicator(color: green)
                                 : CustomButton(
                                   text: 'Verify',
                                   onPressed: _verifyOtp,
                                 ),
+
                             const SizedBox(height: 16),
 
                             Row(
@@ -162,12 +203,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
                                 const SizedBox(width: 4),
                                 if (secondsLeft == 0)
                                   TextButton(
-                                    onPressed: () {
-                                      ApiService().resendOTP(
-                                        email: widget.email,
-                                      );
-                                      setState(() => _startTimer());
-                                    },
+                                    onPressed: _resendOtp,
                                     style: TextButton.styleFrom(
                                       foregroundColor: AppColors.primary,
                                     ),
@@ -180,6 +216,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 14),
                 ],
               ),
             ),

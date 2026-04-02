@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:root2route/screens/auth/create_new_password.dart';
 import 'package:root2route/screens/auth/forgot_password_screen.dart';
 import 'package:root2route/screens/auth/register_screen.dart';
-import 'package:root2route/screens/auth/recovery_screen.dart';
-import 'package:root2route/screens/guest/guest_home_screen.dart';
+ import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/screens/guest/products_screen.dart';
 import 'package:root2route/screens/splash_screen.dart';
@@ -33,13 +32,9 @@ class MyApp extends StatelessWidget {
         RegisterScreen.id: (_) => const RegisterScreen(),
         ForgotPasswordScreen.id: (_) => const ForgotPasswordScreen(),
         CreateNewPassword.id: (_) => const CreateNewPassword(),
-        RecoveryScreen.id: (_) => const RecoveryScreen(),
         GuestHomeScreen.id: (_) => const GuestHomeScreen(),
         ProductsScreen.id: (_) => const ProductsScreen(),
       },
     );
   }
 }
-
-
-

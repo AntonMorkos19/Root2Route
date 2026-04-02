@@ -9,8 +9,8 @@ import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/user_model.dart';
-import 'package:root2route/screens/auth/configuration_screen.dart';
-import 'package:root2route/screens/auth/login_screen.dart';
+ import 'package:root2route/screens/auth/login_screen.dart';
+import 'package:root2route/screens/auth/otp_verification_screen.dart';
 import 'package:root2route/services/api.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -283,12 +283,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                 context,
                                                 MaterialPageRoute(
                                                   builder:
-                                                      (context) =>
-                                                          ConfigurationScreen(
-                                                            email:
-                                                                emailController
-                                                                    .text,
-                                                          ),
+                                                      (
+                                                        context,
+                                                      ) => OtpVerificationScreen(
+                                                        email:
+                                                            emailController
+                                                                .text,
+                                                        type:
+                                                            OtpType
+                                                                .emailVerification, // بنقولها إن دي حالة تأكيد إيميل
+                                                      ),
                                                 ),
                                               );
                                             }

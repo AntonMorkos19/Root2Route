@@ -39,11 +39,10 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
   bool _isLoading = false;
 
   Future<void> _pickImage() async {
-    // منع اختيار صورة أثناء التحميل
     if (_isLoading) return;
 
     final XFile? pickedFile = await _picker.pickImage(
-      source: ImageSource.camera,
+      source: ImageSource.gallery,
     );
     if (pickedFile != null) {
       final bytes = await pickedFile.readAsBytes();
@@ -54,7 +53,6 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
     }
   }
 
-  // تحويل نوع الحساب إلى رقم
   int _getOrganizationTypeValue(AccountType type) {
     switch (type) {
       case AccountType.farmer:
@@ -68,7 +66,6 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
     }
   }
 
-  // الحصول على الشاشة المناسبة
   Widget _getTargetScreen(AccountType type) {
     switch (type) {
       case AccountType.farmer:
@@ -82,10 +79,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
     }
   }
 
-  // دالة إنشاء المنظمة
-  // دالة إنشاء المنظمة
   Future<void> _createOrganization() async {
-    // 1. التحقق من صحة النموذج ونوع الحساب
     if (!formKey.currentState!.validate()) return;
 
     if (selectedType == null) {
@@ -98,7 +92,6 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       return;
     }
 
-    // 2. بدء التحميل وإظهار QuickAlert التحميل
     setState(() => _isLoading = true);
 
     QuickAlert.show(
@@ -109,14 +102,11 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       barrierDismissible: false,
     );
 
-    // 3. محاكاة وقت الانتظار (3 ثوانٍ)
     await Future.delayed(const Duration(seconds: 3));
 
-    // 4. إغلاق تنبيه التحميل قبل استدعاء الـ API أو عرض النتيجة
     if (mounted) Navigator.pop(context);
 
     try {
-      // 5. استدعاء API الفعلي
       final result = await _api.createOrganization(
         name: nameController.text.trim(),
         description: descriptionController.text.trim(),
@@ -130,7 +120,6 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       if (!mounted) return;
 
       if (result['success']) {
-        // نجاح العملية
         await StorageService().saveHasOrganization(true);
 
         QuickAlert.show(
@@ -140,7 +129,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
           text: 'Organization created successfully!',
           confirmBtnText: 'Continue',
           onConfirmBtnTap: () {
-            Navigator.pop(context); // إغلاق الـ Alert
+            Navigator.pop(context);
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -153,23 +142,21 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
-          title: 'Error',
+          title: ' Failure',
           text: result['message'] ?? 'Failed to create organization',
           confirmBtnText: 'Try Again',
         );
       }
     } catch (e) {
-      // خطأ غير
       if (!mounted) return;
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
-        title: 'Error',
+        title: 'Failure',
         text: 'An unexpected error occurred: $e',
         confirmBtnText: 'OK',
       );
     } finally {
-      // إنهاء حالة التحميل
       if (mounted) setState(() => _isLoading = false);
     }
   }
@@ -232,7 +219,6 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                           ),
                         ),
 
-                        // Dark overlay
                         Positioned.fill(
                           child: Container(
                             decoration: BoxDecoration(
@@ -300,7 +286,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                     child: Stack(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(3), // سمك البوردر
+                          padding: const EdgeInsets.all(3),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
@@ -317,7 +303,9 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                             radius: 55,
                             backgroundColor: Colors.white,
                             backgroundImage:
-                                _imageBytes != null ? MemoryImage(_imageBytes!) : null,
+                                _imageBytes != null
+                                    ? MemoryImage(_imageBytes!)
+                                    : null,
                             child:
                                 _image == null
                                     ? Icon(

@@ -1,5 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/components/custom_auth/auth_background.dart';
 import 'package:root2route/components/custom_auth/auth_header.dart';
 import 'package:root2route/components/custom_button.dart';
@@ -29,7 +31,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
   Widget build(BuildContext context) {
     data = ModalRoute.of(context)!.settings.arguments;
     email = data['email'];
-    otp = data['otp'];
+    otp = data['code'];
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: AuthBackground(
@@ -106,18 +108,65 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
 
                               CustomButton(
                                 text: "Reset Password",
-                                onPressed: () {
+                                onPressed: () async {
                                   if (!formKey.currentState!.validate()) return;
-                                  ApiService().resetPassword(
-                                    email: email,
-                                    otp: otp.toString(),
-                                    newPassword: passwordController.text,
+
+                                  // 1. إظهار رسالة تحميل
+                                  QuickAlert.show(
+                                    context: context,
+                                    type: QuickAlertType.loading,
+                                    title: 'Please Wait',
+                                    text: 'Resetting your password...',
+                                    barrierDismissible: false,
                                   );
-                                  Navigator.pushNamedAndRemoveUntil(
-                                    context,
-                                    LoginScreen.id,
-                                    (route) => false,
-                                  );
+
+                                  try {
+                                    // 2. ننتظر رد السيرفر (لازم نضيف await)
+                                    await ApiService().resetPassword(
+                                      email: email,
+                                      otp: otp.toString(),
+                                      newPassword: passwordController.text,
+                                    );
+
+                                    // 3. نقفل رسالة التحميل
+                                    if (mounted) Navigator.pop(context);
+
+                                    // 4. نظهر رسالة النجاح، ولما يدوس عليها ننقله للـ Login
+                                    if (mounted) {
+                                      QuickAlert.show(
+                                        context: context,
+                                        type: QuickAlertType.success,
+                                        title: 'Success!',
+                                        text:
+                                            'Your password has been reset successfully.',
+                                        confirmBtnText: 'Login Now',
+                                        barrierDismissible: false,
+                                        onConfirmBtnTap: () {
+                                          Navigator.pop(
+                                            context,
+                                          ); // نقفل الرسالة دي
+                                          Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            LoginScreen.id,
+                                            (route) => false,
+                                          );
+                                        },
+                                      );
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      Navigator.pop(context);
+                                      QuickAlert.show(
+                                        context: context,
+                                        type: QuickAlertType.error,
+                                        title: 'Failed',
+                                        text: e.toString().replaceAll(
+                                          'Exception: ',
+                                          '',
+                                        ),
+                                      );
+                                    }
+                                  }
                                 },
                               ),
                             ],

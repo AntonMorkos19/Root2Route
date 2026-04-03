@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
-import 'package:root2route/components/custom_button.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/organization_model.dart';
@@ -73,13 +72,10 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     }
   }
 
-  // ✅ دالة مساعدة لبناء رابط الصورة الكامل
+  // دالة مساعدة لبناء رابط الصورة الكامل
   String _getFullImageUrl(String? imagePath) {
     if (imagePath == null || imagePath.isEmpty) return '';
-    // لو الرابط بالفعل كامل (يبدأ بـ http)
     if (imagePath.startsWith('http')) return imagePath;
-    // لو بيبدأ بـ /، نضيف الـ baseUrl
-    // ملاحظة: لو الصور على domain مختلف، عدل الرابط هنا
     return 'https://root2route.runasp.net$imagePath';
   }
 
@@ -278,16 +274,21 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          // Settings menu
+          // القائمة العلوية
           PopupMenuButton<String>(
-            icon: const Icon(Icons.menu, color: Colors.black),
+            icon: const Icon(Icons.more_vert, color: Colors.black),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
             onSelected: (value) {
               switch (value) {
-                case 'owner':
-                  _showChangeOwnerDialog();
+                case 'edit':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditOrganizationScreen(organization: org),
+                    ),
+                  ).then((_) => setState(() {}));
                   break;
                 case 'add_member':
                   Navigator.push(
@@ -297,10 +298,34 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                     ),
                   );
                   break;
+                case 'owner':
+                  _showChangeOwnerDialog();
+                  break;
+                case 'delete':
+                  _deleteOrganization();
+                  break;
               }
             },
             itemBuilder:
                 (context) => [
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: ListTile(
+                      leading: Icon(Icons.edit, color: Colors.orange),
+                      title: Text('Edit Organization'),
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'add_member',
+                    child: ListTile(
+                      leading: Icon(Icons.person_add_alt_1, color: Colors.blue),
+                      title: Text('Add Member'),
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                    ),
+                  ),
                   const PopupMenuItem(
                     value: 'owner',
                     child: ListTile(
@@ -311,10 +336,10 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                     ),
                   ),
                   const PopupMenuItem(
-                    value: 'add_member',
+                    value: 'delete',
                     child: ListTile(
-                      leading: Icon(Icons.person_add_alt_1, color: Colors.blue),
-                      title: Text('Add Member'),
+                      leading: Icon(Icons.delete, color: Colors.red),
+                      title: Text('Delete Organization'),
                       contentPadding: EdgeInsets.zero,
                       dense: true,
                     ),
@@ -344,37 +369,40 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                 ),
                 child: Column(
                   children: [
-                    // ✅ Logo - Modified to use NetworkImage
                     Container(
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
                         color: AppColors.OrganizationColor,
                         borderRadius: BorderRadius.circular(20),
-                        image: hasImage
-                            ? DecorationImage(
-                                image: NetworkImage(imageUrl),
-                                fit: BoxFit.cover,
-                                onError: (exception, stackTrace) {
-                                  debugPrint('❌ Error loading logo: $exception');
-                                },
-                              )
-                            : null,
+                        image:
+                            hasImage
+                                ? DecorationImage(
+                                  image: NetworkImage(imageUrl),
+                                  fit: BoxFit.cover,
+                                  onError: (exception, stackTrace) {
+                                    debugPrint(
+                                      '❌ Error loading logo: $exception',
+                                    );
+                                  },
+                                )
+                                : null,
                       ),
-                      child: !hasImage
-                          ? Center(
-                              child: Text(
-                                org.name.length >= 2
-                                    ? org.name.substring(0, 2).toUpperCase()
-                                    : org.name.toUpperCase(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 24,
+                      child:
+                          !hasImage
+                              ? Center(
+                                child: Text(
+                                  org.name.length >= 2
+                                      ? org.name.substring(0, 2).toUpperCase()
+                                      : org.name.toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24,
+                                  ),
                                 ),
-                              ),
-                            )
-                          : null,
+                              )
+                              : null,
                     ),
                     const SizedBox(height: 14),
                     Text(
@@ -448,29 +476,9 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                   org.contactPhone!,
                 ),
 
-              const SizedBox(height: 24),
-
-              // ---- Action Buttons ----
-              CustomButton(
-                text: 'Edit Organization',
-                color: AppColors.OrganizationColor,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => EditOrganizationScreen(organization: org),
-                    ),
-                  ).then((_) => Navigator.pop(context));
-                },
-              ),
-              const SizedBox(height: 12),
-              CustomButton(
-                text: 'Delete Organization',
-                color: Colors.red,
-                onPressed: () => _deleteOrganization(),
-              ),
-
-              const SizedBox(height: 20),
+              const SizedBox(
+                height: 40,
+              ), // مساحة فاضية في آخر الشاشة عشان شكلها يبقى أنيق
             ],
           ),
         ),

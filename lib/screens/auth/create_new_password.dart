@@ -9,7 +9,7 @@ import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/services/api.dart';
-
+ 
 class CreateNewPassword extends StatefulWidget {
   static const String id = '/re-enter-passwordScreen';
   const CreateNewPassword({super.key});
@@ -22,7 +22,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-
+ 
   String email = '';
   dynamic otp;
   dynamic data;

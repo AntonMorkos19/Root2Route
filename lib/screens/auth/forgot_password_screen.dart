@@ -100,32 +100,27 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                     final result = await ApiService()
                                         .forgetPassword(emailController.text);
 
-                                    // 1. إغلاق رسالة التحميل
-                                    if (mounted) Navigator.pop(context);
+                                     if (mounted) Navigator.pop(context);
 
                                     if (result['success']) {
-                                      // 2. إظهار رسالة النجاح
-                                      if (mounted) {
+                                       if (mounted) {
                                         QuickAlert.show(
                                           context: context,
                                           type: QuickAlertType.success,
                                           title: 'Success',
                                           text:
                                               "Verification code sent to your email address",
-                                          showConfirmBtn: false, // إخفاء الزرار
+                                          showConfirmBtn: false, 
                                         );
                                       }
 
-                                      // 3. الانتظار لمدة 3 ثواني ثم الانتقال
-                                      Future.delayed(
+                                       Future.delayed(
                                         const Duration(seconds: 3),
                                         () {
                                           if (mounted) {
-                                            // أ. إغلاق رسالة النجاح أولاً
-                                            Navigator.pop(context);
+                                             Navigator.pop(context);
 
-                                            // ب. الانتقال للشاشة الموحدة بالطريقة الصحيحة
-                                            Navigator.push(
+                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder:

@@ -35,34 +35,24 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
   final ApiService _api = ApiService();
   bool _isLoading = false;
 
-  // ✅ دالة مساعدة لبناء رابط الصورة الكامل
   String _getFullImageUrl(String? imagePath) {
     if (imagePath == null || imagePath.isEmpty) return '';
     if (imagePath.startsWith('http')) return imagePath;
     return 'https://root2route.runasp.net$imagePath';
   }
 
-@override
-void initState() {
-  super.initState();
-  
-  // ✅ طباعة بيانات المنظمة للتأكد من الـ ID الصحيح
-  print("============================================");
-  print("🔍 EDIT SCREEN - Organization Data:");
-  print("   ID: ${widget.organization.id}");
-  print("   Name: ${widget.organization.name}");
-  print("   Type: ${widget.organization.type}");
-  print("   Email: ${widget.organization.contactEmail}");
-  print("   Phone: ${widget.organization.contactPhone}");
-  print("============================================");
-  
-  nameController.text = widget.organization.name;
-  emailController.text = widget.organization.contactEmail ?? '';
-  phoneController.text = widget.organization.contactPhone ?? '';
-  addressController.text = widget.organization.address ?? '';
-  descriptionController.text = widget.organization.description ?? '';
-  selectedType = _getAccountTypeFromInt(widget.organization.type);
-}
+  @override
+  void initState() {
+    super.initState();
+
+    nameController.text = widget.organization.name;
+    emailController.text = widget.organization.contactEmail ?? '';
+    phoneController.text = widget.organization.contactPhone ?? '';
+    addressController.text = widget.organization.address ?? '';
+    descriptionController.text = widget.organization.description ?? '';
+    selectedType = _getAccountTypeFromInt(widget.organization.type);
+  }
+
   AccountType _getAccountTypeFromInt(int type) {
     switch (type) {
       case 0:
@@ -91,8 +81,7 @@ void initState() {
     }
   }
 
-  // ✅ دالة لتنسيق رقم الهاتف (نفس اللي في ApiService)
-  String _formatPhoneNumber(String phone) {
+   String _formatPhoneNumber(String phone) {
     String cleaned = phone.replaceAll(RegExp(r'[\s\-]'), '');
     if (cleaned.startsWith('0')) {
       cleaned = '+2$cleaned';
@@ -114,111 +103,95 @@ void initState() {
   }
 
   Future<void> _updateOrganization() async {
-  // التحقق من صحة النموذج
-  if (!formKey.currentState!.validate()) return;
+    if (!formKey.currentState!.validate()) return;
 
-  // التحقق من اختيار نوع الحساب
-  if (selectedType == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Please select an account type'),
-        backgroundColor: Colors.red,
-      ),
-    );
-    return;
-  }
-
-  // التحقق من اسم الشركة
-  final orgName = nameController.text.trim();
-  if (orgName.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Company name cannot be empty'),
-        backgroundColor: Colors.red,
-      ),
-    );
-    return;
-  }
-
-  // عرض مؤشر التحميل
-  setState(() => _isLoading = true);
-
-  QuickAlert.show(
-    context: context,
-    type: QuickAlertType.loading,
-    title: 'Loading',
-    text: 'Updating your organization...',
-    barrierDismissible: false,
-  );
-
-  // تنسيق رقم الهاتف
-  final formattedPhone = _formatPhoneNumber(phoneController.text.trim());
-
-  // ✅ طباعة الـ ID للتأكد
-  print("🔍 EDIT SCREEN - Organization ID: ${widget.organization.id}");
-  print("🔍 EDIT SCREEN - Organization Name: ${widget.organization.name}");
-
-  try {
-    // ✅ استخدام ID من القائمة للتجربة
-    // لو عايز تجرب ب ID ثابت، استخدم السطر ده:
-    // final testOrgId = "954489ef-f657-45f7-a10a-39a8127d76e7";
-    
-    final result = await _api.updateOrganization(
-      organizationId: widget.organization.id, // استخدم ID المنظمة الحقيقية
-      // organizationId: "954489ef-f657-45f7-a10a-39a8127d76e7", // للتجربة
-      name: orgName,
-      description: descriptionController.text.trim(),
-      address: addressController.text.trim(),
-      contactEmail: emailController.text.trim(),
-      contactPhone: formattedPhone,
-      type: _getOrganizationTypeValue(selectedType!),
-      logo: _image,
-    );
-
-    if (!mounted) return;
-
-    // إغلاق تنبيه التحميل
-    if (mounted) Navigator.pop(context);
-
-    if (result['success'] == true) {
-      // عرض رسالة نجاح
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.success,
-        title: 'Success!',
-        text: 'Organization updated successfully!',
-        confirmBtnText: 'OK',
-        onConfirmBtnTap: () {
-          Navigator.pop(context); // إغلاق التنبيه
-          Navigator.pop(context, true); // الرجوع للشاشة السابقة مع نتيجة
-        },
+     if (selectedType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select an account type'),
+          backgroundColor: Colors.red,
+        ),
       );
-    } else {
-      // عرض رسالة فشل
-      QuickAlert.show(
+      return;
+    }
+
+     final orgName = nameController.text.trim();
+    if (orgName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Company name cannot be empty'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+     setState(() => _isLoading = true);
+
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.loading,
+      title: 'Loading',
+      text: 'Updating your organization...',
+      barrierDismissible: false,
+    );
+
+     final formattedPhone = _formatPhoneNumber(phoneController.text.trim());
+
+     
+    try {
+    
+      final result = await _api.updateOrganization(
+        organizationId: widget.organization.id,  
+         name: orgName,
+        description: descriptionController.text.trim(),
+        address: addressController.text.trim(),
+        contactEmail: emailController.text.trim(),
+        contactPhone: formattedPhone,
+        type: _getOrganizationTypeValue(selectedType!),
+        logo: _image,
+      );
+
+      if (!mounted) return;
+
+       if (mounted) Navigator.pop(context);
+ 
+      if (result['success'] == true) {
+         QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: 'Success!',
+          text: 'Organization updated successfully!',
+          confirmBtnText: 'OK',
+          onConfirmBtnTap: () {
+            Navigator.pop(context); 
+            Navigator.pop(context, true);  
+          },
+        );
+      } else {
+         QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Failure',
+          text: result['message'] ?? 'Failed to update organization',
+          confirmBtnText: 'Try Again',
+        );
+      }
+    } catch (e) {
+      if (mounted) Navigator.pop(context);
+      if (!mounted) return;
+
+       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
         title: 'Failure',
-        text: result['message'] ?? 'Failed to update organization',
-        confirmBtnText: 'Try Again',
+        text: 'An unexpected error occurred: $e',
+        confirmBtnText: 'OK',
       );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
-  } catch (e) {
-    if (mounted) Navigator.pop(context);
-    if (!mounted) return;
-    
-    // عرض رسالة خطأ غير متوقع
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.error,
-      title: 'Failure',
-      text: 'An unexpected error occurred: $e',
-      confirmBtnText: 'OK',
-    );
-  } finally {
-    if (mounted) setState(() => _isLoading = false);
   }
-}
 
   @override
   void dispose() {
@@ -232,16 +205,13 @@ void initState() {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ تحديد مصدر الصورة (جديدة أو قديمة)
-    ImageProvider? avatarImage;
-    
+     ImageProvider? avatarImage;
+
     if (_image != null) {
-      // لو اختار صورة جديدة
-      avatarImage = FileImage(_image!);
+       avatarImage = FileImage(_image!);
     } else if (widget.organization.logoUrl != null &&
         widget.organization.logoUrl!.isNotEmpty) {
-      // لو عنده صورة قديمة
-      final imageUrl = _getFullImageUrl(widget.organization.logoUrl);
+       final imageUrl = _getFullImageUrl(widget.organization.logoUrl);
       if (imageUrl.isNotEmpty) {
         avatarImage = NetworkImage(imageUrl);
       }
@@ -275,8 +245,7 @@ void initState() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ---- Banner ----
-                Container(
+                 Container(
                   height: 175,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(28),
@@ -356,8 +325,7 @@ void initState() {
 
                 const SizedBox(height: 25),
 
-                // ---- Logo Picker ----
-                Center(
+                 Center(
                   child: GestureDetector(
                     onTap: _pickImage,
                     child: Stack(
@@ -375,13 +343,14 @@ void initState() {
                             radius: 55,
                             backgroundColor: Colors.white,
                             backgroundImage: avatarImage,
-                            child: avatarImage == null
-                                ? const Icon(
-                                    Icons.add_a_photo_outlined,
-                                    size: 30,
-                                    color: AppColors.OrganizationColor,
-                                  )
-                                : null,
+                            child:
+                                avatarImage == null
+                                    ? const Icon(
+                                      Icons.add_a_photo_outlined,
+                                      size: 30,
+                                      color: AppColors.OrganizationColor,
+                                    )
+                                    : null,
                           ),
                         ),
                         const Positioned(
@@ -404,8 +373,7 @@ void initState() {
 
                 const SizedBox(height: 20),
 
-                // ---- Form Fields ----
-                CustomTextFormField(
+                 CustomTextFormField(
                   icon: Icons.business_outlined,
                   color: Colors.black,
                   cursorColor: AppColors.OrganizationColor,
@@ -431,7 +399,9 @@ void initState() {
                     if (value == null || value.isEmpty) {
                       return 'Please enter email';
                     }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                    if (!RegExp(
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                    ).hasMatch(value)) {
                       return 'Enter a valid email';
                     }
                     return null;
@@ -474,8 +444,6 @@ void initState() {
                   },
                 ),
                 const SizedBox(height: 20),
-
-                // ---- Account Type ----
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -494,9 +462,10 @@ void initState() {
                         text: 'Farmer',
                         icon: Icons.agriculture_outlined,
                         selected: selectedType == AccountType.farmer,
-                        onTap: () => setState(() {
-                          selectedType = AccountType.farmer;
-                        }),
+                        onTap:
+                            () => setState(() {
+                              selectedType = AccountType.farmer;
+                            }),
                       ),
                     ),
                     const SizedBox(width: 11),
@@ -505,9 +474,10 @@ void initState() {
                         text: 'Restaurant',
                         icon: Icons.fastfood,
                         selected: selectedType == AccountType.restaurant,
-                        onTap: () => setState(() {
-                          selectedType = AccountType.restaurant;
-                        }),
+                        onTap:
+                            () => setState(() {
+                              selectedType = AccountType.restaurant;
+                            }),
                       ),
                     ),
                     const SizedBox(width: 11),
@@ -516,9 +486,10 @@ void initState() {
                         text: 'Factory',
                         icon: Icons.factory_outlined,
                         selected: selectedType == AccountType.factory,
-                        onTap: () => setState(() {
-                          selectedType = AccountType.factory;
-                        }),
+                        onTap:
+                            () => setState(() {
+                              selectedType = AccountType.factory;
+                            }),
                       ),
                     ),
                     const SizedBox(width: 11),
@@ -527,9 +498,10 @@ void initState() {
                         text: 'Tradesman',
                         icon: Icons.storefront_outlined,
                         selected: selectedType == AccountType.tradesman,
-                        onTap: () => setState(() {
-                          selectedType = AccountType.tradesman;
-                        }),
+                        onTap:
+                            () => setState(() {
+                              selectedType = AccountType.tradesman;
+                            }),
                       ),
                     ),
                   ],
@@ -537,8 +509,7 @@ void initState() {
 
                 const SizedBox(height: 20),
 
-                // ---- Description ----
-                CustomTextFormField(
+                 CustomTextFormField(
                   icon: Icons.description_outlined,
                   cursorColor: AppColors.OrganizationColor,
                   borderColor: AppColors.OrganizationColor,
@@ -556,11 +527,10 @@ void initState() {
 
                 const SizedBox(height: 30),
 
-                // ---- Update Button ----
-                CustomButton(
-                  text: _isLoading ? 'Updating...' : 'Update Company',
+                 CustomButton(
+                  text: 'Update Company',
                   color: AppColors.OrganizationColor,
-                  onPressed: _isLoading ? () {} : _updateOrganization,
+                  onPressed: _updateOrganization,
                 ),
 
                 const SizedBox(height: 20),

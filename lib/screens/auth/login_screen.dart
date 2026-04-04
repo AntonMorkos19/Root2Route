@@ -254,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         if (context.mounted) {
                                           Navigator.pop(
                                             context,
-                                          ); // إغلاق الـ Loading
+                                          );  
                                         }
 
                                         String errorMessage = e
@@ -307,7 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                                     .text,
                                                             type:
                                                                 OtpType
-                                                                    .emailVerification, // بنقولها إن دي حالة تأكيد إيميل
+                                                                    .emailVerification,  
                                                           ),
                                                     ),
                                                   );

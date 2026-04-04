@@ -11,8 +11,8 @@ class StorageService {
   static const String _keyUserFullName = 'user_full_name';
   static const String _keyIsLoggedIn = 'is_logged_in';
   static const String _keyTokenExpiry = 'token_expiry';
-  static const String _keyIsVerified = 'is_verified'; // ✅ جديد
-  static const String _keyHasOrganization = 'has_organization'; // ✅ جديد
+  static const String _keyIsVerified = 'is_verified'; 
+  static const String _keyHasOrganization = 'has_organization'; 
 
   late SharedPreferences _prefs;
 

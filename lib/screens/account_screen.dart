@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
@@ -7,7 +8,6 @@ import 'package:root2route/components/settings_account_card.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
-import 'package:root2route/screens/change_password_screen.dart';
 import 'package:root2route/screens/notifications_screen.dart';
 import 'package:root2route/services/api.dart';
 
@@ -23,269 +23,214 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
+       appBar: AppBar(
+        backgroundColor: AppColors.primary,
         elevation: 0,
-        title: const Text(
-          "Account",
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
-        ),
-        centerTitle: true,
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: IconButton(
-              onPressed: () {
-                Navigator.push(
+          IconButton(
+            onPressed:
+                () => Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const NotificationsScreen(),
                   ),
-                );
-              },
-              icon: const Icon(
-                Icons.notification_important,
-                color: AppColors.textPrimary,
-              ),
+                ),
+            icon: const Icon(
+              Icons.notifications_active_outlined,
+              color: AppColors.textPrimary,
             ),
           ),
+          const SizedBox(width: 10),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: 50),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.only(bottom: 30),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColors.primary, AppColors.backgroundColor],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Personal information",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
-                    ),
+                  const SizedBox(height: 20),
+                  const Icon(
+                    Icons.person,
+                    size: 100,
+                    color: AppColors.textPrimary,
                   ),
                 ],
               ),
             ),
 
-            InfoAccountCard(
-              icon: Icons.badge_outlined,
-              title: 'Name',
-              info: 'Anton Morkos',
-            ),
-            InfoAccountCard(
-              icon: Icons.email,
-              title: 'Email',
-              info: 'Antonmorkos6@gamil.com',
-            ),
-
-            const SizedBox(height: 2),
-
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-
-              child: Row(
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSizes.paddingSize(context),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Settings and security",
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
+                  const SizedBox(height: 20),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8, bottom: 10),
+                    child: Text(
+                      "Personal Information",
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
 
-            SettingsAccountCard(
-              icon: Icons.lock_outline,
-              title: 'Change Password',
-              value: '',
-              iconButton: Icons.arrow_forward_ios,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ChangePasswordScreen(),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: const Column(
+                      children: [
+                        InfoAccountCard(
+                          icon: Icons.badge_outlined,
+                          title: 'Name',
+                          info: 'Anton Morkos',
+                        ),
+                        InfoAccountCard(
+                          icon: Icons.alternate_email,
+                          title: 'Email',
+                          info: 'Antonmorkos6@gmail.com',
+                        ),
+                      ],
+                    ),
                   ),
-                );
-              },
-            ),
-            SettingsAccountCard(
-              icon: Icons.public,
-              title: ' Language settings',
 
-              value: 'English',
-
-              iconButton: Icons.arrow_forward_ios,
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder:
-                      (_) => AlertDialog(
-                        title: const Text("Change Language"),
-
-                        content: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ListTile(
-                                title: const Text("English"),
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                              ListTile(
-                                title: const Text("العربية"),
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
+                  const SizedBox(height: 25),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8, bottom: 10),
+                    child: Text(
+                      "Settings & Security",
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
                       ),
-                );
-              },
-            ),
+                    ),
+                  ),
 
-            SettingsAccountCard(
-              icon: Icons.delete,
-              title: 'DeleteAccount',
-              value: '',
-              iconButton: Icons.arrow_forward_ios,
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder:
-                      (_) => AlertDialog(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
                         ),
-                        title: const Text(
-                          'Delete account?',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        SettingsAccountCard(
+                          icon: Icons.lock_reset_rounded,
+                          title: 'Change Password',
+                          value: '',
+                          iconButton: Icons.arrow_forward_ios,
+                          onPressed: () {},
                         ),
-                        content: const Text(
-                          'This action is permanent. Your account and data will be deleted.',
+                        SettingsAccountCard(
+                          icon: Icons.language_rounded,
+                          title: 'Language Settings',
+                          value: 'English',
+                          iconButton: Icons.arrow_forward_ios,
+                          onPressed: () => _showLanguageDialog(context),
                         ),
-                        actionsPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 25,
+                        SettingsAccountCard(
+                          icon: Icons.delete_forever_rounded,
+                          title: 'Delete Account',
+                          value: '',
+                          iconButton: Icons.arrow_forward_ios,
+                          onPressed: () => (),
                         ),
-                        actions: [
-                          Row(
-                            children: [
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: CustomButton(
-                                  text: 'Ok',
-                                  color: Colors.red,
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    QuickAlert.show(
-                                      context: context,
-                                      type: QuickAlertType.success,
-                                      text: "The account has been deleted",
-                                      showConfirmBtn: false,
-                                    );
+                      ],
+                    ),
+                  ),
 
-                                    Future.delayed(
-                                      const Duration(seconds: 3),
-                                      () {
-                                        if (!context.mounted) return;
-                                        Navigator.pushNamedAndRemoveUntil(
-                                          context,
-                                          LoginScreen.id,
-                                          (route) => false,
-                                        );
-                                      },
-                                    );
-                                  },
+                  const SizedBox(height: 40),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: CustomButton(
+                      text: 'Logout',
+                      color: Colors.redAccent.withOpacity(0.9),
+                      onPressed:
+                          () => QuickAlert.show(
+                            context: context,
+                            type: QuickAlertType.confirm,
+                            title: 'Logout',
+                            text: 'Are you sure you want to exit?',
+                            confirmBtnColor: Colors.red,
+                            onConfirmBtnTap: () async {
+                              Navigator.pop(context);
+                              await ApiService().logout();
+                              if (!mounted) return;
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const LoginScreen(),
                                 ),
-                              ),
-                              const SizedBox(width: 20),
-                              Expanded(
-                                child: CustomButton(
-                                  text: 'Cancel',
-                                  color: AppColors.iconSecondary,
-                                  onPressed: () => Navigator.pop(context),
-                                ),
-                              ),
-                            ],
+                                (route) => false,
+                              );
+                            },
                           ),
-                        ],
-                      ),
-                );
-              },
-            ),
-            const SizedBox(height: 2),
-            Padding(
-              padding: EdgeInsets.all(AppSizes.paddingSize(context)),
-              child: CustomButton(
-                text: 'Logout',
-                onPressed: () {
-                  QuickAlert.show(
-                    context: context,
-                    type: QuickAlertType.confirm,
-                    title: 'Logout',
-                    text: 'Are you sure you want to logout?',
-                    confirmBtnText: 'Yes, Logout',
-                    cancelBtnText: 'Cancel',
-                    confirmBtnColor: Colors.red,
-                    showCancelBtn: true,
-                    onConfirmBtnTap: () async {
-                      // Dismiss the confirm dialog
-                      Navigator.pop(context);
-
-                      // Show a brief loading
-                      QuickAlert.show(
-                        context: context,
-                        type: QuickAlertType.loading,
-                        title: 'Logging out',
-                        text: 'Please wait...',
-                        barrierDismissible: false,
-                      );
-
-                      // Clear all auth data
-                      await ApiService().logout();
-
-                      if (!mounted) return;
-
-                      // Dismiss loading dialog
-                      Navigator.pop(context);
-
-                      if (!mounted) return;
-
-                      // Navigate to LoginScreen and destroy the entire stack
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                        (route) => false,
-                      );
-                    },
-                  );
-                },
-                color: Colors.red,
+                    ),
+                  ),
+                  const SizedBox(height: 50),
+                ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: const Text("Select Language"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  title: const Text("English"),
+                  onTap: () => Navigator.pop(context),
+                ),
+                ListTile(
+                  title: const Text("العربية"),
+                  onTap: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
     );
   }
 }

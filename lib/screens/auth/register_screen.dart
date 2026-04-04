@@ -22,16 +22,14 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // Register Form
-  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
-  ApiService api = ApiService();
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -245,8 +243,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       );
 
                                       try {
-                                        // 2. طلب الـ API
-                                        await api.registerUser(
+                                         await ApiService().registerUser(
                                           UserModel(
                                             fullName: nameController.text,
                                             address: addressController.text,
@@ -258,24 +255,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           ),
                                         );
 
-                                        // 3. إغلاق الـ Loading (مهم جداً!)
-                                        if (context.mounted)
+                                         if (context.mounted)
                                           Navigator.pop(context);
 
-                                        // 4. إظهار رسالة النجاح
-                                        QuickAlert.show(
+                                         QuickAlert.show(
                                           context: context,
                                           type: QuickAlertType.success,
                                           text:
                                               'Registration successful! Please log in to continue.',
-                                          autoCloseDuration: const Duration(
-                                            seconds: 3,
-                                          ), // يغلق التنبيه تلقائياً
+                                            
                                           showConfirmBtn: false,
                                         );
 
-                                        // 5. الانتقال لصفحة اللوجن
-                                        Future.delayed(
+                                         Future.delayed(
                                           const Duration(seconds: 3),
                                           () {
                                             if (context.mounted) {
@@ -291,7 +283,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                                 .text,
                                                         type:
                                                             OtpType
-                                                                .emailVerification, // بنقولها إن دي حالة تأكيد إيميل
+                                                                .emailVerification,  
                                                       ),
                                                 ),
                                               );
@@ -299,12 +291,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           },
                                         );
                                       } catch (e) {
-                                        // إغلاق الـ Loading
-                                        if (context.mounted)
+                                         if (context.mounted)
                                           Navigator.pop(context);
 
-                                        // إظهار رسالة الخطأ الحقيقية
-                                        QuickAlert.show(
+                                         QuickAlert.show(
                                           context: context,
                                           type: QuickAlertType.error,
                                           text: e.toString().replaceAll(

@@ -76,7 +76,7 @@ class OrganizationStatisticsModel {
   final int totalProducts;
   final int totalOrders;
   final int totalFarms;
-
+  
   OrganizationStatisticsModel({
     required this.totalMembers,
     required this.totalProducts,
@@ -86,8 +86,8 @@ class OrganizationStatisticsModel {
 
   factory OrganizationStatisticsModel.fromJson(Map<String, dynamic> json) {
     return OrganizationStatisticsModel(
-      totalMembers: json['totalMembers'] ?? json['TotalMembers'] ?? 0,
-      totalProducts: json['totalProducts'] ?? json['TotalProducts'] ?? 0,
+      totalMembers: json['membersCount'] ?? json['MembersCount'] ?? 0,
+      totalProducts: json['marketItemsCount'] ?? json['MarketItemsCount'] ?? 0,
       totalOrders: json['totalOrders'] ?? json['TotalOrders'] ?? 0,
       totalFarms: json['totalFarms'] ?? json['TotalFarms'] ?? 0,
     );

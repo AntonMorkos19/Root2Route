@@ -64,15 +64,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     super.dispose();
   }
 
-  // ✅ 2. الدالة الذكية اللي بتفصل بين الوظيفتين
-  void _verifyOtp() async {
+   void _verifyOtp() async {
     if (otpCode.length < 6) {
       _showError("Please enter the full 6-digit code");
       return;
     }
 
-    // --- حالة استرجاع كلمة المرور ---
-    if (widget.type == OtpType.passwordRecovery) {
+     if (widget.type == OtpType.passwordRecovery) {
       print("Proceeding to create new password with code: $otpCode");
       Navigator.pushNamedAndRemoveUntil(
         context,
@@ -80,11 +78,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         (route) => false,
         arguments: {"email": widget.email, "code": otpCode},
       );
-      return; // نوقف الكود هنا
+      return;  
     }
 
-    // --- حالة تأكيد الإيميل ---
-    setState(() => isLoading = true);
+     setState(() => isLoading = true);
     try {
       await ApiService().verifyOTP(email: widget.email, otpCode: otpCode);
 

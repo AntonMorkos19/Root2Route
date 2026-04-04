@@ -72,8 +72,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     }
   }
 
-  // دالة مساعدة لبناء رابط الصورة الكامل
-  String _getFullImageUrl(String? imagePath) {
+   String _getFullImageUrl(String? imagePath) {
     if (imagePath == null || imagePath.isEmpty) return '';
     if (imagePath.startsWith('http')) return imagePath;
     return 'https://root2route.runasp.net$imagePath';
@@ -274,8 +273,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          // القائمة العلوية
-          PopupMenuButton<String>(
+           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: Colors.black),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -382,7 +380,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                                   fit: BoxFit.cover,
                                   onError: (exception, stackTrace) {
                                     debugPrint(
-                                      '❌ Error loading logo: $exception',
+                                      ' Error loading logo: $exception',
                                     );
                                   },
                                 )
@@ -440,37 +438,35 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
 
               const SizedBox(height: 20),
 
-              // ---- Statistics Section ----
-              _buildSectionTitle('Statistics'),
+               SectionTitle('Statistics'),
               const SizedBox(height: 10),
-              _buildStatisticsGrid(),
+              StatisticsGrid(),
 
               const SizedBox(height: 20),
 
-              // ---- Info Cards ----
-              _buildSectionTitle('Details'),
+               SectionTitle('Details'),
               const SizedBox(height: 10),
 
               if (org.description != null && org.description!.isNotEmpty)
-                _buildInfoCard(
+                InfoCard(
                   Icons.description_outlined,
                   'Description',
                   org.description!,
                 ),
               if (org.address != null && org.address!.isNotEmpty)
-                _buildInfoCard(
+                InfoCard(
                   Icons.location_on_outlined,
                   'Address',
                   org.address!,
                 ),
               if (org.contactEmail != null && org.contactEmail!.isNotEmpty)
-                _buildInfoCard(
+                InfoCard(
                   Icons.email_outlined,
                   'Email',
                   org.contactEmail!,
                 ),
               if (org.contactPhone != null && org.contactPhone!.isNotEmpty)
-                _buildInfoCard(
+                InfoCard(
                   Icons.phone_outlined,
                   'Phone',
                   org.contactPhone!,
@@ -478,7 +474,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
 
               const SizedBox(
                 height: 40,
-              ), // مساحة فاضية في آخر الشاشة عشان شكلها يبقى أنيق
+              ),  
             ],
           ),
         ),
@@ -486,7 +482,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget SectionTitle(String title) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Text(
@@ -500,7 +496,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     );
   }
 
-  Widget _buildStatisticsGrid() {
+  Widget StatisticsGrid() {
     if (_statsLoading) {
       return Container(
         width: double.infinity,
@@ -565,35 +561,23 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
       crossAxisSpacing: 12,
       childAspectRatio: 1.6,
       children: [
-        _buildStatCard(
+        StatCard(
           Icons.people_outlined,
           'Members',
           stats.totalMembers,
           Colors.blue,
         ),
-        _buildStatCard(
+        StatCard(
           Icons.inventory_2_outlined,
           'Products',
           stats.totalProducts,
           Colors.green,
         ),
-        _buildStatCard(
-          Icons.shopping_bag_outlined,
-          'Orders',
-          stats.totalOrders,
-          Colors.orange,
-        ),
-        _buildStatCard(
-          Icons.grass_outlined,
-          'Farms',
-          stats.totalFarms,
-          Colors.teal,
-        ),
       ],
     );
   }
 
-  Widget _buildStatCard(IconData icon, String label, int value, Color color) {
+  Widget StatCard(IconData icon, String label, int value, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -646,7 +630,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     );
   }
 
-  Widget _buildInfoCard(IconData icon, String label, String value) {
+  Widget InfoCard(IconData icon, String label, String value) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 10),

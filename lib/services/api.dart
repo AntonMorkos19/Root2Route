@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:root2route/core/constants.dart';
 import 'package:root2route/models/user_model.dart';
 import 'package:root2route/services/storage_service.dart';
-
+//offline mode
 class ApiService {
   final Dio _dio = Dio();
   ApiService() {
@@ -413,6 +413,20 @@ class ApiService {
       return null;
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<Map<String, dynamic>> PalntInfoAll() async {
+    try {
+      final response = await _dio.get('/plant-info/all');
+      final data = response.data;
+      return {
+        "success": data['succeeded'] ?? true,
+        "data": data['data'],
+        "message": data['message'] ?? 'Success',
+      };
+    } on DioException catch (e) {
+      return {"success": false, "message": _extractApiError(e)};
     }
   }
 

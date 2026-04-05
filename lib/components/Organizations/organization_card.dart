@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:root2route/core/constants.dart'; // ✅ أضف الـ import
-import 'package:root2route/models/organization_model.dart';
+ import 'package:root2route/models/organization_model.dart';
 import 'package:root2route/screens/Organizations/organization_details_screen.dart';
 
 class OrganizationCard extends StatelessWidget {
@@ -13,17 +12,13 @@ class OrganizationCard extends StatelessWidget {
     this.onDeleted,
   });
 
-  // ✅ دالة مساعدة لبناء رابط الصورة الكامل
-  String _getFullImageUrl() {
+   String _getFullImageUrl() {
     final logoUrl = organization.logoUrl;
     if (logoUrl == null || logoUrl.isEmpty) return '';
     
-    // لو الرابط بالفعل كامل (يبدأ بـ http)
-    if (logoUrl.startsWith('http')) return logoUrl;
+     if (logoUrl.startsWith('http')) return logoUrl;
     
-    // لو بيبدأ بـ /، نضيف الـ baseUrl بتاع الصور
-    // ملاحظة: ممكن تحتاج تعدل الـ baseUrl حسب مكان تخزين الصور
-    return 'https://root2route.runasp.net$logoUrl';
+      return 'https://root2route.runasp.net$logoUrl';
   }
 
   @override
@@ -60,8 +55,7 @@ class OrganizationCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // ✅ صورة المنظمة
-            Container(
+             Container(
               width: 65,
               height: 65,
               decoration: BoxDecoration(
@@ -69,16 +63,15 @@ class OrganizationCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 image: hasImage
                     ? DecorationImage(
-                        image: NetworkImage(imageUrl), // ✅ استخدم NetworkImage
+                        image: NetworkImage(imageUrl),  
                         fit: BoxFit.cover,
                         onError: (exception, stackTrace) {
-                          debugPrint('❌ Error loading image: $exception');
+                          debugPrint('Error loading image: $exception');
                         },
                       )
                     : null,
               ),
-              // ✅ لو مفيش صورة، اعرض الحروف الأولى
-              child: !hasImage
+               child: !hasImage
                   ? Center(
                       child: Text(
                         organization.name.length >= 2

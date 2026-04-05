@@ -235,8 +235,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                           ),
                         ),
 
-                        // Glass effect (optional luxury touch)
-                        Positioned.fill(
+                         Positioned.fill(
                           child: BackdropFilter(
                             filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                             child: Container(

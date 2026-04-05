@@ -20,8 +20,7 @@ class OrganizationModel {
   });
 
   factory OrganizationModel.fromJson(Map<String, dynamic> json) {
-    // Bulletproof ID parsing logic handling all possible cases
-    final String parsedId = json['organizationId']?.toString() ?? 
+     final String parsedId = json['organizationId']?.toString() ?? 
                             json['OrganizationId']?.toString() ?? 
                             json['id']?.toString() ?? 
                             json['Id']?.toString() ?? 
@@ -29,15 +28,13 @@ class OrganizationModel {
 
     return OrganizationModel(
       id: parsedId,
-      // Ensure all other fields handle camelCase, PascalCase, and are parsed correctly as strings
-      name: json['name']?.toString() ?? json['Name']?.toString() ?? '',
+       name: json['name']?.toString() ?? json['Name']?.toString() ?? '',
       description: json['description']?.toString() ?? json['Description']?.toString(),
       address: json['address']?.toString() ?? json['Address']?.toString(),
       contactEmail: json['contactEmail']?.toString() ?? json['ContactEmail']?.toString(),
       contactPhone: json['contactPhone']?.toString() ?? json['ContactPhone']?.toString(),
       logoUrl: json['logoUrl']?.toString() ?? json['LogoUrl']?.toString(),
-      // Ensure type handles if backend sends it as a string "1" or int 1
-      type: int.tryParse(json['type']?.toString() ?? json['Type']?.toString() ?? '0') ?? 0,
+       type: int.tryParse(json['type']?.toString() ?? json['Type']?.toString() ?? '0') ?? 0,
     );
   }
 
@@ -54,8 +51,7 @@ class OrganizationModel {
     };
   }
 
-  /// Maps the int `type` to a human-readable label
-  String get typeName {
+   String get typeName {
     switch (type) {
       case 0:
         return 'Farmer';

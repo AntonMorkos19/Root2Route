@@ -420,8 +420,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your phone';
                     }
-                    // ✅ قبول أرقام بصيغ مختلفة (محلية أو دولية)
-                    final cleaned = value.replaceAll(RegExp(r'[\s\-]'), '');
+                     final cleaned = value.replaceAll(RegExp(r'[\s\-]'), '');
                     if (!RegExp(r'^[\+]?[0-9]{10,15}$').hasMatch(cleaned)) {
                       return 'Enter a valid phone number (e.g., 01234567890 or +201234567890)';
                     }

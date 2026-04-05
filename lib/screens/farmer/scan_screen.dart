@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/custom_farmer/selection_card.dart';
-import 'package:root2route/core/packages/Image_picker_helper.dart';
+ import 'package:root2route/core/packages/Image_picker_helper.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/services/api.dart';
 

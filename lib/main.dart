@@ -11,8 +11,7 @@ import 'package:root2route/services/storage_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // تهيئة خدمة التخزين
-  await StorageService().init();
+   await StorageService().init();
 
   runApp(const MyApp());
 }

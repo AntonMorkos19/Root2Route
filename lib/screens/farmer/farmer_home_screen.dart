@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
- import 'package:root2route/screens/farmer/RequestProduct.dart';
-import 'package:root2route/screens/farmer/crops_screen.dart';
+import 'package:root2route/screens/farmer/RequestProduct.dart';
+import 'package:root2route/screens/farmer/plants_screen.dart';
 import 'package:root2route/screens/market_screen.dart';
 import 'package:root2route/screens/farmer/scan_screen.dart';
 import 'package:root2route/screens/selling_crop_screen.dart';
@@ -20,7 +20,7 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
   int index = 0;
 
   final screens = const [
-    CropsScreen(),
+    PlantsScreen(),
     ScanScreen(),
     MarketScreen(),
     ProfileScreen(),
@@ -130,7 +130,7 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
                 NavigationDestination(
                   icon: Icon(Icons.grass_outlined),
                   selectedIcon: Icon(Icons.grass_rounded),
-                  label: "Crops",
+                  label: "Plants",
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.camera_enhance_outlined),

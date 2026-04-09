@@ -12,16 +12,13 @@ import 'package:root2route/screens/auth/create_new_password.dart';
 import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/services/api.dart';
 
- enum OtpType {
-  emailVerification,  
-  passwordRecovery,  
-}
+enum OtpType { emailVerification, passwordRecovery }
 
 class OtpVerificationScreen extends StatefulWidget {
   static const String id = '/otpVerificationScreen';
 
   final String email;
-  final OtpType type; 
+  final OtpType type;
 
   const OtpVerificationScreen({
     super.key,
@@ -64,13 +61,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     super.dispose();
   }
 
-   void _verifyOtp() async {
+  void _verifyOtp() async {
     if (otpCode.length < 6) {
       _showError("Please enter the full 6-digit code");
       return;
     }
 
-     if (widget.type == OtpType.passwordRecovery) {
+    if (widget.type == OtpType.passwordRecovery) {
       print("Proceeding to create new password with code: $otpCode");
       Navigator.pushNamedAndRemoveUntil(
         context,
@@ -78,10 +75,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         (route) => false,
         arguments: {"email": widget.email, "code": otpCode},
       );
-      return;  
+      return;
     }
 
-     setState(() => isLoading = true);
+    setState(() => isLoading = true);
     try {
       await ApiService().verifyOTP(email: widget.email, otpCode: otpCode);
 
@@ -129,7 +126,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
-      title: "Error",
+      title: "Failed",
       text: message,
     );
   }

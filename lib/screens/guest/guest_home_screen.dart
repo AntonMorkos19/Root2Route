@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/screens/Organizations/add_organization_screen.dart';
 import 'package:root2route/screens/account_screen.dart';
-import 'package:root2route/screens/guest/products_screen.dart';
+import 'package:root2route/screens/market_screen.dart';
 
 class GuestHomeScreen extends StatefulWidget {
   static const String id = '/guesthomescreen';
@@ -15,13 +16,44 @@ class GuestHomeScreen extends StatefulWidget {
 class _GuestHomeScreenState extends State<GuestHomeScreen> {
   int index = 0;
 
-  final screens = const [ProductsScreen(), AccountScreen()];
+  final screens = const [MarketScreen(), AccountScreen()];
+  Widget? funFab() {
+    switch (index) {
+      case 0:
+        return FloatingActionButton.extended(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          backgroundColor: AppColors.primary,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        const AddOrganizationScreen(), // أو CreateOrganizationScreen حسب اسم الكلاس عندك
+              ),
+            );
+          },
+          label: const Text(
+            "Create Organization",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          icon: const Icon(Icons.add_business, color: Colors.white),
+        );
+
+      default:
+        return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
       body: screens[index],
+      floatingActionButton: funFab(),
+
       bottomNavigationBar: Container(
         margin: const EdgeInsets.only(left: 15, right: 15, bottom: 20),
         decoration: BoxDecoration(

@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/details_product_model.dart';
-import 'package:root2route/screens/guest/details_product_screen.dart';
+import 'package:root2route/screens/details_product_screen.dart';
 
 class CustomProductCard extends StatelessWidget {
   final DetailsProductModel product;
@@ -16,7 +16,7 @@ class CustomProductCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => DetailsProductScreen(product: product),
+            builder: (_) => DetailsProductScreen(productId: ''),
           ),
         );
       },
@@ -144,3 +144,5 @@ class CustomProductCard extends StatelessWidget {
     );
   }
 }
+
+

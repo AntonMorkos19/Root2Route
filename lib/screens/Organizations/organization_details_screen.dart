@@ -4,7 +4,6 @@ import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/organization_model.dart';
-import 'package:root2route/screens/Organizations/add_member_screen.dart';
 import 'package:root2route/screens/Organizations/edit_organization_screen.dart';
 import 'package:root2route/services/api.dart';
 
@@ -72,7 +71,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     }
   }
 
-   String _getFullImageUrl(String? imagePath) {
+  String _getFullImageUrl(String? imagePath) {
     if (imagePath == null || imagePath.isEmpty) return '';
     if (imagePath.startsWith('http')) return imagePath;
     return 'https://root2route.runasp.net$imagePath';
@@ -273,7 +272,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-           PopupMenuButton<String>(
+          PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: Colors.black),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -288,14 +287,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                     ),
                   ).then((_) => setState(() {}));
                   break;
-                case 'add_member':
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AddMemberScreen(),
-                    ),
-                  );
-                  break;
+
                 case 'owner':
                   _showChangeOwnerDialog();
                   break;
@@ -315,15 +307,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                       dense: true,
                     ),
                   ),
-                  const PopupMenuItem(
-                    value: 'add_member',
-                    child: ListTile(
-                      leading: Icon(Icons.person_add_alt_1, color: Colors.blue),
-                      title: Text('Add Member'),
-                      contentPadding: EdgeInsets.zero,
-                      dense: true,
-                    ),
-                  ),
+
                   const PopupMenuItem(
                     value: 'owner',
                     child: ListTile(
@@ -438,13 +422,13 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
 
               const SizedBox(height: 20),
 
-               SectionTitle('Statistics'),
+              SectionTitle('Statistics'),
               const SizedBox(height: 10),
               StatisticsGrid(),
 
               const SizedBox(height: 20),
 
-               SectionTitle('Details'),
+              SectionTitle('Details'),
               const SizedBox(height: 10),
 
               if (org.description != null && org.description!.isNotEmpty)
@@ -454,27 +438,13 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                   org.description!,
                 ),
               if (org.address != null && org.address!.isNotEmpty)
-                InfoCard(
-                  Icons.location_on_outlined,
-                  'Address',
-                  org.address!,
-                ),
+                InfoCard(Icons.location_on_outlined, 'Address', org.address!),
               if (org.contactEmail != null && org.contactEmail!.isNotEmpty)
-                InfoCard(
-                  Icons.email_outlined,
-                  'Email',
-                  org.contactEmail!,
-                ),
+                InfoCard(Icons.email_outlined, 'Email', org.contactEmail!),
               if (org.contactPhone != null && org.contactPhone!.isNotEmpty)
-                InfoCard(
-                  Icons.phone_outlined,
-                  'Phone',
-                  org.contactPhone!,
-                ),
+                InfoCard(Icons.phone_outlined, 'Phone', org.contactPhone!),
 
-              const SizedBox(
-                height: 40,
-              ),  
+              const SizedBox(height: 40),
             ],
           ),
         ),

@@ -1,11 +1,15 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
+import 'package:root2route/screens/add_product_screen.dart';
 import 'package:root2route/screens/farmer/RequestProduct.dart';
 import 'package:root2route/screens/farmer/plants_screen.dart';
 import 'package:root2route/screens/market_screen.dart';
 import 'package:root2route/screens/farmer/scan_screen.dart';
-import 'package:root2route/screens/selling_crop_screen.dart';
+import 'package:root2route/screens/my_products_screen.dart';
+import 'package:root2route/services/api.dart';
 
 class FarmerHomeScreen extends StatefulWidget {
   static const String id = '/farmerHomeScreen';
@@ -18,13 +22,35 @@ class FarmerHomeScreen extends StatefulWidget {
 
 class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
   int index = 0;
-
+  String? myOrganizationId;
   final screens = const [
     PlantsScreen(),
     ScanScreen(),
     MarketScreen(),
     ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMyOrganizationId();
+  }
+
+  Future<void> _fetchMyOrganizationId() async {
+    try {
+      final result = await ApiService().getMyOrganizations();
+      if (result['success'] == true && result['data'].isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            myOrganizationId =
+                result['data'][0]['id'] ?? result['data'][0]['organizationId'];
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching org id: $e");
+    }
+  }
 
   Widget? funFab() {
     switch (index) {
@@ -58,7 +84,9 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const SellingCropScreen(),
+                builder:
+                    (context) =>
+                        AddProductScreen(organizationId: myOrganizationId!),
               ),
             );
           },

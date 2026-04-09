@@ -1,12 +1,12 @@
 import 'dart:io';
- import 'dart:convert';
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:root2route/core/constants.dart';
 import 'package:root2route/models/user_model.dart';
 import 'package:root2route/services/storage_service.dart';
-//offline mode
+
 class ApiService {
   final Dio _dio = Dio();
   ApiService() {
@@ -36,7 +36,6 @@ class ApiService {
       ),
     );
   }
-
 
   Future<void> registerUser(UserModel user) async {
     try {
@@ -107,7 +106,7 @@ class ApiService {
     required String otpCode,
   }) async {
     try {
-      final response = await _dio.post(
+      await _dio.post(
         '/auth/verify-otp',
         data: {"email": email.trim(), "otp": otpCode.trim()},
         options: Options(headers: {"Content-Type": "application/json"}),
@@ -127,12 +126,16 @@ class ApiService {
       );
       return {
         "success": true,
-        "message": response.data['message'] ?? "Verification code sent successfully",
+        "message":
+            response.data['message'] ?? "Verification code sent successfully",
       };
     } on DioException catch (e) {
       return {"success": false, "message": _extractApiError(e)};
     } catch (err) {
-      return {"success": false, "message": "An unexpected error occurred: $err"};
+      return {
+        "success": false,
+        "message": "An unexpected error occurred: $err",
+      };
     }
   }
 
@@ -169,11 +172,13 @@ class ApiService {
     } on DioException catch (e) {
       return {"success": false, "message": _extractApiError(e)};
     } catch (err) {
-      return {"success": false, "message": "An unexpected error occurred: $err"};
+      return {
+        "success": false,
+        "message": "An unexpected error occurred: $err",
+      };
     }
   }
 
- 
   Future<bool> _checkUserHasOrganizations() async {
     try {
       final token = StorageService().token;
@@ -190,7 +195,7 @@ class ApiService {
       }
       return false;
     } catch (e) {
-      return false;  
+      return false;
     }
   }
 
@@ -221,11 +226,13 @@ class ApiService {
         if (logo != null)
           'Logo': MultipartFile.fromBytes(
             await logo.readAsBytes(),
-            filename:
-                logo.name.isNotEmpty
-                    ? logo.name
-                    : 'logo_${DateTime.now().millisecondsSinceEpoch}.png',
-          ),
+            filename: () {
+              String name = logo.name;
+              if (name.isEmpty) return 'logo_${DateTime.now().millisecondsSinceEpoch}.png';
+              if (!name.contains('.')) return '$name.png';
+              return name;
+            }(),
+          )
       });
 
       final response = await _dio.post('/organizations', data: formData);
@@ -388,7 +395,6 @@ class ApiService {
     }
   }
 
-   
   Future<Map<String, dynamic>?> analyzeCropImage(File imageFile) async {
     try {
       String fileName = imageFile.path.split('/').last;
@@ -430,8 +436,7 @@ class ApiService {
     }
   }
 
- 
-   String _extractApiError(DioException e) {
+  String _extractApiError(DioException e) {
     if (e.response == null) {
       return "No Internet Connection - Please check your network";
     }
@@ -504,5 +509,415 @@ class ApiService {
   Future<void> logout() async {
     await StorageService().logout();
     print("User logged out and token cleared.");
+  }
+
+  // ── 1. Add Product ─────────────────────────────────────────
+  Future<Map<String, dynamic>> addProduct({
+    required String organizationId,
+    required String name,
+    String description = '',
+    required int stockQuantity,
+    bool isAvailableForDirectSale = false,
+    double directSalePrice = 0.0,
+    bool isAvailableForAuction = false,
+    double startBiddingPrice = 0.0,
+    String barcode = '',
+    String? expiryDate,  
+    int weightUnit = 0,
+    int productType = 0,
+    List<XFile> images = const [],
+  }) async {
+    try {
+      final token = StorageService().token;
+
+       final Map<String, dynamic> dataMap = {
+        'OrganizationId': organizationId,
+        'Name': name,
+        'Description': description,
+        'StockQuantity': stockQuantity.toString(),
+        'IsAvailableForDirectSale': isAvailableForDirectSale.toString(),
+        'DirectSalePrice': directSalePrice.toString(),
+        'IsAvailableForAuction': isAvailableForAuction.toString(),
+        'StartBiddingPrice': startBiddingPrice.toString(),
+        'Barcode': barcode,
+        'WeightUnit': weightUnit.toString(),
+        'ProductType': productType.toString(),
+      };
+
+      if (expiryDate != null && expiryDate.isNotEmpty) {
+        dataMap['ExpiryDate'] = expiryDate;
+      }
+
+      // Attach image files
+      if (images.isNotEmpty) {
+        final List<MultipartFile> multipartFiles = [];
+        for (final xfile in images) {
+          String filename = xfile.name;
+          if (filename.isEmpty) {
+            filename = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
+          } else if (!filename.contains('.')) {
+            filename = '$filename.jpg'; // Ensure filename has an extension
+          }
+          multipartFiles.add(
+            await MultipartFile.fromFile(xfile.path, filename: filename),
+          );
+        }
+        dataMap['Images'] = multipartFiles;
+      }
+
+      final formData = FormData.fromMap(dataMap);
+
+      final response = await _dio.post(
+        '/product/Add',
+        data: formData,
+        options: Options(
+          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+        ),
+      );
+
+      final respBody = response.data;
+      if (respBody is Map) {
+        final succeeded = respBody['succeeded'] ?? respBody['success'] ?? true;
+        return {
+          'success': succeeded,
+          'data': respBody['data'],
+          'message': respBody['message'] ?? 'Product added successfully',
+        };
+      }
+
+      return {
+        'success': true,
+        'data': null,
+        'message': 'Product added successfully',
+      };
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+
+       if (errBody is Map && errBody['succeeded'] == true) {
+        return {
+          'success': true,
+          'data': errBody['data'],
+          'message': errBody['message'] ?? 'Product added successfully',
+        };
+      }
+
+      final message =
+          (errBody is Map)
+              ? (errBody['message'] ?? _extractApiError(e))
+              : _extractApiError(e);
+      return {'success': false, 'data': null, 'message': message};
+    } catch (e) {
+      return {
+        'success': false,
+        'data': null,
+        'message': 'An unexpected error occurred: $e',
+      };
+    }
+  }
+
+  // ── 2. Update Product ──────────────────────────────────────
+  Future<Map<String, dynamic>> updateProduct({
+    required String id,
+    required String name,
+    String description = '',
+    required int stockQuantity,
+    bool isAvailableForDirectSale = false,
+    double directSalePrice = 0.0,
+    bool isAvailableForAuction = false,
+    double startBiddingPrice = 0.0,
+    String barcode = '',
+    String? expiryDate, // ISO-8601
+    int weightUnit = 0,
+    int productType = 0,
+  }) async {
+    try {
+      final token = StorageService().token;
+
+      final Map<String, dynamic> body = {
+        'id': id,
+        'name': name,
+        'description': description,
+        'stockQuantity': stockQuantity,
+        'isAvailableForDirectSale': isAvailableForDirectSale,
+        'directSalePrice': directSalePrice,
+        'isAvailableForAuction': isAvailableForAuction,
+        'startBiddingPrice': startBiddingPrice,
+        'barcode': barcode,
+        'expiryDate': expiryDate ?? '',
+        'weightUnit': weightUnit,
+        'productType': productType,
+      };
+
+      final response = await _dio.put(
+        '/product/Update',
+        data: body,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      final respBody = response.data;
+      if (respBody is Map) {
+        final succeeded = respBody['succeeded'] ?? respBody['success'] ?? true;
+        return {
+          'success': succeeded,
+          'data': respBody['data'],
+          'message': respBody['message'] ?? 'Product updated successfully',
+        };
+      }
+
+      return {
+        'success': true,
+        'data': null,
+        'message': 'Product updated successfully',
+      };
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+
+      if (errBody is Map && errBody['succeeded'] == true) {
+        return {
+          'success': true,
+          'data': errBody['data'],
+          'message': errBody['message'] ?? 'Product updated successfully',
+        };
+      }
+
+      final message =
+          (errBody is Map)
+              ? (errBody['message'] ?? _extractApiError(e))
+              : _extractApiError(e);
+      return {'success': false, 'data': null, 'message': message};
+    } catch (e) {
+      return {
+        'success': false,
+        'data': null,
+        'message': 'An unexpected error occurred: $e',
+      };
+    }
+  }
+
+  // ── 3. Delete Product ──────────────────────────────────────
+  Future<Map<String, dynamic>> deleteProduct(String id) async {
+    try {
+      final token = StorageService().token;
+
+      final response = await _dio.delete(
+        '/product/Delete/$id',
+        options: Options(
+          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+        ),
+      );
+
+      final respBody = response.data;
+      if (respBody is Map) {
+        final succeeded = respBody['succeeded'] ?? respBody['success'] ?? true;
+        return {
+          'success': succeeded,
+          'data': null,
+          'message': respBody['message'] ?? 'Product deleted successfully',
+        };
+      }
+
+      return {
+        'success': true,
+        'data': null,
+        'message': 'Product deleted successfully',
+      };
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+
+      if (errBody is Map && errBody['succeeded'] == true) {
+        return {
+          'success': true,
+          'data': null,
+          'message': errBody['message'] ?? 'Product deleted successfully',
+        };
+      }
+
+      final message =
+          (errBody is Map)
+              ? (errBody['message'] ?? _extractApiError(e))
+              : _extractApiError(e);
+      return {'success': false, 'data': null, 'message': message};
+    } catch (e) {
+      return {
+        'success': false,
+        'data': null,
+        'message': 'An unexpected error occurred: $e',
+      };
+    }
+  }
+
+  // ── 4. Get All Products ────────────────────────────────────
+  Future<Map<String, dynamic>> getAllProducts({
+    int? pageNumber,
+    int? pageSize,
+    int? status,
+    String? search,
+    int? productType,
+  }) async {
+    try {
+      final token = StorageService().token;
+
+      final Map<String, dynamic> params = {};
+      if (pageNumber != null) params['PageNumber'] = pageNumber;
+      if (pageSize != null) params['PageSize'] = pageSize;
+      if (status != null) params['Status'] = status;
+      if (search != null && search.isNotEmpty) params['Search'] = search;
+      if (productType != null) params['ProductType'] = productType;
+
+      final response = await _dio.get(
+        '/product/GetAll',
+        queryParameters: params.isEmpty ? null : params,
+        options: Options(
+          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+        ),
+      );
+
+      final body = response.data;
+      if (body is! Map) {
+        return {
+          'success': false,
+          'data': null,
+          'message': 'Unexpected response format',
+        };
+      }
+
+      // Backend may wrap list in { data: { items:[...] } } or { data: [...] }
+      final dynamic dataField = body['data'] ?? body;
+      final List<dynamic> items;
+      if (dataField is Map && dataField.containsKey('items')) {
+        items = (dataField['items'] as List?) ?? [];
+      } else if (dataField is List) {
+        items = dataField;
+      } else {
+        items = [];
+      }
+
+      return {
+        'success': body['succeeded'] ?? true,
+        'data': items,
+        'message': body['message'] ?? 'Success',
+      };
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+      final message =
+          (errBody is Map)
+              ? (errBody['message'] ?? _extractApiError(e))
+              : _extractApiError(e);
+      return {'success': false, 'data': null, 'message': message};
+    } catch (e) {
+      return {
+        'success': false,
+        'data': null,
+        'message': 'An unexpected error occurred: $e',
+      };
+    }
+  }
+
+  // ── 5. Get Product By Id ───────────────────────────────────
+  Future<Map<String, dynamic>> getProductById(String id) async {
+    try {
+      final token = StorageService().token;
+
+      final response = await _dio.get(
+        '/product/$id',
+        options: Options(
+          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+        ),
+      );
+
+      final body = response.data;
+      return {
+        'success': body['succeeded'] ?? true,
+        'data': body['data'],
+        'message': body['message'] ?? 'Success',
+      };
+    } on DioException catch (e) {
+      if (e.response != null && e.response?.data != null) {
+        final errorData = e.response!.data;
+
+        if (errorData is Map && errorData['succeeded'] == true) {
+          return {
+            'success': true,
+            'data': errorData['data'],
+            'message': errorData['message'] ?? 'Success',
+          };
+        }
+
+        return {
+          'success': false,
+          'message': errorData['message'] ?? 'Product not found',
+        };
+      }
+      return {'success': false, 'message': 'Connection error: ${e.message}'};
+    } catch (e) {
+      return {'success': false, 'message': 'Unexpected error: $e'};
+    }
+  }
+
+  // ── 6. Get Organization Products ───────────────────────────
+  Future<Map<String, dynamic>> getOrganizationProducts(
+    String organizationId, {
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    try {
+      final token = StorageService().token;
+
+      final Map<String, dynamic> params = {};
+      if (pageNumber != null) params['PageNumber'] = pageNumber;
+      if (pageSize != null) params['PageSize'] = pageSize;
+
+      final response = await _dio.get(
+        '/product/Organization/$organizationId',
+        queryParameters: params.isEmpty ? null : params,
+        options: Options(
+          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+        ),
+      );
+
+      final body = response.data;
+      if (body is! Map) {
+        return {
+          'success': false,
+          'data': null,
+          'message': 'Unexpected response format',
+        };
+      }
+
+      // Backend may wrap list in { data: { items:[...] } } or { data: [...] }
+      final dynamic dataField = body['data'] ?? body;
+      final List<dynamic> items;
+      if (dataField is Map && dataField.containsKey('items')) {
+        items = (dataField['items'] as List?) ?? [];
+      } else if (dataField is List) {
+        items = dataField;
+      } else {
+        items = [];
+      }
+
+      return {
+        'success': body['succeeded'] ?? true,
+        'data': items,
+        'message': body['message'] ?? 'Success',
+      };
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+      final message =
+          (errBody is Map)
+              ? (errBody['message'] ?? _extractApiError(e))
+              : _extractApiError(e);
+      return {'success': false, 'data': null, 'message': message};
+    } catch (e) {
+      return {
+        'success': false,
+        'data': null,
+        'message': 'An unexpected error occurred: $e',
+      };
+    }
   }
 }

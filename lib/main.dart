@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:root2route/screens/auth/create_new_password.dart';
 import 'package:root2route/screens/auth/forgot_password_screen.dart';
 import 'package:root2route/screens/auth/register_screen.dart';
- import 'package:root2route/screens/guest/guest_home_screen.dart';
+import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
-import 'package:root2route/screens/guest/products_screen.dart';
 import 'package:root2route/screens/splash_screen.dart';
 import 'package:root2route/services/storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-   await StorageService().init();
+  await StorageService().init();
 
   runApp(const MyApp());
 }
@@ -32,7 +31,6 @@ class MyApp extends StatelessWidget {
         ForgotPasswordScreen.id: (_) => const ForgotPasswordScreen(),
         CreateNewPassword.id: (_) => const CreateNewPassword(),
         GuestHomeScreen.id: (_) => const GuestHomeScreen(),
-        ProductsScreen.id: (_) => const ProductsScreen(),
       },
     );
   }

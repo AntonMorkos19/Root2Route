@@ -93,8 +93,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return;
     }
 
-    setState(() => _isLoading = true);
-
+    // عرض الـ Loading قبل البدء
     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
@@ -123,34 +122,51 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 : 0.0,
         barcode: _barcodeController.text.trim(),
         expiryDate: _expiryDate?.toIso8601String(),
-        images: _pickedImages, // إرسال لستة الصور كاملة
+        images: _pickedImages,
       );
 
       if (!mounted) return;
-      Navigator.pop(context);
+      Navigator.pop(context); // إغلاق الـ Loading Alert
 
       if (result['success'] == true) {
+        // 🔴 هنا ثبتنا الرسالة English بالظبط زي ما طلبت
         await QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
-          title: 'Product Published!',
-          text: result['message'] ?? 'Successfully created.',
-          autoCloseDuration: const Duration(seconds: 2),
+          title: 'Success',
+          text: 'Product published successfully',
+          confirmBtnText: 'Okay',
+          confirmBtnColor: AppColors.primary,
+          onConfirmBtnTap: () {
+            Navigator.pop(context); // إغلاق الـ Alert
+            Navigator.pop(
+              context,
+              true,
+            ); // الرجوع للشاشة السابقة مع تحديث البيانات
+          },
         );
-        if (mounted) Navigator.pop(context, true);
       } else {
-        _showErrorAlert(result['message'] ?? 'Failed to publish product');
+        // في حالة الفشل (إيرور حقيقي)
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Failure',
+          text: result['message'] ?? 'Failed to publish product',
+          confirmBtnText: 'Try Again',
+        );
       }
     } catch (e) {
       if (!mounted) return;
-      Navigator.pop(context);
-      _showErrorAlert('An unexpected error occurred: $e');
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+      Navigator.pop(context); // إغلاق الـ Loading
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Unexpected Error',
+        text: 'Something went wrong, please try again later.',
+      );
     }
   }
 
-  // دالة لعرض الخطأ بشكل منظم يحمي الـ UI من الـ Overflow
   void _showErrorAlert(String message) {
     QuickAlert.show(
       context: context,

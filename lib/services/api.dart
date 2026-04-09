@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:root2route/core/constants.dart';
 import 'package:root2route/models/user_model.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/models/plant_step_model.dart';
 
 class ApiService {
   final Dio _dio = Dio();
@@ -228,11 +229,12 @@ class ApiService {
             await logo.readAsBytes(),
             filename: () {
               String name = logo.name;
-              if (name.isEmpty) return 'logo_${DateTime.now().millisecondsSinceEpoch}.png';
+              if (name.isEmpty)
+                return 'logo_${DateTime.now().millisecondsSinceEpoch}.png';
               if (!name.contains('.')) return '$name.png';
               return name;
             }(),
-          )
+          ),
       });
 
       final response = await _dio.post('/organizations', data: formData);
@@ -511,7 +513,6 @@ class ApiService {
     print("User logged out and token cleared.");
   }
 
-  // ── 1. Add Product ─────────────────────────────────────────
   Future<Map<String, dynamic>> addProduct({
     required String organizationId,
     required String name,
@@ -522,7 +523,7 @@ class ApiService {
     bool isAvailableForAuction = false,
     double startBiddingPrice = 0.0,
     String barcode = '',
-    String? expiryDate,  
+    String? expiryDate,
     int weightUnit = 0,
     int productType = 0,
     List<XFile> images = const [],
@@ -530,7 +531,7 @@ class ApiService {
     try {
       final token = StorageService().token;
 
-       final Map<String, dynamic> dataMap = {
+      final Map<String, dynamic> dataMap = {
         'OrganizationId': organizationId,
         'Name': name,
         'Description': description,
@@ -593,7 +594,7 @@ class ApiService {
     } on DioException catch (e) {
       final errBody = e.response?.data;
 
-       if (errBody is Map && errBody['succeeded'] == true) {
+      if (errBody is Map && errBody['succeeded'] == true) {
         return {
           'success': true,
           'data': errBody['data'],
@@ -917,6 +918,42 @@ class ApiService {
         'success': false,
         'data': null,
         'message': 'An unexpected error occurred: $e',
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchPlantGuideSteps() async {
+    try {
+      final response = await _dio.get('/plant-guide-steps/all');
+
+      if (response.statusCode == 200 && response.data['succeeded'] == true) {
+        final List<dynamic> dataList = response.data['data'] ?? [];
+        
+        List<PlantStepModel> steps = dataList
+            .map((json) => PlantStepModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+
+        steps.sort((a, b) => a.stepOrder.compareTo(b.stepOrder));
+
+        return {
+          'success': true,
+          'data': steps,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': response.data['message'] ?? 'Failed to load steps.',
+        };
+      }
+    } on DioException catch (e) {
+      return {
+        'success': false,
+        'message': e.response?.data?['message'] ?? e.message ?? 'Network error.',
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'An unexpected error occurred.',
       };
     }
   }

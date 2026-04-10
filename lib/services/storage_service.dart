@@ -13,6 +13,9 @@ class StorageService {
   static const String _keyTokenExpiry = 'token_expiry';
   static const String _keyIsVerified = 'is_verified'; 
   static const String _keyHasOrganization = 'has_organization'; 
+  
+  static const String _keyRefreshToken = 'refresh_token';
+  static const String _keyOrganizationId = 'organization_id';
 
   late SharedPreferences _prefs;
 
@@ -26,6 +29,7 @@ class StorageService {
     required String email,
     required String fullName,
     required String expireAt,
+    String? refreshToken,
   }) async {
     await _prefs.setString(_keyToken, token);
     await _prefs.setString(_keyUserId, userId);
@@ -33,6 +37,21 @@ class StorageService {
     await _prefs.setString(_keyUserFullName, fullName);
     await _prefs.setBool(_keyIsLoggedIn, true);
     await _prefs.setString(_keyTokenExpiry, expireAt);
+    if (refreshToken != null) {
+      await _prefs.setString(_keyRefreshToken, refreshToken);
+    }
+  }
+
+  Future<void> saveTokens({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    await _prefs.setString(_keyToken, accessToken);
+    await _prefs.setString(_keyRefreshToken, refreshToken);
+  }
+
+  Future<void> saveOrganizationId(String orgId) async {
+    await _prefs.setString(_keyOrganizationId, orgId);
   }
 
   // ✅ حفظ حالة وجود منظمة
@@ -51,6 +70,8 @@ class StorageService {
   String? get userFullName => _prefs.getString(_keyUserFullName);
   bool get isLoggedIn => _prefs.getBool(_keyIsLoggedIn) ?? false;
   String? get tokenExpiry => _prefs.getString(_keyTokenExpiry);
+  String? get refreshToken => _prefs.getString(_keyRefreshToken);
+  String? get organizationId => _prefs.getString(_keyOrganizationId);
 
   // ✅ قراءة حالة التحقق
   bool get isVerified => _prefs.getBool(_keyIsVerified) ?? false;
@@ -66,6 +87,8 @@ class StorageService {
     await _prefs.remove(_keyTokenExpiry);
     await _prefs.remove(_keyIsVerified); // ✅ إضافة
     await _prefs.remove(_keyHasOrganization);
+    await _prefs.remove(_keyRefreshToken);
+    await _prefs.remove(_keyOrganizationId);
   }
 
   bool get isTokenValid {

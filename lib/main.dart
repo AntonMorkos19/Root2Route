@@ -6,6 +6,7 @@ import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/screens/splash_screen.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/core/navigator_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: NavigatorService.navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: false),
       initialRoute: SplashScreen.id,

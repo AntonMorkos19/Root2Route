@@ -129,8 +129,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       Navigator.pop(context); // إغلاق الـ Loading Alert
 
       if (result['success'] == true) {
-        // 🔴 هنا ثبتنا الرسالة English بالظبط زي ما طلبت
-        await QuickAlert.show(
+         await QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
           title: 'Success',
@@ -319,10 +318,21 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   // --- دوال الصور المعدلة ---
+  bool _isPickerActive = false;
+
   Future<void> _pickImages() async {
-    final List<XFile> images = await _picker.pickMultiImage();
-    if (images.isNotEmpty) {
-      setState(() => _pickedImages.addAll(images));
+    if (_isPickerActive) return;
+
+    try {
+      _isPickerActive = true;
+      final List<XFile> images = await _picker.pickMultiImage();
+      if (images.isNotEmpty && mounted) {
+        setState(() => _pickedImages.addAll(images));
+      }
+    } catch (e) {
+      debugPrint('Error picking images: $e');
+    } finally {
+      _isPickerActive = false;
     }
   }
 

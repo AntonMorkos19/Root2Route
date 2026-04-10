@@ -7,6 +7,10 @@ import 'package:root2route/core/constants.dart';
 import 'package:root2route/models/user_model.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/models/plant_step_model.dart';
+import 'package:root2route/models/plant_details_response.dart';
+import 'package:root2route/core/navigator_service.dart';
+import 'package:flutter/material.dart';
+import 'package:root2route/screens/auth/login_screen.dart';
 
 class ApiService {
   final Dio _dio = Dio();
@@ -25,6 +29,55 @@ class ApiService {
             options.headers['Authorization'] = 'Bearer $token';
           }
           return handler.next(options);
+        },
+        onError: (DioException e, handler) async {
+          if (e.response?.statusCode == 401 && !e.requestOptions.path.contains('/refresh-token')) {
+            final storage = StorageService();
+            final currToken = storage.token;
+            final currRefresh = storage.refreshToken;
+            final currOrg = storage.organizationId;
+            
+            if (currToken != null && currRefresh != null) {
+              try {
+                final refreshResponse = await _dio.post(
+                  '/refresh-token',
+                  data: {
+                    "accessToken": currToken,
+                    "refreshToken": currRefresh,
+                    "organizationId": currOrg ?? "",
+                  },
+                );
+                
+                if (refreshResponse.statusCode == 200 && refreshResponse.data != null) {
+                  final newAccess = refreshResponse.data['accessToken'] ?? currToken;
+                  final newRefresh = refreshResponse.data['refreshToken'] ?? currRefresh;
+                  
+                  await storage.saveTokens(
+                    accessToken: newAccess,
+                    refreshToken: newRefresh,
+                  );
+                  
+                  // Update the failed request with the new token
+                  final opts = e.requestOptions;
+                  opts.headers['Authorization'] = 'Bearer $newAccess';
+                  
+                  // Retry the original request
+                  final retryResponse = await _dio.fetch(opts);
+                  return handler.resolve(retryResponse);
+                }
+              } catch (err) {
+                // Refresh token also failed/expired
+                await storage.logout();
+                NavigatorService.navigatorKey.currentState?.pushNamedAndRemoveUntil(LoginScreen.id, (Route<dynamic> route) => false);
+                return handler.next(e);
+              }
+            } else {
+              // Missing refresh token, force logout
+              await storage.logout();
+              NavigatorService.navigatorKey.currentState?.pushNamedAndRemoveUntil(LoginScreen.id, (Route<dynamic> route) => false);
+            }
+          }
+          return handler.next(e);
         },
       ),
     );
@@ -61,6 +114,7 @@ class ApiService {
       final data = response.data['data'];
       if (data != null) {
         final accessToken = data['accessToken'];
+        final refreshToken = data['refreshToken'];
         final fullName = data['fullName'];
         final expireAt = data['expireAt'];
 
@@ -73,6 +127,7 @@ class ApiService {
           email: userName,
           fullName: fullName ?? '',
           expireAt: expireAt ?? '',
+          refreshToken: refreshToken,
         );
 
         await StorageService().saveIsVerified(isVerified);
@@ -945,6 +1000,38 @@ class ApiService {
           'message': response.data['message'] ?? 'Failed to load steps.',
         };
       }
+    } on DioException catch (e) {
+      return {
+        'success': false,
+        'message': e.response?.data?['message'] ?? e.message ?? 'Network error.',
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'An unexpected error occurred.',
+      };
+    }
+  }
+
+  // Fetch plant-specific details and steps
+  Future<Map<String, dynamic>> getPlantDetails(String id) async {
+    try {
+      final response = await _dio.get('/plant-guide-steps/by-plant/$id');
+
+      if (response.statusCode == 200 && response.data['succeeded'] == true) {
+        final data = response.data['data'];
+        if (data != null) {
+          final plantDetails = PlantDetailsResponse.fromJson(data);
+          return {
+            'success': true,
+            'data': plantDetails.steps, // Extracted pre-sorted steps array
+          };
+        }
+      }
+      return {
+        'success': false,
+        'message': response.data['message'] ?? 'Failed to load details.',
+      };
     } on DioException catch (e) {
       return {
         'success': false,

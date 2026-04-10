@@ -141,8 +141,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 : 0.0,
         barcode: _barcodeController.text.trim(),
         expiryDate: _expiryDate?.toIso8601String(),
-        weightUnit: p['weightUnit'] ?? p['WeightUnit'] ?? 0,
-        productType: p['productType'] ?? p['ProductType'] ?? 0,
+        weightUnit:
+            int.tryParse(
+              (p['weightUnit'] ?? p['WeightUnit'] ?? 0).toString(),
+            ) ??
+            0,
+        productType:
+            int.tryParse(
+              (p['productType'] ?? p['ProductType'] ?? 0).toString(),
+            ) ??
+            0,
       );
 
       if (!mounted) return;
@@ -153,7 +161,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           context: context,
           type: QuickAlertType.success,
           title: 'Updated!',
-          text: result['message'] ?? 'Product successfully updated.',
+          text: 'Product successfully updated.',
           showConfirmBtn: false,
           autoCloseDuration: const Duration(seconds: 2),
         );
@@ -167,7 +175,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           context: context,
           type: QuickAlertType.error,
           title: 'Update Failed',
-          text: result['message'] ?? 'An error occurred while updating.',
+          text: 'An error occurred while updating.',
         );
       }
     } catch (e) {

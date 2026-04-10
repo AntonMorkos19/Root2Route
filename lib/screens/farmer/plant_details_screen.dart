@@ -32,7 +32,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
       _stepsError = null;
     });
 
-    final result = await _api.fetchPlantGuideSteps();
+    final result = await _api.getPlantDetails(widget.plant.id);
 
     if (!mounted) return;
 

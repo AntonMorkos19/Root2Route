@@ -102,9 +102,13 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       barrierDismissible: false,
     );
 
-    await Future.delayed(const Duration(seconds: 3));
-
-    if (mounted) Navigator.pop(context);
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.loading,
+      title: 'Loading',
+      text: 'Creating your organization...',
+      barrierDismissible: false,
+    );
 
     try {
       final result = await _api.createOrganization(
@@ -116,6 +120,8 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
         type: _getOrganizationTypeValue(selectedType!),
         logo: _image,
       );
+
+      if (mounted) Navigator.pop(context); // close loading dialog
 
       if (!mounted) return;
 

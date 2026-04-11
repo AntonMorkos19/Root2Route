@@ -7,11 +7,11 @@ import 'package:root2route/components/custom_auth/auth_header.dart';
 import 'package:root2route/components/custom_button.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
- import 'package:root2route/screens/auth/forgot_password_screen.dart';
+import 'package:root2route/screens/auth/forgot_password_screen.dart';
 import 'package:root2route/screens/auth/otp_verification_screen.dart';
 import 'package:root2route/screens/auth/register_screen.dart';
 import 'package:root2route/screens/guest/guest_home_screen.dart';
-import 'package:root2route/screens/Organizations/ProfileScreen.dart';
+import 'package:root2route/screens/farmer/farmer_home_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
 
@@ -225,27 +225,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                         final hasOrganization =
                                             StorageService().hasOrganization;
-                                        print(
-                                          " After login - hasOrganization: $hasOrganization",
-                                        );
 
                                         if (context.mounted) {
                                           if (hasOrganization) {
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
-                                                builder:
-                                                    (_) =>
-                                                        const ProfileScreen(),
+                                                builder: (_) =>
+                                                    const FarmerHomeScreen(),
                                               ),
                                             );
                                           } else {
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
-                                                builder:
-                                                    (_) =>
-                                                        const GuestHomeScreen(),
+                                                builder: (_) =>
+                                                    const GuestHomeScreen(),
                                               ),
                                             );
                                           }

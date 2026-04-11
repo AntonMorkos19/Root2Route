@@ -28,6 +28,11 @@ class ApiService {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
+          // Inject active org context so backend knows which org we're in
+          final orgId = StorageService().organizationId;
+          if (orgId != null && orgId.isNotEmpty) {
+            options.headers['X-Organization-Id'] = orgId;
+          }
           return handler.next(options);
         },
         onError: (DioException e, handler) async {
@@ -133,6 +138,7 @@ class ApiService {
         await StorageService().saveIsVerified(isVerified);
 
         _dio.options.headers['Authorization'] = 'Bearer $accessToken';
+        debugPrint("Login success. Token: $accessToken");
         await Future.delayed(const Duration(milliseconds: 500));
 
         final hasOrganization = await _checkUserHasOrganizations();
@@ -162,14 +168,44 @@ class ApiService {
     required String otpCode,
   }) async {
     try {
-      await _dio.post(
+      final response = await _dio.post(
         '/auth/verify-otp',
         data: {"email": email.trim(), "otp": otpCode.trim()},
         options: Options(headers: {"Content-Type": "application/json"}),
       );
-      return {"success": true, "message": "Success"};
+      
+      debugPrint("OTP Verification Response: ${response.data}");
+
+      final data = response.data['data'];
+      if (data != null && data['accessToken'] != null) {
+        final accessToken = data['accessToken'];
+        final refreshToken = data['refreshToken'];
+        final fullName = data['fullName'];
+        final expireAt = data['expireAt'];
+        final userId = _extractUserIdFromToken(accessToken);
+        final isVerified = data['user']?['isVerified'] ?? true;
+
+        await StorageService().saveAuthData(
+          token: accessToken,
+          userId: userId,
+          email: email,
+          fullName: fullName ?? '',
+          expireAt: expireAt ?? '',
+          refreshToken: refreshToken,
+        );
+        await StorageService().saveIsVerified(isVerified);
+        _dio.options.headers['Authorization'] = 'Bearer $accessToken';
+        
+        return {"success": true, "message": "Success", "hasToken": true};
+      }
+      
+      return {"success": true, "message": "Success", "hasToken": false};
     } on DioException catch (e) {
+      debugPrint("OTP Verification Failed: ${e.response?.data}");
       return {"success": false, "message": _extractApiError(e)};
+    } catch (e) {
+      debugPrint("OTP Verification Error: $e");
+      return {"success": false, "message": "Unexpected error during verification: $e"};
     }
   }
 
@@ -278,7 +314,7 @@ class ApiService {
         'Address': address,
         'ContactEmail': contactEmail,
         'ContactPhone': formattedPhone,
-        'Type': type,
+        'Type': type.toString(),
         if (logo != null)
           'Logo': MultipartFile.fromBytes(
             await logo.readAsBytes(),
@@ -300,9 +336,11 @@ class ApiService {
         "message": "Organization created successfully",
       };
     } on DioException catch (e) {
+      debugPrint("Create Org Failed: ${e.response?.data}");
       return {"success": false, "message": _extractApiError(e)};
     } catch (e) {
-      return {"success": false, "message": "An unexpected error occurred"};
+      debugPrint("Create Org Unexpected Error: $e");
+      return {"success": false, "message": "An error occurred: $e"};
     }
   }
 
@@ -509,19 +547,28 @@ class ApiService {
           errorData['title'] ??
           message;
 
-      if (errorData['errors'] != null && errorData['errors'] is Map) {
-        final errors = errorData['errors'] as Map;
-        if (errors.isNotEmpty) {
+      if (errorData['errors'] != null) {
+        final errors = errorData['errors'];
+        if (errors is Map && errors.isNotEmpty) {
           final firstError = errors.values.first;
           if (firstError is List && firstError.isNotEmpty) {
             message = firstError[0].toString();
           } else {
             message = firstError.toString();
           }
+        } else if (errors is List && errors.isNotEmpty) {
+          message = errors[0].toString();
         }
       }
-    } else if (errorData is String) {
+    } else if (errorData is String && errorData.isNotEmpty) {
       message = errorData;
+    } else if (e.response?.statusMessage != null) {
+      message = "Server Error: ${e.response?.statusMessage} (${e.response?.statusCode})";
+    }
+
+    // fallback to raw representation if "Something went wrong" persisted
+    if (message == "Something went wrong" && errorData != null) {
+      message = "Error: ${errorData.toString()}";
     }
 
     return message;
@@ -542,6 +589,8 @@ class ApiService {
       final Map<String, dynamic> jsonData = json.decode(jsonString);
 
       return jsonData['sub'] ??
+          jsonData['id'] ??
+          jsonData['uid'] ??
           jsonData['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ??
           '';
     } catch (e) {

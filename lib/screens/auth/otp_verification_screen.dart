@@ -1,16 +1,20 @@
 import 'dart:async';
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:quickalert/quickalert.dart';
+
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/components/custom_auth/auth_background.dart';
 import 'package:root2route/components/custom_auth/auth_header.dart';
 import 'package:root2route/components/custom_auth/otp_field.dart';
 import 'package:root2route/components/custom_button.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
 import 'package:root2route/core/theme/app_colors.dart';
-import 'package:root2route/screens/auth/create_new_password.dart';
 import 'package:root2route/screens/guest/guest_home_screen.dart';
-import 'package:root2route/services/api.dart';
+import 'package:root2route/screens/auth/create_new_password.dart';
+import 'package:root2route/screens/auth/login_screen.dart';
+ import 'package:root2route/services/api.dart';
 
 enum OtpType { emailVerification, passwordRecovery }
 
@@ -80,23 +84,44 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     setState(() => isLoading = true);
     try {
-      await ApiService().verifyOTP(email: widget.email, otpCode: otpCode);
+      final result = await ApiService().verifyOTP(email: widget.email, otpCode: otpCode);
 
       if (mounted) {
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.success,
-          title: "Success",
-          text: "Email Verified Successfully!",
-          confirmBtnColor: green,
-          onConfirmBtnTap: () {
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              GuestHomeScreen.id,
-              (route) => false,
-            );
-          },
-        );
+        if (result['success'] == true) {
+          final hasToken = result['hasToken'] ?? false;
+          
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.success,
+            title: "Success",
+            text: hasToken 
+                ? "Email Verified and Logged In Successfully!" 
+                : "Email Verified Successfully! Please Login.",
+            confirmBtnColor: green,
+            onConfirmBtnTap: () async {
+              Navigator.pop(context); // close alert
+              
+              if (hasToken) {
+                if (mounted) {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    GuestHomeScreen.id,
+                    (route) => false,
+                  );
+                }
+              } else {
+                // Return to login screen
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  LoginScreen.id,
+                  (route) => false,
+                );
+              }
+            },
+          );
+        } else {
+          _showError(result['message'] ?? "Verification failed");
+        }
       }
     } catch (e) {
       if (mounted) _showError(e.toString().replaceAll('Exception: ', ''));

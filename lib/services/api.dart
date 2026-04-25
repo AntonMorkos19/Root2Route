@@ -923,6 +923,131 @@ class ApiService {
     }
   }
 
+  // ── 4b. Get Market Products (Direct Sale only, typed) ─────
+  /// Returns all products available for direct sale as [ProductModel] list.
+  /// Falls back to mock data if the real endpoint returns nothing,
+  /// so the UI can be exercised immediately.
+  Future<List<ProductModel>> getMarketProducts({String? search}) async {
+    try {
+      final result = await getAllProducts(
+        search: search,
+        pageSize: 100,
+      );
+
+      if (result['success'] == true && result['data'] is List) {
+        final rawList = result['data'] as List<dynamic>;
+
+        final models = rawList
+            .whereType<Map<String, dynamic>>()
+            .map(ProductModel.fromJson)
+            .where((p) => p.isAvailableForDirectSale)
+            .toList();
+
+        // Return real data if we got any
+        if (models.isNotEmpty) return models;
+      }
+    } catch (e) {
+      debugPrint('getMarketProducts real fetch failed: $e');
+    }
+
+    // ── Mock fallback ────────────────────────────────────────
+    debugPrint('getMarketProducts: returning mock data');
+    return _mockMarketProducts;
+  }
+
+  static final List<ProductModel> _mockMarketProducts = [
+    ProductModel(
+      id: 'mock-1',
+      organizationId: 'org-1',
+      name: 'Fresh Tomatoes',
+      description: 'Sun-ripened Roma tomatoes, harvested this morning.',
+      images: const [
+        'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400'
+      ],
+      stockQuantity: 50,
+      isAvailableForDirectSale: true,
+      directSalePrice: 4000,
+      isAvailableForAuction: false,
+      startBiddingPrice: 0,
+      organizationName: 'Green Valley Farms',
+    ),
+    ProductModel(
+      id: 'mock-2',
+      organizationId: 'org-2',
+      name: 'Organic Potatoes',
+      description: '1kg bag of fresh organic potatoes.',
+      images: const [
+        'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400'
+      ],
+      stockQuantity: 120,
+      isAvailableForDirectSale: true,
+      directSalePrice: 1500,
+      isAvailableForAuction: false,
+      startBiddingPrice: 0,
+      organizationName: 'Nile Delta Co-op',
+    ),
+    ProductModel(
+      id: 'mock-3',
+      organizationId: 'org-3',
+      name: 'Strawberries',
+      description: 'Sweet and juicy strawberries, 500g punnet.',
+      images: const [
+        'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400'
+      ],
+      stockQuantity: 30,
+      isAvailableForDirectSale: true,
+      directSalePrice: 6500,
+      isAvailableForAuction: false,
+      startBiddingPrice: 0,
+      organizationName: 'Sunrise Agriculture',
+    ),
+    ProductModel(
+      id: 'mock-4',
+      organizationId: 'org-1',
+      name: 'Bell Peppers Mix',
+      description: 'Colourful mix of red, green, and yellow peppers.',
+      images: const [
+        'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400'
+      ],
+      stockQuantity: 80,
+      isAvailableForDirectSale: true,
+      directSalePrice: 3200,
+      isAvailableForAuction: false,
+      startBiddingPrice: 0,
+      organizationName: 'Green Valley Farms',
+    ),
+    ProductModel(
+      id: 'mock-5',
+      organizationId: 'org-4',
+      name: 'Honey – Raw Wildflower',
+      description: 'Pure, unfiltered wildflower honey. 500ml jar.',
+      images: const [
+        'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400'
+      ],
+      stockQuantity: 15,
+      isAvailableForDirectSale: true,
+      directSalePrice: 12000,
+      isAvailableForAuction: false,
+      startBiddingPrice: 0,
+      organizationName: 'Desert Bee Co.',
+    ),
+    ProductModel(
+      id: 'mock-6',
+      organizationId: 'org-2',
+      name: 'White Onions',
+      description: 'Large white onions. 2kg bag.',
+      images: const [
+        'https://images.unsplash.com/photo-1508747703725-719777637510?w=400'
+      ],
+      stockQuantity: 200,
+      isAvailableForDirectSale: true,
+      directSalePrice: 900,
+      isAvailableForAuction: false,
+      startBiddingPrice: 0,
+      organizationName: 'Nile Delta Co-op',
+    ),
+  ];
+
   // ── 5. Get Product By Id ───────────────────────────────────
   Future<Map<String, dynamic>> getProductById(String id) async {
     try {

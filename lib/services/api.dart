@@ -8,6 +8,8 @@ import 'package:root2route/models/user_model.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/models/plant_step_model.dart';
 import 'package:root2route/models/plant_details_response.dart';
+import 'package:root2route/models/create_auction_request.dart';
+import 'package:root2route/models/product_model.dart';
 import 'package:root2route/core/navigator_service.dart';
 import 'package:flutter/material.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
@@ -923,10 +925,7 @@ class ApiService {
     }
   }
 
-  // ── 4b. Get Market Products (Direct Sale only, typed) ─────
-  /// Returns all products available for direct sale as [ProductModel] list.
-  /// Falls back to mock data if the real endpoint returns nothing,
-  /// so the UI can be exercised immediately.
+  
   Future<List<ProductModel>> getMarketProducts({String? search}) async {
     try {
       final result = await getAllProducts(
@@ -1215,6 +1214,110 @@ class ApiService {
       return {
         'success': false,
         'message': 'An unexpected error occurred.',
+      };
+    }
+  }
+
+  // ── Auctions ──────────────────────────────────────────────
+  Future<Map<String, dynamic>> createAuction(
+      CreateAuctionRequest request) async {
+    try {
+      final response = await _dio.post(
+        '/auctions/create',
+        data: request.toJson(),
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+
+      final body = response.data;
+      if (body is Map) {
+        final succeeded = body['succeeded'] ?? body['success'] ?? true;
+        return {
+          'success': succeeded,
+          'data': body['data'],
+          'message': body['message'] ?? 'Auction created successfully',
+        };
+      }
+
+      return {
+        'success': true,
+        'data': null,
+        'message': 'Auction created successfully',
+      };
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+
+      // Handle cases where backend returns 4xx but body says succeeded: true
+      if (errBody is Map && (errBody['succeeded'] == true || errBody['success'] == true)) {
+        return {
+          'success': true,
+          'data': errBody['data'],
+          'message': errBody['message'] ?? 'Auction created successfully',
+        };
+      }
+
+      final message = (errBody is Map)
+          ? (errBody['message'] ?? _extractApiError(e))
+          : _extractApiError(e);
+      return {'success': false, 'data': null, 'message': message};
+    } catch (e) {
+      return {
+        'success': false,
+        'data': null,
+        'message': 'An unexpected error occurred: $e',
+      };
+    }
+  }
+
+  // ── Auctions ────────────────────────────────────────────────
+
+  /// Fetches all active auctions from the server.
+  Future<Map<String, dynamic>> getAuctions() async {
+    try {
+      final response = await _dio.get('/api/v1/auctions/GetActive');
+      print('GetActive Response: ${response.data}');
+      final data = response.data;
+      return {
+        'success': data['succeeded'] ?? true,
+        'data': data['data'] ?? [],
+        'message': data['message'] ?? 'Success',
+      };
+    } on DioException catch (e) {
+      print('GetActive Error: ${e.response?.data}');
+      return {'success': false, 'data': [], 'message': _extractApiError(e)};
+    } catch (e) {
+      print('GetActive Exception: $e');
+      return {
+        'success': false,
+        'data': [],
+        'message': 'An unexpected error occurred: $e',
+      };
+    }
+  }
+
+  /// Places a bid on an auction.
+  Future<Map<String, dynamic>> placeBid({
+    required String auctionId,
+    required double bidAmount,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/auctions/$auctionId/bid',
+        data: {'bidAmount': bidAmount},
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+      final data = response.data;
+      return {
+        'success': data['succeeded'] ?? true,
+        'data': data['data'],
+        'message': data['message'] ?? 'Bid placed successfully',
+      };
+    } on DioException catch (e) {
+      return {'success': false, 'data': null, 'message': _extractApiError(e)};
+    } catch (e) {
+      return {
+        'success': false,
+        'data': null,
+        'message': 'An unexpected error occurred: $e',
       };
     }
   }

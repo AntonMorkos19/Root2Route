@@ -1,8 +1,8 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/screens/Market/market_screen.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
 import 'package:root2route/screens/Organizations/add_organization_screen.dart';
-import 'package:root2route/screens/market_screen.dart';
 import 'package:root2route/screens/tradesman/history_screen.dart';
 import 'package:root2route/screens/my_products_screen.dart';
 
@@ -28,7 +28,10 @@ class _FactoryHomeScreenState extends State<FactoryHomeScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const MyProductsScreen(organizationId: '')),
+              MaterialPageRoute(
+                builder:
+                    (context) => const MyProductsScreen(organizationId: ''),
+              ),
             );
           },
         );
@@ -135,7 +138,3 @@ class _FactoryHomeScreenState extends State<FactoryHomeScreen> {
     );
   }
 }
-
-
-
-

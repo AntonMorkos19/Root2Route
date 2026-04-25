@@ -1,14 +1,12 @@
-﻿import 'package:flutter/material.dart';
-import 'package:quickalert/models/quickalert_type.dart';
-import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
-import 'package:root2route/screens/add_product_screen.dart';
+ import 'package:root2route/screens/Market/add_product_screen.dart';
 import 'package:root2route/screens/farmer/RequestProduct.dart';
 import 'package:root2route/screens/farmer/plants_screen.dart';
-import 'package:root2route/screens/market_screen.dart';
 import 'package:root2route/screens/farmer/scan_screen.dart';
-import 'package:root2route/screens/my_products_screen.dart';
+import 'package:root2route/screens/Market/market_screen.dart';
 import 'package:root2route/services/api.dart';
 
 class FarmerHomeScreen extends StatefulWidget {
@@ -20,10 +18,37 @@ class FarmerHomeScreen extends StatefulWidget {
   State<FarmerHomeScreen> createState() => _FarmerHomeScreenState();
 }
 
-class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
-  int index = 0;
+class _FarmerHomeScreenState extends State<FarmerHomeScreen>
+    with SingleTickerProviderStateMixin {
+  int _selectedIndex = 0;
   String? myOrganizationId;
-  final screens = const [
+
+  // Nav items definition
+  static const List<_NavItem> _navItems = [
+    _NavItem(
+      label: 'Plants',
+      icon: Icons.local_florist_outlined,
+      activeIcon: Icons.local_florist,
+    ),
+    _NavItem(
+      label: 'Scan',
+      icon: Icons.camera_alt_outlined,
+      activeIcon: Icons.camera_alt,
+    ),
+    _NavItem(
+      label: 'Market',
+      icon: Icons.shopping_bag_outlined,
+      activeIcon: Icons.shopping_bag,
+    ),
+    _NavItem(
+      label: 'Profile',
+      icon: Icons.person_outline,
+      activeIcon: Icons.person,
+    ),
+  ];
+
+  // Pages — IndexedStack preserves state across tabs
+  static const List<Widget> _pages = [
     PlantsScreen(),
     ScanScreen(),
     MarketScreen(),
@@ -52,8 +77,14 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
     }
   }
 
+  void _onItemTapped(int index) {
+    if (index == _selectedIndex) return;
+    HapticFeedback.lightImpact();
+    setState(() => _selectedIndex = index);
+  }
+
   Widget? funFab() {
-    switch (index) {
+    switch (_selectedIndex) {
       case 0:
         return FloatingActionButton(
           backgroundColor: AppColors.primary,
@@ -76,21 +107,7 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
         );
 
       case 2:
-        return FloatingActionButton(
-          backgroundColor: AppColors.primary,
-          shape: const CircleBorder(),
-          child: const Icon(Icons.store, color: AppColors.iconPrimary),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) =>
-                        AddProductScreen(organizationId: myOrganizationId!),
-              ),
-            );
-          },
-        );
+        return null;
 
       default:
         return null;
@@ -100,84 +117,140 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
       extendBody: true,
-      body: screens[index],
+      body: IndexedStack(index: _selectedIndex, children: _pages),
       floatingActionButton: funFab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.only(left: 15, right: 15, bottom: 20),
+      bottomNavigationBar: _CustomNavBar(
+        selectedIndex: _selectedIndex,
+        items: _navItems,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+}
+
+ 
+class _NavItem {
+  final String label;
+  final IconData icon;
+  final IconData activeIcon;
+
+  const _NavItem({
+    required this.label,
+    required this.icon,
+    required this.activeIcon,
+  });
+}
+
+ 
+class _CustomNavBar extends StatelessWidget {
+  final int selectedIndex;
+  final List<_NavItem> items;
+  final ValueChanged<int> onTap;
+
+  const _CustomNavBar({
+    required this.selectedIndex,
+    required this.items,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    return Container(
+      margin: EdgeInsets.fromLTRB(16, 0, 16, bottomPadding + 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2C2C2E), // dark charcoal background
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.18),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: List.generate(items.length, (index) {
+            final isSelected = index == selectedIndex;
+            return _NavBarItem(
+              item: items[index],
+              isSelected: isSelected,
+              onTap: () => onTap(index),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavBarItem extends StatelessWidget {
+  final _NavItem item;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _NavBarItem({
+    required this.item,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(
+          horizontal: isSelected ? 18 : 14,
+          vertical: 10,
+        ),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+          color:
+              isSelected
+                  ? AppColors
+                      .primary // bright green pill
+                  : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? item.activeIcon : item.icon,
+              size: 22,
+              color: isSelected ? Colors.white : Colors.white54,
+            ),
+            // Animated label slide-in
+            AnimatedSize(
+              duration: const Duration(milliseconds: 260),
+              curve: Curves.easeInOut,
+              child:
+                  isSelected
+                      ? Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: Text(
+                          item.label,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      )
+                      : const SizedBox.shrink(),
             ),
           ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: NavigationBarTheme(
-            data: NavigationBarThemeData(
-              indicatorColor: AppColors.primary,
-              labelTextStyle: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textSecondary,
-                  );
-                }
-                return const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                );
-              }),
-              iconTheme: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return const IconThemeData(
-                    color: AppColors.iconPrimary,
-                    size: 26,
-                  );
-                }
-                return const IconThemeData(
-                  color: AppColors.iconPrimary,
-                  size: 24,
-                );
-              }),
-            ),
-            child: NavigationBar(
-              height: 65,
-              elevation: 0,
-              backgroundColor: Colors.grey.withOpacity(0.80),
-              selectedIndex: index,
-              onDestinationSelected: (i) => setState(() => index = i),
-              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.grass_outlined),
-                  selectedIcon: Icon(Icons.grass_rounded),
-                  label: "Plants",
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.camera_enhance_outlined),
-                  selectedIcon: Icon(Icons.camera_enhance),
-                  label: "Scan",
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.shopping_bag_outlined),
-                  selectedIcon: Icon(Icons.shopping_bag),
-                  label: "Market",
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.person_outline),
-                  selectedIcon: Icon(Icons.person),
-                  label: "Profile",
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );

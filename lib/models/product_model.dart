@@ -22,6 +22,8 @@ class ProductModel {
   final String? weightUnit;
   final String? productType;
 
+  final String? organizationName;
+
   const ProductModel({
     required this.id,
     required this.organizationId,
@@ -38,6 +40,7 @@ class ProductModel {
     this.expiryDate,
     this.weightUnit,
     this.productType,
+    this.organizationName,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -75,6 +78,7 @@ class ProductModel {
       expiryDate: _parseDate(json['expiryDate'] ?? json['ExpiryDate']),
       weightUnit: json['weightUnit'] ?? json['WeightUnit'],
       productType: json['productType'] ?? json['ProductType'],
+      organizationName: json['organizationName'] ?? json['OrganizationName'],
     );
   }
 
@@ -95,6 +99,7 @@ class ProductModel {
       'expiryDate': expiryDate?.toIso8601String(),
       'weightUnit': weightUnit,
       'productType': productType,
+      'organizationName': organizationName,
     };
   }
 

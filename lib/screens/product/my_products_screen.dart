@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/core/theme/app_colors.dart';
-import 'package:root2route/screens/add_product_screen.dart';
-import 'package:root2route/screens/edit_product_screen.dart';
+import 'package:root2route/screens/product/edit_product_screen.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/screens/auction/create_auction_screen.dart';
 
 class MyProductsScreen extends StatefulWidget {
   final String organizationId;
@@ -34,7 +34,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
     });
 
     String targetOrgId = widget.organizationId;
-    
+
     // If no organizationId is passed, attempt to fetch the user's organizations
     if (targetOrgId.isEmpty) {
       try {
@@ -42,7 +42,8 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
         if (orgsRes['success'] == true && orgsRes['data'] != null) {
           final List orgs = orgsRes['data'] is List ? orgsRes['data'] : [];
           if (orgs.isNotEmpty) {
-            targetOrgId = orgs[0]['id']?.toString() ?? orgs[0]['Id']?.toString() ?? '';
+            targetOrgId =
+                orgs[0]['id']?.toString() ?? orgs[0]['Id']?.toString() ?? '';
           }
         }
       } catch (e) {
@@ -54,7 +55,8 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
     if (targetOrgId.isEmpty) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'No organization found. Please create one to manage products.';
+        _errorMessage =
+            'No organization found. Please create one to manage products.';
         _isLoading = false;
       });
       return;
@@ -84,74 +86,24 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
   }
 
   Future<void> _deleteProduct(String id) async {
-    final confirm = await showDialog<bool>(
+    final confirm = await QuickAlert.show(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: const Text('Delete Product?'),
-            content: const Text(
-              'Are you sure you want to delete this product? This action cannot be undone.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: () => Navigator.pop(ctx, true),
-                child: const Text(
-                  'Delete',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
+      type: QuickAlertType.confirm,
+      title: 'Delete Product?',
+      text:
+          'Are you sure you want to delete this product? This action cannot be undone.',
+      confirmBtnText: 'Delete',
+      cancelBtnText: 'Cancel',
+      confirmBtnColor: Colors.red,
+      onConfirmBtnTap: () {
+        Navigator.pop(context, true);
+      },
+      onCancelBtnTap: () {
+        Navigator.pop(context, false);
+      },
     );
 
-    if (confirm != true) return;
-
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.loading,
-      title: 'Deleting...',
-      text: 'Please wait, deleting product.',
-      barrierDismissible: false,
-    );
-
-    try {
-      final res = await _api.deleteProduct(id);
-      if (!mounted) return;
-      Navigator.pop(context); // close loading dialog
-
-      if (res['success'] == true) {
-        await QuickAlert.show(
-          context: context,
-          type: QuickAlertType.success,
-          title: 'Deleted!',
-          text: 'The product was successfully removed.',
-          showConfirmBtn: false,
-          autoCloseDuration: const Duration(seconds: 2),
-        );
-        _fetchProducts(); // Refresh list automatically
-      } else {
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.error,
-          title: 'Delete Failed',
-          text: res['message'] ?? 'Could not delete product.',
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      Navigator.pop(context);
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'Unexpected Error',
-        text: e.toString(),
-      );
-    }
+    if (confirm == true) {}
   }
 
   @override
@@ -364,6 +316,30 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                           Icons.edit_outlined,
                           size: 18,
                           color: Colors.blue.shade700,
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          CreateAuctionScreen.id,
+                          arguments: id,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.gavel_rounded,
+                          size: 16,
+                          color: AppColors.primary,
                         ),
                       ),
                     ),

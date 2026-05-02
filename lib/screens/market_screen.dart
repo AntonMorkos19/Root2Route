@@ -1,17 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:root2route/core/theme/app_colors.dart';
-import 'package:root2route/screens/my_products_screen.dart';
+import 'package:root2route/screens/product/my_products_screen.dart';
 import 'package:root2route/services/api.dart';
-import 'package:root2route/screens/details_product_screen.dart';
+import 'package:root2route/screens/product/details_product_screen.dart';
+import 'package:root2route/screens/auction/my_auctions_screen.dart';
+import 'package:root2route/screens/product/add_product_screen.dart';
 
 class MarketScreen extends StatefulWidget {
-  const MarketScreen({super.key});
+  final String? organizationId;
+
+  const MarketScreen({super.key, this.organizationId});
 
   @override
   State<MarketScreen> createState() => _MarketScreenState();
 }
 
 class _MarketScreenState extends State<MarketScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF4F6F9),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 1,
+          centerTitle: true,
+          title: const Text(
+            'Marketplace',
+            style: TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.w800,
+              fontSize: 22,
+            ),
+          ),
+          bottom: const TabBar(
+            labelColor: AppColors.primary,
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: AppColors.primary,
+            indicatorWeight: 3,
+            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            tabs: [
+              Tab(text: 'Market', icon: Icon(Icons.storefront)),
+              Tab(text: 'My store', icon: Icon(Icons.inventory_2_outlined)),
+              Tab(text: 'Auctions', icon: Icon(Icons.gavel)),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _MainMarketTab(organizationId: widget.organizationId),
+
+            MyProductsScreen(organizationId: widget.organizationId ?? ''),
+
+            const MyAuctionsScreen(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------
+// التبويب الخاص بالسوق الأساسي (وفيه الـ FAB بتاع إضافة منتج)
+// ---------------------------------------------------------------------
+class _MainMarketTab extends StatefulWidget {
+  final String? organizationId;
+  const _MainMarketTab({this.organizationId});
+
+  @override
+  State<_MainMarketTab> createState() => _MainMarketTabState();
+}
+
+class _MainMarketTabState extends State<_MainMarketTab> {
   final ApiService _api = ApiService();
   List<dynamic> _products = [];
   bool _isLoading = true;
@@ -31,7 +92,6 @@ class _MarketScreenState extends State<MarketScreen> {
 
     try {
       final result = await _api.getAllProducts();
-
       if (!mounted) return;
 
       if (result['success'] == true) {
@@ -47,7 +107,6 @@ class _MarketScreenState extends State<MarketScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-
       setState(() {
         _errorMessage = 'حدث خطأ غير متوقع: $e';
         _isLoading = false;
@@ -58,33 +117,39 @@ class _MarketScreenState extends State<MarketScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'Marketplace',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w800,
-            fontSize: 22,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.inventory_2, color: Colors.black87),
-            onPressed: () {
+      backgroundColor: Colors.transparent, // عشان ياخد لون الخلفية الأصلي
+      // هنا رفعنا الزرار 90 بيكسل عشان يكون فوق الـ BottomNavigationBar
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 90.0),
+        child: FloatingActionButton(
+          heroTag: "add_product_fab",
+          backgroundColor: AppColors.primary,
+          shape: const CircleBorder(),
+          child: const Icon(
+            Icons.add,
+            color: AppColors.iconPrimary,
+          ), // أيقونة الـ Add
+          onPressed: () {
+            if (widget.organizationId != null &&
+                widget.organizationId!.isNotEmpty) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder:
-                      (context) => const MyProductsScreen(organizationId: ''),
+                      (context) => AddProductScreen(
+                        organizationId: widget.organizationId!,
+                      ),
                 ),
               );
-            },
-          ),
-        ],
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("جاري تحميل بيانات المنظمة، انتظر قليلاً"),
+                ),
+              );
+            }
+          },
+        ),
       ),
       body: _buildBody(),
     );
@@ -168,7 +233,7 @@ class _MarketScreenState extends State<MarketScreen> {
           left: 16,
           right: 16,
           bottom: 100,
-          top: 8,
+          top: 16,
         ),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -179,13 +244,13 @@ class _MarketScreenState extends State<MarketScreen> {
         itemCount: _products.length,
         itemBuilder: (context, index) {
           final product = _products[index];
-          return _buildProductCard(product);
+          return _buildProductCard(context, product);
         },
       ),
     );
   }
 
-  Widget _buildProductCard(dynamic product) {
+  Widget _buildProductCard(BuildContext context, dynamic product) {
     final String name = product['name'] ?? product['Name'] ?? 'Unknown Product';
     final dynamic priceRaw =
         product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
@@ -200,7 +265,6 @@ class _MarketScreenState extends State<MarketScreen> {
       imageUrl = images[0]?.toString();
     }
 
-    // Auto-prefix relative paths with base URL if needed
     final displayUrl =
         (imageUrl != null && imageUrl.startsWith('/'))
             ? 'https://root2route.runasp.net$imageUrl'
@@ -264,7 +328,6 @@ class _MarketScreenState extends State<MarketScreen> {
                 ),
               ),
             ),
-
             Expanded(
               flex: 4,
               child: Padding(
@@ -284,7 +347,6 @@ class _MarketScreenState extends State<MarketScreen> {
                         height: 1.2,
                       ),
                     ),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

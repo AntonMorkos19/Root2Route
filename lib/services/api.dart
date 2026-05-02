@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:root2route/core/constants.dart';
+import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/models/user_model.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/models/plant_step_model.dart';
@@ -14,6 +15,7 @@ import 'package:root2route/screens/auth/login_screen.dart';
 
 class ApiService {
   final Dio _dio = Dio();
+
   ApiService() {
     _dio.options = BaseOptions(
       baseUrl: baseUrl,
@@ -36,12 +38,13 @@ class ApiService {
           return handler.next(options);
         },
         onError: (DioException e, handler) async {
-          if (e.response?.statusCode == 401 && !e.requestOptions.path.contains('/refresh-token')) {
+          if (e.response?.statusCode == 401 &&
+              !e.requestOptions.path.contains('/refresh-token')) {
             final storage = StorageService();
             final currToken = storage.token;
             final currRefresh = storage.refreshToken;
             final currOrg = storage.organizationId;
-            
+
             if (currToken != null && currRefresh != null) {
               try {
                 final refreshResponse = await _dio.post(
@@ -52,20 +55,23 @@ class ApiService {
                     "organizationId": currOrg ?? "",
                   },
                 );
-                
-                if (refreshResponse.statusCode == 200 && refreshResponse.data != null) {
-                  final newAccess = refreshResponse.data['accessToken'] ?? currToken;
-                  final newRefresh = refreshResponse.data['refreshToken'] ?? currRefresh;
-                  
+
+                if (refreshResponse.statusCode == 200 &&
+                    refreshResponse.data != null) {
+                  final newAccess =
+                      refreshResponse.data['accessToken'] ?? currToken;
+                  final newRefresh =
+                      refreshResponse.data['refreshToken'] ?? currRefresh;
+
                   await storage.saveTokens(
                     accessToken: newAccess,
                     refreshToken: newRefresh,
                   );
-                  
+
                   // Update the failed request with the new token
                   final opts = e.requestOptions;
                   opts.headers['Authorization'] = 'Bearer $newAccess';
-                  
+
                   // Retry the original request
                   final retryResponse = await _dio.fetch(opts);
                   return handler.resolve(retryResponse);
@@ -73,13 +79,21 @@ class ApiService {
               } catch (err) {
                 // Refresh token also failed/expired
                 await storage.logout();
-                NavigatorService.navigatorKey.currentState?.pushNamedAndRemoveUntil(LoginScreen.id, (Route<dynamic> route) => false);
+                NavigatorService.navigatorKey.currentState
+                    ?.pushNamedAndRemoveUntil(
+                      LoginScreen.id,
+                      (Route<dynamic> route) => false,
+                    );
                 return handler.next(e);
               }
             } else {
               // Missing refresh token, force logout
               await storage.logout();
-              NavigatorService.navigatorKey.currentState?.pushNamedAndRemoveUntil(LoginScreen.id, (Route<dynamic> route) => false);
+              NavigatorService.navigatorKey.currentState
+                  ?.pushNamedAndRemoveUntil(
+                    LoginScreen.id,
+                    (Route<dynamic> route) => false,
+                  );
             }
           }
           return handler.next(e);
@@ -173,7 +187,7 @@ class ApiService {
         data: {"email": email.trim(), "otp": otpCode.trim()},
         options: Options(headers: {"Content-Type": "application/json"}),
       );
-      
+
       debugPrint("OTP Verification Response: ${response.data}");
 
       final data = response.data['data'];
@@ -195,17 +209,20 @@ class ApiService {
         );
         await StorageService().saveIsVerified(isVerified);
         _dio.options.headers['Authorization'] = 'Bearer $accessToken';
-        
+
         return {"success": true, "message": "Success", "hasToken": true};
       }
-      
+
       return {"success": true, "message": "Success", "hasToken": false};
     } on DioException catch (e) {
       debugPrint("OTP Verification Failed: ${e.response?.data}");
       return {"success": false, "message": _extractApiError(e)};
     } catch (e) {
       debugPrint("OTP Verification Error: $e");
-      return {"success": false, "message": "Unexpected error during verification: $e"};
+      return {
+        "success": false,
+        "message": "Unexpected error during verification: $e",
+      };
     }
   }
 
@@ -563,7 +580,8 @@ class ApiService {
     } else if (errorData is String && errorData.isNotEmpty) {
       message = errorData;
     } else if (e.response?.statusMessage != null) {
-      message = "Server Error: ${e.response?.statusMessage} (${e.response?.statusCode})";
+      message =
+          "Server Error: ${e.response?.statusMessage} (${e.response?.statusCode})";
     }
 
     // fallback to raw representation if "Something went wrong" persisted
@@ -720,7 +738,6 @@ class ApiService {
     }
   }
 
-  // ── 2. Update Product ──────────────────────────────────────
   Future<Map<String, dynamic>> updateProduct({
     required String id,
     required String name,
@@ -804,7 +821,6 @@ class ApiService {
     }
   }
 
-  // ── 3. Delete Product ──────────────────────────────────────
   Future<Map<String, dynamic>> deleteProduct(String id) async {
     try {
       final token = StorageService().token;
@@ -856,7 +872,6 @@ class ApiService {
     }
   }
 
-  // ── 4. Get All Products ────────────────────────────────────
   Future<Map<String, dynamic>> getAllProducts({
     int? pageNumber,
     int? pageSize,
@@ -923,7 +938,6 @@ class ApiService {
     }
   }
 
-  // ── 5. Get Product By Id ───────────────────────────────────
   Future<Map<String, dynamic>> getProductById(String id) async {
     try {
       final token = StorageService().token;
@@ -1032,17 +1046,18 @@ class ApiService {
 
       if (response.statusCode == 200 && response.data['succeeded'] == true) {
         final List<dynamic> dataList = response.data['data'] ?? [];
-        
-        List<PlantStepModel> steps = dataList
-            .map((json) => PlantStepModel.fromJson(json as Map<String, dynamic>))
-            .toList();
+
+        List<PlantStepModel> steps =
+            dataList
+                .map(
+                  (json) =>
+                      PlantStepModel.fromJson(json as Map<String, dynamic>),
+                )
+                .toList();
 
         steps.sort((a, b) => a.stepOrder.compareTo(b.stepOrder));
 
-        return {
-          'success': true,
-          'data': steps,
-        };
+        return {'success': true, 'data': steps};
       } else {
         return {
           'success': false,
@@ -1052,13 +1067,11 @@ class ApiService {
     } on DioException catch (e) {
       return {
         'success': false,
-        'message': e.response?.data?['message'] ?? e.message ?? 'Network error.',
+        'message':
+            e.response?.data?['message'] ?? e.message ?? 'Network error.',
       };
     } catch (e) {
-      return {
-        'success': false,
-        'message': 'An unexpected error occurred.',
-      };
+      return {'success': false, 'message': 'An unexpected error occurred.'};
     }
   }
 
@@ -1084,13 +1097,193 @@ class ApiService {
     } on DioException catch (e) {
       return {
         'success': false,
-        'message': e.response?.data?['message'] ?? e.message ?? 'Network error.',
+        'message':
+            e.response?.data?['message'] ?? e.message ?? 'Network error.',
       };
     } catch (e) {
-      return {
-        'success': false,
-        'message': 'An unexpected error occurred.',
-      };
+      return {'success': false, 'message': 'An unexpected error occurred.'};
     }
   }
+
+  // ── CREATE AUCTION ─────────────────────────────────────
+  // POST /api/v1/auctions/create
+  Future<AuctionModel> createAuction({
+    required String title,
+    required String productId,
+    required double startingPrice,
+    required double minimumBidIncrement,
+    required double reservePrice,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    try {
+      // 1. تعديل المسار لـ /auctions/create
+      final response = await _dio.post(
+        '/auctions/create',
+        data: {
+          "title": title,
+          // 2. تحويل التاريخ لصيغة ISO 8601 UTC (عشان يضيف حرف Z في الآخر)
+          "startDate": startDate.toUtc().toIso8601String(),
+          "endDate": endDate.toUtc().toIso8601String(),
+          // 3. اتأكدنا إن المفاتيح مطابقة للـ Swagger بالمللي
+          "startPrice": startingPrice,
+          "minimumBidIncrement": minimumBidIncrement,
+          "reservePrice": reservePrice,
+          "productId": productId,
+        },
+      );
+
+      final data = _extractData(response.data);
+      if (data is Map<String, dynamic>) {
+        return AuctionModel.fromJson(data);
+      }
+
+      return AuctionModel(
+        id: data?.toString() ?? '',
+        title: title,
+        productId: productId,
+        startingPrice: startingPrice,
+        minimumBidIncrement: minimumBidIncrement,
+        reservePrice: reservePrice,
+        startDate: startDate,
+        endDate: endDate,
+        status: 'Upcoming',
+      );
+    } on DioException catch (e) {
+      // الـ LogInterceptor بتاعك هيطبع التفاصيل، بس برضه بنرمي الـ Error المظبوط للـ UI
+      throw AuctionException(_extractApiError(e));
+    } catch (e) {
+      throw AuctionException('Failed to create auction: $e');
+    }
+  }
+
+  // ── GET MY ORGANIZATION AUCTIONS ───────────────────────
+  // GET /api/v1/auctions/my-organization/{organizationId}
+  Future<List<AuctionModel>> getMyOrganizationAuctions(
+    String organizationId,
+  ) async {
+    try {
+      final response = await _dio.get(
+        '/auctions/my-organization/$organizationId',
+      );
+      return _parseList(
+        response.data,
+      ).map((json) => AuctionModel.fromJson(json)).toList();
+    } on DioException catch (e) {
+      throw AuctionException(_extractApiError(e));
+    } catch (e) {
+      throw AuctionException('Failed to fetch auctions: $e');
+    }
+  }
+
+  // ── UPDATE AUCTION ─────────────────────────────────────
+  // PUT /api/v1/auctions/{auctionId}/update
+  Future<AuctionModel> updateAuction({
+    required String auctionId,
+    required double startingPrice,
+    required double minimumBidIncrement,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    try {
+      final response = await _dio.put(
+        '/auctions/$auctionId/update',
+        data: {
+          'startingPrice': startingPrice,
+          'minimumBidIncrement': minimumBidIncrement,
+          'startDate': startDate.toUtc().toIso8601String(),
+          'endDate': endDate.toUtc().toIso8601String(),
+        },
+      );
+      final data = _extractData(response.data);
+      if (data is Map<String, dynamic>) {
+        return AuctionModel.fromJson(data);
+      }
+      return AuctionModel(
+        id: auctionId,
+        productId: '',
+        startingPrice: startingPrice,
+        minimumBidIncrement: minimumBidIncrement,
+        startDate: startDate,
+        endDate: endDate,
+        status: 'upcoming',
+      );
+    } on DioException catch (e) {
+      throw AuctionException(_extractApiError(e));
+    } catch (e) {
+      throw AuctionException('Failed to update auction: $e');
+    }
+  }
+
+  // ── CANCEL AUCTION ─────────────────────────────────────
+  // DELETE /api/v1/auctions/{auctionId}/cancel
+  Future<void> cancelAuction(String auctionId) async {
+    try {
+      await _dio.delete('/auctions/$auctionId/cancel');
+    } on DioException catch (e) {
+      throw AuctionException(_extractApiError(e));
+    } catch (e) {
+      throw AuctionException('Failed to cancel auction: $e');
+    }
+  }
+
+  // ── GET BID HISTORY ────────────────────────────────────
+  // GET /api/v1/auctions/{auctionId}/bids
+  Future<List<BidModel>> getBidHistory(String auctionId) async {
+    try {
+      final response = await _dio.get('/auctions/$auctionId/bids');
+      return _parseList(
+        response.data,
+      ).map((json) => BidModel.fromJson(json)).toList();
+    } on DioException catch (e) {
+      throw AuctionException(_extractApiError(e));
+    } catch (e) {
+      throw AuctionException('Failed to fetch bid history: $e');
+    }
+  }
+
+  // ── GET APPROVED PRODUCTS (for create-auction dropdown) ─
+  Future<List<Map<String, dynamic>>> getApprovedProducts(
+    String organizationId,
+  ) async {
+    try {
+      final response = await _dio.get(
+        '/product/Organization/$organizationId',
+        queryParameters: {'Status': 1},
+      );
+      return _parseList(response.data);
+    } on DioException catch (e) {
+      throw AuctionException(_extractApiError(e));
+    } catch (e) {
+      throw AuctionException('Failed to fetch products: $e');
+    }
+  }
+}
+
+class AuctionException implements Exception {
+  final String message;
+  const AuctionException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+dynamic _extractData(dynamic body) {
+  if (body is Map) return body['data'] ?? body;
+  return body;
+}
+
+List<Map<String, dynamic>> _parseList(dynamic body) {
+  List<dynamic> items = [];
+  if (body is Map) {
+    final dataField = body['data'] ?? body;
+    if (dataField is List) {
+      items = dataField;
+    } else if (dataField is Map && dataField.containsKey('items')) {
+      items = (dataField['items'] as List?) ?? [];
+    }
+  } else if (body is List) {
+    items = body;
+  }
+  return items.whereType<Map<String, dynamic>>().toList();
 }

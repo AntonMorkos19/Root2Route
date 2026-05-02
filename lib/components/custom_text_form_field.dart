@@ -5,6 +5,7 @@ class CustomTextFormField extends StatefulWidget {
   final IconData icon;
   final String label;
   final Color? color;
+  final Color? fillColor;
   final Color? borderColor;
   final Color? cursorColor;
   final TextEditingController controller;
@@ -27,6 +28,7 @@ class CustomTextFormField extends StatefulWidget {
     this.color,
     this.borderColor,
     this.cursorColor,
+    this.fillColor,
   });
 
   @override
@@ -48,6 +50,8 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       keyboardType: widget.keyboardType,
       validator: widget.validator,
       decoration: InputDecoration(
+        fillColor: widget.fillColor ?? Colors.transparent,
+        filled: true,
         labelText: widget.label,
         labelStyle: MaterialStateTextStyle.resolveWith((states) {
           if (states.contains(MaterialState.error)) {

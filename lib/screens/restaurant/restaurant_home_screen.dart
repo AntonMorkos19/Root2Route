@@ -4,7 +4,7 @@ import 'package:root2route/screens/Organizations/ProfileScreen.dart';
 import 'package:root2route/screens/Organizations/add_organization_screen.dart';
 import 'package:root2route/screens/market_screen.dart';
 import 'package:root2route/screens/tradesman/history_screen.dart';
-import 'package:root2route/screens/my_products_screen.dart';
+import 'package:root2route/screens/product/my_products_screen.dart';
 
 class RestaurantHomeScreen extends StatefulWidget {
   const RestaurantHomeScreen({super.key});

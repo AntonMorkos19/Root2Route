@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/screens/auction/my_auctions_screen.dart';
 import 'package:root2route/screens/product/edit_product_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/screens/auction/create_auction_screen.dart';
@@ -96,14 +97,64 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
       cancelBtnText: 'Cancel',
       confirmBtnColor: Colors.red,
       onConfirmBtnTap: () {
-        Navigator.pop(context, true);
+        Navigator.of(context, rootNavigator: true).pop(true);
       },
       onCancelBtnTap: () {
-        Navigator.pop(context, false);
+        Navigator.of(context, rootNavigator: true).pop(false);
       },
     );
 
-    if (confirm == true) {}
+    if (confirm == true) {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.loading,
+        title: 'Deleting...',
+        text: 'Removing product from your inventory.',
+        barrierDismissible: false,
+      );
+
+      final navigator = Navigator.of(context, rootNavigator: true);
+
+      try {
+        final res = await _api.deleteProduct(id);
+
+        // Always dismiss the loading alert first
+        navigator.pop();
+
+        if (!mounted) return;
+
+        if (res['success'] == true) {
+          await QuickAlert.show(
+            context: context,
+            type: QuickAlertType.success,
+            title: 'Deleted',
+            text: 'Product deleted successfully.',
+          );
+          if (!mounted) return;
+          _fetchProducts();
+        } else {
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: 'Delete Failed',
+            text: res['message'] ?? 'Failed to delete product.',
+          );
+        }
+      } catch (e) {
+        // Ensure loading alert is dismissed even on error
+        try {
+          navigator.pop();
+        } catch (_) {}
+
+        if (!mounted) return;
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Error',
+          text: e.toString(),
+        );
+      }
+    }
   }
 
   @override
@@ -124,6 +175,108 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
   }
 
   Widget _buildBody() {
+    return Column(
+      children: [
+        // ── Manage My Auctions Banner ──────────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => Scaffold(
+                    backgroundColor: const Color(0xFFF4F6F9),
+                    appBar: AppBar(
+                      title: const Text(
+                        'My Auctions',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      iconTheme: const IconThemeData(color: Colors.black87),
+                    ),
+                    body: const MyAuctionsScreen(),
+                  ),
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.primary, Color(0xFF1B5E20)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.35),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.gavel_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Manage My Auctions',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                        Text(
+                          'View upcoming, active & ended auctions',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        // ── Products List ─────────────────────────────────────────────────
+        Expanded(child: _buildProductsContent()),
+      ],
+    );
+  }
+
+  Widget _buildProductsContent() {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.primary),

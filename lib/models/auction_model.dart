@@ -40,9 +40,17 @@ class AuctionModel {
       id: (json['id'] ?? json['Id'] ?? '').toString(),
       productId: (json['productId'] ?? json['ProductId'] ?? '').toString(),
       productName: json['productName'] ?? json['ProductName'],
-      productImage: json['productImage'] ?? json['ProductImage'] ?? json['productImageUrl'] ?? json['ProductImageUrl'],
-      startingPrice: _parseDouble(json['startingPrice'] ?? json['StartingPrice']),
-      minimumBidIncrement: _parseDouble(json['minimumBidIncrement'] ?? json['MinimumBidIncrement']),
+      productImage: json['productImage'] ??
+          json['ProductImage'] ??
+          json['productImageUrl'] ??
+          json['ProductImageUrl'],
+      // Logic for price keys (handling both startPrice and startingPrice)
+      startingPrice: _parseDouble(
+        json['startPrice'] ?? json['startingPrice'] ?? json['StartingPrice'],
+      ),
+      minimumBidIncrement: _parseDouble(
+        json['minimumBidIncrement'] ?? json['MinimumBidIncrement'],
+      ),
       startDate: _parseDate(json['startDate'] ?? json['StartDate']) ?? DateTime.now(),
       endDate: _parseDate(json['endDate'] ?? json['EndDate']) ?? DateTime.now(),
       status: _normalizeStatus(json['status'] ?? json['Status'] ?? ''),
@@ -60,7 +68,7 @@ class AuctionModel {
     return {
       'id': id,
       'productId': productId,
-      'startingPrice': startingPrice,
+      'startPrice': startingPrice, // Matching server expectation
       'minimumBidIncrement': minimumBidIncrement,
       'startDate': startDate.toUtc().toIso8601String(),
       'endDate': endDate.toUtc().toIso8601String(),
@@ -69,7 +77,6 @@ class AuctionModel {
     };
   }
 
-  /// Returns a copy with updated fields.
   AuctionModel copyWith({
     String? id,
     String? productId,
@@ -116,8 +123,8 @@ class AuctionModel {
 
   Duration get timeRemaining {
     final now = DateTime.now();
-    if (isUpcoming) return startDate.difference(now);
-    if (isActive) return endDate.difference(now);
+    if (isUpcoming) return startDate.isAfter(now) ? startDate.difference(now) : Duration.zero;
+    if (isActive) return endDate.isAfter(now) ? endDate.difference(now) : Duration.zero;
     return Duration.zero;
   }
 
@@ -131,19 +138,27 @@ class AuctionModel {
     return double.tryParse(value.toString());
   }
 
+  // Robust date parsing handling UTC strings (with or without 'Z' suffix)
   static DateTime? _parseDate(dynamic value) {
     if (value == null || value.toString().isEmpty) return null;
     try {
-      return DateTime.parse(value.toString()).toLocal();
+      String dateStr = value.toString();
+      
+      if (!dateStr.endsWith('Z') && !dateStr.contains('+')) {
+        dateStr += 'Z';
+      }
+      
+      return DateTime.parse(dateStr).toLocal();
     } catch (_) {
       return null;
     }
   }
 
+  // Robust status normalization mapping various API strings to internal states
   static String _normalizeStatus(dynamic raw) {
     final s = raw.toString().toLowerCase().trim();
     if (s.contains('upcoming') || s == '0') return 'upcoming';
-    if (s.contains('active') || s.contains('live') || s == '1') return 'active';
+    if (s.contains('active') || s.contains('live') || s.contains('ongoing') || s == '1') return 'active';
     if (s.contains('ended') || s.contains('closed') || s.contains('completed') || s == '2') return 'ended';
     return s.isEmpty ? 'upcoming' : s;
   }
@@ -173,16 +188,8 @@ class BidModel {
       bidderId: (json['bidderId'] ?? json['BidderId'] ?? json['userId'] ?? json['UserId'] ?? '').toString(),
       bidderName: (json['bidderName'] ?? json['BidderName'] ?? json['userName'] ?? json['UserName'] ?? 'Anonymous').toString(),
       amount: double.tryParse((json['amount'] ?? json['Amount'] ?? json['bidAmount'] ?? json['BidAmount'] ?? 0).toString()) ?? 0.0,
-      timestamp: _parseDate(json['timestamp'] ?? json['Timestamp'] ?? json['createdAt'] ?? json['CreatedAt']) ?? DateTime.now(),
+      timestamp: AuctionModel._parseDate(json['timestamp'] ?? json['Timestamp'] ?? json['createdAt'] ?? json['CreatedAt']) ?? DateTime.now(),
     );
   }
-
-  static DateTime? _parseDate(dynamic value) {
-    if (value == null || value.toString().isEmpty) return null;
-    try {
-      return DateTime.parse(value.toString()).toLocal();
-    } catch (_) {
-      return null;
-    }
-  }
 }
+

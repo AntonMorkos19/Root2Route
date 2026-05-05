@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
+import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/screens/auction/my_auctions_screen.dart';
 import 'package:root2route/screens/auction/create_auction_screen.dart';
-import 'package:root2route/screens/auction/edit_auction_screen.dart';
 import 'package:root2route/screens/auction/bid_history_screen.dart';
+import 'package:root2route/screens/auction/update_auction_screen.dart';
+import 'package:root2route/screens/auction/auction_details_screen.dart';
 import 'package:root2route/screens/auth/create_new_password.dart';
 import 'package:root2route/screens/auth/forgot_password_screen.dart';
 import 'package:root2route/screens/auth/register_screen.dart';
@@ -16,9 +18,7 @@ import 'package:root2route/core/navigator_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await StorageService().init();
-
   runApp(const MyApp());
 }
 
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+     return MultiBlocProvider(
       providers: [BlocProvider<AuctionCubit>(create: (_) => AuctionCubit())],
       child: MaterialApp(
         navigatorKey: NavigatorService.navigatorKey,
@@ -41,26 +41,16 @@ class MyApp extends StatelessWidget {
           ForgotPasswordScreen.id: (_) => const ForgotPasswordScreen(),
           CreateNewPassword.id: (_) => const CreateNewPassword(),
           GuestHomeScreen.id: (_) => const GuestHomeScreen(),
-          MyAuctionsScreen.id:
-              (_) => BlocProvider(
-                create: (_) => AuctionCubit(),
-                child: const MyAuctionsScreen(),
-              ),
-          CreateAuctionScreen.id:
-              (_) => BlocProvider(
-                create: (_) => AuctionCubit(),
-                child: const CreateAuctionScreen(),
-              ),
-          EditAuctionScreen.id:
-              (_) => BlocProvider(
-                create: (_) => AuctionCubit(),
-                child: const EditAuctionScreen(),
-              ),
-          BidHistoryScreen.id:
-              (_) => BlocProvider(
-                create: (_) => AuctionCubit(),
-                child: const BidHistoryScreen(),
-              ),
+           MyAuctionsScreen.id: (_) => const MyAuctionsScreen(),
+           CreateAuctionScreen.id: (_) => const CreateAuctionScreen(),
+           UpdateAuctionScreen.id: (context) {
+             final auction =
+                ModalRoute.of(context)!.settings.arguments as AuctionModel;
+            return UpdateAuctionScreen(auction: auction);
+          },
+
+          BidHistoryScreen.id: (_) => const BidHistoryScreen(),
+          AuctionDetailsScreen.id: (_) => const AuctionDetailsScreen(),
         },
       ),
     );

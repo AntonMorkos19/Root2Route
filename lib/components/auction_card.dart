@@ -90,8 +90,10 @@ class AuctionCard extends StatelessWidget {
 
                 // ── Info Row ──
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(10),
@@ -136,9 +138,10 @@ class AuctionCard extends StatelessWidget {
 
   Widget _buildProductImage() {
     final imageUrl = auction.productImage;
-    final displayUrl = (imageUrl != null && imageUrl.startsWith('/'))
-        ? 'https://root2route.runasp.net$imageUrl'
-        : imageUrl;
+    final displayUrl =
+        (imageUrl != null && imageUrl.startsWith('/'))
+            ? 'https://root2route.runasp.net$imageUrl'
+            : imageUrl;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
@@ -146,21 +149,23 @@ class AuctionCard extends StatelessWidget {
         width: 52,
         height: 52,
         color: Colors.grey.shade100,
-        child: displayUrl != null && displayUrl.isNotEmpty
-            ? Image.network(
-                displayUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Icon(
+        child:
+            displayUrl != null && displayUrl.isNotEmpty
+                ? Image.network(
+                  displayUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder:
+                      (_, __, ___) => Icon(
+                        Icons.inventory_2_outlined,
+                        color: Colors.grey.shade400,
+                        size: 24,
+                      ),
+                )
+                : Icon(
                   Icons.inventory_2_outlined,
                   color: Colors.grey.shade400,
                   size: 24,
                 ),
-              )
-            : Icon(
-                Icons.inventory_2_outlined,
-                color: Colors.grey.shade400,
-                size: 24,
-              ),
       ),
     );
   }
@@ -234,10 +239,7 @@ class AuctionCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Colors.grey.shade100,
-              Colors.grey.shade50,
-            ],
+            colors: [Colors.grey.shade100, Colors.grey.shade50],
           ),
           borderRadius: BorderRadius.circular(8),
         ),
@@ -260,12 +262,10 @@ class AuctionCard extends StatelessWidget {
       );
     }
 
-    final targetDate =
-        auction.isUpcoming ? auction.startDate : auction.endDate;
+    final targetDate = auction.isUpcoming ? auction.startDate : auction.endDate;
     final label = auction.isUpcoming ? 'Starts in: ' : 'Ends in: ';
-    final color = auction.isUpcoming
-        ? const Color(0xFFD97706)
-        : const Color(0xFF16A34A);
+    final color =
+        auction.isUpcoming ? const Color(0xFFD97706) : const Color(0xFF16A34A);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -310,7 +310,7 @@ class AuctionCard extends StatelessWidget {
           Expanded(
             child: _ActionButton(
               icon: Icons.edit_outlined,
-              label: 'Edit',
+              label: 'Update',
               color: Colors.blue.shade600,
               onTap: onEdit,
             ),

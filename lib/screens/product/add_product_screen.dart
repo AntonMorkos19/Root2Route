@@ -23,8 +23,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _quantityController = TextEditingController();
   final _directPriceController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _barcodeController = TextEditingController();
-  final _auctionPriceController = TextEditingController();
+   final _auctionPriceController = TextEditingController();
 
   String? _selectedCategory;
   String? _selectedUnit;
@@ -52,8 +51,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _quantityController.dispose();
     _directPriceController.dispose();
     _descriptionController.dispose();
-    _barcodeController.dispose();
-    _auctionPriceController.dispose();
+     _auctionPriceController.dispose();
     super.dispose();
   }
 
@@ -120,8 +118,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             _forAuction
                 ? (double.tryParse(_auctionPriceController.text.trim()) ?? 0.0)
                 : 0.0,
-        barcode: _barcodeController.text.trim(),
-        expiryDate: _expiryDate?.toIso8601String(),
+         expiryDate: _expiryDate?.toIso8601String(),
         images: _pickedImages,
       );
 

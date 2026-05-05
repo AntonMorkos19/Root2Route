@@ -5,8 +5,9 @@ import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
 import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/screens/auction/bid_history_screen.dart';
-import 'package:root2route/screens/auction/edit_auction_screen.dart';
-import 'package:root2route/components/auction_card.dart';
+ import 'package:root2route/components/auction_card.dart';
+import 'package:root2route/screens/auction/update_auction_screen.dart';
+import 'package:root2route/screens/auction/auction_details_screen.dart';
 
 class MyAuctionsScreen extends StatefulWidget {
   static const String id = '/MyAuctionsScreen';
@@ -98,10 +99,18 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
     );
   }
 
+  void _navigateToDetails(AuctionModel auction) {
+    Navigator.pushNamed(
+      context,
+      AuctionDetailsScreen.id,
+      arguments: auction.id,
+    );
+  }
+
   void _navigateToEdit(AuctionModel auction) async {
     final result = await Navigator.pushNamed(
       context,
-      EditAuctionScreen.id,
+      UpdateAuctionScreen.id,
       arguments: auction,
     );
     if (result == true) _fetchAuctions();
@@ -291,6 +300,7 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
           final auction = auctions[index];
           return AuctionCard(
             auction: auction,
+            onTap: () => _navigateToDetails(auction),
             onViewBids: () => _navigateToBids(auction),
             onEdit: auction.canEdit ? () => _navigateToEdit(auction) : null,
             onCancel:

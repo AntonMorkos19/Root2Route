@@ -23,11 +23,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
   late TextEditingController _descriptionController;
   late TextEditingController _directPriceController;
   late TextEditingController _auctionPriceController;
-  late TextEditingController _barcodeController;
 
   bool _directSale = false;
   bool _forAuction = false;
   DateTime? _expiryDate;
+
+  // ضفنا المتغيرات دي هنا عشان نقرأها صح في الـ initState
+  int _weightUnit = 0;
+  int _productType = 0;
 
   @override
   void initState() {
@@ -37,7 +40,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
     // Safe extraction of fields to deal with Backend casing issues
     final name = p['name'] ?? p['Name'] ?? '';
     final description = p['description'] ?? p['Description'] ?? '';
-    final barcode = p['barcode'] ?? p['Barcode'] ?? '';
 
     final stockQty = p['stockQuantity'] ?? p['StockQuantity'] ?? 0;
     final directPrice = p['directSalePrice'] ?? p['DirectSalePrice'] ?? 0;
@@ -53,10 +55,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
       _expiryDate = DateTime.tryParse(expiryRaw.toString());
     }
 
+    // استخراج الـ Enums بشكل آمن
+    _weightUnit =
+        int.tryParse((p['weightUnit'] ?? p['WeightUnit'] ?? 0).toString()) ?? 0;
+    _productType =
+        int.tryParse((p['productType'] ?? p['ProductType'] ?? 0).toString()) ??
+        0;
+
     _nameController = TextEditingController(text: name);
     _quantityController = TextEditingController(text: stockQty.toString());
     _descriptionController = TextEditingController(text: description);
-    _barcodeController = TextEditingController(text: barcode);
     _directPriceController = TextEditingController(
       text: directPrice.toString(),
     );
@@ -72,7 +80,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _descriptionController.dispose();
     _directPriceController.dispose();
     _auctionPriceController.dispose();
-    _barcodeController.dispose();
     super.dispose();
   }
 
@@ -120,6 +127,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
       barrierDismissible: false,
     );
 
+    final navigator = Navigator.of(context, rootNavigator: true);
+
     try {
       final p = widget.product;
       final id = (p['id'] ?? p['Id']).toString();
@@ -139,24 +148,21 @@ class _EditProductScreenState extends State<EditProductScreen> {
             _forAuction
                 ? (double.tryParse(_auctionPriceController.text.trim()) ?? 0.0)
                 : 0.0,
-        barcode: _barcodeController.text.trim(),
-        expiryDate: _expiryDate?.toIso8601String(),
-        weightUnit:
-            int.tryParse(
-              (p['weightUnit'] ?? p['WeightUnit'] ?? 0).toString(),
-            ) ??
-            0,
-        productType:
-            int.tryParse(
-              (p['productType'] ?? p['ProductType'] ?? 0).toString(),
-            ) ??
-            0,
+        expiryDate: _expiryDate?.toUtc().toIso8601String(),
+        weightUnit: _weightUnit,
+        productType: _productType,
       );
 
-      if (!mounted) return;
-      Navigator.pop(context); // hide loading
+       navigator.pop();
 
-      if (result['success'] == true) {
+      if (!mounted) return;
+
+       final successValue = result['success'];
+      final isSuccess =
+          successValue == true ||
+          successValue.toString().toLowerCase() == 'true';
+
+      if (isSuccess) {
         await QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
@@ -166,21 +172,21 @@ class _EditProductScreenState extends State<EditProductScreen> {
           autoCloseDuration: const Duration(seconds: 2),
         );
         if (!mounted) return;
-        Navigator.pop(
-          context,
-          true,
-        ); // Return true meaning we updated it successfully
+        Navigator.pop(context, true); // نرجع للصفحة اللي قبلها بنجاح
       } else {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
           title: 'Update Failed',
-          text: 'An error occurred while updating.',
+          text: result['message'] ?? 'An error occurred while updating.',
         );
       }
     } catch (e) {
+      try {
+        navigator.pop();
+      } catch (_) {}
+
       if (!mounted) return;
-      Navigator.pop(context);
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
@@ -209,7 +215,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           child: Column(
             children: [
-              // Notice: Warning for no image update support per backend API rules.
               Container(
                 padding: const EdgeInsets.all(12),
                 margin: const EdgeInsets.only(bottom: 20),
@@ -297,7 +302,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
           const SizedBox(height: 8),
           CustomTextFormField(
             color: Colors.black,
-
             icon: Icons.description_outlined,
             label: 'Describe your product...',
             controller: _descriptionController,

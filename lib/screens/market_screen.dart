@@ -3,7 +3,7 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/product/my_products_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/screens/product/details_product_screen.dart';
-import 'package:root2route/screens/auction/my_auctions_screen.dart';
+import 'package:root2route/screens/auction/public_auctions_screen.dart';
 import 'package:root2route/screens/product/add_product_screen.dart';
 
 class MarketScreen extends StatefulWidget {
@@ -53,7 +53,7 @@ class _MarketScreenState extends State<MarketScreen> {
 
             MyProductsScreen(organizationId: widget.organizationId ?? ''),
 
-            const MyAuctionsScreen(),
+            const PublicAuctionsScreen(),
           ],
         ),
       ),

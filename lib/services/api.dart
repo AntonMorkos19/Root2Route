@@ -644,7 +644,6 @@ class ApiService {
     double directSalePrice = 0.0,
     bool isAvailableForAuction = false,
     double startBiddingPrice = 0.0,
-    String barcode = '',
     String? expiryDate,
     int weightUnit = 0,
     int productType = 0,
@@ -662,7 +661,6 @@ class ApiService {
         'DirectSalePrice': directSalePrice.toString(),
         'IsAvailableForAuction': isAvailableForAuction.toString(),
         'StartBiddingPrice': startBiddingPrice.toString(),
-        'Barcode': barcode,
         'WeightUnit': weightUnit.toString(),
         'ProductType': productType.toString(),
       };
@@ -741,77 +739,89 @@ class ApiService {
   Future<Map<String, dynamic>> updateProduct({
     required String id,
     required String name,
-    String description = '',
+    required String description,
     required int stockQuantity,
-    bool isAvailableForDirectSale = false,
-    double directSalePrice = 0.0,
-    bool isAvailableForAuction = false,
-    double startBiddingPrice = 0.0,
-    String barcode = '',
-    String? expiryDate, // ISO-8601
-    int weightUnit = 0,
-    int productType = 0,
+    required bool isAvailableForDirectSale,
+    required double directSalePrice,
+    required bool isAvailableForAuction,
+    required double startBiddingPrice,
+    String? expiryDate,
+    required int weightUnit,
+    required int productType,
   }) async {
     try {
       final token = StorageService().token;
 
-      final Map<String, dynamic> body = {
-        'id': id,
-        'name': name,
-        'description': description,
-        'stockQuantity': stockQuantity,
-        'isAvailableForDirectSale': isAvailableForDirectSale,
-        'directSalePrice': directSalePrice,
-        'isAvailableForAuction': isAvailableForAuction,
-        'startBiddingPrice': startBiddingPrice,
-        'barcode': barcode,
-        'expiryDate': expiryDate ?? '',
-        'weightUnit': weightUnit,
-        'productType': productType,
-      };
-
       final response = await _dio.put(
         '/product/Update',
-        data: body,
+        data: {
+          "id": id,
+          "name": name,
+          "description": description,
+          "stockQuantity": stockQuantity,
+          "isAvailableForDirectSale": isAvailableForDirectSale,
+          "directSalePrice": directSalePrice,
+          "isAvailableForAuction": isAvailableForAuction,
+          "startBiddingPrice": startBiddingPrice,
+          "expiryDate": expiryDate,
+          "weightUnit": weightUnit,
+          "productType": productType,
+        },
         options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            if (token != null) 'Authorization': 'Bearer $token',
-          },
+          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
         ),
       );
 
       final respBody = response.data;
+
       if (respBody is Map) {
-        final succeeded = respBody['succeeded'] ?? respBody['success'] ?? true;
+        final succeeded =
+            respBody['succeeded'] == true || respBody['success'] == true;
         return {
           'success': succeeded,
           'data': respBody['data'],
-          'message': respBody['message'] ?? 'Product updated successfully',
+          // الرسالة بالإنجليزي
+          'message':
+              succeeded
+                  ? 'Product updated successfully.'
+                  : (respBody['message'] ?? 'Update failed.'),
         };
       }
 
       return {
-        'success': true,
+        'success': response.statusCode == 200 || response.statusCode == 204,
         'data': null,
-        'message': 'Product updated successfully',
+        'message': 'Product updated successfully.',
       };
     } on DioException catch (e) {
       final errBody = e.response?.data;
 
-      if (errBody is Map && errBody['succeeded'] == true) {
+      if (errBody is Map) {
+        // 👈👈👈 الحل هنا: بنمسك الـ 400 Error ونتأكد لو جواه نجاح
+        final isBackendWeirdSuccess =
+            errBody['succeeded'] == true || errBody['success'] == true;
+
+        if (isBackendWeirdSuccess) {
+          return {
+            'success': true, // بنجبر التطبيق يعتبرها نجاح
+            'data': errBody['data'],
+            'message':
+                'Product updated successfully.', // 👈 الرسالة الموحدة بالإنجليزي
+          };
+        }
+
         return {
-          'success': true,
-          'data': errBody['data'],
-          'message': errBody['message'] ?? 'Product updated successfully',
+          'success': false,
+          'data': null,
+          'message': errBody['message'] ?? _extractApiError(e),
         };
       }
 
-      final message =
-          (errBody is Map)
-              ? (errBody['message'] ?? _extractApiError(e))
-              : _extractApiError(e);
-      return {'success': false, 'data': null, 'message': message};
+      return {
+        'success': false,
+        'data': null,
+        'message': errBody?.toString() ?? _extractApiError(e),
+      };
     } catch (e) {
       return {
         'success': false,
@@ -869,6 +879,78 @@ class ApiService {
         'data': null,
         'message': 'An unexpected error occurred: $e',
       };
+    }
+  }
+
+  // ─── Public Auction Marketplace ──────────────────────────────────────────
+
+  Future<Map<String, dynamic>> getActiveAuctions() async {
+    try {
+      final token = StorageService().token;
+
+      final response = await _dio.get(
+        '/auctions/GetActive',
+        options: Options(
+          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+        ),
+      );
+
+      final respBody = response.data;
+      if (respBody is Map) {
+        return {
+          'success': respBody['succeeded'] == true || respBody['success'] == true,
+          'data': respBody['data'] ?? respBody,
+          'message': respBody['message'] ?? 'Active auctions loaded',
+        };
+      }
+      if (respBody is List) {
+        return {'success': true, 'data': respBody, 'message': ''};
+      }
+      return {'success': true, 'data': [], 'message': ''};
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+      final message =
+          (errBody is Map)
+              ? (errBody['message'] ?? _extractApiError(e))
+              : _extractApiError(e);
+      return {'success': false, 'data': null, 'message': message};
+    } catch (e) {
+      return {'success': false, 'data': null, 'message': e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> getCompletedAuctions() async {
+    try {
+      final token = StorageService().token;
+
+      final response = await _dio.get(
+        '/auctions/GetCompleted',
+        options: Options(
+          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+        ),
+      );
+
+      final respBody = response.data;
+      if (respBody is Map) {
+        return {
+          'success': respBody['succeeded'] == true || respBody['success'] == true,
+          'data': respBody['data'] ?? respBody,
+          'message': respBody['message'] ?? 'Completed auctions loaded',
+        };
+      }
+      if (respBody is List) {
+        return {'success': true, 'data': respBody, 'message': ''};
+      }
+      return {'success': true, 'data': [], 'message': ''};
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+      final message =
+          (errBody is Map)
+              ? (errBody['message'] ?? _extractApiError(e))
+              : _extractApiError(e);
+      return {'success': false, 'data': null, 'message': message};
+    } catch (e) {
+      return {'success': false, 'data': null, 'message': e.toString()};
     }
   }
 
@@ -1180,8 +1262,10 @@ class ApiService {
   // PUT /api/v1/auctions/{auctionId}/update
   Future<AuctionModel> updateAuction({
     required String auctionId,
+    required String title,
     required double startingPrice,
     required double minimumBidIncrement,
+    required double reservePrice,
     required DateTime startDate,
     required DateTime endDate,
   }) async {
@@ -1189,8 +1273,10 @@ class ApiService {
       final response = await _dio.put(
         '/auctions/$auctionId/update',
         data: {
-          'startingPrice': startingPrice,
+          'title': title,
+          'startPrice': startingPrice,
           'minimumBidIncrement': minimumBidIncrement,
+          'reservePrice': reservePrice,
           'startDate': startDate.toUtc().toIso8601String(),
           'endDate': endDate.toUtc().toIso8601String(),
         },
@@ -1202,8 +1288,10 @@ class ApiService {
       return AuctionModel(
         id: auctionId,
         productId: '',
+        title: title,
         startingPrice: startingPrice,
         minimumBidIncrement: minimumBidIncrement,
+        reservePrice: reservePrice,
         startDate: startDate,
         endDate: endDate,
         status: 'upcoming',
@@ -1224,6 +1312,23 @@ class ApiService {
       throw AuctionException(_extractApiError(e));
     } catch (e) {
       throw AuctionException('Failed to cancel auction: $e');
+    }
+  }
+
+  // ── GET AUCTION BY ID ──────────────────────────────────
+  // GET /api/v1/auctions/{id}
+  Future<AuctionModel> getAuctionById(String id) async {
+    try {
+      final response = await _dio.get('/auctions/$id');
+      final data = _extractData(response.data);
+      if (data is Map<String, dynamic>) {
+        return AuctionModel.fromJson(data);
+      }
+      throw AuctionException('Invalid response format');
+    } on DioException catch (e) {
+      throw AuctionException(_extractApiError(e));
+    } catch (e) {
+      throw AuctionException('Failed to fetch auction details: $e');
     }
   }
 

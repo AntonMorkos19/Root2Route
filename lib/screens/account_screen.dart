@@ -10,6 +10,8 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/screens/notifications_screen.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/screens/auction/buyer_auctions_screen.dart';
+import 'package:root2route/services/storage_service.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -169,7 +171,92 @@ class _AccountScreenState extends State<AccountScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  if (!StorageService().isGuest) ...[
+                    const SizedBox(height: 25),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8, bottom: 10),
+                      child: Text(
+                        "Activity",
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+
+                    GestureDetector(
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        BuyerAuctionsScreen.id,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF2ECC71), Color(0xFF1B8A4E)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Icon(
+                                Icons.gavel_rounded,
+                                color: Colors.white,
+                                size: 26,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'My Auctions',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  SizedBox(height: 3),
+                                  Text(
+                                    'Track bids & checkout wins',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              color: Colors.white70,
+                              size: 18,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 40),
+                  ],
 
                   SizedBox(
                     width: double.infinity,

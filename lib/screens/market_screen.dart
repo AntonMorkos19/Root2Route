@@ -5,6 +5,7 @@ import 'package:root2route/services/api.dart';
 import 'package:root2route/screens/product/details_product_screen.dart';
 import 'package:root2route/screens/auction/public_auctions_screen.dart';
 import 'package:root2route/screens/product/add_product_screen.dart';
+import 'package:root2route/services/storage_service.dart';
 
 class MarketScreen extends StatefulWidget {
   final String? organizationId;
@@ -18,8 +19,10 @@ class MarketScreen extends StatefulWidget {
 class _MarketScreenState extends State<MarketScreen> {
   @override
   Widget build(BuildContext context) {
+    const int tabLength = 3;
+
     return DefaultTabController(
-      length: 3,
+      length: tabLength,
       child: Scaffold(
         backgroundColor: const Color(0xFFF4F6F9),
         appBar: AppBar(
@@ -34,13 +37,13 @@ class _MarketScreenState extends State<MarketScreen> {
               fontSize: 22,
             ),
           ),
-          bottom: const TabBar(
+          bottom: TabBar(
             labelColor: AppColors.primary,
             unselectedLabelColor: Colors.grey,
             indicatorColor: AppColors.primary,
             indicatorWeight: 3,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            tabs: [
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            tabs: const [
               Tab(text: 'Market', icon: Icon(Icons.storefront)),
               Tab(text: 'My store', icon: Icon(Icons.inventory_2_outlined)),
               Tab(text: 'Auctions', icon: Icon(Icons.gavel)),
@@ -50,9 +53,7 @@ class _MarketScreenState extends State<MarketScreen> {
         body: TabBarView(
           children: [
             _MainMarketTab(organizationId: widget.organizationId),
-
             MyProductsScreen(organizationId: widget.organizationId ?? ''),
-
             const PublicAuctionsScreen(),
           ],
         ),
@@ -96,7 +97,11 @@ class _MainMarketTabState extends State<_MainMarketTab> {
 
       if (result['success'] == true) {
         setState(() {
-          _products = result['data'] ?? [];
+          final allProducts = result['data'] ?? [];
+          _products = allProducts.where((p) {
+            final isAvailableForDirectSale = p['isAvailableForDirectSale'] == true || p['IsAvailableForDirectSale'] == true;
+            return isAvailableForDirectSale;
+          }).toList();
           _isLoading = false;
         });
       } else {
@@ -252,12 +257,27 @@ class _MainMarketTabState extends State<_MainMarketTab> {
 
   Widget _buildProductCard(BuildContext context, dynamic product) {
     final String name = product['name'] ?? product['Name'] ?? 'Unknown Product';
-    final dynamic priceRaw =
-        product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
-    final double price =
-        priceRaw is num
-            ? priceRaw.toDouble()
-            : double.tryParse(priceRaw.toString()) ?? 0.0;
+    final String productOrgId = product['organizationId']?.toString() ?? product['OrganizationId']?.toString() ?? '';
+    final String? currentUserOrgId = StorageService().currentUserOrgId;
+    final bool isMyProduct = !StorageService().isGuest && currentUserOrgId != null && currentUserOrgId.isNotEmpty && currentUserOrgId == productOrgId;
+
+    final isAvailableForDirectSale = product['isAvailableForDirectSale'] == true || product['IsAvailableForDirectSale'] == true;
+    final isAvailableForAuction = product['isAvailableForAuction'] == true || product['IsAvailableForAuction'] == true;
+
+    double displayPrice = 0.0;
+    bool showAuctionOnlyBadge = false;
+
+    if (isAvailableForDirectSale) {
+      final rawPrice = product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
+      displayPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
+    } else if (isAvailableForAuction) {
+      final rawPrice = product['startBiddingPrice'] ?? product['StartBiddingPrice'] ?? 0;
+      displayPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
+      showAuctionOnlyBadge = true;
+    } else {
+      final rawPrice = product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
+      displayPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
+    }
 
     String? imageUrl;
     final images = product['images'] ?? product['Images'];
@@ -350,26 +370,69 @@ class _MainMarketTabState extends State<_MainMarketTab> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '${price.toStringAsFixed(0)} EGP',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                            color: AppColors.primary,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${displayPrice.toStringAsFixed(0)} EGP',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 15,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              if (showAuctionOnlyBadge) ...[
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.shade100,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    'Auction Only',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.deepOrange,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(10),
+                        if (isMyProduct)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Text(
+                              'Your Product',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          )
+                        else if (isAvailableForDirectSale)
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.add_shopping_cart_rounded,
+                              color: Colors.white,
+                              size: 16,
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.add_shopping_cart_rounded,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                        ),
                       ],
                     ),
                   ],

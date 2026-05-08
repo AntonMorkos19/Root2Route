@@ -3,10 +3,15 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/auction_model.dart';
 import 'countdown_timer_widget.dart';
 
+import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/services/api.dart';
+
 /// A premium auction card for the seller dashboard.
-class AuctionCard extends StatelessWidget {
+class AuctionCard extends StatefulWidget {
   final AuctionModel auction;
+  final Map<String, dynamic>? productData; // Pre-fetched product data
   final VoidCallback? onTap;
+  final VoidCallback? onBid;
   final VoidCallback? onEdit;
   final VoidCallback? onCancel;
   final VoidCallback? onViewBids;
@@ -15,7 +20,9 @@ class AuctionCard extends StatelessWidget {
   const AuctionCard({
     super.key,
     required this.auction,
+    this.productData,
     this.onTap,
+    this.onBid,
     this.onEdit,
     this.onCancel,
     this.onViewBids,
@@ -23,7 +30,64 @@ class AuctionCard extends StatelessWidget {
   });
 
   @override
+  State<AuctionCard> createState() => _AuctionCardState();
+}
+
+class _AuctionCardState extends State<AuctionCard> {
+  String? _imageUrl;
+  bool _isMyAuction = false; 
+  
+  @override
+  void initState() {
+    super.initState();
+    _imageUrl = widget.auction.productImage;
+    if (widget.productData != null) {
+      _applyProductData(widget.productData!);
+    } else {
+      _checkProductAndOwnership();
+    }
+  }
+
+  void _applyProductData(Map<String, dynamic> data) {
+    final currentUserOrgId = StorageService().currentUserOrgId;
+    
+    // Resolve Image
+    String? img = data['imageUrl'] ?? data['ImageUrl'] ?? data['image'] ?? data['Image'];
+    if (img == null) {
+      final imgs = data['images'] ?? data['Images'];
+      if (imgs is List && imgs.isNotEmpty) img = imgs.first?.toString();
+    }
+
+    // Resolve Ownership
+    final pOrgId = (data['organizationId'] ?? data['OrganizationId'])?.toString();
+    final bool isOwner = currentUserOrgId != null && currentUserOrgId == pOrgId;
+
+    if (mounted) {
+      setState(() {
+        if (_imageUrl == null || _imageUrl!.isEmpty) _imageUrl = img;
+        _isMyAuction = isOwner;
+      });
+    }
+  }
+
+  Future<void> _checkProductAndOwnership() async {
+    final currentUserOrgId = StorageService().currentUserOrgId;
+    if (currentUserOrgId == null || currentUserOrgId.isEmpty) {
+      if (mounted) setState(() => _isMyAuction = false);
+    }
+    
+    // Fallback image fetch and accurate org check
+    try {
+      final res = await ApiService().getProductById(widget.auction.productId);
+      if (res['success'] == true && res['data'] != null) {
+        _applyProductData(res['data']);
+      }
+    } catch (_) {}
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final auction = widget.auction;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
@@ -42,7 +106,7 @@ class AuctionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: onTap ?? onViewBids,
+          onTap: widget.onTap ?? widget.onViewBids,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -137,7 +201,7 @@ class AuctionCard extends StatelessWidget {
   }
 
   Widget _buildProductImage() {
-    final imageUrl = auction.productImage;
+    final imageUrl = _imageUrl;
     final displayUrl =
         (imageUrl != null && imageUrl.startsWith('/'))
             ? 'https://root2route.runasp.net$imageUrl'
@@ -175,7 +239,7 @@ class AuctionCard extends StatelessWidget {
     Color textColor;
     String label;
 
-    switch (auction.status) {
+    switch (widget.auction.status) {
       case 'active':
         bgColor = const Color(0xFF22C55E).withOpacity(0.12);
         textColor = const Color(0xFF16A34A);
@@ -234,6 +298,7 @@ class AuctionCard extends StatelessWidget {
   }
 
   Widget _buildCountdownOrResult() {
+    final auction = widget.auction;
     if (auction.isEnded) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -292,15 +357,56 @@ class AuctionCard extends StatelessWidget {
   }
 
   Widget _buildActions() {
+    final auction = widget.auction;
     return Row(
       children: [
+        // Bid Now button (for marketplace) or "Your Auction" badge
+        if (widget.onBid != null && (auction.isActive || auction.isUpcoming)) ...[
+          if (_isMyAuction)
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.person_outline, size: 14, color: Colors.grey.shade600),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Your Auction',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            Expanded(
+              child: _ActionButton(
+                icon: Icons.gavel_rounded,
+                label: 'Bid Now',
+                color: AppColors.primary,
+                onTap: widget.onBid,
+              ),
+            ),
+          const SizedBox(width: 8),
+        ],
+
         // View Bids
         Expanded(
           child: _ActionButton(
             icon: Icons.bar_chart_rounded,
             label: 'Bids',
-            color: AppColors.primary,
-            onTap: onViewBids,
+            color: widget.onBid != null ? Colors.blue.shade600 : AppColors.primary,
+            onTap: widget.onViewBids,
           ),
         ),
         const SizedBox(width: 8),
@@ -312,7 +418,7 @@ class AuctionCard extends StatelessWidget {
               icon: Icons.edit_outlined,
               label: 'Update',
               color: Colors.blue.shade600,
-              onTap: onEdit,
+              onTap: widget.onEdit,
             ),
           ),
           const SizedBox(width: 8),
@@ -325,7 +431,7 @@ class AuctionCard extends StatelessWidget {
               icon: Icons.cancel_outlined,
               label: 'Cancel',
               color: Colors.red.shade600,
-              onTap: onCancel,
+              onTap: widget.onCancel,
             ),
           ),
 
@@ -336,7 +442,7 @@ class AuctionCard extends StatelessWidget {
               icon: Icons.emoji_events_rounded,
               label: 'Result',
               color: const Color(0xFFD97706),
-              onTap: onViewResult ?? onViewBids,
+              onTap: widget.onViewResult ?? widget.onViewBids,
             ),
           ),
       ],

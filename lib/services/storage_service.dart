@@ -78,6 +78,9 @@ class StorageService {
   
   bool get hasOrganization => _prefs.getBool(_keyHasOrganization) ?? false;
 
+  bool get isGuest => token == null || token!.isEmpty;
+  String? get currentUserOrgId => organizationId;
+
   Future<void> logout() async {
     await _prefs.remove(_keyToken);
     await _prefs.remove(_keyUserId);

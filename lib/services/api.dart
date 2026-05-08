@@ -1468,7 +1468,7 @@ class ApiService {
     try {
       final token = StorageService().token;
       final response = await _dio.get(
-        '/api/v1/auctions/$auctionId/bids',
+        '/auctions/$auctionId/bids',
         options: Options(
           headers: token != null ? {'Authorization': 'Bearer $token'} : null,
         ),
@@ -1510,10 +1510,10 @@ class ApiService {
     try {
       final token = StorageService().token;
       final response = await _dio.post(
-        '/api/v1/auctions/$auctionId/bid',
+        '/auctions/$auctionId/bid',
         data: {
-          "amount":
-              amount, // ببعت القيمة هنا، لو الباك-إند طالب اسم الفيلد مختلف عدله
+          "auctionId": auctionId,
+          "amount": amount,
         },
         options: Options(
           headers: token != null ? {'Authorization': 'Bearer $token'} : null,

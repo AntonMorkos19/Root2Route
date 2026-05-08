@@ -37,7 +37,7 @@ class AuctionModel {
 
   factory AuctionModel.fromJson(Map<String, dynamic> json) {
     return AuctionModel(
-      id: (json['id'] ?? json['Id'] ?? '').toString(),
+      id: (json['id'] ?? json['Id'] ?? json['auctionId'] ?? json['AuctionId'] ?? '').toString(),
       productId: (json['productId'] ?? json['ProductId'] ?? '').toString(),
       productName: json['productName'] ?? json['ProductName'],
       productImage: json['productImage'] ??

@@ -484,7 +484,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     }
   }
 
-  Future<void> _submitBid(double currentHighestBid) async {
+  Future<void> _submitBid(double currentHighestBid, String explicitAuctionId) async {
     final double? enteredAmount = double.tryParse(_bidController.text.trim());
 
     if (enteredAmount == null || enteredAmount <= currentHighestBid) {
@@ -509,9 +509,10 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
 
     final navigator = Navigator.of(context, rootNavigator: true);
     final result = await _api.placeBid(
-      auctionId: _auctionId,
+      auctionId: explicitAuctionId,
       amount: enteredAmount,
     );
+
 
     navigator.pop(); // Close loading alert
 
@@ -519,9 +520,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
 
     if (result['success'] == true) {
       // بنحدث بيانات الـ Cubit عشان الرقم الجديد يظهر فوق
-      context.read<AuctionCubit>().fetchAuctionDetails(_auctionId);
+      context.read<AuctionCubit>().fetchAuctionDetails(explicitAuctionId);
       // بنحدث لستة المزايدات
-      _fetchBids(_auctionId);
+      _fetchBids(explicitAuctionId);
 
       QuickAlert.show(
         context: context,
@@ -539,7 +540,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     }
   }
 
-  void _showBidBottomSheet(double currentHighestBid) {
+  void _showBidBottomSheet(double currentHighestBid, String explicitAuctionId) {
     _bidController.clear();
     showModalBottomSheet(
       context: context,
@@ -584,7 +585,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => _submitBid(currentHighestBid),
+                  onPressed: () => _submitBid(currentHighestBid, explicitAuctionId),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2ECC71),
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -760,7 +761,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                     Navigator.pushNamed(context, LoginScreen.id);
                     return;
                   }
-                  _showBidBottomSheet(currentHighest);
+                  _showBidBottomSheet(currentHighest, _auctionId);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2ECC71),

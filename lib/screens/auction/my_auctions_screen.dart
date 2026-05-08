@@ -8,6 +8,8 @@ import 'package:root2route/screens/auction/bid_history_screen.dart';
  import 'package:root2route/components/auction_card.dart';
 import 'package:root2route/screens/auction/update_auction_screen.dart';
 import 'package:root2route/screens/auction/auction_details_screen.dart';
+import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/screens/auth/login_screen.dart';
 
 class MyAuctionsScreen extends StatefulWidget {
   static const String id = '/MyAuctionsScreen';
@@ -104,7 +106,7 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
       context,
       AuctionDetailsScreen.id,
       arguments: auction.id,
-    );
+    ).then((_) => _fetchAuctions());
   }
 
   void _navigateToEdit(AuctionModel auction) async {
@@ -117,11 +119,37 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
   }
 
   void _navigateToBids(AuctionModel auction) {
-    Navigator.pushNamed(context, BidHistoryScreen.id, arguments: auction);
+    Navigator.pushNamed(context, BidHistoryScreen.id, arguments: auction).then((_) => _fetchAuctions());
   }
 
   @override
   Widget build(BuildContext context) {
+    if (StorageService().isGuest) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.lock_outline, size: 80, color: Colors.grey.shade400),
+              const SizedBox(height: 16),
+              Text(
+                'Please log in and create an organization to view this page.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                child: const Text('Login', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Column(
       children: [
         // 1. الهيدر (Header) - للعرض فقط وتم إزالة زر الإضافة
@@ -212,9 +240,33 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
                 return TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildAuctionList(state.upcoming, 'upcoming'),
-                    _buildAuctionList(state.active, 'active'),
-                    _buildAuctionList(state.ended, 'ended'),
+                    _AuctionListPage(
+                      auctions: state.upcoming,
+                      tab: 'upcoming',
+                      onRefresh: _fetchAuctions,
+                      onDetails: _navigateToDetails,
+                      onBids: _navigateToBids,
+                      onEdit: _navigateToEdit,
+                      onCancel: _showCancelDialog,
+                    ),
+                    _AuctionListPage(
+                      auctions: state.active,
+                      tab: 'active',
+                      onRefresh: _fetchAuctions,
+                      onDetails: _navigateToDetails,
+                      onBids: _navigateToBids,
+                      onEdit: _navigateToEdit,
+                      onCancel: _showCancelDialog,
+                    ),
+                    _AuctionListPage(
+                      auctions: state.ended,
+                      tab: 'ended',
+                      onRefresh: _fetchAuctions,
+                      onDetails: _navigateToDetails,
+                      onBids: _navigateToBids,
+                      onEdit: _navigateToEdit,
+                      onCancel: _showCancelDialog,
+                    ),
                   ],
                 );
               }
@@ -287,25 +339,59 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
     );
   }
 
-  Widget _buildAuctionList(List<AuctionModel> auctions, String tab) {
-    if (auctions.isEmpty) return _buildEmptyState(tab);
+}
+
+class _AuctionListPage extends StatefulWidget {
+  final List<AuctionModel> auctions;
+  final String tab;
+  final VoidCallback onRefresh;
+  final Function(AuctionModel) onDetails;
+  final Function(AuctionModel) onBids;
+  final Function(AuctionModel) onEdit;
+  final Function(AuctionModel) onCancel;
+
+  const _AuctionListPage({
+    required this.auctions,
+    required this.tab,
+    required this.onRefresh,
+    required this.onDetails,
+    required this.onBids,
+    required this.onEdit,
+    required this.onCancel,
+  });
+
+  @override
+  State<_AuctionListPage> createState() => _AuctionListPageState();
+}
+
+class _AuctionListPageState extends State<_AuctionListPage>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    if (widget.auctions.isEmpty) {
+      return _buildEmptyState(widget.tab);
+    }
 
     return RefreshIndicator(
-      onRefresh: () async => _fetchAuctions(),
+      onRefresh: () async => widget.onRefresh(),
       color: AppColors.primary,
       child: ListView.builder(
         padding: const EdgeInsets.only(top: 12, bottom: 20),
-        itemCount: auctions.length,
+        itemCount: widget.auctions.length,
         itemBuilder: (context, index) {
-          final auction = auctions[index];
+          final auction = widget.auctions[index];
           return AuctionCard(
             auction: auction,
-            onTap: () => _navigateToDetails(auction),
-            onViewBids: () => _navigateToBids(auction),
-            onEdit: auction.canEdit ? () => _navigateToEdit(auction) : null,
-            onCancel:
-                auction.canCancel ? () => _showCancelDialog(auction) : null,
-            onViewResult: () => _navigateToBids(auction),
+            onTap: () => widget.onDetails(auction),
+            onViewBids: () => widget.onBids(auction),
+            onEdit: auction.canEdit ? () => widget.onEdit(auction) : null,
+            onCancel: auction.canCancel ? () => widget.onCancel(auction) : null,
+            onViewResult: () => widget.onBids(auction),
           );
         },
       ),

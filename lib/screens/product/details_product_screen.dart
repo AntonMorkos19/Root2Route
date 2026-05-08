@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/services/api.dart';
+import 'package:quickalert/quickalert.dart';
+import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/screens/auth/login_screen.dart';
 
 class DetailsProductScreen extends StatefulWidget {
   final String productId;
@@ -205,12 +208,24 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
 
     final data = _productData!;
     final String name = data['name'] ?? data['Name'] ?? 'Unknown Product';
-    final dynamic priceRaw =
-        data['directSalePrice'] ?? data['DirectSalePrice'] ?? 0;
-    final double price =
-        priceRaw is num
-            ? priceRaw.toDouble()
-            : double.tryParse(priceRaw.toString()) ?? 0.0;
+    
+    final bool isAvailableForDirectSale = data['isAvailableForDirectSale'] == true || data['IsAvailableForDirectSale'] == true;
+    final bool isAvailableForAuction = data['isAvailableForAuction'] == true || data['IsAvailableForAuction'] == true;
+
+    double price = 0.0;
+    bool showAuctionBadge = false;
+
+    if (isAvailableForDirectSale) {
+      final dynamic priceRaw = data['directSalePrice'] ?? data['DirectSalePrice'] ?? 0;
+      price = priceRaw is num ? priceRaw.toDouble() : double.tryParse(priceRaw.toString()) ?? 0.0;
+    } else if (isAvailableForAuction) {
+      final dynamic priceRaw = data['startBiddingPrice'] ?? data['StartBiddingPrice'] ?? 0;
+      price = priceRaw is num ? priceRaw.toDouble() : double.tryParse(priceRaw.toString()) ?? 0.0;
+      showAuctionBadge = true;
+    } else {
+      final dynamic priceRaw = data['directSalePrice'] ?? data['DirectSalePrice'] ?? 0;
+      price = priceRaw is num ? priceRaw.toDouble() : double.tryParse(priceRaw.toString()) ?? 0.0;
+    }
     final String description =
         data['description'] ??
         data['Description'] ??
@@ -340,13 +355,36 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                           ),
                         ),
                       ),
-                      Text(
-                        '${price.toStringAsFixed(0)} EGP',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.primary,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${price.toStringAsFixed(0)} EGP',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          if (showAuctionBadge) ...[
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.shade100,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text(
+                                'Auction Only',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.deepOrange,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ),
@@ -444,6 +482,50 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
   }
 
   Widget _buildBottomBar() {
+    final String productOrgId = _productData?['organizationId'] ?? _productData?['OrganizationId'] ?? '';
+    final bool isGuest = StorageService().isGuest;
+    final String? currentOrgId = StorageService().currentUserOrgId;
+
+    if (!isGuest && currentOrgId != null && currentOrgId.isNotEmpty && currentOrgId == productOrgId) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(24, 15, 24, 35),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: ElevatedButton.icon(
+          onPressed: null,
+          icon: const Icon(Icons.edit, color: Colors.white),
+          label: const Text(
+            'You own this product',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            disabledBackgroundColor: Colors.grey.shade400,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final bool isAvailableForDirectSale = _productData?['isAvailableForDirectSale'] == true || _productData?['IsAvailableForDirectSale'] == true;
+    if (!isAvailableForDirectSale) {
+      return const SizedBox.shrink();
+    }
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 15, 24, 35),
       decoration: BoxDecoration(
@@ -458,6 +540,20 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
       ),
       child: ElevatedButton.icon(
         onPressed: () {
+          if (isGuest) {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.info,
+              title: 'Login Required',
+              text: 'You need to login to buy or bid.',
+              confirmBtnText: 'Login',
+              onConfirmBtnTap: () {
+                Navigator.pop(context); // close alert
+                Navigator.pushNamed(context, LoginScreen.id);
+              },
+            );
+            return;
+          }
           setState(() => _cartCount++);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

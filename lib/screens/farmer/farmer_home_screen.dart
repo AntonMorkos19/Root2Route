@@ -170,6 +170,7 @@ import 'package:root2route/screens/farmer/plants_screen.dart';
 import 'package:root2route/screens/market_screen.dart';
 import 'package:root2route/screens/farmer/scan_screen.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/services/storage_service.dart';
 
 class FarmerHomeScreen extends StatefulWidget {
   static const String id = '/farmerHomeScreen';
@@ -214,6 +215,7 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
   }
 
   Widget? funFab() {
+    if (StorageService().isGuest) return null;
     switch (index) {
       case 0:
         return Padding(

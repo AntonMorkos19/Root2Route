@@ -898,7 +898,8 @@ class ApiService {
       final respBody = response.data;
       if (respBody is Map) {
         return {
-          'success': respBody['succeeded'] == true || respBody['success'] == true,
+          'success':
+              respBody['succeeded'] == true || respBody['success'] == true,
           'data': respBody['data'] ?? respBody,
           'message': respBody['message'] ?? 'Active auctions loaded',
         };
@@ -933,7 +934,8 @@ class ApiService {
       final respBody = response.data;
       if (respBody is Map) {
         return {
-          'success': respBody['succeeded'] == true || respBody['success'] == true,
+          'success':
+              respBody['succeeded'] == true || respBody['success'] == true,
           'data': respBody['data'] ?? respBody,
           'message': respBody['message'] ?? 'Completed auctions loaded',
         };
@@ -951,6 +953,120 @@ class ApiService {
       return {'success': false, 'data': null, 'message': message};
     } catch (e) {
       return {'success': false, 'data': null, 'message': e.toString()};
+    }
+  }
+
+  // ── Buyer Auction Dashboard ──────────────────────────────────────────────
+
+  /// GET /api/v1/auctions/my-participated
+  Future<Map<String, dynamic>> getMyParticipatedAuctions() async {
+    try {
+      final response = await _dio.get('/auctions/my-participated');
+
+      final respBody = response.data;
+      if (respBody is Map) {
+        return {
+          'success':
+              respBody['succeeded'] == true || respBody['success'] == true,
+          'data': respBody['data'] ?? respBody,
+          'message': respBody['message'] ?? 'Participated auctions loaded',
+        };
+      }
+      if (respBody is List) {
+        return {'success': true, 'data': respBody, 'message': ''};
+      }
+      return {'success': true, 'data': [], 'message': ''};
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+      final message =
+          (errBody is Map)
+              ? (errBody['message'] ?? _extractApiError(e))
+              : _extractApiError(e);
+      return {'success': false, 'data': null, 'message': message};
+    } catch (e) {
+      return {'success': false, 'data': null, 'message': e.toString()};
+    }
+  }
+
+  /// GET /api/v1/auctions/my-won
+  Future<Map<String, dynamic>> getMyWonAuctions() async {
+    try {
+      final response = await _dio.get('/auctions/my-won');
+
+      final respBody = response.data;
+      if (respBody is Map) {
+        return {
+          'success':
+              respBody['succeeded'] == true || respBody['success'] == true,
+          'data': respBody['data'] ?? respBody,
+          'message': respBody['message'] ?? 'Won auctions loaded',
+        };
+      }
+      if (respBody is List) {
+        return {'success': true, 'data': respBody, 'message': ''};
+      }
+      return {'success': true, 'data': [], 'message': ''};
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+      final message =
+          (errBody is Map)
+              ? (errBody['message'] ?? _extractApiError(e))
+              : _extractApiError(e);
+      return {'success': false, 'data': null, 'message': message};
+    } catch (e) {
+      return {'success': false, 'data': null, 'message': e.toString()};
+    }
+  }
+
+  /// POST /api/v1/auctions/{id}/checkout
+  Future<Map<String, dynamic>> checkoutAuction(String auctionId) async {
+    try {
+      final response = await _dio.post('/auctions/$auctionId/checkout');
+
+      final respBody = response.data;
+      if (respBody is Map) {
+        final isSuccess =
+            respBody['succeeded'] == true || respBody['success'] == true;
+        return {
+          'success': isSuccess,
+          'data': respBody['data'],
+          'message':
+              isSuccess
+                  ? (respBody['message'] ?? 'Checkout completed successfully!')
+                  : (respBody['message'] ?? 'Checkout failed.'),
+        };
+      }
+      return {
+        'success': response.statusCode == 200,
+        'data': null,
+        'message': 'Checkout completed successfully!',
+      };
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+      if (errBody is Map) {
+        final isBackendWeirdSuccess =
+            errBody['succeeded'] == true || errBody['success'] == true;
+        if (isBackendWeirdSuccess) {
+          return {
+            'success': true,
+            'data': errBody['data'],
+            'message':
+                errBody['message'] ?? 'Checkout completed successfully!',
+          };
+        }
+        return {
+          'success': false,
+          'data': null,
+          'message': errBody['message'] ?? _extractApiError(e),
+        };
+      }
+      return {'success': false, 'data': null, 'message': _extractApiError(e)};
+    } catch (e) {
+      return {
+        'success': false,
+        'data': null,
+        'message': 'Unexpected error: $e',
+      };
     }
   }
 
@@ -1344,6 +1460,109 @@ class ApiService {
       throw AuctionException(_extractApiError(e));
     } catch (e) {
       throw AuctionException('Failed to fetch bid history: $e');
+    }
+  }
+
+  // 1. جلب تاريخ المزايدات (Bid History)
+  Future<Map<String, dynamic>> getAuctionBids(String auctionId) async {
+    try {
+      final token = StorageService().token;
+      final response = await _dio.get(
+        '/api/v1/auctions/$auctionId/bids',
+        options: Options(
+          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+        ),
+      );
+
+      final respBody = response.data;
+      if (respBody is Map) {
+        return {
+          'success': respBody['succeeded'] ?? respBody['success'] ?? true,
+          'data': respBody['data'] ?? [],
+          'message': respBody['message'] ?? 'Bids fetched successfully',
+        };
+      }
+      return {'success': true, 'data': respBody, 'message': 'Success'};
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+      if (errBody is Map) {
+        return {
+          'success': false,
+          'data': null,
+          'message': errBody['message'] ?? _extractApiError(e),
+        };
+      }
+      return {'success': false, 'data': null, 'message': _extractApiError(e)};
+    } catch (e) {
+      return {
+        'success': false,
+        'data': null,
+        'message': 'Unexpected error: $e',
+      };
+    }
+  }
+
+  // 2. إرسال مزايدة جديدة (Place Bid)
+  Future<Map<String, dynamic>> placeBid({
+    required String auctionId,
+    required double amount,
+  }) async {
+    try {
+      final token = StorageService().token;
+      final response = await _dio.post(
+        '/api/v1/auctions/$auctionId/bid',
+        data: {
+          "amount":
+              amount, // ببعت القيمة هنا، لو الباك-إند طالب اسم الفيلد مختلف عدله
+        },
+        options: Options(
+          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+        ),
+      );
+
+      final respBody = response.data;
+      if (respBody is Map) {
+        final isSuccess =
+            respBody['succeeded'] == true || respBody['success'] == true;
+        return {
+          'success': isSuccess,
+          'data': respBody['data'],
+          'message':
+              isSuccess
+                  ? 'Bid placed successfully!'
+                  : (respBody['message'] ?? 'Failed to place bid.'),
+        };
+      }
+      return {
+        'success': response.statusCode == 200,
+        'data': null,
+        'message': 'Bid placed successfully!',
+      };
+    } on DioException catch (e) {
+      final errBody = e.response?.data;
+      if (errBody is Map) {
+        final isBackendWeirdSuccess =
+            errBody['succeeded'] == true || errBody['success'] == true;
+        if (isBackendWeirdSuccess) {
+          return {
+            'success': true,
+            'data': errBody['data'],
+            'message': 'Bid placed successfully!',
+          };
+        }
+        return {
+          'success': false,
+          'data': null,
+          'message': errBody['message'] ?? _extractApiError(e),
+        };
+      }
+      return {'success': false, 'data': null, 'message': _extractApiError(e)};
+    } catch (e) {
+      return {
+        'success': false,
+        'data': null,
+        'message': 'Unexpected error: $e',
+      };
     }
   }
 

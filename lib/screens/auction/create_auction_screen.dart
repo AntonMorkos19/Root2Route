@@ -4,11 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
-  
+import 'package:root2route/services/api.dart';
+import 'package:root2route/services/storage_service.dart';
+
 class CreateAuctionScreen extends StatefulWidget {
   static const String id = '/createAuctionScreen';
+  final dynamic preSelectedProduct;
 
-  const CreateAuctionScreen({super.key});
+  const CreateAuctionScreen({super.key, this.preSelectedProduct});
 
   @override
   State<CreateAuctionScreen> createState() => _CreateAuctionScreenState();
@@ -18,7 +21,6 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
   final _formKey = GlobalKey<FormState>();
 
   String? _productId;
-
   final TextEditingController _titleCtrl = TextEditingController();
   final TextEditingController _startPriceCtrl = TextEditingController();
   final TextEditingController _minBidIncrCtrl = TextEditingController();
@@ -27,13 +29,84 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
 
+  List<dynamic> _eligibleProducts = [];
+  bool _isLoadingProducts = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEligibleProducts();
+  }
+
+  Future<void> _fetchEligibleProducts() async {
+    final orgId = StorageService().currentUserOrgId;
+    if (orgId == null || orgId.isEmpty) {
+      if (mounted) setState(() => _isLoadingProducts = false);
+      return;
+    }
+    try {
+      final res = await ApiService().getOrganizationProducts(orgId);
+      if (mounted && res['success'] == true) {
+        final data = res['data'] as List<dynamic>;
+        setState(() {
+          _eligibleProducts =
+              data.where((p) {
+                final isAvailableForAuction =
+                    p['isAvailableForAuction'] == true ||
+                    p['IsAvailableForAuction'] == true;
+                return isAvailableForAuction;
+              }).toList();
+
+          // Auto-fill title and price if we have a productId
+          if (_productId != null) {
+            try {
+              final selectedProduct = _eligibleProducts.firstWhere(
+                (p) => (p['id'] ?? p['Id']).toString() == _productId,
+              );
+              _titleCtrl.text =
+                  selectedProduct['name'] ?? selectedProduct['Name'] ?? '';
+
+              final rawPrice =
+                  selectedProduct['directSalePrice'] ??
+                  selectedProduct['DirectSalePrice'] ??
+                  0;
+              final price = double.tryParse(rawPrice.toString()) ?? 0.0;
+              if (price > 0 && _startPriceCtrl.text.isEmpty) {
+                _startPriceCtrl.text = price.toStringAsFixed(0);
+              }
+            } catch (_) {}
+          }
+
+          _isLoadingProducts = false;
+        });
+      } else if (mounted) {
+        setState(() => _isLoadingProducts = false);
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingProducts = false);
+    }
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_productId == null) {
-      final args = ModalRoute.of(context)?.settings.arguments;
-      if (args is String && args.isNotEmpty) {
-        _productId = args;
+      if (widget.preSelectedProduct != null) {
+        _productId =
+            (widget.preSelectedProduct['id'] ?? widget.preSelectedProduct['Id'])
+                ?.toString();
+        _titleCtrl.text =
+            widget.preSelectedProduct['name'] ??
+            widget.preSelectedProduct['Name'] ??
+            '';
+      } else {
+        final args = ModalRoute.of(context)?.settings.arguments;
+        if (args is String && args.isNotEmpty) {
+          _productId = args;
+        } else if (args is Map) {
+          _productId = (args['id'] ?? args['Id'])?.toString();
+          _titleCtrl.text = (args['name'] ?? args['Name'] ?? '').toString();
+        }
       }
     }
   }
@@ -153,8 +226,22 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
       return;
     }
 
+    final isValidProduct = _eligibleProducts.any(
+      (p) => (p['id'] ?? p['Id']).toString() == _productId,
+    );
+    if (!isValidProduct) {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Invalid Product',
+        text: 'The selected product is not available for auction.',
+      );
+      return;
+    }
+
     context.read<AuctionCubit>().createAuction(
-      title: _titleCtrl.text.trim(),
+      title:
+          _titleCtrl.text.trim().isEmpty ? 'Auction' : _titleCtrl.text.trim(),
       productId: _productId!,
       startingPrice: double.tryParse(_startPriceCtrl.text.trim()) ?? 0.0,
       minimumBidIncrement: double.tryParse(_minBidIncrCtrl.text.trim()) ?? 0.0,
@@ -212,7 +299,10 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
               barrierDismissible: false,
               onConfirmBtnTap: () {
                 Navigator.pop(context); // Pop the QuickAlert
-                Navigator.pop(context, true); // Pop the CreateAuctionScreen and return true to refresh
+                Navigator.pop(
+                  context,
+                  true,
+                ); // Pop the CreateAuctionScreen and return true to refresh
               },
             );
           }
@@ -220,104 +310,103 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildSectionHeader(Icons.inventory_2_outlined, 'Product'),
-              const SizedBox(height: 12),
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildSectionHeader(Icons.title_rounded, 'Auction Title'),
+                const SizedBox(height: 12),
+                CustomTextFormField(
+                  controller: _titleCtrl,
+                  label: 'Title',
+                  icon: Icons.edit_note_rounded,
+                  validator:
+                      (val) =>
+                          val == null || val.trim().isEmpty ? 'Required' : null,
+                  fillColor: Colors.white,
+                  color: Colors.black,
+                ),
 
-              CustomTextFormField(
-                controller: _titleCtrl,
-                icon: Icons.title,
-                validator:
-                    (val) => val == null || val.isEmpty ? 'Required' : null,
-                fillColor: Colors.white,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                color: Colors.black,
-                label: 'Auction Title',
-              ),
+                const SizedBox(height: 12),
 
-              const SizedBox(height: 12),
-              _buildSectionHeader(Icons.attach_money, 'Pricing'),
-              const SizedBox(height: 12),
-              CustomTextFormField(
-                controller: _startPriceCtrl,
-                label: 'Starting Price (EGP)',
-                icon: Icons.money,
-                validator: _priceValidator,
-                fillColor: Colors.white,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                color: Colors.black,
-              ),
-              const SizedBox(height: 12),
-              CustomTextFormField(
-                controller: _minBidIncrCtrl,
-                label: 'Minimum Bid Increment (EGP)',
-                icon: Icons.trending_up,
-                validator: _priceValidator,
-                fillColor: Colors.white,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                color: Colors.black,
-              ),
-              const SizedBox(height: 12),
-              CustomTextFormField(
-                label: 'Reserve Price (EGP)',
-                validator: _priceValidator,
-                icon: Icons.security,
-                fillColor: Colors.white,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                color: Colors.black,
-                controller: _reservePriceCtrl,
-              ),
-
-              const SizedBox(height: 24),
-              _buildSectionHeader(Icons.calendar_today, 'Schedule'),
-              const SizedBox(height: 12),
-              _buildDateTimePicker(
-                label: 'Start Date & Time',
-                selectedDate: _startDate,
-                onTap: () => _pickDateTime(isStart: true),
-              ),
-              const SizedBox(height: 12),
-              _buildDateTimePicker(
-                label: 'End Date & Time',
-                selectedDate: _endDate,
-                onTap: () => _pickDateTime(isStart: false),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _submitAuction,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2ECC71),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 12),
+                _buildSectionHeader(Icons.attach_money, 'Pricing'),
+                const SizedBox(height: 12),
+                CustomTextFormField(
+                  controller: _startPriceCtrl,
+                  label: 'Starting Price (EGP)',
+                  icon: Icons.money,
+                  validator: _priceValidator,
+                  fillColor: Colors.white,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
                   ),
-                  elevation: 0,
+                  color: Colors.black,
                 ),
-                child: const Text(
-                  'Create Auction',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                const SizedBox(height: 12),
+                CustomTextFormField(
+                  controller: _minBidIncrCtrl,
+                  label: 'Minimum Bid Increment (EGP)',
+                  icon: Icons.trending_up,
+                  validator: _priceValidator,
+                  fillColor: Colors.white,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  color: Colors.black,
+                ),
+                const SizedBox(height: 12),
+                CustomTextFormField(
+                  label: 'Reserve Price (EGP)',
+                  validator: _priceValidator,
+                  icon: Icons.security,
+                  fillColor: Colors.white,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  color: Colors.black,
+                  controller: _reservePriceCtrl,
+                ),
+
+                const SizedBox(height: 24),
+                _buildSectionHeader(Icons.calendar_today, 'Schedule'),
+                const SizedBox(height: 12),
+                _buildDateTimePicker(
+                  label: 'Start Date & Time',
+                  selectedDate: _startDate,
+                  onTap: () => _pickDateTime(isStart: true),
+                ),
+                const SizedBox(height: 12),
+                _buildDateTimePicker(
+                  label: 'End Date & Time',
+                  selectedDate: _endDate,
+                  onTap: () => _pickDateTime(isStart: false),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: _submitAuction,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2ECC71),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Create Auction',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 32),
-            ],
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -352,8 +441,6 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
       ],
     );
   }
-
-
 
   Widget _buildDateTimePicker({
     required String label,

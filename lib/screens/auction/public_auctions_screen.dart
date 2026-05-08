@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/screens/auction/auction_details_screen.dart';
+import 'package:root2route/components/auction_card.dart';
+import 'package:root2route/services/storage_service.dart';
 
 class PublicAuctionsScreen extends StatefulWidget {
   static const String id = '/PublicAuctionsScreen';
@@ -18,6 +22,7 @@ class _PublicAuctionsScreenState extends State<PublicAuctionsScreen>
 
   List<dynamic> _liveAuctions = [];
   List<dynamic> _endedAuctions = [];
+  Map<String, dynamic> _productDataMap = {};
 
   bool _loadingLive = true;
   bool _loadingEnded = true;
@@ -31,6 +36,26 @@ class _PublicAuctionsScreenState extends State<PublicAuctionsScreen>
     _tabController = TabController(length: 2, vsync: this);
     _fetchLive();
     _fetchEnded();
+    _fetchAllProductsForImages();
+  }
+
+  Future<void> _fetchAllProductsForImages() async {
+    try {
+      final res = await _api.getAllProducts(pageSize: 1000);
+      if (mounted && res['success'] == true) {
+        final List<dynamic> products = res['data'] ?? [];
+        final Map<String, dynamic> productMap = {};
+        for (var p in products) {
+          final id = (p['id'] ?? p['Id'])?.toString();
+          if (id != null) productMap[id] = p;
+        }
+        if (mounted) {
+          setState(() {
+            _productDataMap = productMap;
+          });
+        }
+      }
+    } catch (_) {}
   }
 
   @override
@@ -49,8 +74,14 @@ class _PublicAuctionsScreenState extends State<PublicAuctionsScreen>
       if (!mounted) return;
       if (res['success'] == true) {
         final data = res['data'];
+        final List<dynamic> allAuctions = data is List ? data : [];
+        
         setState(() {
-          _liveAuctions = data is List ? data : [];
+          _liveAuctions = allAuctions.where((a) {
+            final status = a['status']?.toString().toLowerCase();
+            return status == 'ongoing' || status == 'active' || status == '1';
+          }).toList();
+          
           _loadingLive = false;
         });
       } else {
@@ -186,12 +217,14 @@ class _PublicAuctionsScreenState extends State<PublicAuctionsScreen>
           children: [
             _LiveAuctionsTab(
               auctions: _liveAuctions,
+              productDataMap: _productDataMap,
               isLoading: _loadingLive,
               error: _liveError,
               onRefresh: _fetchLive,
             ),
             _EndedAuctionsTab(
               auctions: _endedAuctions,
+              productDataMap: _productDataMap,
               isLoading: _loadingEnded,
               error: _endedError,
               onRefresh: _fetchEnded,
@@ -207,12 +240,14 @@ class _PublicAuctionsScreenState extends State<PublicAuctionsScreen>
 
 class _LiveAuctionsTab extends StatelessWidget {
   final List<dynamic> auctions;
+  final Map<String, dynamic> productDataMap;
   final bool isLoading;
   final String? error;
   final Future<void> Function() onRefresh;
 
   const _LiveAuctionsTab({
     required this.auctions,
+    required this.productDataMap,
     required this.isLoading,
     required this.error,
     required this.onRefresh,
@@ -230,25 +265,60 @@ class _LiveAuctionsTab extends StatelessWidget {
       return _ErrorState(message: error!, onRetry: onRefresh);
     }
 
-    if (auctions.isEmpty) {
-      return _EmptyState(
-        icon: Icons.flash_on_rounded,
-        title: 'No Live Auctions',
-        subtitle: 'Check back soon — new auctions are added regularly.',
-        onRefresh: onRefresh,
-      );
-    }
-
     return RefreshIndicator(
       onRefresh: onRefresh,
       color: AppColors.primary,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        itemCount: auctions.length,
-        itemBuilder: (context, index) {
-          return _LiveAuctionCard(auction: auctions[index]);
-        },
-      ),
+      child: auctions.isEmpty
+          ? ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: _EmptyState(
+                    icon: Icons.flash_on_rounded,
+                    title: 'No Live Auctions',
+                    subtitle: 'Check back soon — new auctions are added regularly.',
+                    onRefresh: onRefresh,
+                  ),
+                ),
+              ],
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              itemCount: auctions.length,
+              itemBuilder: (context, index) {
+                final auctionData = auctions[index];
+                final auction = AuctionModel.fromJson(auctionData);
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: AuctionCard(
+                    auction: auction,
+                    productData: productDataMap[auction.productId],
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        AuctionDetailsScreen.id,
+                        arguments: auction,
+                      );
+                    },
+                    onBid: () {
+                      Navigator.pushNamed(
+                        context,
+                        AuctionDetailsScreen.id,
+                        arguments: auction,
+                      );
+                    },
+                    onViewBids: () {
+                      Navigator.pushNamed(
+                        context,
+                        AuctionDetailsScreen.id,
+                        arguments: auction,
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
     );
   }
 }
@@ -257,12 +327,14 @@ class _LiveAuctionsTab extends StatelessWidget {
 
 class _EndedAuctionsTab extends StatelessWidget {
   final List<dynamic> auctions;
+  final Map<String, dynamic> productDataMap;
   final bool isLoading;
   final String? error;
   final Future<void> Function() onRefresh;
 
   const _EndedAuctionsTab({
     required this.auctions,
+    required this.productDataMap,
     required this.isLoading,
     required this.error,
     required this.onRefresh,
@@ -280,367 +352,62 @@ class _EndedAuctionsTab extends StatelessWidget {
       return _ErrorState(message: error!, onRetry: onRefresh);
     }
 
-    if (auctions.isEmpty) {
-      return _EmptyState(
-        icon: Icons.history_rounded,
-        title: 'No Ended Auctions',
-        subtitle: 'Completed auctions will appear here.',
-        onRefresh: onRefresh,
-      );
-    }
-
     return RefreshIndicator(
       onRefresh: onRefresh,
       color: AppColors.primary,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        itemCount: auctions.length,
-        itemBuilder: (context, index) {
-          return _EndedAuctionCard(auction: auctions[index]);
-        },
-      ),
-    );
-  }
-}
-
-// ─── Live Auction Card ────────────────────────────────────────────────────────
-
-class _LiveAuctionCard extends StatelessWidget {
-  final dynamic auction;
-
-  const _LiveAuctionCard({required this.auction});
-
-  @override
-  Widget build(BuildContext context) {
-    final title =
-        auction['title'] ?? auction['Title'] ?? auction['name'] ?? auction['Name'] ?? 'Auction';
-    final rawBid =
-        auction['currentBid'] ??
-        auction['CurrentBid'] ??
-        auction['highestBid'] ??
-        auction['HighestBid'] ??
-        auction['reservePrice'] ??
-        auction['ReservePrice'] ??
-        0;
-    final currentBid = double.tryParse(rawBid.toString()) ?? 0.0;
-
-    final images = auction['images'] ?? auction['Images'] ?? auction['productImages'];
-    String? imageUrl;
-    if (images is List && images.isNotEmpty) {
-      imageUrl = images.first?.toString();
-    }
-    final displayUrl =
-        (imageUrl != null && imageUrl.startsWith('/'))
-            ? 'https://root2route.runasp.net$imageUrl'
-            : imageUrl;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image + Live badge
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 170,
-                  child: displayUrl != null && displayUrl.isNotEmpty
-                      ? Image.network(
-                          displayUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _placeholder(),
-                        )
-                      : _placeholder(),
-                ),
-              ),
-              // LIVE badge
-              Positioned(
-                top: 12,
-                left: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade600,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.red.withOpacity(0.4),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.circle, size: 8, color: Colors.white),
-                      SizedBox(width: 5),
-                      Text(
-                        'LIVE',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 11,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          // Info
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: auctions.isEmpty
+          ? ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
               children: [
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black87,
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: _EmptyState(
+                    icon: Icons.history_rounded,
+                    title: 'No Ended Auctions',
+                    subtitle: 'Completed auctions will appear here.',
+                    onRefresh: onRefresh,
                   ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Current Bid',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'EGP ${currentBid.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 18,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // TODO: Navigate to bid screen
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Bidding coming soon!'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.gavel_rounded, size: 16),
-                      label: const Text(
-                        'Bid Now',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 2,
-                        shadowColor: AppColors.primary.withOpacity(0.4),
-                      ),
-                    ),
-                  ],
                 ),
               ],
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              itemCount: auctions.length,
+              itemBuilder: (context, index) {
+                final auctionData = auctions[index];
+                final auction = AuctionModel.fromJson(auctionData);
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: AuctionCard(
+                    auction: auction,
+                    productData: productDataMap[auction.productId],
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        AuctionDetailsScreen.id,
+                        arguments: auction,
+                      );
+                    },
+                    onViewResult: () {
+                      Navigator.pushNamed(
+                        context,
+                        AuctionDetailsScreen.id,
+                        arguments: auction,
+                      );
+                    },
+                  ),
+                );
+              },
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _placeholder() {
-    return Container(
-      color: const Color(0xFFF0F4F0),
-      child: const Center(
-        child: Icon(Icons.image_outlined, size: 48, color: Colors.grey),
-      ),
     );
   }
 }
-
-// ─── Ended Auction Card ───────────────────────────────────────────────────────
-
-class _EndedAuctionCard extends StatelessWidget {
-  final dynamic auction;
-
-  const _EndedAuctionCard({required this.auction});
-
-  @override
-  Widget build(BuildContext context) {
-    final title =
-        auction['title'] ?? auction['Title'] ?? auction['name'] ?? auction['Name'] ?? 'Auction';
-    final rawWinner =
-        auction['finalPrice'] ??
-        auction['FinalPrice'] ??
-        auction['winningBid'] ??
-        auction['WinningBid'] ??
-        auction['reservePrice'] ??
-        auction['ReservePrice'] ??
-        0;
-    final finalPrice = double.tryParse(rawWinner.toString()) ?? 0.0;
-
-    final images = auction['images'] ?? auction['Images'] ?? auction['productImages'];
-    String? imageUrl;
-    if (images is List && images.isNotEmpty) {
-      imageUrl = images.first?.toString();
-    }
-    final displayUrl =
-        (imageUrl != null && imageUrl.startsWith('/'))
-            ? 'https://root2route.runasp.net$imageUrl'
-            : imageUrl;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Image
-          ClipRRect(
-            borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
-            child: SizedBox(
-              width: 110,
-              height: 110,
-              child: displayUrl != null && displayUrl.isNotEmpty
-                  ? Image.network(
-                      displayUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _placeholder(),
-                    )
-                  : _placeholder(),
-            ),
-          ),
-          // Info
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'CLOSED',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.grey.shade600,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Final Price',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade500,
-                    ),
-                  ),
-                  Text(
-                    finalPrice > 0
-                        ? 'EGP ${finalPrice.toStringAsFixed(0)}'
-                        : 'No bids placed',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 15,
-                      color: finalPrice > 0
-                          ? Colors.grey.shade700
-                          : Colors.grey.shade400,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _placeholder() {
-    return Container(
-      color: const Color(0xFFF0F4F0),
-      child: const Center(
-        child: Icon(Icons.image_outlined, size: 32, color: Colors.grey),
-      ),
-    );
-  }
-}
-
-// ─── Shared Helper Widgets ────────────────────────────────────────────────────
 
 class _EmptyState extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
-  final Future<void> Function() onRefresh;
+  final VoidCallback onRefresh;
 
   const _EmptyState({
     required this.icon,
@@ -652,47 +419,20 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 52, color: AppColors.primary.withOpacity(0.5)),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-            ),
-            const SizedBox(height: 24),
-            OutlinedButton.icon(
-              onPressed: onRefresh,
-              icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Refresh'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 64, color: Colors.grey.shade300),
+          const SizedBox(height: 16),
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54)),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(subtitle, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade500)),
+          ),
+          const SizedBox(height: 24),
+          TextButton.icon(onPressed: onRefresh, icon: const Icon(Icons.refresh), label: const Text('Refresh')),
+        ],
       ),
     );
   }
@@ -700,38 +440,22 @@ class _EmptyState extends StatelessWidget {
 
 class _ErrorState extends StatelessWidget {
   final String message;
-  final Future<void> Function() onRetry;
+  final VoidCallback onRetry;
 
   const _ErrorState({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline_rounded, size: 60, color: Colors.red.shade300),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline_rounded, size: 48, color: Colors.redAccent),
+          const SizedBox(height: 16),
+          Text(message, textAlign: TextAlign.center, style: const TextStyle(color: Colors.black54)),
+          const SizedBox(height: 24),
+          ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+        ],
       ),
     );
   }

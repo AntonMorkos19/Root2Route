@@ -6,6 +6,8 @@ import 'package:root2route/screens/auction/my_auctions_screen.dart';
 import 'package:root2route/screens/product/edit_product_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/screens/auction/create_auction_screen.dart';
+import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/screens/auth/login_screen.dart';
 
 class MyProductsScreen extends StatefulWidget {
   final String organizationId;
@@ -175,6 +177,32 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
   }
 
   Widget _buildBody() {
+    if (StorageService().isGuest) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.lock_outline, size: 80, color: Colors.grey.shade400),
+              const SizedBox(height: 16),
+              Text(
+                'Please log in and create an organization to view this page.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                child: const Text('Login', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Column(
       children: [
         // ── Manage My Auctions Banner ──────────────────────────────────────
@@ -367,10 +395,23 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
     final id = product['id'] ?? product['Id'] ?? '';
     final name = product['name'] ?? product['Name'] ?? 'Unknown';
 
-    // Convert direct sale price safely
-    final rawPrice =
-        product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
-    final price = double.tryParse(rawPrice.toString()) ?? 0.0;
+    final isAvailableForDirectSale = product['isAvailableForDirectSale'] == true || product['IsAvailableForDirectSale'] == true;
+    final isAvailableForAuction = product['isAvailableForAuction'] == true || product['IsAvailableForAuction'] == true;
+
+    double displayPrice = 0.0;
+    bool showAuctionOnlyBadge = false;
+
+    if (isAvailableForDirectSale) {
+      final rawPrice = product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
+      displayPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
+    } else if (isAvailableForAuction) {
+      final rawPrice = product['startBiddingPrice'] ?? product['StartBiddingPrice'] ?? 0;
+      displayPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
+      showAuctionOnlyBadge = true;
+    } else {
+      final rawPrice = product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
+      displayPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
+    }
 
     // Safely extract first image URL
     final imagesList = product['images'] ?? product['Images'];
@@ -432,14 +473,35 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                     color: Colors.black87,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'EGP ${price.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                    color: AppColors.primary,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      'EGP ${displayPrice.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    if (showAuctionOnlyBadge) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade100,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'Auction Only',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepOrange,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 8),
                 // Actions
@@ -477,7 +539,10 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                         Navigator.pushNamed(
                           context,
                           CreateAuctionScreen.id,
-                          arguments: id,
+                          arguments: {
+                            'id': id,
+                            'name': name,
+                          },
                         );
                       },
                       child: Container(

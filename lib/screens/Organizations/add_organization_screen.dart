@@ -128,6 +128,13 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       if (result['success']) {
         await StorageService().saveHasOrganization(true);
 
+        final orgId = result['data']?['id'] ?? 
+                      result['data']?['organizationId'] ?? 
+                      result['data']?['OrganizationId'] ?? '';
+        if (orgId.toString().isNotEmpty) {
+          await StorageService().saveOrganizationId(orgId.toString());
+        }
+
         QuickAlert.show(
           context: context,
           type: QuickAlertType.success,

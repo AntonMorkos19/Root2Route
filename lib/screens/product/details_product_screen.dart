@@ -4,6 +4,9 @@ import 'package:root2route/services/api.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
+import 'package:root2route/screens/order/checkout_screen.dart';
+import 'package:root2route/screens/order/cart_screen.dart';
+import 'package:root2route/services/cart_service.dart';
 
 class DetailsProductScreen extends StatefulWidget {
   final String productId;
@@ -129,12 +132,11 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                     icon: const Icon(
                       Icons.shopping_cart,
                       color: Colors.white,
-                      size: 22,
                     ),
-                    onPressed: () {},
+                    onPressed: () => Navigator.pushNamed(context, CartScreen.id).then((_) => setState(() {})),
                   ),
                 ),
-                if (_cartCount > 0)
+                if (CartService().items.isNotEmpty)
                   Positioned(
                     right: -2,
                     top: -2,
@@ -151,7 +153,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          "$_cartCount",
+                          "${CartService().items.length}",
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
@@ -554,11 +556,37 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
             );
             return;
           }
-          setState(() => _cartCount++);
+          final String name = _productData?['name'] ?? _productData?['Name'] ?? 'Unknown Product';
+          final dynamic priceRaw = _productData?['directSalePrice'] ?? _productData?['DirectSalePrice'] ?? 0;
+          final double price = priceRaw is num ? priceRaw.toDouble() : double.tryParse(priceRaw.toString()) ?? 0.0;
+
+          final images = _productData?['images'] ?? _productData?['Images'];
+          final List<dynamic> imagesList = (images is List) ? images : [];
+          String? firstImageUrl;
+          if (imagesList.isNotEmpty) {
+            if (imagesList[0] is Map) {
+              firstImageUrl = imagesList[0]['url'] ?? imagesList[0]['Url'];
+            } else {
+              firstImageUrl = imagesList[0].toString();
+            }
+          }
+
+          final bool alreadyInCart = CartService().items.any((item) => item['productId'] == widget.productId);
+
+          CartService().addItem(
+            productId: widget.productId,
+            name: name,
+            price: price,
+            imageUrl: firstImageUrl,
+            quantity: 1,
+          );
+          
+          setState(() {}); // Update the badge
+
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Product added to cart!'),
-              backgroundColor: AppColors.primary,
+            SnackBar(
+              content: Text(alreadyInCart ? 'Item already in cart!' : 'Product added to cart!'),
+              backgroundColor: alreadyInCart ? Colors.orange : AppColors.primary,
             ),
           );
         },

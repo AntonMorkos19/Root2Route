@@ -15,6 +15,8 @@ import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/screens/splash_screen.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/core/navigator_service.dart';
+import 'package:root2route/screens/order/checkout_screen.dart';
+import 'package:root2route/screens/order/cart_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,7 +43,6 @@ class MyApp extends StatelessWidget {
           ForgotPasswordScreen.id: (_) => const ForgotPasswordScreen(),
           CreateNewPassword.id: (_) => const CreateNewPassword(),
           GuestHomeScreen.id: (_) => const GuestHomeScreen(),
-          // MyAuctionsScreen.id: (_) => const MyAuctionsScreen(),
           CreateAuctionScreen.id: (_) => const CreateAuctionScreen(),
           UpdateAuctionScreen.id: (context) {
             final auction =
@@ -52,6 +53,8 @@ class MyApp extends StatelessWidget {
           BidHistoryScreen.id: (_) => const BidHistoryScreen(),
           AuctionDetailsScreen.id: (_) => const AuctionDetailsScreen(),
           BuyerAuctionsScreen.id: (_) => const BuyerAuctionsScreen(),
+          CheckoutScreen.id: (_) => const CheckoutScreen(),
+          CartScreen.id: (_) => const CartScreen(),
         },
       ),
     );

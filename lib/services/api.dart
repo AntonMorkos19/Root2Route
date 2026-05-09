@@ -1,8 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
-import 'package:image_picker/image_picker.dart';
+ import 'package:image_picker/image_picker.dart';
 import 'package:root2route/core/constants.dart';
 import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/models/user_model.dart';
@@ -1144,32 +1143,37 @@ class ApiService {
         '/product/$id',
         options: Options(
           headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+          validateStatus: (status) => status != null && status <= 400,
         ),
       );
 
       final body = response.data;
-      return {
-        'success': body['succeeded'] ?? true,
-        'data': body['data'],
-        'message': body['message'] ?? 'Success',
-      };
-    } on DioException catch (e) {
-      if (e.response != null && e.response?.data != null) {
-        final errorData = e.response!.data;
+      final int statusCode = response.statusCode ?? 0;
 
-        if (errorData is Map && errorData['succeeded'] == true) {
+      if (body is Map) {
+        final bool isSuccess = (statusCode == 200) || 
+                               (statusCode == 400 && body['succeeded'] == true);
+
+        if (isSuccess) {
           return {
             'success': true,
-            'data': errorData['data'],
-            'message': errorData['message'] ?? 'Success',
+            'data': body['data'],
+            'message': body['message'] ?? 'Success',
+          };
+        } else {
+          return {
+            'success': false,
+            'message': body['message'] ?? 'Product not found',
           };
         }
-
-        return {
-          'success': false,
-          'message': errorData['message'] ?? 'Product not found',
-        };
       }
+
+      return {
+        'success': statusCode == 200,
+        'data': body,
+        'message': 'Success',
+      };
+    } on DioException catch (e) {
       return {'success': false, 'message': 'Connection error: ${e.message}'};
     } catch (e) {
       return {'success': false, 'message': 'Unexpected error: $e'};

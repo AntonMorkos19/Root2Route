@@ -23,6 +23,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   String? _errorMessageReceivedOrders;
   List<OrderModel> _receivedOrders = [];
 
+  String _myOrdersFilter = 'All';
+  String _receivedOrdersFilter = 'All';
+
   String? _organizationId;
 
   @override
@@ -120,6 +123,39 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     }
   }
 
+  Widget _buildFilterChips(String currentFilter, Function(String) onFilterChanged) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Row(
+        children: [
+          _buildChip('All', currentFilter, onFilterChanged),
+          const SizedBox(width: 8),
+          _buildChip('Active', currentFilter, onFilterChanged),
+          const SizedBox(width: 8),
+          _buildChip('History', currentFilter, onFilterChanged),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChip(String label, String currentFilter, Function(String) onFilterChanged) {
+    final isSelected = currentFilter == label;
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        if (selected) {
+          onFilterChanged(label);
+        }
+      },
+      selectedColor: AppColors.primary.withOpacity(0.2),
+      labelStyle: TextStyle(
+        color: isSelected ? AppColors.primary : Colors.black87,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -184,51 +220,60 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       );
     }
 
-    if (_myOrders.isEmpty) {
-      return RefreshIndicator(
-        onRefresh: _fetchMyOrders,
-        color: AppColors.primary,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.6,
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.receipt_long_outlined,
-                  size: 80,
-                  color: Colors.grey.shade400,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No orders yet',
-                  style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Your placed orders will appear here',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
-                ),
-              ],
-            ),
+    final filteredOrders = _myOrders.where((order) {
+      if (_myOrdersFilter == 'Active') {
+        return order.status == 0 || order.status == 1 || order.status == 2;
+      } else if (_myOrdersFilter == 'History') {
+        return order.status == 3 || order.status == 4;
+      }
+      return true;
+    }).toList();
+
+    return Column(
+      children: [
+        _buildFilterChips(_myOrdersFilter, (val) => setState(() => _myOrdersFilter = val)),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: _fetchMyOrders,
+            color: AppColors.primary,
+            child: filteredOrders.isEmpty
+                ? SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.receipt_long_outlined,
+                            size: 80,
+                            color: Colors.grey.shade400,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No orders found',
+                            style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Your placed orders will appear here',
+                            style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredOrders.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) =>
+                        _buildOrderCard(filteredOrders[index], isSeller: false),
+                  ),
           ),
         ),
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: _fetchMyOrders,
-      color: AppColors.primary,
-      child: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: _myOrders.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder:
-            (context, index) =>
-                _buildOrderCard(_myOrders[index], isSeller: false),
-      ),
+      ],
     );
   }
 
@@ -293,51 +338,60 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       );
     }
 
-    if (_receivedOrders.isEmpty) {
-      return RefreshIndicator(
-        onRefresh: _fetchReceivedOrders,
-        color: AppColors.primary,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.6,
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.inbox_outlined,
-                  size: 80,
-                  color: Colors.grey.shade400,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No received orders',
-                  style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Customer orders will appear here',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
-                ),
-              ],
-            ),
+    final filteredOrders = _receivedOrders.where((order) {
+      if (_receivedOrdersFilter == 'Active') {
+        return order.status == 0 || order.status == 1 || order.status == 2;
+      } else if (_receivedOrdersFilter == 'History') {
+        return order.status == 3 || order.status == 4;
+      }
+      return true;
+    }).toList();
+
+    return Column(
+      children: [
+        _buildFilterChips(_receivedOrdersFilter, (val) => setState(() => _receivedOrdersFilter = val)),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: _fetchReceivedOrders,
+            color: AppColors.primary,
+            child: filteredOrders.isEmpty
+                ? SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.inbox_outlined,
+                            size: 80,
+                            color: Colors.grey.shade400,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No received orders found',
+                            style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Customer orders will appear here',
+                            style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredOrders.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) =>
+                        _buildOrderCard(filteredOrders[index], isSeller: true),
+                  ),
           ),
         ),
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: _fetchReceivedOrders,
-      color: AppColors.primary,
-      child: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: _receivedOrders.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder:
-            (context, index) =>
-                _buildOrderCard(_receivedOrders[index], isSeller: true),
-      ),
+      ],
     );
   }
 

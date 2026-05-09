@@ -4,8 +4,7 @@ import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/screens/auction/auction_details_screen.dart';
 import 'package:root2route/components/auction_card.dart';
-import 'package:root2route/services/storage_service.dart';
-
+ 
 class PublicAuctionsScreen extends StatefulWidget {
   static const String id = '/PublicAuctionsScreen';
 

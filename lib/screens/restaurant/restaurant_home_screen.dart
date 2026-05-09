@@ -3,7 +3,6 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
 import 'package:root2route/screens/Organizations/add_organization_screen.dart';
 import 'package:root2route/screens/market_screen.dart';
-import 'package:root2route/screens/tradesman/history_screen.dart';
 import 'package:root2route/screens/product/my_products_screen.dart';
 
 class RestaurantHomeScreen extends StatefulWidget {
@@ -16,7 +15,7 @@ class RestaurantHomeScreen extends StatefulWidget {
 class _RestaurantHomeScreenState extends State<RestaurantHomeScreen> {
   int index = 0;
 
-  final screens = const [MarketScreen(), HistoryScreen(), ProfileScreen()];
+  final screens = const [MarketScreen(), ProfileScreen()];
   Widget? funFab() {
     switch (index) {
       case 0:
@@ -27,12 +26,15 @@ class _RestaurantHomeScreenState extends State<RestaurantHomeScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const MyProductsScreen(organizationId: '')),
+              MaterialPageRoute(
+                builder:
+                    (context) => const MyProductsScreen(organizationId: ''),
+              ),
             );
           },
         );
 
-      case 2:
+      case 1:
         return FloatingActionButton(
           backgroundColor: AppColors.primary,
           shape: const CircleBorder(),
@@ -135,7 +137,3 @@ class _RestaurantHomeScreenState extends State<RestaurantHomeScreen> {
     );
   }
 }
-
-
-
-

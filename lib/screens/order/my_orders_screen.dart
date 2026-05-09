@@ -122,6 +122,24 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasOrg = _organizationId != null && _organizationId!.isNotEmpty;
+
+    if (!hasOrg) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF4F6F9),
+        appBar: AppBar(
+          title: const Text(
+            'My Orders',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: AppColors.primary,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+        ),
+        body: _buildMyOrdersTab(),
+      );
+    }
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(

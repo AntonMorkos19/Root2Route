@@ -5,9 +5,15 @@ import 'package:root2route/screens/product/details_product_screen.dart';
 import 'package:root2route/screens/product/add_product_screen.dart';
 import 'package:root2route/services/storage_service.dart';
 
- class MainMarketTab extends StatefulWidget {
+class MainMarketTab extends StatefulWidget {
   final String? organizationId;
-  const MainMarketTab({super.key, this.organizationId});
+  final bool showAddButton;
+
+  const MainMarketTab({
+    super.key,
+    this.organizationId,
+    this.showAddButton = true,
+  });
 
   @override
   State<MainMarketTab> createState() => _MainMarketTabState();
@@ -30,6 +36,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
       _isLoading = true;
       _errorMessage = null;
     });
+
     try {
       final result = await _api.getAllProducts();
       if (!mounted) return;
@@ -37,13 +44,12 @@ class _MainMarketTabState extends State<MainMarketTab> {
       if (result['success'] == true) {
         setState(() {
           final allProducts = result['data'] ?? [];
-          _products =
-              allProducts.where((p) {
-                final isAvailableForDirectSale =
-                    p['isAvailableForDirectSale'] == true ||
+          _products = allProducts.where((p) {
+            final isAvailableForDirectSale =
+                p['isAvailableForDirectSale'] == true ||
                     p['IsAvailableForDirectSale'] == true;
-                return isAvailableForDirectSale;
-              }).toList();
+            return isAvailableForDirectSale;
+          }).toList();
           _isLoading = false;
         });
       } else {
@@ -65,35 +71,40 @@ class _MainMarketTabState extends State<MainMarketTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 90.0),
-        child: FloatingActionButton(
-          heroTag: "add_product_fab",
-          backgroundColor: AppColors.primary,
-          shape: const CircleBorder(),
-          child: const Icon(Icons.add, color: AppColors.iconPrimary),
-          onPressed: () {
-            if (widget.organizationId != null &&
-                widget.organizationId!.isNotEmpty) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => AddProductScreen(
-                        organizationId: widget.organizationId!,
+      floatingActionButton: widget.showAddButton
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 90.0),
+              child: FloatingActionButton(
+                heroTag: "add_product_fab",
+                backgroundColor: AppColors.primary,
+                shape: const CircleBorder(),
+                child: const Icon(
+                  Icons.add,
+                  color: AppColors.iconPrimary,
+                ),
+                onPressed: () {
+                  if (widget.organizationId != null &&
+                      widget.organizationId!.isNotEmpty) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddProductScreen(
+                          organizationId: widget.organizationId!,
+                        ),
                       ),
-                ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("جاري تحميل بيانات المنظمة، انتظر قليلاً"),
-                ),
-              );
-            }
-          },
-        ),
-      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content:
+                            Text("جاري تحميل بيانات المنظمة، انتظر قليلاً"),
+                      ),
+                    );
+                  }
+                },
+              ),
+            )
+          : null,
       body: _buildBody(),
     );
   }
@@ -194,23 +205,25 @@ class _MainMarketTabState extends State<MainMarketTab> {
   }
 
   Widget _buildProductCard(BuildContext context, dynamic product) {
-    final String name = product['name'] ?? product['Name'] ?? 'Unknown Product';
+    final String name =
+        product['name'] ?? product['Name'] ?? 'Unknown Product';
     final String productOrgId =
         product['organizationId']?.toString() ??
         product['OrganizationId']?.toString() ??
         '';
     final String? currentUserOrgId = StorageService().currentUserOrgId;
-    final bool isMyProduct =
-        !StorageService().isGuest &&
+    final bool isMyProduct = !StorageService().isGuest &&
         currentUserOrgId != null &&
         currentUserOrgId.isNotEmpty &&
         currentUserOrgId == productOrgId;
+
     final isAvailableForDirectSale =
         product['isAvailableForDirectSale'] == true ||
-        product['IsAvailableForDirectSale'] == true;
+            product['IsAvailableForDirectSale'] == true;
     final isAvailableForAuction =
         product['isAvailableForAuction'] == true ||
-        product['IsAvailableForAuction'] == true;
+            product['IsAvailableForAuction'] == true;
+
     double displayPrice = 0.0;
     bool showAuctionOnlyBadge = false;
 
@@ -235,10 +248,9 @@ class _MainMarketTabState extends State<MainMarketTab> {
       imageUrl = images[0]?.toString();
     }
 
-    final displayUrl =
-        (imageUrl != null && imageUrl.startsWith('/'))
-            ? 'https://root2route.runasp.net$imageUrl'
-            : imageUrl;
+    final displayUrl = (imageUrl != null && imageUrl.startsWith('/'))
+        ? 'https://root2route.runasp.net$imageUrl'
+        : imageUrl;
 
     return InkWell(
       onTap: () {
@@ -278,23 +290,21 @@ class _MainMarketTabState extends State<MainMarketTab> {
                 child: Container(
                   width: double.infinity,
                   color: const Color(0xFFF8F9FB),
-                  child:
-                      displayUrl != null && displayUrl.isNotEmpty
-                          ? Image.network(
-                            displayUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder:
-                                (ctx, err, stack) => const Icon(
-                                  Icons.broken_image_outlined,
-                                  color: Colors.grey,
-                                  size: 40,
-                                ),
-                          )
-                          : const Icon(
-                            Icons.image_outlined,
-                            size: 40,
+                  child: displayUrl != null && displayUrl.isNotEmpty
+                      ? Image.network(
+                          displayUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (ctx, err, stack) => const Icon(
+                            Icons.broken_image_outlined,
                             color: Colors.grey,
+                            size: 40,
                           ),
+                        )
+                      : const Icon(
+                          Icons.image_outlined,
+                          size: 40,
+                          color: Colors.grey,
+                        ),
                 ),
               ),
             ),
@@ -336,9 +346,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
                                 const SizedBox(height: 4),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
+                                      horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: Colors.orange.shade100,
                                     borderRadius: BorderRadius.circular(4),
@@ -359,9 +367,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
                         if (isMyProduct)
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 6,
-                            ),
+                                horizontal: 8, vertical: 6),
                             decoration: BoxDecoration(
                               color: Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(10),

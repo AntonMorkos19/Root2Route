@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/features/orders/cubit/my_orders_cubit.dart';
+import 'package:root2route/features/orders/cubit/order_state.dart';
+import 'package:root2route/features/orders/cubit/received_orders_cubit.dart';
 import 'package:root2route/models/order_model.dart';
 import 'package:root2route/services/order_service.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/screens/order/order_details_screen.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shell screen — owns the two cubits and the TabBar scaffold only.
+// It never touches any order list directly.
+// ─────────────────────────────────────────────────────────────────────────────
 
 class MyOrdersScreen extends StatefulWidget {
   const MyOrdersScreen({super.key});
@@ -13,148 +23,92 @@ class MyOrdersScreen extends StatefulWidget {
 }
 
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
+  late final MyOrdersCubit _myOrdersCubit;
+  late final ReceivedOrdersCubit _receivedOrdersCubit;
   final OrderService _orderService = OrderService();
-
-  bool _isLoadingMyOrders = true;
-  String? _errorMessageMyOrders;
-  List<OrderModel> _myOrders = [];
-
-  bool _isLoadingReceivedOrders = true;
-  String? _errorMessageReceivedOrders;
-  List<OrderModel> _receivedOrders = [];
-
-  String _myOrdersFilter = 'All';
-  String _receivedOrdersFilter = 'All';
-
   String? _organizationId;
 
   @override
   void initState() {
     super.initState();
     _organizationId = StorageService().currentUserOrgId;
-    _fetchMyOrders();
+    debugPrint('[MyOrdersScreen] organizationId = $_organizationId');
+
+    _myOrdersCubit = MyOrdersCubit()..fetchMyOrders();
+    _receivedOrdersCubit = ReceivedOrdersCubit();
     if (_organizationId != null && _organizationId!.isNotEmpty) {
-      _fetchReceivedOrders();
-    } else {
-      _isLoadingReceivedOrders = false;
+      _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
     }
   }
 
-  Future<void> _fetchMyOrders() async {
-    setState(() {
-      _isLoadingMyOrders = true;
-      _errorMessageMyOrders = null;
-    });
+  @override
+  void dispose() {
+    _myOrdersCubit.close();
+    _receivedOrdersCubit.close();
+    super.dispose();
+  }
 
-    final result = await _orderService.getMyOrders();
+  // ── Status mutation shared by both tabs ───────────────────────────────────
+
+  Future<void> _updateOrderStatus(
+    BuildContext ctx,
+    String orderId,
+    int newStatus,
+  ) async {
+    QuickAlert.show(
+      context: ctx,
+      type: QuickAlertType.loading,
+      title: 'Updating...',
+      text: 'Please wait',
+    );
+
+    final result = await _orderService.changeOrderStatus(
+      orderId: orderId,
+      newStatus: newStatus,
+    );
 
     if (!mounted) return;
+    Navigator.of(ctx, rootNavigator: true).pop();
 
     if (result['success'] == true) {
-      setState(() {
-        _myOrders = result['data'] as List<OrderModel>? ?? [];
-        _isLoadingMyOrders = false;
-      });
+      QuickAlert.show(
+        context: ctx,
+        type: QuickAlertType.success,
+        title: 'Success',
+        text: result['message'] ?? 'Status updated successfully',
+        onConfirmBtnTap: () {
+          Navigator.of(ctx, rootNavigator: true).pop();
+          _myOrdersCubit.fetchMyOrders();
+          if (_organizationId != null && _organizationId!.isNotEmpty) {
+            _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
+          }
+        },
+      );
     } else {
-      setState(() {
-        _errorMessageMyOrders = result['message'] ?? 'Failed to load orders';
-        _isLoadingMyOrders = false;
-      });
+      QuickAlert.show(
+        context: ctx,
+        type: QuickAlertType.error,
+        title: 'Error',
+        text: result['message'] ?? 'Failed to update status',
+      );
     }
   }
 
-  Future<void> _fetchReceivedOrders() async {
-    if (_organizationId == null || _organizationId!.isEmpty) return;
-
-    setState(() {
-      _isLoadingReceivedOrders = true;
-      _errorMessageReceivedOrders = null;
+  void _onOrderCardTap(BuildContext ctx, String orderId) {
+    Navigator.push(
+      ctx,
+      MaterialPageRoute(
+        builder: (_) => OrderDetailsScreen(orderId: orderId),
+      ),
+    ).then((_) {
+      _myOrdersCubit.fetchMyOrders();
+      if (_organizationId != null && _organizationId!.isNotEmpty) {
+        _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
+      }
     });
-
-    final result = await _orderService.getReceivedOrders(_organizationId!);
-
-    if (!mounted) return;
-
-    if (result['success'] == true) {
-      setState(() {
-        _receivedOrders = result['data'] as List<OrderModel>? ?? [];
-        _isLoadingReceivedOrders = false;
-      });
-    } else {
-      setState(() {
-        _errorMessageReceivedOrders =
-            result['message'] ?? 'Failed to load orders';
-        _isLoadingReceivedOrders = false;
-      });
-    }
   }
 
-  Color _statusColor(int status) {
-    switch (status) {
-      case 0:
-        return Colors.orange; // Pending
-      case 1:
-        return Colors.blue; // Confirmed
-      case 2:
-        return Colors.indigo; // Shipped
-      case 3:
-        return Colors.green; // Delivered
-      case 4:
-        return Colors.red; // Cancelled
-      default:
-        return Colors.grey;
-    }
-  }
-
-  IconData _statusIcon(int status) {
-    switch (status) {
-      case 0:
-        return Icons.hourglass_empty;
-      case 1:
-        return Icons.check_circle_outline;
-      case 2:
-        return Icons.local_shipping_outlined;
-      case 3:
-        return Icons.done_all;
-      case 4:
-        return Icons.cancel_outlined;
-      default:
-        return Icons.help_outline;
-    }
-  }
-
-  Widget _buildFilterChips(String currentFilter, Function(String) onFilterChanged) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        children: [
-          _buildChip('All', currentFilter, onFilterChanged),
-          const SizedBox(width: 8),
-          _buildChip('Active', currentFilter, onFilterChanged),
-          const SizedBox(width: 8),
-          _buildChip('History', currentFilter, onFilterChanged),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChip(String label, String currentFilter, Function(String) onFilterChanged) {
-    final isSelected = currentFilter == label;
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) {
-        if (selected) {
-          onFilterChanged(label);
-        }
-      },
-      selectedColor: AppColors.primary.withOpacity(0.2),
-      labelStyle: TextStyle(
-        color: isSelected ? AppColors.primary : Colors.black87,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-      ),
-    );
-  }
+  // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -174,120 +128,205 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             indicatorColor: Colors.white,
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
-            tabs: [Tab(text: 'My Orders'), Tab(text: 'Received Orders')],
+            tabs: [
+              Tab(text: 'My Orders'),
+              Tab(text: 'Received Orders'),
+            ],
           ),
         ),
+        // Each tab is a fully isolated widget with its own context & lifecycle.
         body: TabBarView(
-          children: [_buildMyOrdersTab(), _buildReceivedOrdersTab()],
+          children: [
+            // ── Tab 1: Buyer orders ──────────────────────────────────────
+            _MyOrdersTab(
+              cubit: _myOrdersCubit,
+              onUpdateStatus: (orderId, status) =>
+                  _updateOrderStatus(context, orderId, status),
+              onOrderTap: (orderId) => _onOrderCardTap(context, orderId),
+            ),
+            // ── Tab 2: Seller / received orders ─────────────────────────
+            _ReceivedOrdersTab(
+              cubit: _receivedOrdersCubit,
+              organizationId: _organizationId,
+              onUpdateStatus: (orderId, status) =>
+                  _updateOrderStatus(context, orderId, status),
+              onOrderTap: (orderId) => _onOrderCardTap(context, orderId),
+            ),
+          ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildMyOrdersTab() {
-    if (_isLoadingMyOrders) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
-      );
-    }
+// ─────────────────────────────────────────────────────────────────────────────
+// Tab 1 — My Orders (Buyer)
+// Strictly reads from MyOrdersCubit only.
+// AutomaticKeepAliveClientMixin keeps the tab alive when switching tabs
+// so the list is never re-fetched or re-rendered from a sibling cubit.
+// ─────────────────────────────────────────────────────────────────────────────
 
-    if (_errorMessageMyOrders != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 60, color: Colors.red.shade300),
-              const SizedBox(height: 16),
-              Text(
-                _errorMessageMyOrders!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _fetchMyOrders,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+class _MyOrdersTab extends StatefulWidget {
+  final MyOrdersCubit cubit;
+  final void Function(String orderId, int status) onUpdateStatus;
+  final void Function(String orderId) onOrderTap;
 
-    final filteredOrders = _myOrders.where((order) {
-      if (_myOrdersFilter == 'Active') {
-        return order.status == 0 || order.status == 1 || order.status == 2;
-      } else if (_myOrdersFilter == 'History') {
-        return order.status == 3 || order.status == 4;
-      }
-      return true;
-    }).toList();
+  const _MyOrdersTab({
+    required this.cubit,
+    required this.onUpdateStatus,
+    required this.onOrderTap,
+  });
 
-    return Column(
-      children: [
-        _buildFilterChips(_myOrdersFilter, (val) => setState(() => _myOrdersFilter = val)),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: _fetchMyOrders,
-            color: AppColors.primary,
-            child: filteredOrders.isEmpty
-                ? SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Container(
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.receipt_long_outlined,
-                            size: 80,
-                            color: Colors.grey.shade400,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No orders found',
-                            style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Your placed orders will appear here',
-                            style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredOrders.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) =>
-                        _buildOrderCard(filteredOrders[index], isSeller: false),
+  @override
+  State<_MyOrdersTab> createState() => _MyOrdersTabState();
+}
+
+class _MyOrdersTabState extends State<_MyOrdersTab>
+    with AutomaticKeepAliveClientMixin {
+  // Filter lives here — strictly local to this tab.
+  String _filter = 'All';
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // required by AutomaticKeepAliveClientMixin
+
+    // ── Strictly bound to MyOrdersCubit only ──────────────────────────────
+    return BlocBuilder<MyOrdersCubit, OrderState>(
+      bloc: widget.cubit, // explicit binding — never resolves via context
+      buildWhen: (previous, current) =>
+          current is OrderInitial ||
+          current is OrderLoading ||
+          current is OrderListLoaded ||
+          current is OrderError,
+      builder: (context, state) {
+        if (state is OrderInitial || state is OrderLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          );
+        }
+
+        if (state is OrderError) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline,
+                      size: 60, color: Colors.red.shade300),
+                  const SizedBox(height: 16),
+                  Text(
+                    state.message,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16),
                   ),
-          ),
-        ),
-      ],
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => widget.cubit.fetchMyOrders(),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Extract list strictly from this cubit's state — never shared.
+        final List<OrderModel> orders =
+            state is OrderListLoaded ? state.orders : const [];
+
+        final filteredOrders = orders.where((o) {
+          if (_filter == 'Active') return o.status == 0 || o.status == 1 || o.status == 2;
+          if (_filter == 'History') return o.status == 3 || o.status == 4;
+          return true;
+        }).toList();
+
+        return Column(
+          children: [
+            _FilterChips(
+              currentFilter: _filter,
+              onChanged: (val) => setState(() => _filter = val),
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () => widget.cubit.fetchMyOrders(),
+                color: AppColors.primary,
+                child: filteredOrders.isEmpty
+                    ? _EmptyState(
+                        icon: Icons.receipt_long_outlined,
+                        title: 'No orders found',
+                        subtitle: 'Your placed orders will appear here',
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: filteredOrders.length,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(height: 12),
+                        itemBuilder: (context, index) => _OrderCard(
+                          order: filteredOrders[index],
+                          isSeller: false,
+                          onUpdateStatus: widget.onUpdateStatus,
+                          onTap: widget.onOrderTap,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
+}
 
-  Widget _buildReceivedOrdersTab() {
-    if (_organizationId == null || _organizationId!.isEmpty) {
+// ─────────────────────────────────────────────────────────────────────────────
+// Tab 2 — Received Orders (Seller)
+// Strictly reads from ReceivedOrdersCubit only.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ReceivedOrdersTab extends StatefulWidget {
+  final ReceivedOrdersCubit cubit;
+  final String? organizationId;
+  final void Function(String orderId, int status) onUpdateStatus;
+  final void Function(String orderId) onOrderTap;
+
+  const _ReceivedOrdersTab({
+    required this.cubit,
+    required this.organizationId,
+    required this.onUpdateStatus,
+    required this.onOrderTap,
+  });
+
+  @override
+  State<_ReceivedOrdersTab> createState() => _ReceivedOrdersTabState();
+}
+
+class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
+    with AutomaticKeepAliveClientMixin {
+  // Filter lives here — strictly local to this tab.
+  String _filter = 'All';
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // required by AutomaticKeepAliveClientMixin
+
+    // Guard: no organization — show static UI without touching any cubit.
+    if (widget.organizationId == null || widget.organizationId!.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.storefront_outlined,
-              size: 80,
-              color: Colors.grey.shade400,
-            ),
+            Icon(Icons.storefront_outlined,
+                size: 80, color: Colors.grey.shade400),
             const SizedBox(height: 16),
             Text(
               'No Organization',
@@ -303,260 +342,255 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       );
     }
 
-    if (_isLoadingReceivedOrders) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
-      );
-    }
+    // ── Strictly bound to ReceivedOrdersCubit only ────────────────────────
+    return BlocConsumer<ReceivedOrdersCubit, OrderState>(
+      bloc: widget.cubit, // explicit binding — never resolves via context
+      buildWhen: (previous, current) =>
+          current is OrderInitial ||
+          current is OrderLoading ||
+          current is OrderListLoaded ||
+          current is OrderError,
+      listenWhen: (previous, current) => current is OrderError,
+      listener: (context, state) {
+        if (state is OrderError) {
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: 'Error',
+            text: state.message,
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state is OrderInitial || state is OrderLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          );
+        }
 
-    if (_errorMessageReceivedOrders != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 60, color: Colors.red.shade300),
-              const SizedBox(height: 16),
-              Text(
-                _errorMessageReceivedOrders!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _fetchReceivedOrders,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    final filteredOrders = _receivedOrders.where((order) {
-      if (_receivedOrdersFilter == 'Active') {
-        return order.status == 0 || order.status == 1 || order.status == 2;
-      } else if (_receivedOrdersFilter == 'History') {
-        return order.status == 3 || order.status == 4;
-      }
-      return true;
-    }).toList();
-
-    return Column(
-      children: [
-        _buildFilterChips(_receivedOrdersFilter, (val) => setState(() => _receivedOrdersFilter = val)),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: _fetchReceivedOrders,
-            color: AppColors.primary,
-            child: filteredOrders.isEmpty
-                ? SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Container(
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.inbox_outlined,
-                            size: 80,
-                            color: Colors.grey.shade400,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No received orders found',
-                            style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Customer orders will appear here',
-                            style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredOrders.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) =>
-                        _buildOrderCard(filteredOrders[index], isSeller: true),
+        if (state is OrderError) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline,
+                      size: 60, color: Colors.red.shade300),
+                  const SizedBox(height: 16),
+                  Text(
+                    state.message,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16),
                   ),
-          ),
-        ),
-      ],
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => widget.cubit
+                        .fetchReceivedOrders(widget.organizationId!),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Extract list strictly from this cubit's state — never shared.
+        final List<OrderModel> orders =
+            state is OrderListLoaded ? state.orders : const [];
+
+        final filteredOrders = orders.where((o) {
+          if (_filter == 'Active') return o.status == 0 || o.status == 1 || o.status == 2;
+          if (_filter == 'History') return o.status == 3 || o.status == 4;
+          return true;
+        }).toList();
+
+        return Column(
+          children: [
+            _FilterChips(
+              currentFilter: _filter,
+              onChanged: (val) => setState(() => _filter = val),
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () =>
+                    widget.cubit.fetchReceivedOrders(widget.organizationId!),
+                color: AppColors.primary,
+                child: filteredOrders.isEmpty
+                    ? _EmptyState(
+                        icon: Icons.inbox_outlined,
+                        title: 'No received orders found',
+                        subtitle: 'Customer orders will appear here',
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: filteredOrders.length,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(height: 12),
+                        itemBuilder: (context, index) => _OrderCard(
+                          order: filteredOrders[index],
+                          isSeller: true,
+                          onUpdateStatus: widget.onUpdateStatus,
+                          onTap: widget.onOrderTap,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared pure UI widgets (no cubit access)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _FilterChips extends StatelessWidget {
+  final String currentFilter;
+  final void Function(String) onChanged;
+
+  const _FilterChips({required this.currentFilter, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Row(
+        children: [
+          _chip('All'),
+          const SizedBox(width: 8),
+          _chip('Active'),
+          const SizedBox(width: 8),
+          _chip('History'),
+        ],
+      ),
     );
   }
 
-  Future<void> _updateOrderStatus(String orderId, int newStatus) async {
-    final result = await _orderService.changeOrderStatus(
-      orderId: orderId,
-      newStatus: newStatus,
+  Widget _chip(String label) {
+    final isSelected = currentFilter == label;
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        if (selected) onChanged(label);
+      },
+      selectedColor: AppColors.primary.withOpacity(0.2),
+      labelStyle: TextStyle(
+        color: isSelected ? AppColors.primary : Colors.black87,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
     );
+  }
+}
 
-    if (!mounted) return;
+class _EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
 
-    if (result['success'] == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result['message'] ?? 'Status updated successfully'),
-          backgroundColor: Colors.green,
+  const _EmptyState({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.6,
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 80, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              subtitle,
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+            ),
+          ],
         ),
-      );
-      _fetchMyOrders();
-      if (_organizationId != null && _organizationId!.isNotEmpty) {
-        _fetchReceivedOrders();
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result['message'] ?? 'Failed to update status'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Order card — pure UI, receives data and callbacks only, no cubit access.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _OrderCard extends StatelessWidget {
+  final OrderModel order;
+  final bool isSeller;
+  final void Function(String orderId, int status) onUpdateStatus;
+  final void Function(String orderId) onTap;
+
+  const _OrderCard({
+    required this.order,
+    required this.isSeller,
+    required this.onUpdateStatus,
+    required this.onTap,
+  });
+
+  Color _statusColor(int status) {
+    switch (status) {
+      case 0: return Colors.orange;
+      case 1: return Colors.blue;
+      case 2: return Colors.indigo;
+      case 3: return Colors.green;
+      case 4: return Colors.red;
+      default: return Colors.grey;
     }
   }
 
-  Widget _buildOrderCard(OrderModel order, {required bool isSeller}) {
+  IconData _statusIcon(int status) {
+    switch (status) {
+      case 0: return Icons.hourglass_empty;
+      case 1: return Icons.check_circle_outline;
+      case 2: return Icons.local_shipping_outlined;
+      case 3: return Icons.done_all;
+      case 4: return Icons.cancel_outlined;
+      default: return Icons.help_outline;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final color = _statusColor(order.status);
     final icon = _statusIcon(order.status);
-    final dateStr =
-        order.createdAt != null
-            ? '${order.createdAt!.day}/${order.createdAt!.month}/${order.createdAt!.year}'
-            : '';
+    final dateStr = order.createdAt != null
+        ? '${order.createdAt!.day}/${order.createdAt!.month}/${order.createdAt!.year}'
+        : '';
 
-    final double finalTotal =
-        order.totalAmount > 0
-            ? order.totalAmount
-            : order.items.fold(0.0, (sum, item) => sum + item.totalPrice);
+    final double finalTotal = order.totalAmount > 0
+        ? order.totalAmount
+        : order.items.fold(0.0, (sum, item) => sum + item.totalPrice);
 
-    final String formattedTotal = finalTotal.toStringAsFixed(0).replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-
-    List<Widget> actionButtons = [];
-
-    if (!isSeller) {
-      if (order.status == 2) {
-        // Shipped -> Delivered
-        actionButtons.add(
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () => _updateOrderStatus(order.id, 3),
-              icon: const Icon(Icons.check_circle_outline, color: Colors.white),
-              label: const Text(
-                'Confirm Receipt',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
+    final String formattedTotal = finalTotal
+        .toStringAsFixed(0)
+        .replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (m) => '${m[1]},',
         );
-      }
-    } else {
-      if (order.status == 0) {
-        // Pending -> Confirmed or Cancelled
-        actionButtons.add(
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _updateOrderStatus(order.id, 1),
-                  icon: const Icon(Icons.check, color: Colors.white, size: 18),
-                  label: const Text(
-                    'Accept',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _updateOrderStatus(order.id, 4),
-                  icon: const Icon(Icons.close, color: Colors.white, size: 18),
-                  label: const Text(
-                    'Reject',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      } else if (order.status == 1) {
-        // Confirmed -> Shipped
-        actionButtons.add(
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () => _updateOrderStatus(order.id, 2),
-              icon: const Icon(Icons.local_shipping, color: Colors.white),
-              label: const Text(
-                'Mark as Shipped',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigo,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        );
-      }
-    }
+
+    final List<Widget> actionButtons = _buildActionButtons();
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => OrderDetailsScreen(orderId: order.id),
-          ),
-        ).then((_) {
-          _fetchMyOrders();
-          if (_organizationId != null && _organizationId!.isNotEmpty) {
-            _fetchReceivedOrders();
-          }
-        });
-      },
+      onTap: () => onTap(order.id),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -573,6 +607,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── Header row ──────────────────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -592,9 +627,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
+                      horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: color.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -620,25 +653,21 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             const SizedBox(height: 12),
             const Divider(height: 1),
             const SizedBox(height: 12),
+            // ── Quantity + date row ──────────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.shopping_basket_outlined,
-                      size: 16,
-                      color: Colors.grey.shade600,
-                    ),
+                    Icon(Icons.shopping_basket_outlined,
+                        size: 16, color: Colors.grey.shade600),
                     const SizedBox(width: 6),
                     Text(
                       order.items.isNotEmpty
                           ? 'Quantity: ${order.items.first.quantity}'
                           : '1 item',
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade700,
-                      ),
+                          fontSize: 14, color: Colors.grey.shade700),
                     ),
                   ],
                 ),
@@ -648,14 +677,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     child: Text(
                       dateStr,
                       style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
+                          fontSize: 12, color: Colors.grey.shade500),
                     ),
                   ),
               ],
             ),
             const SizedBox(height: 8),
+            // ── Items count + total row ──────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -673,6 +701,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
               ],
             ),
+            // ── Action buttons ───────────────────────────────────────────
             if (actionButtons.isNotEmpty) ...[
               const SizedBox(height: 16),
               ...actionButtons,
@@ -681,5 +710,99 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildActionButtons() {
+    final buttons = <Widget>[];
+
+    if (!isSeller) {
+      // Buyer: confirm receipt when shipped
+      if (order.status == 2) {
+        buttons.add(
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => onUpdateStatus(order.id, 3),
+              icon: const Icon(Icons.check_circle_outline, color: Colors.white),
+              label: const Text(
+                'Confirm Receipt',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        );
+      }
+    } else {
+      // Seller: accept/reject when pending
+      if (order.status == 0) {
+        buttons.add(
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => onUpdateStatus(order.id, 1),
+                  icon: const Icon(Icons.check, color: Colors.white, size: 18),
+                  label: const Text('Accept',
+                      style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => onUpdateStatus(order.id, 4),
+                  icon: const Icon(Icons.close, color: Colors.white, size: 18),
+                  label: const Text('Reject',
+                      style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+      // Seller: mark as shipped when confirmed
+      else if (order.status == 1) {
+        buttons.add(
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => onUpdateStatus(order.id, 2),
+              icon: const Icon(Icons.local_shipping, color: Colors.white),
+              label: const Text(
+                'Mark as Shipped',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.indigo,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
+    return buttons;
   }
 }

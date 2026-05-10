@@ -43,6 +43,7 @@ class OrderModel {
   final double totalAmount;
   final DateTime? createdAt;
   final List<OrderItemModel> items;
+  final int? shipmentId;
 
   OrderModel({
     required this.id,
@@ -59,6 +60,7 @@ class OrderModel {
     this.totalAmount = 0.0,
     this.createdAt,
     this.items = const [],
+    this.shipmentId,
   });
 
   static int _parseStatus(dynamic raw) {
@@ -102,6 +104,15 @@ class OrderModel {
       } catch (_) {}
     }
 
+    // Parse shipmentId safely
+    final shipmentIdRaw = json['shipmentId'] ?? json['ShipmentId'];
+    int? parsedShipmentId;
+    if (shipmentIdRaw != null) {
+      parsedShipmentId = shipmentIdRaw is int
+          ? shipmentIdRaw
+          : int.tryParse(shipmentIdRaw.toString());
+    }
+
     return OrderModel(
       id: idRaw.toString(),
       buyerId: (json['buyerId'] ?? json['BuyerId'] ?? '').toString(),
@@ -117,6 +128,7 @@ class OrderModel {
       totalAmount: totalRaw is num ? totalRaw.toDouble() : double.tryParse(totalRaw.toString()) ?? 0.0,
       createdAt: parsedDate,
       items: parsedItems,
+      shipmentId: parsedShipmentId,
     );
   }
 

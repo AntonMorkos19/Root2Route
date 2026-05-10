@@ -49,7 +49,6 @@ class MyApp extends StatelessWidget {
                 ModalRoute.of(context)!.settings.arguments as AuctionModel;
             return UpdateAuctionScreen(auction: auction);
           },
-
           BidHistoryScreen.id: (_) => const BidHistoryScreen(),
           AuctionDetailsScreen.id: (_) => const AuctionDetailsScreen(),
           BuyerAuctionsScreen.id: (_) => const BuyerAuctionsScreen(),

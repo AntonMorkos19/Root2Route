@@ -25,7 +25,7 @@ class ShipmentAddressModel {
     return ShipmentAddressModel(
       id: idRaw is int ? idRaw : int.tryParse(idRaw?.toString() ?? ''),
       fullName:
-          (json['fullName'] ?? json['FullName'] ?? json['name'] ?? json['Name'] ?? '').toString(),
+          (json['label'] ?? json['fullName'] ?? json['FullName'] ?? '').toString(),
       phone:
           (json['phone'] ?? json['Phone'] ?? json['contactPhone'] ?? json['ContactPhone'] ?? '')
               .toString(),
@@ -39,13 +39,15 @@ class ShipmentAddressModel {
     );
   }
 
+  /// Exports to JSON.
+  /// Using PascalCase keys as they are common in this project's POST requests.
   Map<String, dynamic> toJson() => {
-    'fullName': fullName,
-    'phone': phone,
-    'city': city,
-    'street': street,
-    'buildingNumber': buildingNumber,
-    'notes': notes,
-    'isDefault': isDefault,
+    'Label': fullName,
+    'Phone': phone,
+    'City': city,
+    'Street': street,
+    'BuildingNumber': buildingNumber,
+    'Notes': notes,
+    'IsDefault': isDefault,
   };
 }

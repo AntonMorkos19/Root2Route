@@ -6,6 +6,7 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/organization_model.dart';
 import 'package:root2route/screens/Organizations/organizations_list_screen.dart';
 import 'package:root2route/screens/account_screen.dart';
+import 'package:root2route/features/shipments/ui/addresses_screen.dart';
 import 'package:root2route/services/api.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -133,6 +134,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    leading: const Icon(
+                      Icons.location_on_outlined,
+                      color: AppColors.OrganizationColor,
+                    ),
+                    title: const Text(
+                      'My Addresses',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AddressesScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),

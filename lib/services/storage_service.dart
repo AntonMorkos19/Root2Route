@@ -80,6 +80,7 @@ class StorageService {
 
   bool get isGuest => token == null || token!.isEmpty;
   String? get currentUserOrgId => organizationId;
+  String? get currentUserId => userId;
 
   Future<void> logout() async {
     await _prefs.remove(_keyToken);

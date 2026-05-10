@@ -1,144 +1,263 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/features/orders/cubit/order_details_cubit.dart';
+import 'package:root2route/features/orders/cubit/order_state.dart';
+import 'package:root2route/features/shipments/cubit/confirm_delivery_cubit.dart';
+import 'package:root2route/features/shipments/cubit/dispatch_cubit.dart';
+import 'package:root2route/features/shipments/cubit/shipment_state.dart';
+import 'package:root2route/features/shipments/widgets/dispatch_bottom_sheet.dart';
 import 'package:root2route/models/order_model.dart';
 import 'package:root2route/services/order_service.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
   final String orderId;
 
-  const OrderDetailsScreen({super.key, required this.orderId});
+  /// Pass [isSellerView] = true when the seller is opening this screen
+  /// from the "Received Orders" tab so the correct action buttons appear.
+  final bool isSellerView;
+
+  const OrderDetailsScreen({
+    super.key,
+    required this.orderId,
+    this.isSellerView = false,
+  });
 
   @override
   State<OrderDetailsScreen> createState() => _OrderDetailsScreenState();
 }
 
 class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
+  // ── Cubits (created once) ─────────────────────────────────
+  late final OrderDetailsCubit _detailsCubit;
+  late final DispatchCubit _dispatchCubit;
+  late final ConfirmDeliveryCubit _confirmDeliveryCubit;
+
+  // ── OrderService: kept only for cancel action ─────────────
   final OrderService _orderService = OrderService();
-  bool _isLoading = true;
-  String? _errorMessage;
-  OrderModel? _order;
 
   @override
   void initState() {
     super.initState();
-    _fetchOrderDetails();
+    _detailsCubit = OrderDetailsCubit()..fetchOrderDetails(widget.orderId);
+    _dispatchCubit = DispatchCubit();
+    _confirmDeliveryCubit = ConfirmDeliveryCubit();
   }
 
-  Future<void> _fetchOrderDetails() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+  @override
+  void dispose() {
+    _detailsCubit.close();
+    _dispatchCubit.close();
+    _confirmDeliveryCubit.close();
+    super.dispose();
+  }
 
-    final result = await _orderService.getOrderDetails(widget.orderId);
+  // ── Status helpers (unchanged) ─────────────────────────────
 
-    if (!mounted) return;
-
-    if (result['success'] == true && result['data'] != null) {
-      setState(() {
-        _order = result['data'] as OrderModel;
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _errorMessage = result['message'] ?? 'Failed to load order details';
-        _isLoading = false;
-      });
+  Color _statusColor(int status) {
+    switch (status) {
+      case 0:
+        return Colors.orange;
+      case 1:
+        return Colors.blue;
+      case 2:
+        return Colors.indigo;
+      case 3:
+        return Colors.green;
+      case 4:
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
+
+  IconData _statusIcon(int status) {
+    switch (status) {
+      case 0:
+        return Icons.hourglass_empty;
+      case 1:
+        return Icons.check_circle_outline;
+      case 2:
+        return Icons.local_shipping_outlined;
+      case 3:
+        return Icons.done_all;
+      case 4:
+        return Icons.cancel_outlined;
+      default:
+        return Icons.help_outline;
+    }
+  }
+
+  // ── Cancel order (unchanged logic, same QuickAlert flow) ──
 
   Future<void> _cancelOrder() async {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.confirm,
-      title: 'Cancel Order?',
-      text: 'Are you sure you want to cancel this order?',
-      confirmBtnText: 'Yes, Cancel',
-      cancelBtnText: 'No',
+      title: 'إلغاء الطلب؟',
+      text: 'هل أنت متأكد من إلغاء هذا الطلب؟',
+      confirmBtnText: 'نعم، إلغاء',
+      cancelBtnText: 'لا',
       confirmBtnColor: Colors.red,
       onConfirmBtnTap: () async {
-        Navigator.pop(context); // Close confirm dialog
+        Navigator.pop(context);
 
         QuickAlert.show(
           context: context,
           type: QuickAlertType.loading,
-          title: 'Cancelling...',
+          title: 'جاري الإلغاء...',
           barrierDismissible: false,
         );
 
         final result = await _orderService.cancelOrder(widget.orderId);
 
         if (!mounted) return;
-        Navigator.of(context, rootNavigator: true).pop(); // Close loading
+        Navigator.of(context, rootNavigator: true).pop();
 
-        if (result['success'] == true || (result['message']?.toString().contains('Cancelled') ?? false)) {
+        final bool cancelled =
+            result['success'] == true ||
+            (result['message']?.toString().contains('Cancelled') ?? false);
+
+        if (cancelled) {
           QuickAlert.show(
             context: context,
             type: QuickAlertType.success,
-            title: result['success'] == true ? 'Order Cancelled' : 'Note',
-            text: result['success'] == true 
-                ? 'Your order has been cancelled successfully.'
-                : 'This order was already cancelled.',
+            title: result['success'] == true ? 'تم الإلغاء' : 'ملاحظة',
+            text: result['success'] == true
+                ? 'تم إلغاء طلبك بنجاح.'
+                : 'هذا الطلب ملغي بالفعل.',
             onConfirmBtnTap: () {
-              Navigator.pop(context); // Close alert
-              _fetchOrderDetails(); // Refresh UI
+              Navigator.pop(context);
+              _detailsCubit.fetchOrderDetails(widget.orderId);
             },
           );
         } else {
           QuickAlert.show(
             context: context,
             type: QuickAlertType.error,
-            title: 'Failed',
-            text: result['message'] ?? 'Could not cancel the order.',
+            title: 'فشل الإلغاء',
+            text: result['message'] ?? 'تعذّر إلغاء الطلب.',
           );
         }
       },
     );
   }
 
-  Color _statusColor(int status) {
-    switch (status) {
-      case 0: return Colors.orange;
-      case 1: return Colors.blue;
-      case 2: return Colors.indigo;
-      case 3: return Colors.green;
-      case 4: return Colors.red;
-      default: return Colors.grey;
-    }
-  }
-
-  IconData _statusIcon(int status) {
-    switch (status) {
-      case 0: return Icons.hourglass_empty;
-      case 1: return Icons.check_circle_outline;
-      case 2: return Icons.local_shipping_outlined;
-      case 3: return Icons.done_all;
-      case 4: return Icons.cancel_outlined;
-      default: return Icons.help_outline;
-    }
-  }
+  // ── Build ──────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
-      appBar: AppBar(
-        title: const Text('Order Details', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: AppColors.primary,
-        elevation: 0,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<OrderDetailsCubit>.value(value: _detailsCubit),
+        BlocProvider<DispatchCubit>.value(value: _dispatchCubit),
+        BlocProvider<ConfirmDeliveryCubit>.value(value: _confirmDeliveryCubit),
+      ],
+      child: MultiBlocListener(
+        listeners: [
+          // ── DispatchCubit feedback ──────────────────────────
+          BlocListener<DispatchCubit, ShipmentState>(
+            listener: (context, state) {
+              if (state is ShipmentLoading) {
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.loading,
+                  title: 'جاري الإرسال...',
+                  barrierDismissible: false,
+                );
+              } else if (state is ShipmentActionSuccess) {
+                Navigator.of(context, rootNavigator: true).pop();
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.success,
+                  title: 'تم الإرسال ✅',
+                  text: state.message,
+                  onConfirmBtnTap: () {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    _detailsCubit.fetchOrderDetails(widget.orderId);
+                  },
+                );
+              } else if (state is ShipmentError) {
+                Navigator.of(context, rootNavigator: true).pop();
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.error,
+                  title: 'خطأ',
+                  text: state.message,
+                );
+              }
+            },
+          ),
+
+          // ── ConfirmDeliveryCubit feedback ───────────────────
+          BlocListener<ConfirmDeliveryCubit, ShipmentState>(
+            listener: (context, state) {
+              if (state is ShipmentLoading) {
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.loading,
+                  title: 'جاري التأكيد...',
+                  barrierDismissible: false,
+                );
+              } else if (state is ShipmentActionSuccess) {
+                Navigator.of(context, rootNavigator: true).pop();
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.success,
+                  title: 'تم الاستلام ✅',
+                  text: state.message,
+                  onConfirmBtnTap: () {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    _detailsCubit.fetchOrderDetails(widget.orderId);
+                  },
+                );
+              } else if (state is ShipmentError) {
+                Navigator.of(context, rootNavigator: true).pop();
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.error,
+                  title: 'خطأ',
+                  text: state.message,
+                );
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<OrderDetailsCubit, OrderState>(
+          builder: (context, state) {
+            final OrderModel? order =
+                state is OrderDetailLoaded ? state.order : null;
+
+            return Scaffold(
+              backgroundColor: const Color(0xFFF4F6F9),
+              appBar: AppBar(
+                title: const Text(
+                  'Order Details',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                backgroundColor: AppColors.primary,
+                elevation: 0,
+              ),
+              body: _buildBody(state, order),
+              bottomNavigationBar: _buildBottomAction(context, order),
+            );
+          },
+        ),
       ),
-      body: _buildBody(),
-      bottomNavigationBar: _buildBottomAction(),
     );
   }
 
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+  // ── Body ───────────────────────────────────────────────────
+
+  Widget _buildBody(OrderState state, OrderModel? order) {
+    if (state is OrderInitial || state is OrderLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      );
     }
 
-    if (_errorMessage != null || _order == null) {
+    if (state is OrderError || order == null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -147,13 +266,21 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             children: [
               Icon(Icons.error_outline, size: 60, color: Colors.red.shade300),
               const SizedBox(height: 16),
-              Text(_errorMessage ?? 'Order not found', textAlign: TextAlign.center),
+              Text(
+                state is OrderError
+                    ? state.message
+                    : 'Order not found',
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: _fetchOrderDetails,
+                onPressed: () =>
+                    _detailsCubit.fetchOrderDetails(widget.orderId),
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                ),
               ),
             ],
           ),
@@ -161,22 +288,22 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       );
     }
 
-    final order = _order!;
     final color = _statusColor(order.status);
     final icon = _statusIcon(order.status);
     final dateStr = order.createdAt != null
-        ? '${order.createdAt!.day}/${order.createdAt!.month}/${order.createdAt!.year} - ${order.createdAt!.hour}:${order.createdAt!.minute.toString().padLeft(2, '0')}'
+        ? '${order.createdAt!.day}/${order.createdAt!.month}/${order.createdAt!.year}'
+          ' - ${order.createdAt!.hour}:${order.createdAt!.minute.toString().padLeft(2, '0')}'
         : 'N/A';
 
     return RefreshIndicator(
-      onRefresh: _fetchOrderDetails,
+      onRefresh: () => _detailsCubit.fetchOrderDetails(widget.orderId),
       color: AppColors.primary,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Status Card
+            // ── Status Card ─────────────────────────────────
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -191,35 +318,47 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   const SizedBox(height: 8),
                   Text(
                     order.statusText,
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color),
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: color,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  Text(dateStr, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+                  Text(
+                    dateStr,
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
 
-            // Shipping Info
+            // ── Shipping Info ────────────────────────────────
             _buildInfoCard(
               title: 'Shipping Information',
               icon: Icons.local_shipping_outlined,
               children: [
-                _buildInfoRow('Receiver', order.receiverName ?? 'N/A'),
-                _buildInfoRow('Phone', order.receiverPhone ?? 'N/A'),
-                _buildInfoRow('City', order.shippingCity ?? 'N/A'),
-                _buildInfoRow('Street', order.shippingStreet ?? 'N/A'),
-                _buildInfoRow('Building', order.buildingNumber ?? 'N/A'),
+                _buildInfoRow('Receiver', order.receiverName),
+                _buildInfoRow('Phone', order.receiverPhone),
+                _buildInfoRow('City', order.shippingCity),
+                _buildInfoRow('Street', order.shippingStreet),
+                _buildInfoRow('Building', order.buildingNumber),
               ],
             ),
             const SizedBox(height: 16),
 
-            // Order Items
+            // ── Order Items ──────────────────────────────────
             _buildInfoCard(
               title: 'Items (${order.items.length})',
               icon: Icons.inventory_2_outlined,
               children: order.items.isEmpty
-                  ? [const Text('No items data', style: TextStyle(color: Colors.grey))]
+                  ? [
+                      const Text(
+                        'No items data',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ]
                   : order.items.map((item) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 6),
@@ -228,19 +367,22 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           children: [
                             Expanded(
                               child: Text(
-                                item.productName ?? 'Product',
-                                style: const TextStyle(fontWeight: FontWeight.w500),
+                                item.productName,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w500),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             Text(
                               'x${item.quantity}',
-                              style: TextStyle(color: Colors.grey.shade600),
+                              style:
+                                  TextStyle(color: Colors.grey.shade600),
                             ),
                             const SizedBox(width: 16),
                             Text(
                               '${item.unitPrice.toStringAsFixed(0)} EGP',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -249,7 +391,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Total
+            // ── Total ────────────────────────────────────────
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -267,7 +409,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Total Amount', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  const Text(
+                    'Total Amount',
+                    style: TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
                   Text(
                     '${order.totalAmount.toStringAsFixed(0)} EGP',
                     style: const TextStyle(
@@ -280,13 +426,18 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               ),
             ),
 
-            // Note if exists
-            if (order.note != null && order.note!.isNotEmpty) ...[
+            // ── Note ─────────────────────────────────────────
+            if (order.note.isNotEmpty) ...[
               const SizedBox(height: 16),
               _buildInfoCard(
                 title: 'Note',
                 icon: Icons.note_outlined,
-                children: [Text(order.note!, style: TextStyle(color: Colors.grey.shade700))],
+                children: [
+                  Text(
+                    order.note,
+                    style: TextStyle(color: Colors.grey.shade700),
+                  ),
+                ],
               ),
             ],
 
@@ -296,6 +447,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       ),
     );
   }
+
+  // ── Reusable card & row (unchanged UI) ─────────────────────
 
   Widget _buildInfoCard({
     required String title,
@@ -323,7 +476,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             children: [
               Icon(icon, color: AppColors.primary, size: 20),
               const SizedBox(width: 8),
-              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+              Text(
+                title,
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.w800),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -341,19 +498,124 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          Text(
+            label,
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+          ),
+          Text(
+            value.isEmpty ? 'N/A' : value,
+            style:
+                const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          ),
         ],
       ),
     );
   }
 
-  Widget? _buildBottomAction() {
-    if (_order == null) return null;
+  // ── Dynamic bottom action bar ──────────────────────────────
 
-    // Only show Cancel button if order is Pending (0) or Confirmed (1)
-    if (_order!.status > 1) return null;
+  Widget? _buildBottomAction(BuildContext context, OrderModel? order) {
+    if (order == null) return null;
 
+    // ── 1. Seller: Confirmed → dispatch shipment ─────────────
+    if (order.status == 1 && widget.isSellerView) {
+      return _bottomBar(
+        child: ElevatedButton.icon(
+          onPressed: () => showDispatchBottomSheet(
+            context: context,
+            orderId: widget.orderId,
+            dispatchCubit: context.read<DispatchCubit>(),
+          ),
+          icon: const Text('📦', style: TextStyle(fontSize: 18)),
+          label: const Text(
+            'إرسال الشحنة',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green.shade600,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // ── 2. Buyer: Shipped → confirm delivery ─────────────────
+    if (order.status == 2 && !widget.isSellerView) {
+      return _bottomBar(
+        child: ElevatedButton.icon(
+          onPressed: () {
+            // shipmentId is required; fall back to orderId-based status if null
+            if (order.shipmentId != null) {
+              context.read<ConfirmDeliveryCubit>().confirmDelivery(
+                    shipmentId: order.shipmentId!,
+                    status: 3, // Delivered
+                  );
+            } else {
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.warning,
+                title: 'تنبيه',
+                text: 'لا يوجد رقم شحنة مرتبط بهذا الطلب.',
+              );
+            }
+          },
+          icon: const Text('✅', style: TextStyle(fontSize: 18)),
+          label: const Text(
+            'تأكيد استلام الطلب',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green.shade600,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // ── 3. Buyer: Pending → cancel order ─────────────────────
+    if (order.status == 0 && !widget.isSellerView) {
+      return _bottomBar(
+        child: OutlinedButton.icon(
+          onPressed: _cancelOrder,
+          icon: const Icon(Icons.cancel_outlined, color: Colors.red),
+          label: const Text(
+            'إلغاء الطلب',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.red,
+            ),
+          ),
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: Colors.red, width: 1.5),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return null; // No action for other statuses
+  }
+
+  /// Shared bottom-bar container wrapper.
+  Widget _bottomBar({required Widget child}) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -368,22 +630,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         ],
       ),
       child: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _cancelOrder,
-            icon: const Icon(Icons.cancel_outlined, color: Colors.white),
-            label: const Text(
-              'Cancel Order',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-        ),
+        child: SizedBox(width: double.infinity, child: child),
       ),
     );
   }

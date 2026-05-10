@@ -298,6 +298,18 @@ class ApiService {
       if (response.data != null && response.data['data'] != null) {
         final organizations = response.data['data'];
         if (organizations is List && organizations.isNotEmpty) {
+          // Persist the first organization's ID so it's available everywhere
+          final firstOrg = organizations.first;
+          if (firstOrg is Map) {
+            final orgId = firstOrg['id']?.toString() ??
+                firstOrg['organizationId']?.toString() ??
+                firstOrg['OrganizationId']?.toString() ??
+                '';
+            if (orgId.isNotEmpty) {
+              await StorageService().saveOrganizationId(orgId);
+              debugPrint('[Login] Saved organizationId: $orgId');
+            }
+          }
           return true;
         }
       }

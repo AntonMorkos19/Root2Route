@@ -385,7 +385,7 @@ import 'package:quickalert/quickalert.dart';
 import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
 import 'package:root2route/models/auction_model.dart';
-import 'package:root2route/services/api.dart'; // تأكد من المسار
+import 'package:root2route/services/api.dart'; // Ensure path is correct
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 
@@ -404,7 +404,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
   late String _auctionId;
   bool _isInit = false;
 
-  // إضافة متغيرات المزايدة
+  // Adding bid variables
   final ApiService _api = ApiService();
   bool _isLoadingBids = true;
   List<dynamic> _bidsList = [];
@@ -430,9 +430,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
       }
 
       if (_auctionId.isNotEmpty) {
-        // بنجيب تفاصيل المزاد بالـ Cubit
+        // Fetching auction details with Cubit
         context.read<AuctionCubit>().fetchAuctionDetails(_auctionId);
-        // بنجيب لستة المزايدات بالـ API مباشرة
+        // Fetching bids list directly with API
         _fetchBids(_auctionId);
       }
       _isInit = true;
@@ -519,9 +519,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     if (!mounted) return;
 
     if (result['success'] == true) {
-      // بنحدث بيانات الـ Cubit عشان الرقم الجديد يظهر فوق
+      // Updating Cubit data so new number appears on top
       context.read<AuctionCubit>().fetchAuctionDetails(explicitAuctionId);
-      // بنحدث لستة المزايدات
+      // Updating bids list
       _fetchBids(explicitAuctionId);
 
       QuickAlert.show(
@@ -655,7 +655,6 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
   }
 
   Widget _buildErrorWidget(String message) {
-    // الكود بتاعك زي ما هو
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -719,7 +718,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           _buildCountdownCard(auction),
           const SizedBox(height: 24),
 
-          // سجل المزايدات
+          // Bid History
           const Text(
             'Bid History',
             style: TextStyle(
@@ -732,7 +731,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           _buildBidHistoryCard(),
           const SizedBox(height: 24),
 
-          // زرار المزايدة
+          // Bid Button
           if (auction.isActive)
             if (isOwner)
               ElevatedButton.icon(
@@ -821,7 +820,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
       ),
       child: ListView.separated(
         shrinkWrap:
-            true, // مهم جداً عشان ميعملش إيرور مع الـ SingleChildScrollView
+            true, // Crucial to avoid errors with SingleChildScrollView
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _bidsList.length,
         separatorBuilder: (context, index) => const Divider(height: 1),
@@ -853,7 +852,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     );
   }
 
-  // الكروت بتاعتك زي ما هي متعدلش فيها حاجة
+  // Your cards as they are, do not modify anything
   Widget _buildHeaderCard(AuctionModel auction) {
     Color statusColor;
     if (auction.isUpcoming) {
@@ -1069,7 +1068,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
   }
 }
 
-// كلاس العداد زي ما هو بالظبط
+// Timer class exactly as it is
 class _AuctionTimer extends StatefulWidget {
   final AuctionModel auction;
 

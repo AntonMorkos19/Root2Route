@@ -152,7 +152,7 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
 
     return Column(
       children: [
-        // 1. الهيدر (Header) - للعرض فقط وتم إزالة زر الإضافة
+        // 1. Header - View only, Add button removed
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
           child: Row(
@@ -166,7 +166,7 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
                 ),
               ),
               const Spacer(),
-              // زرار الـ Refresh عشان لو حب يدوياً يكلم الـ API تاني
+              // Refresh button to manually call the API again
               IconButton(
                 icon: const Icon(Icons.refresh_rounded),
                 color: Colors.grey.shade700,
@@ -177,7 +177,7 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
           ),
         ),
 
-        // 2. التابات الفرعية (Nested TabBar)
+        // 2. Sub-tabs (Nested TabBar)
         TabBar(
           controller: _tabController,
           labelColor: AppColors.primary,
@@ -199,7 +199,7 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
           ],
         ),
 
-        // 3. المحتوى (TabBarView) - بيعرض الداتا اللي راجعة من الـ API
+        // 3. Content (TabBarView) - Displays data from API
         Expanded(
           child: BlocConsumer<AuctionCubit, AuctionState>(
             listener: (context, state) {
@@ -308,7 +308,7 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
                 );
               }
 
-              // Loading State المتوافق مع التصميم بتاعك
+              // Loading State compatible with your design
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

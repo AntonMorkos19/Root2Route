@@ -59,7 +59,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                       filter: ImageFilter.blur(sigmaX: 11, sigmaY: 11),
                       child: Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(16), // زي login
+                        padding: const EdgeInsets.all(16), // Like login
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(18),
@@ -87,7 +87,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                                   return null;
                                 },
                               ),
-                              const SizedBox(height: 15), // زي login spacing
+                              const SizedBox(height: 15), // Like login spacing
 
                               CustomTextFormField(
                                 icon: Icons.lock_outline,
@@ -111,7 +111,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                                 onPressed: () async {
                                   if (!formKey.currentState!.validate()) return;
 
-                                  // 1. إظهار رسالة تحميل
+                                  // 1. Show loading message
                                   QuickAlert.show(
                                     context: context,
                                     type: QuickAlertType.loading,
@@ -121,17 +121,17 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                                   );
 
                                   try {
-                                    // 2. ننتظر رد السيرفر (لازم نضيف await)
+                                    // 2. Wait for server response (must add await)
                                     await ApiService().resetPassword(
                                       email: email,
                                       otp: otp.toString(),
                                       newPassword: passwordController.text,
                                     );
 
-                                    // 3. نقفل رسالة التحميل
+                                    // 3. Close loading message
                                     if (mounted) Navigator.pop(context);
 
-                                    // 4. نظهر رسالة النجاح، ولما يدوس عليها ننقله للـ Login
+                                    // 4. Show success message, and when clicked, move to Login
                                     if (mounted) {
                                       QuickAlert.show(
                                         context: context,
@@ -144,7 +144,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                                         onConfirmBtnTap: () {
                                           Navigator.pop(
                                             context,
-                                          ); // نقفل الرسالة دي
+                                          ); // Close this message
                                           Navigator.pushNamedAndRemoveUntil(
                                             context,
                                             LoginScreen.id,

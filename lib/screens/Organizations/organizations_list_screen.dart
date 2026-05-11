@@ -25,7 +25,7 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
 
   void _loadData() {
     setState(() {
-      // بنادي على API اللي بيجيب كل الشركات فقط
+      // Calling API that fetches all organizations only
       _future = _api.getOrganizations();
     });
   }

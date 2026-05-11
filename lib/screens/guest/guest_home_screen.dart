@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/add_organization_screen.dart';
 import 'package:root2route/screens/account_screen.dart';
@@ -31,7 +31,7 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
               MaterialPageRoute(
                 builder:
                     (context) =>
-                        const AddOrganizationScreen(), // أو CreateOrganizationScreen حسب اسم الكلاس عندك
+                        const AddOrganizationScreen(), // or CreateOrganizationScreen depending on your class name
               ),
             );
           },

@@ -19,7 +19,7 @@ class CartService {
   }) {
     final index = _items.indexWhere((item) => item['productId'] == productId);
     if (index >= 0) {
-      // المنتج موجود بالفعل، لا نفعل شيئاً بناءً على طلب المستخدم
+      // Product already exists, do nothing per user request
       return;
     } else {
       _items.add({
@@ -27,7 +27,7 @@ class CartService {
         "name": name,
         "price": price,
         "imageUrl": imageUrl,
-        "quantity": 1, // دائماً 1 لأن التاجر يبيع الكمية كاملة
+        "quantity": 1, // Always 1 because the seller sells the entire quantity
       });
     }
   }

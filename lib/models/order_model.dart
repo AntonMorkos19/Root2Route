@@ -4,6 +4,7 @@ class OrderItemModel {
   final int quantity;
   final double unitPrice;
   final double totalPrice;
+  final String organizationId;
 
   OrderItemModel({
     this.productId = '',
@@ -11,6 +12,7 @@ class OrderItemModel {
     this.quantity = 1,
     this.unitPrice = 0.0,
     this.totalPrice = 0.0,
+    this.organizationId = '',
   });
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +26,7 @@ class OrderItemModel {
       quantity: qtyRaw is num ? qtyRaw.toInt() : int.tryParse(qtyRaw.toString()) ?? 1,
       unitPrice: unitRaw is num ? unitRaw.toDouble() : double.tryParse(unitRaw.toString()) ?? 0.0,
       totalPrice: totalRaw is num ? totalRaw.toDouble() : double.tryParse(totalRaw.toString()) ?? 0.0,
+      organizationId: (json['organizationId'] ?? json['OrganizationId'] ?? '').toString(),
     );
   }
 }
@@ -43,6 +46,7 @@ class OrderModel {
   final double totalAmount;
   final DateTime? createdAt;
   final List<OrderItemModel> items;
+  final String organizationId;
   final int? shipmentId;
 
   OrderModel({
@@ -60,6 +64,7 @@ class OrderModel {
     this.totalAmount = 0.0,
     this.createdAt,
     this.items = const [],
+    this.organizationId = '',
     this.shipmentId,
   });
 
@@ -128,6 +133,7 @@ class OrderModel {
       totalAmount: totalRaw is num ? totalRaw.toDouble() : double.tryParse(totalRaw.toString()) ?? 0.0,
       createdAt: parsedDate,
       items: parsedItems,
+      organizationId: (json['organizationId'] ?? json['OrganizationId'] ?? '').toString(),
       shipmentId: parsedShipmentId,
     );
   }

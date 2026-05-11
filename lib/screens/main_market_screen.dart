@@ -48,14 +48,14 @@ class _MainMarketTabState extends State<MainMarketTab> {
         });
       } else {
         setState(() {
-          _errorMessage = result['message'] ?? 'فشل تحميل المنتجات';
+          _errorMessage = result['message'] ?? 'Failed to load products';
           _isLoading = false;
         });
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'حدث خطأ غير متوقع: $e';
+        _errorMessage = 'An unexpected error occurred: $e';
         _isLoading = false;
       });
     }
@@ -87,7 +87,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text("جاري تحميل بيانات المنظمة، انتظر قليلاً"),
+                  content: Text("Loading organization data, please wait..."),
                 ),
               );
             }

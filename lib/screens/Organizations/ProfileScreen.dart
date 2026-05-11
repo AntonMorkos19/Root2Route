@@ -8,6 +8,8 @@ import 'package:root2route/screens/Organizations/organizations_list_screen.dart'
 import 'package:root2route/screens/account_screen.dart';
 import 'package:root2route/features/shipments/ui/addresses_screen.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/features/reviews/ui/organization_reviews_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -167,6 +169,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => const AddressesScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    leading: const Icon(
+                      Icons.star_rate,
+                      color: Colors.amber,
+                    ),
+                    title: const Text(
+                      'Customer Reviews',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () {
+                      final orgId = StorageService().organizationId;
+                      if (orgId == null || orgId.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('No active organization found to view reviews.'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                        return;
+                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              OrganizationReviewsScreen(organizationId: orgId),
                         ),
                       );
                     },

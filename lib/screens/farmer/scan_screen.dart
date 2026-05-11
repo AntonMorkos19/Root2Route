@@ -17,7 +17,7 @@ class ScanScreen extends StatefulWidget {
 class _ScanScreenState extends State<ScanScreen> {
   bool _isLoading = false;
 
-  // دالة معالجة الصورة ورفعها
+  // Function to process and upload image
   Future<void> _processImage(ImageSource source) async {
     final file = await ImagePickerHelper.pickImage(source);
 
@@ -25,40 +25,39 @@ class _ScanScreenState extends State<ScanScreen> {
       setState(() => _isLoading = true);
 
       try {
-        // نداء الـ API الخاص بتحليل الصورة
+        // Call image analysis API
         final result = await ApiService().analyzeCropImage(File(file.path));
 
         setState(() => _isLoading = false);
 
         if (result != null) {
-          // المنطق الجديد للتعامل مع رد السيرفر
           if (result['succeeded'] == true) {
-            // حالة النجاح في التشخيص
+            // Diagnosis success case
             QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
-              title: 'تم التحليل',
-              text: "النتيجة: ${result['message']}",
-              confirmBtnText: 'ممتاز',
+              title: 'Analysis Completed',
+              text: "Result: ${result['message']}",
+              confirmBtnText: 'Great',
               confirmBtnColor: AppColors.primary,
             );
           } else {
-            // حالة فشل التشخيص (مثل: لم يتم اكتشاف ورقة نبات)
+            // Diagnosis failure case (e.g., no leaf detected)
             QuickAlert.show(
               context: context,
               type: QuickAlertType.warning,
-              title: 'تنبيه',
-              text: result['message'] ?? "يرجى تصوير الورقة بشكل أوضح",
-              confirmBtnText: 'حاول مرة أخرى',
+              title: 'Attention',
+              text: result['message'] ?? "Please photograph the leaf more clearly",
+              confirmBtnText: 'Try Again',
               confirmBtnColor: Colors.orange,
             );
           }
         } else {
-          _showError("تعذر الاتصال بالسيرفر، يرجى المحاولة لاحقاً");
+          _showError("Could not connect to server, please try again later");
         }
       } catch (e) {
         setState(() => _isLoading = false);
-        _showError("حدث خطأ ما، تأكد من اتصالك بالإنترنت");
+        _showError("Something went wrong, please check your internet connection");
       }
     }
   }
@@ -67,9 +66,9 @@ class _ScanScreenState extends State<ScanScreen> {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
-      title: 'عذراً...',
+      title: 'Sorry...',
       text: message,
-      confirmBtnText: 'حسناً',
+      confirmBtnText: 'OK',
     );
   }
 

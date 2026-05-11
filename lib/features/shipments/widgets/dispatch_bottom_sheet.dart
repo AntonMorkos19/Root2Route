@@ -9,8 +9,7 @@ import 'package:root2route/features/shipments/cubit/dispatch_cubit.dart';
 /// Pass the already-provided [dispatchCubit] from the parent's
 /// `context.read<DispatchCubit>()` so the BlocListener on the parent screen
 /// keeps receiving state updates.
-void showDispatchBottomSheet({
-  required BuildContext context,
+void showDispatchBottomSheet(BuildContext context, {
   required String orderId,
   required DispatchCubit dispatchCubit,
 }) {
@@ -117,7 +116,7 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'إرسال الشحنة 📦',
+                    'Dispatch Shipment 📦',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -125,7 +124,7 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
                     ),
                   ),
                   Text(
-                    'أدخل تفاصيل الشحن',
+                    'Enter shipping details',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey.shade600,
@@ -146,12 +145,12 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
                 CustomTextFormField(
                   controller: _carrierCtrl,
                   icon: Icons.directions_car_outlined,
-                  label: 'اسم شركة الشحن',
+                  label: 'Carrier Name',
                   color: Colors.black87,
                   borderColor: AppColors.primary,
                   cursorColor: AppColors.primary,
                   validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'مطلوب' : null,
+                      (v == null || v.trim().isEmpty) ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
 
@@ -159,7 +158,7 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
                 CustomTextFormField(
                   controller: _trackingCtrl,
                   icon: Icons.qr_code_scanner_outlined,
-                  label: 'رقم التتبع (اختياري)',
+                  label: 'Tracking Number (Optional)',
                   color: Colors.black87,
                   borderColor: AppColors.primary,
                   cursorColor: AppColors.primary,
@@ -171,7 +170,7 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
                 CustomTextFormField(
                   controller: _phoneCtrl,
                   icon: Icons.phone_outlined,
-                  label: 'رقم هاتف المندوب (اختياري)',
+                  label: "Driver's Phone (Optional)",
                   color: Colors.black87,
                   borderColor: AppColors.primary,
                   cursorColor: AppColors.primary,
@@ -189,7 +188,7 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
               onPressed: _submit,
               icon: const Text('📦', style: TextStyle(fontSize: 18)),
               label: const Text(
-                'تأكيد الإرسال',
+                'Confirm Dispatch',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -213,7 +212,7 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
             child: TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                'إلغاء',
+                'Cancel',
                 style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
               ),
             ),

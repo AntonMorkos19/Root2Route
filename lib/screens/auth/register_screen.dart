@@ -230,15 +230,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   text: 'Register',
                                   onPressed: () async {
                                     if (formKey.currentState!.validate()) {
-                                      // 1. إظهار الـ Loading
+                                      // 1. Show Loading
                                       showDialog(
                                         context: context,
                                         barrierDismissible:
-                                            false, // يمنع المستخدم من إغلاق التحميل بالضغط خارج النافذة
+                                            false, // Prevents user from closing loading by clicking outside
                                         builder:
                                             (context) => const Center(
                                               child:
-                                                  CircularProgressIndicator(), // شكل التحميل الدائري
+                                                  CircularProgressIndicator(), // Circular loading indicator
                                             ),
                                       );
 
@@ -300,7 +300,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           text: e.toString().replaceAll(
                                             'Exception: ',
                                             '',
-                                          ), // هنا سيظهر السبب الفعلي
+                                          ), // Actual reason will appear here
                                         );
                                       }
                                     }

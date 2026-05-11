@@ -312,7 +312,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   onTap: () => Navigator.pop(context),
                 ),
                 ListTile(
-                  title: const Text("العربية"),
+                  title: const Text("Arabic"),
                   onTap: () => Navigator.pop(context),
                 ),
               ],

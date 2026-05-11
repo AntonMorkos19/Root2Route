@@ -5,10 +5,14 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/orders/cubit/my_orders_cubit.dart';
 import 'package:root2route/features/orders/cubit/order_state.dart';
 import 'package:root2route/features/orders/cubit/received_orders_cubit.dart';
+import 'package:root2route/features/shipments/cubit/dispatch_cubit.dart';
+import 'package:root2route/features/shipments/cubit/shipment_state.dart';
 import 'package:root2route/models/order_model.dart';
 import 'package:root2route/services/order_service.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/screens/order/order_details_screen.dart';
+import 'package:root2route/features/shipments/widgets/dispatch_bottom_sheet.dart';
+import 'package:root2route/features/reviews/ui/add_review_dialog.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shell screen — owns the two cubits and the TabBar scaffold only.
@@ -25,6 +29,7 @@ class MyOrdersScreen extends StatefulWidget {
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
   late final MyOrdersCubit _myOrdersCubit;
   late final ReceivedOrdersCubit _receivedOrdersCubit;
+  late final DispatchCubit _dispatchCubit;
   final OrderService _orderService = OrderService();
   String? _organizationId;
 
@@ -36,6 +41,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
     _myOrdersCubit = MyOrdersCubit()..fetchMyOrders();
     _receivedOrdersCubit = ReceivedOrdersCubit();
+    _dispatchCubit = DispatchCubit();
     if (_organizationId != null && _organizationId!.isNotEmpty) {
       _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
     }
@@ -45,6 +51,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   void dispose() {
     _myOrdersCubit.close();
     _receivedOrdersCubit.close();
+    _dispatchCubit.close();
     super.dispose();
   }
 
@@ -112,47 +119,79 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF4F6F9),
-        appBar: AppBar(
-          title: const Text(
-            'Orders',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: AppColors.primary,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          bottom: const TabBar(
-            indicatorColor: Colors.white,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-            tabs: [
-              Tab(text: 'My Orders'),
-              Tab(text: 'Received Orders'),
-            ],
-          ),
-        ),
-        // Each tab is a fully isolated widget with its own context & lifecycle.
-        body: TabBarView(
-          children: [
-            // ── Tab 1: Buyer orders ──────────────────────────────────────
-            _MyOrdersTab(
-              cubit: _myOrdersCubit,
-              onUpdateStatus: (orderId, status) =>
-                  _updateOrderStatus(context, orderId, status),
-              onOrderTap: (orderId) => _onOrderCardTap(context, orderId),
+    return BlocProvider<DispatchCubit>.value(
+      value: _dispatchCubit,
+      child: BlocListener<DispatchCubit, ShipmentState>(
+        listener: (context, state) {
+          if (state is ShipmentLoading) {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.loading,
+              title: 'Sending...',
+              text: 'Please wait',
+            );
+          } else if (state is ShipmentActionSuccess) {
+            Navigator.of(context, rootNavigator: true).pop();
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.success,
+              title: 'Success',
+              text: state.message,
+              onConfirmBtnTap: () {
+                Navigator.of(context, rootNavigator: true).pop();
+                _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
+              },
+            );
+          } else if (state is ShipmentError) {
+            Navigator.of(context, rootNavigator: true).pop();
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              title: 'Error',
+              text: state.message,
+            );
+          }
+        },
+        child: DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            backgroundColor: const Color(0xFFF4F6F9),
+            appBar: AppBar(
+              title: const Text(
+                'Orders',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              backgroundColor: AppColors.primary,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              bottom: const TabBar(
+                indicatorColor: Colors.white,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white70,
+                tabs: [
+                  Tab(text: 'My Orders'),
+                  Tab(text: 'Received Orders'),
+                ],
+              ),
             ),
-            // ── Tab 2: Seller / received orders ─────────────────────────
-            _ReceivedOrdersTab(
-              cubit: _receivedOrdersCubit,
-              organizationId: _organizationId,
-              onUpdateStatus: (orderId, status) =>
-                  _updateOrderStatus(context, orderId, status),
-              onOrderTap: (orderId) => _onOrderCardTap(context, orderId),
+            body: TabBarView(
+              children: [
+                _MyOrdersTab(
+                  cubit: _myOrdersCubit,
+                  onUpdateStatus: (orderId, status) =>
+                      _updateOrderStatus(context, orderId, status),
+                  onOrderTap: (orderId) => _onOrderCardTap(context, orderId),
+                ),
+                _ReceivedOrdersTab(
+                  cubit: _receivedOrdersCubit,
+                  organizationId: _organizationId,
+                  onUpdateStatus: (orderId, status) =>
+                      _updateOrderStatus(context, orderId, status),
+                  onOrderTap: (orderId) => _onOrderCardTap(context, orderId),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -587,7 +626,7 @@ class _OrderCard extends StatelessWidget {
           (m) => '${m[1]},',
         );
 
-    final List<Widget> actionButtons = _buildActionButtons();
+    final List<Widget> actionButtons = _buildActionButtons(context);
 
     return GestureDetector(
       onTap: () => onTap(order.id),
@@ -712,7 +751,7 @@ class _OrderCard extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildActionButtons() {
+  List<Widget> _buildActionButtons(BuildContext context) {
     final buttons = <Widget>[];
 
     if (!isSeller) {
@@ -731,6 +770,46 @@ class _OrderCard extends StatelessWidget {
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        );
+      }
+      // Buyer: rate & review when delivered
+      if (order.status == 3) {
+        buttons.add(
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                if (order.items.isEmpty) {
+                  QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.warning,
+                      title: 'Oops',
+                      text: 'No products found in this order to review.');
+                  return;
+                }
+                showDialog(
+                  context: context,
+                  builder: (context) => AddReviewDialog(
+                    targetOrganizationId: order.organizationId,
+                    orderId: order.id,
+                    productId: order.items.first.productId,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.star_outline_rounded, color: AppColors.primary),
+              label: const Text(
+                'Rate & Review',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: AppColors.primary),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.primary),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
@@ -784,7 +863,11 @@ class _OrderCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () => onUpdateStatus(order.id, 2),
+              onPressed: () => showDispatchBottomSheet(
+                context,
+                orderId: order.id,
+                dispatchCubit: context.read<DispatchCubit>(),
+              ),
               icon: const Icon(Icons.local_shipping, color: Colors.white),
               label: const Text(
                 'Mark as Shipped',

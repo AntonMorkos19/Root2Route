@@ -10,7 +10,7 @@ class OtpField extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpField> {
-  // تثبيت الطول على 6
+  // Set length to 6
   final int length = 6;
   late List<TextEditingController> controllers;
   late List<FocusNode> focusNodes;
@@ -35,14 +35,14 @@ class _OtpScreenState extends State<OtpField> {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      // نستخدم المتغير المحلي length
+      // Use local length variable
       children: List.generate(length, (index) => _buildOtpBox(index)),
     );
   }
 
   Widget _buildOtpBox(int index) {
     return SizedBox(
-      // عرض أصغر ليناسب الـ 6 خانات بجانب بعضها
+      // Smaller width to fit 6 fields side by side
       width: 45,
       child: TextField(
         controller: controllers[index],
@@ -67,13 +67,13 @@ class _OtpScreenState extends State<OtpField> {
           ),
         ),
         onChanged: (value) {
-          // منطق التنقل التلقائي
+          // Auto-navigation logic
           if (value.isNotEmpty && index < length - 1) {
             focusNodes[index + 1].requestFocus();
           } else if (value.isEmpty && index > 0) {
             focusNodes[index - 1].requestFocus();
           }
-          // إرجاع القيمة للشاشة الأم
+          // Return value to parent screen
           widget.onChanged(fullOtp);
         },
       ),

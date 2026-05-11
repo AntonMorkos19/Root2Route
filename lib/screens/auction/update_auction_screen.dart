@@ -19,7 +19,7 @@ class UpdateAuctionScreen extends StatefulWidget {
 
 class _UpdateAuctionScreenState extends State<UpdateAuctionScreen> {
   final _formKey = GlobalKey<FormState>();
-  bool _isSuccess = false; // ← أضف دا
+  bool _isSuccess = false; // ← Add this
 
   late TextEditingController _titleCtrl;
   late TextEditingController _reservePriceCtrl;
@@ -276,7 +276,7 @@ class _UpdateAuctionScreenState extends State<UpdateAuctionScreen> {
       ),
       body: BlocListener<AuctionCubit, AuctionState>(
         listener: (context, state) {
-          if (_isSuccess) return; // ← تجاهل أي state جديد بعد النجاح
+          if (_isSuccess) return; // ← Ignore any new state after success
 
           if (state is AuctionLoading) {
             QuickAlert.show(
@@ -295,7 +295,7 @@ class _UpdateAuctionScreenState extends State<UpdateAuctionScreen> {
               text: state.message,
             );
           } else if (state is AuctionSuccess<AuctionModel>) {
-            _isSuccess = true; // ← اضبطها قبل أي navigator
+            _isSuccess = true; // ← Set it before any navigator
             Navigator.of(context, rootNavigator: true).pop();
             QuickAlert.show(
               context: context,

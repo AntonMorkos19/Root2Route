@@ -51,7 +51,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
           String msg = result['message'] ?? '';
           _errorMessage =
               msg.trim().isEmpty
-                  ? 'فشل تحميل بيانات المنتج. السيرفر لم يرسل تفاصيل الخطأ.'
+                  ? 'Failed to load product data. Server did not send error details.'
                   : msg;
           _isLoading = false;
         });
@@ -245,7 +245,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
     final String unitStr =
         unitRaw is String ? unitRaw : _getWeightUnitString(unitRaw);
 
-    // استخراج قائمة الصور
+    // Extract image list
     final images = data['images'] ?? data['Images'];
     final List<dynamic> imagesList = (images is List) ? images : [];
 
@@ -296,7 +296,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                           );
                         },
                       ),
-                      // نقاط التوضيح (Indicators)
+                      // Indicators
                       if (imagesList.length > 1)
                         Positioned(
                           bottom: 60,
@@ -430,7 +430,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                       height: 1.6,
                     ),
                   ),
-                  const SizedBox(height: 100), // مساحة إضافية للسكرول
+                  const SizedBox(height: 100), // Extra space for scroll
                 ],
               ),
             ),

@@ -70,14 +70,27 @@ class DispatchCubit extends Cubit<ShipmentState> {
       final response = await _dio.post(
         '/shipments/dispatch',
         data: payload,
+        options: Options(
+          validateStatus: (status) => status != null && status <= 400,
+        ),
       );
 
       final respBody = response.data;
       final message =
-          (respBody is Map ? respBody['message']?.toString() : null) ??
-              'Shipment dispatched successfully';
+          (respBody is Map ? respBody['message']?.toString() : null) ?? '';
 
-      _emitSafe(ShipmentActionSuccess(message));
+      final isSuccess = response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          (respBody is Map && respBody['succeeded'] == true) ||
+          message.toLowerCase().contains('dispatched');
+
+      if (isSuccess) {
+        _emitSafe(ShipmentActionSuccess(
+            message.isNotEmpty ? message : 'Shipment dispatched successfully'));
+      } else {
+        _emitSafe(ShipmentError(
+            message.isNotEmpty ? message : 'Failed to dispatch shipment'));
+      }
     } on DioException catch (e) {
       _emitSafe(ShipmentError(_extractError(e)));
     } catch (e) {

@@ -54,12 +54,12 @@ class StorageService {
     await _prefs.setString(_keyOrganizationId, orgId);
   }
 
-  // ✅ حفظ حالة وجود منظمة
+  // ✅ Save organization existence status
   Future<void> saveHasOrganization(bool value) async {
     await _prefs.setBool(_keyHasOrganization, value);
   }
 
-  // ✅ حفظ حالة التحقق
+  // ✅ Save verification status
   Future<void> saveIsVerified(bool value) async {
     await _prefs.setBool(_keyIsVerified, value);
   }
@@ -73,7 +73,7 @@ class StorageService {
   String? get refreshToken => _prefs.getString(_keyRefreshToken);
   String? get organizationId => _prefs.getString(_keyOrganizationId);
 
-  // ✅ قراءة حالة التحقق
+  // ✅ Read verification status
   bool get isVerified => _prefs.getBool(_keyIsVerified) ?? false;
   
   bool get hasOrganization => _prefs.getBool(_keyHasOrganization) ?? false;
@@ -89,7 +89,7 @@ class StorageService {
     await _prefs.remove(_keyUserFullName);
     await _prefs.remove(_keyIsLoggedIn);
     await _prefs.remove(_keyTokenExpiry);
-    await _prefs.remove(_keyIsVerified); // ✅ إضافة
+    await _prefs.remove(_keyIsVerified); // ✅ Add removal
     await _prefs.remove(_keyHasOrganization);
     await _prefs.remove(_keyRefreshToken);
     await _prefs.remove(_keyOrganizationId);

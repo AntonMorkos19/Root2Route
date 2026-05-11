@@ -91,7 +91,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return;
     }
 
-    // عرض الـ Loading قبل البدء
+    // Show loading before starting
     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
@@ -123,7 +123,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       );
 
       if (!mounted) return;
-      Navigator.pop(context); // إغلاق الـ Loading Alert
+      Navigator.pop(context); // Close loading alert
 
       if (result['success'] == true) {
          await QuickAlert.show(
@@ -134,15 +134,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
           confirmBtnText: 'Okay',
           confirmBtnColor: AppColors.primary,
           onConfirmBtnTap: () {
-            Navigator.pop(context); // إغلاق الـ Alert
+            Navigator.pop(context); // Close alert
             Navigator.pop(
               context,
               true,
-            ); // الرجوع للشاشة السابقة مع تحديث البيانات
+            ); // Return to previous screen with data refresh
           },
         );
       } else {
-        // في حالة الفشل (إيرور حقيقي)
+        // In case of failure (actual error)
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
@@ -153,7 +153,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      Navigator.pop(context); // إغلاق الـ Loading
+      Navigator.pop(context); // Close loading
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
@@ -314,7 +314,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  // --- دوال الصور المعدلة ---
+  // --- Modified image functions ---
   bool _isPickerActive = false;
 
   Future<void> _pickImages() async {
@@ -438,7 +438,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  // --- دوال الـ Selling Options والـ Buttons ---
+  // --- Selling Options and Buttons functions ---
 
   Widget _buildSellingOptionsCard() {
     return Container(
@@ -536,7 +536,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  // المكونات المساعدة (Helpers)
+  // Helper components (Helpers)
   Widget _Label(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 8),
     child: Text(

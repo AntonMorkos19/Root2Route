@@ -131,7 +131,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                                           emailController.text,
                                                       type:
                                                           OtpType
-                                                              .passwordRecovery, // ✅ بنقولها إن دي استرجاع باسورد
+                                                              .passwordRecovery, // ✅ Telling it that this is password recovery
                                                     ),
                                               ),
                                             );

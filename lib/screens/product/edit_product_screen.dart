@@ -28,7 +28,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   bool _forAuction = false;
   DateTime? _expiryDate;
 
-  // ضفنا المتغيرات دي هنا عشان نقرأها صح في الـ initState
+  // Added these variables here to read them correctly in initState
   int _weightUnit = 0;
   int _productType = 0;
 
@@ -55,7 +55,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
       _expiryDate = DateTime.tryParse(expiryRaw.toString());
     }
 
-    // استخراج الـ Enums بشكل آمن
+    // Safe Enum extraction
     _weightUnit =
         int.tryParse((p['weightUnit'] ?? p['WeightUnit'] ?? 0).toString()) ?? 0;
     _productType =
@@ -172,7 +172,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           autoCloseDuration: const Duration(seconds: 2),
         );
         if (!mounted) return;
-        Navigator.pop(context, true); // نرجع للصفحة اللي قبلها بنجاح
+        Navigator.pop(context, true); // Return to previous page successfully
       } else {
         QuickAlert.show(
           context: context,

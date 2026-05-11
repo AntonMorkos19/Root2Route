@@ -10,6 +10,7 @@ import 'package:root2route/features/shipments/cubit/shipment_state.dart';
 import 'package:root2route/features/shipments/widgets/dispatch_bottom_sheet.dart';
 import 'package:root2route/models/order_model.dart';
 import 'package:root2route/services/order_service.dart';
+import 'package:root2route/features/reviews/ui/add_review_dialog.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
   final String orderId;
@@ -95,10 +96,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.confirm,
-      title: 'إلغاء الطلب؟',
-      text: 'هل أنت متأكد من إلغاء هذا الطلب؟',
-      confirmBtnText: 'نعم، إلغاء',
-      cancelBtnText: 'لا',
+      title: 'Cancel Order?',
+      text: 'Are you sure you want to cancel this order?',
+      confirmBtnText: 'Yes, Cancel',
+      cancelBtnText: 'No',
       confirmBtnColor: Colors.red,
       onConfirmBtnTap: () async {
         Navigator.pop(context);
@@ -106,7 +107,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.loading,
-          title: 'جاري الإلغاء...',
+          title: 'Cancelling...',
           barrierDismissible: false,
         );
 
@@ -123,10 +124,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           QuickAlert.show(
             context: context,
             type: QuickAlertType.success,
-            title: result['success'] == true ? 'تم الإلغاء' : 'ملاحظة',
+            title: result['success'] == true ? 'Cancelled' : 'Note',
             text: result['success'] == true
-                ? 'تم إلغاء طلبك بنجاح.'
-                : 'هذا الطلب ملغي بالفعل.',
+                ? 'Your order has been cancelled successfully.'
+                : 'This order is already cancelled.',
             onConfirmBtnTap: () {
               Navigator.pop(context);
               _detailsCubit.fetchOrderDetails(widget.orderId);
@@ -136,8 +137,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           QuickAlert.show(
             context: context,
             type: QuickAlertType.error,
-            title: 'فشل الإلغاء',
-            text: result['message'] ?? 'تعذّر إلغاء الطلب.',
+            title: 'Cancellation Failed',
+            text: result['message'] ?? 'Could not cancel the order.',
           );
         }
       },
@@ -163,7 +164,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 QuickAlert.show(
                   context: context,
                   type: QuickAlertType.loading,
-                  title: 'جاري الإرسال...',
+                  title: 'Sending...',
                   barrierDismissible: false,
                 );
               } else if (state is ShipmentActionSuccess) {
@@ -171,7 +172,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 QuickAlert.show(
                   context: context,
                   type: QuickAlertType.success,
-                  title: 'تم الإرسال ✅',
+                  title: 'Sent ✅',
                   text: state.message,
                   onConfirmBtnTap: () {
                     Navigator.of(context, rootNavigator: true).pop();
@@ -183,7 +184,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 QuickAlert.show(
                   context: context,
                   type: QuickAlertType.error,
-                  title: 'خطأ',
+                  title: 'Error',
                   text: state.message,
                 );
               }
@@ -197,7 +198,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 QuickAlert.show(
                   context: context,
                   type: QuickAlertType.loading,
-                  title: 'جاري التأكيد...',
+                  title: 'Confirming...',
                   barrierDismissible: false,
                 );
               } else if (state is ShipmentActionSuccess) {
@@ -205,7 +206,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 QuickAlert.show(
                   context: context,
                   type: QuickAlertType.success,
-                  title: 'تم الاستلام ✅',
+                  title: 'Received ✅',
                   text: state.message,
                   onConfirmBtnTap: () {
                     Navigator.of(context, rootNavigator: true).pop();
@@ -217,7 +218,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 QuickAlert.show(
                   context: context,
                   type: QuickAlertType.error,
-                  title: 'خطأ',
+                  title: 'Error',
                   text: state.message,
                 );
               }
@@ -384,6 +385,29 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               style: const TextStyle(
                                   fontWeight: FontWeight.bold),
                             ),
+                            if (order.status == 3 && !widget.isSellerView)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: TextButton(
+                                  onPressed: () {
+                                    showAddReviewDialog(
+                                      context,
+                                      targetOrganizationId: item.organizationId.isNotEmpty 
+                                          ? item.organizationId 
+                                          : order.organizationId,
+                                      orderId: order.id,
+                                      productId: item.productId,
+                                    );
+                                  },
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: const Size(50, 30),
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    foregroundColor: AppColors.primary,
+                                  ),
+                                  child: const Text('Review', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                ),
+                              ),
                           ],
                         ),
                       );
@@ -522,13 +546,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       return _bottomBar(
         child: ElevatedButton.icon(
           onPressed: () => showDispatchBottomSheet(
-            context: context,
+            context,
             orderId: widget.orderId,
             dispatchCubit: context.read<DispatchCubit>(),
           ),
           icon: const Text('📦', style: TextStyle(fontSize: 18)),
           label: const Text(
-            'إرسال الشحنة',
+            'Dispatch Shipment',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -561,14 +585,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               QuickAlert.show(
                 context: context,
                 type: QuickAlertType.warning,
-                title: 'تنبيه',
-                text: 'لا يوجد رقم شحنة مرتبط بهذا الطلب.',
+                title: 'Warning',
+                text: 'No tracking number associated with this order.',
               );
             }
           },
           icon: const Text('✅', style: TextStyle(fontSize: 18)),
           label: const Text(
-            'تأكيد استلام الطلب',
+            'Confirm Receipt',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -593,7 +617,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           onPressed: _cancelOrder,
           icon: const Icon(Icons.cancel_outlined, color: Colors.red),
           label: const Text(
-            'إلغاء الطلب',
+            'Cancel Order',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,

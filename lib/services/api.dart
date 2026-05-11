@@ -791,7 +791,7 @@ class ApiService {
         return {
           'success': succeeded,
           'data': respBody['data'],
-          // الرسالة بالإنجليزي
+          // Message in English
           'message':
               succeeded
                   ? 'Product updated successfully.'
@@ -808,16 +808,16 @@ class ApiService {
       final errBody = e.response?.data;
 
       if (errBody is Map) {
-        // 👈👈👈 الحل هنا: بنمسك الـ 400 Error ونتأكد لو جواه نجاح
+        // 👈👈👈 Solution: Catch 400 Error and check for success field inside it
         final isBackendWeirdSuccess =
             errBody['succeeded'] == true || errBody['success'] == true;
 
         if (isBackendWeirdSuccess) {
           return {
-            'success': true, // بنجبر التطبيق يعتبرها نجاح
+            'success': true, // Force application to consider it success
             'data': errBody['data'],
             'message':
-                'Product updated successfully.', // 👈 الرسالة الموحدة بالإنجليزي
+                'Product updated successfully.', // 👈 Unified English message
           };
         }
 
@@ -1331,15 +1331,15 @@ class ApiService {
     required DateTime endDate,
   }) async {
     try {
-      // 1. تعديل المسار لـ /auctions/create
+      // 1. Change path to /auctions/create
       final response = await _dio.post(
         '/auctions/create',
         data: {
           "title": title,
-          // 2. تحويل التاريخ لصيغة ISO 8601 UTC (عشان يضيف حرف Z في الآخر)
+          // 2. Convert date to ISO 8601 UTC (to add 'Z' at the end)
           "startDate": startDate.toUtc().toIso8601String(),
           "endDate": endDate.toUtc().toIso8601String(),
-          // 3. اتأكدنا إن المفاتيح مطابقة للـ Swagger بالمللي
+          // 3. Ensured keys match Swagger exactly
           "startPrice": startingPrice,
           "minimumBidIncrement": minimumBidIncrement,
           "reservePrice": reservePrice,
@@ -1364,7 +1364,7 @@ class ApiService {
         status: 'Upcoming',
       );
     } on DioException catch (e) {
-      // الـ LogInterceptor بتاعك هيطبع التفاصيل، بس برضه بنرمي الـ Error المظبوط للـ UI
+      // LogInterceptor will print details, but we throw correct error for UI anyway
       throw AuctionException(_extractApiError(e));
     } catch (e) {
       throw AuctionException('Failed to create auction: $e');
@@ -1479,7 +1479,7 @@ class ApiService {
     }
   }
 
-  // 1. جلب تاريخ المزايدات (Bid History)
+  // 1. Fetch Bid History
   Future<Map<String, dynamic>> getAuctionBids(String auctionId) async {
     try {
       final token = StorageService().token;
@@ -1518,7 +1518,7 @@ class ApiService {
     }
   }
 
-  // 2. إرسال مزايدة جديدة (Place Bid)
+  // 2. Place Bid
   Future<Map<String, dynamic>> placeBid({
     required String auctionId,
     required double amount,

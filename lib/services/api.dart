@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:dio/dio.dart';
- import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:root2route/core/constants.dart';
 import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/models/user_model.dart';
@@ -301,7 +303,8 @@ class ApiService {
           // Persist the first organization's ID so it's available everywhere
           final firstOrg = organizations.first;
           if (firstOrg is Map) {
-            final orgId = firstOrg['id']?.toString() ??
+            final orgId =
+                firstOrg['id']?.toString() ??
                 firstOrg['organizationId']?.toString() ??
                 firstOrg['OrganizationId']?.toString() ??
                 '';
@@ -683,15 +686,50 @@ class ApiService {
       // Attach image files
       if (images.isNotEmpty) {
         final List<MultipartFile> multipartFiles = [];
-        for (final xfile in images) {
-          String filename = xfile.name;
-          if (filename.isEmpty) {
-            filename = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
-          } else if (!filename.contains('.')) {
-            filename = '$filename.jpg'; // Ensure filename has an extension
+        for (int i = 0; i < images.length; i++) {
+          final xfile = images[i];
+          File file = File(xfile.path);
+
+          // 1. Read the actual file bytes (Magic Numbers)
+          List<int> headerBytes = [];
+          try {
+            headerBytes = await file.openRead(0, 12).first;
+          } catch (e) {
+            debugPrint("Could not read file headers: $e");
           }
+
+          // 2. Detect MIME type from bytes
+          String? mimeType = lookupMimeType(
+            file.path,
+            headerBytes: headerBytes,
+          );
+          mimeType ??= 'image/jpeg';
+
+          // 3. Safe MIME parsing with guards
+          List<String> mimeParts = mimeType.split('/');
+          String type = mimeParts.isNotEmpty ? mimeParts.first : 'image';
+          String subtype = mimeParts.length > 1 ? mimeParts.last : 'jpeg';
+
+          // 4. Normalize subtype edge cases
+          if (subtype.isEmpty || subtype == 'octet-stream') subtype = 'jpeg';
+
+          // 5. Get extension safely
+          String extension = subtype == 'jpeg' ? 'jpg' : subtype;
+          if (extension.isEmpty) extension = 'jpg'; // ← الحل الأساسي
+
+          // 6. Build bulletproof filename
+          String cleanFileName =
+              'image_${DateTime.now().millisecondsSinceEpoch}_$i.$extension';
+
+          debugPrint('Uploading: $cleanFileName | MIME: $type/$subtype');
+
+          // 7. Append to FormData
           multipartFiles.add(
-            await MultipartFile.fromFile(xfile.path, filename: filename),
+            await MultipartFile.fromFile(
+              file.path,
+              filename: cleanFileName,
+              contentType: MediaType(type, subtype),
+            ),
           );
         }
         dataMap['Images'] = multipartFiles;
@@ -1061,8 +1099,7 @@ class ApiService {
           return {
             'success': true,
             'data': errBody['data'],
-            'message':
-                errBody['message'] ?? 'Checkout completed successfully!',
+            'message': errBody['message'] ?? 'Checkout completed successfully!',
           };
         }
         return {
@@ -1163,8 +1200,9 @@ class ApiService {
       final int statusCode = response.statusCode ?? 0;
 
       if (body is Map) {
-        final bool isSuccess = (statusCode == 200) || 
-                               (statusCode == 400 && body['succeeded'] == true);
+        final bool isSuccess =
+            (statusCode == 200) ||
+            (statusCode == 400 && body['succeeded'] == true);
 
         if (isSuccess) {
           return {
@@ -1180,11 +1218,7 @@ class ApiService {
         }
       }
 
-      return {
-        'success': statusCode == 200,
-        'data': body,
-        'message': 'Success',
-      };
+      return {'success': statusCode == 200, 'data': body, 'message': 'Success'};
     } on DioException catch (e) {
       return {'success': false, 'message': 'Connection error: ${e.message}'};
     } catch (e) {
@@ -1527,10 +1561,7 @@ class ApiService {
       final token = StorageService().token;
       final response = await _dio.post(
         '/auctions/$auctionId/bid',
-        data: {
-          "auctionId": auctionId,
-          "amount": amount,
-        },
+        data: {"auctionId": auctionId, "amount": amount},
         options: Options(
           headers: token != null ? {'Authorization': 'Bearer $token'} : null,
         ),

@@ -109,11 +109,14 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     }
   }
 
-  void _onOrderCardTap(BuildContext ctx, String orderId) {
+  void _onOrderCardTap(BuildContext ctx, String orderId, bool isSellerView) {
     Navigator.push(
       ctx,
       MaterialPageRoute(
-        builder: (_) => OrderDetailsScreen(orderId: orderId),
+        builder: (_) => OrderDetailsScreen(
+          orderId: orderId,
+          isSellerView: isSellerView,
+        ),
       ),
     ).then((_) {
       _myOrdersCubit.fetchMyOrders();
@@ -135,7 +138,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           cubit: _myOrdersCubit,
           onUpdateStatus: (orderId, status) =>
               _updateOrderStatus(context, orderId, status),
-          onOrderTap: (orderId) => _onOrderCardTap(context, orderId),
+          onOrderTap: (orderId) => _onOrderCardTap(context, orderId, false),
         ),
       );
     }
@@ -202,14 +205,14 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   cubit: _myOrdersCubit,
                   onUpdateStatus: (orderId, status) =>
                       _updateOrderStatus(context, orderId, status),
-                  onOrderTap: (orderId) => _onOrderCardTap(context, orderId),
+                  onOrderTap: (orderId) => _onOrderCardTap(context, orderId, false),
                 ),
                 _ReceivedOrdersTab(
                   cubit: _receivedOrdersCubit,
                   organizationId: _organizationId,
                   onUpdateStatus: (orderId, status) =>
                       _updateOrderStatus(context, orderId, status),
-                  onOrderTap: (orderId) => _onOrderCardTap(context, orderId),
+                  onOrderTap: (orderId) => _onOrderCardTap(context, orderId, true),
                 ),
               ],
             ),

@@ -4,12 +4,13 @@ import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/screens/auction/auction_details_screen.dart';
 import 'package:root2route/components/auction_card.dart';
-import 'package:root2route/services/storage_service.dart';
 
 class PublicAuctionsScreen extends StatefulWidget {
   static const String id = '/PublicAuctionsScreen';
+  /// When true, hides all bidding action buttons (view-only mode for guests).
+  final bool isGuestMode;
 
-  const PublicAuctionsScreen({super.key});
+  const PublicAuctionsScreen({super.key, this.isGuestMode = false});
 
   @override
   State<PublicAuctionsScreen> createState() => _PublicAuctionsScreenState();
@@ -221,6 +222,8 @@ class _PublicAuctionsScreenState extends State<PublicAuctionsScreen>
               isLoading: _loadingLive,
               error: _liveError,
               onRefresh: _fetchLive,
+              // Pass guest flag: guests cannot bid
+              isGuestMode: widget.isGuestMode,
             ),
             _EndedAuctionsTab(
               auctions: _endedAuctions,
@@ -244,6 +247,8 @@ class _LiveAuctionsTab extends StatelessWidget {
   final bool isLoading;
   final String? error;
   final Future<void> Function() onRefresh;
+  /// When true, the Bid Now button is suppressed (view-only for guests).
+  final bool isGuestMode;
 
   const _LiveAuctionsTab({
     required this.auctions,
@@ -251,6 +256,7 @@ class _LiveAuctionsTab extends StatelessWidget {
     required this.isLoading,
     required this.error,
     required this.onRefresh,
+    this.isGuestMode = false,
   });
 
   @override
@@ -301,13 +307,16 @@ class _LiveAuctionsTab extends StatelessWidget {
                         arguments: auction,
                       );
                     },
-                    onBid: () {
-                      Navigator.pushNamed(
-                        context,
-                        AuctionDetailsScreen.id,
-                        arguments: auction,
-                      );
-                    },
+                    // In guest mode, suppress bid button entirely
+                    onBid: isGuestMode
+                        ? null
+                        : () {
+                            Navigator.pushNamed(
+                              context,
+                              AuctionDetailsScreen.id,
+                              arguments: auction,
+                            );
+                          },
                     onViewBids: () {
                       Navigator.pushNamed(
                         context,

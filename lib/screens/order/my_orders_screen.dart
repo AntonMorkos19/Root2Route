@@ -20,7 +20,11 @@ import 'package:root2route/features/reviews/ui/add_review_dialog.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 
 class MyOrdersScreen extends StatefulWidget {
-  const MyOrdersScreen({super.key});
+  /// When true (Guest flow), shows only the buyer's order list without
+  /// the "My Orders / Received Orders" TabBar toggle.
+  final bool isGuestMode;
+
+  const MyOrdersScreen({super.key, this.isGuestMode = false});
 
   @override
   State<MyOrdersScreen> createState() => _MyOrdersScreenState();
@@ -42,7 +46,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _myOrdersCubit = MyOrdersCubit()..fetchMyOrders();
     _receivedOrdersCubit = ReceivedOrdersCubit();
     _dispatchCubit = DispatchCubit();
-    if (_organizationId != null && _organizationId!.isNotEmpty) {
+
+    // Only fetch received orders when NOT in guest mode
+    if (!widget.isGuestMode &&
+        _organizationId != null &&
+        _organizationId!.isNotEmpty) {
       _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
     }
   }
@@ -119,6 +127,20 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ── Guest mode: buyer-only order list, no tab toggle ──────────────────
+    if (widget.isGuestMode) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF4F6F9),
+        body: _MyOrdersTab(
+          cubit: _myOrdersCubit,
+          onUpdateStatus: (orderId, status) =>
+              _updateOrderStatus(context, orderId, status),
+          onOrderTap: (orderId) => _onOrderCardTap(context, orderId),
+        ),
+      );
+    }
+
+    // ── Standard mode: "My Orders" + "Received Orders" tabs ───────────────
     return BlocProvider<DispatchCubit>.value(
       value: _dispatchCubit,
       child: BlocListener<DispatchCubit, ShipmentState>(

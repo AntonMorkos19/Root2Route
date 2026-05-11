@@ -5,9 +5,12 @@ import 'package:root2route/screens/product/details_product_screen.dart';
 import 'package:root2route/screens/product/add_product_screen.dart';
 import 'package:root2route/services/storage_service.dart';
 
- class MainMarketTab extends StatefulWidget {
+class MainMarketTab extends StatefulWidget {
   final String? organizationId;
-  const MainMarketTab({super.key, this.organizationId});
+  /// When true (Guest mode), hides action buttons (FAB, cart icon).
+  final bool isGuestMode;
+
+  const MainMarketTab({super.key, this.organizationId, this.isGuestMode = false});
 
   @override
   State<MainMarketTab> createState() => _MainMarketTabState();
@@ -65,35 +68,38 @@ class _MainMarketTabState extends State<MainMarketTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 90.0),
-        child: FloatingActionButton(
-          heroTag: "add_product_fab",
-          backgroundColor: AppColors.primary,
-          shape: const CircleBorder(),
-          child: const Icon(Icons.add, color: AppColors.iconPrimary),
-          onPressed: () {
-            if (widget.organizationId != null &&
-                widget.organizationId!.isNotEmpty) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => AddProductScreen(
-                        organizationId: widget.organizationId!,
+      // Hide add-product FAB entirely for guest users
+      floatingActionButton: widget.isGuestMode
+          ? null
+          : Padding(
+              padding: const EdgeInsets.only(bottom: 90.0),
+              child: FloatingActionButton(
+                heroTag: "add_product_fab",
+                backgroundColor: AppColors.primary,
+                shape: const CircleBorder(),
+                child: const Icon(Icons.add, color: AppColors.iconPrimary),
+                onPressed: () {
+                  if (widget.organizationId != null &&
+                      widget.organizationId!.isNotEmpty) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddProductScreen(
+                          organizationId: widget.organizationId!,
+                        ),
                       ),
-                ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Loading organization data, please wait..."),
-                ),
-              );
-            }
-          },
-        ),
-      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content:
+                            Text("Loading organization data, please wait..."),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
       body: _buildBody(),
     );
   }
@@ -356,39 +362,43 @@ class _MainMarketTabState extends State<MainMarketTab> {
                             ],
                           ),
                         ),
-                        if (isMyProduct)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.grey.shade300),
-                            ),
-                            child: Text(
-                              'Your Product',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey.shade600,
+                        // In guest mode: never show cart or ownership badges
+                        if (!widget.isGuestMode) ...[
+                          if (isMyProduct)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(10),
+                                border:
+                                    Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: Text(
+                                'Your Product',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            )
+                          else if (isAvailableForDirectSale)
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.add_shopping_cart_rounded,
+                                color: Colors.white,
+                                size: 16,
                               ),
                             ),
-                          )
-                        else if (isAvailableForDirectSale)
-                          Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(
-                              Icons.add_shopping_cart_rounded,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                          ),
+                        ],
                       ],
                     ),
                   ],

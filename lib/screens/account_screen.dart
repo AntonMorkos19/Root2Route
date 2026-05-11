@@ -7,6 +7,7 @@ import 'package:root2route/components/info_account_card.dart';
 import 'package:root2route/components/settings_account_card.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
 import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/screens/Organizations/add_organization_screen.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/screens/notifications_screen.dart';
 import 'package:root2route/services/api.dart';
@@ -25,7 +26,7 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-       appBar: AppBar(
+      appBar: AppBar(
         backgroundColor: AppColors.primary,
         elevation: 0,
         actions: [
@@ -78,6 +79,83 @@ class _AccountScreenState extends State<AccountScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ── Create Organization CTA (Guest only) ──────────────
+                  if (!StorageService().hasOrganization) ...[
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AddOrganizationScreen(),
+                        ),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF2ECC71), Color(0xFF1B8A4E)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Icon(
+                                Icons.storefront_rounded,
+                                color: Colors.white,
+                                size: 26,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Create Organization',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  SizedBox(height: 3),
+                                  Text(
+                                    'Set up your business to start selling',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              color: Colors.white70,
+                              size: 18,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+
                   const SizedBox(height: 20),
                   const Padding(
                     padding: EdgeInsets.only(left: 8, bottom: 10),
@@ -186,10 +264,11 @@ class _AccountScreenState extends State<AccountScreen> {
                     ),
 
                     GestureDetector(
-                      onTap: () => Navigator.pushNamed(
-                        context,
-                        BuyerAuctionsScreen.id,
-                      ),
+                      onTap:
+                          () => Navigator.pushNamed(
+                            context,
+                            BuyerAuctionsScreen.id,
+                          ),
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -321,3 +400,4 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 }
+

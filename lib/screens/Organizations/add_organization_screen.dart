@@ -128,9 +128,11 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       if (result['success']) {
         await StorageService().saveHasOrganization(true);
 
-        final orgId = result['data']?['id'] ?? 
-                      result['data']?['organizationId'] ?? 
-                      result['data']?['OrganizationId'] ?? '';
+        final orgId =
+            result['data']?['id'] ??
+            result['data']?['organizationId'] ??
+            result['data']?['OrganizationId'] ??
+            '';
         if (orgId.toString().isNotEmpty) {
           await StorageService().saveOrganizationId(orgId.toString());
         }
@@ -248,7 +250,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                           ),
                         ),
 
-                         Positioned.fill(
+                        Positioned.fill(
                           child: BackdropFilter(
                             filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                             child: Container(

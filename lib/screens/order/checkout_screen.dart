@@ -10,6 +10,7 @@ import 'package:root2route/features/shipments/ui/addresses_screen.dart';
 import 'package:root2route/features/shipments/cubit/shipment_address_cubit.dart';
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
 import 'package:root2route/models/shipment_address_model.dart';
+import 'package:root2route/screens/farmer/farmer_home_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
   static const String id = '/checkoutScreen';
@@ -251,8 +252,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           title: 'Success!',
           text: 'Your order has been created successfully.',
           onConfirmBtnTap: () {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const FarmerHomeScreen()),
+              (route) => false,
+            );
           },
         );
       } else {

@@ -4,6 +4,11 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/main_market_screen.dart';
 import 'package:root2route/screens/product/my_products_screen.dart';
 import 'package:root2route/screens/auction/public_auctions_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:root2route/features/notifications/cubit/notification_cubit.dart';
+import 'package:root2route/features/notifications/cubit/notification_state.dart';
+import 'package:root2route/screens/notifications_screen.dart';
+import 'package:root2route/screens/order/cart_screen.dart';
 
 class MarketScreen extends StatefulWidget {
   final String? organizationId;
@@ -35,6 +40,38 @@ class _MarketScreenState extends State<MarketScreen> {
               fontSize: 22,
             ),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black87),
+              onPressed: () => Navigator.pushNamed(context, CartScreen.id),
+            ),
+            BlocBuilder<NotificationCubit, NotificationState>(
+              builder: (context, state) {
+                int unreadCount = 0;
+                if (state is NotificationLoaded) {
+                  unreadCount = state.unreadCount;
+                }
+                return IconButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationsScreen(),
+                    ),
+                  ),
+                  icon: Badge(
+                    isLabelVisible: unreadCount > 0,
+                    label: Text(unreadCount.toString()),
+                    backgroundColor: Colors.red,
+                    child: const Icon(
+                      Icons.notifications_active_outlined,
+                      color: Colors.black87,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 8),
+          ],
           bottom: TabBar(
             labelColor: AppColors.primary,
             unselectedLabelColor: Colors.grey,

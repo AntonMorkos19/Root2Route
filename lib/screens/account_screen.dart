@@ -13,6 +13,9 @@ import 'package:root2route/screens/notifications_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/screens/auction/buyer_auctions_screen.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:root2route/features/notifications/cubit/notification_cubit.dart';
+import 'package:root2route/features/notifications/cubit/notification_state.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -30,18 +33,30 @@ class _AccountScreenState extends State<AccountScreen> {
         backgroundColor: AppColors.primary,
         elevation: 0,
         actions: [
-          IconButton(
-            onPressed:
-                () => Navigator.push(
+          BlocBuilder<NotificationCubit, NotificationState>(
+            builder: (context, state) {
+              int unreadCount = 0;
+              if (state is NotificationLoaded) {
+                unreadCount = state.unreadCount;
+              }
+              return IconButton(
+                onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => const NotificationsScreen(),
                   ),
                 ),
-            icon: const Icon(
-              Icons.notifications_active_outlined,
-              color: AppColors.textPrimary,
-            ),
+                icon: Badge(
+                  isLabelVisible: unreadCount > 0,
+                  label: Text(unreadCount.toString()),
+                  backgroundColor: Colors.red,
+                  child: const Icon(
+                    Icons.notifications_active_outlined,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              );
+            },
           ),
           const SizedBox(width: 10),
         ],

@@ -17,6 +17,7 @@ import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/core/navigator_service.dart';
 import 'package:root2route/screens/order/checkout_screen.dart';
 import 'package:root2route/screens/order/cart_screen.dart';
+import 'package:root2route/features/notifications/cubit/notification_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +31,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider<AuctionCubit>(create: (_) => AuctionCubit())],
+      providers: [
+        BlocProvider<AuctionCubit>(create: (_) => AuctionCubit()),
+        BlocProvider<NotificationCubit>(create: (_) => NotificationCubit()..fetchNotifications()),
+      ],
       child: MaterialApp(
         navigatorKey: NavigatorService.navigatorKey,
         debugShowCheckedModeBanner: false,

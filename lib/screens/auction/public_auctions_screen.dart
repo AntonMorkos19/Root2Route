@@ -7,8 +7,7 @@ import 'package:root2route/components/auction_card.dart';
 
 class PublicAuctionsScreen extends StatefulWidget {
   static const String id = '/PublicAuctionsScreen';
-  /// When true, hides all bidding action buttons (view-only mode for guests).
-  final bool isGuestMode;
+   final bool isGuestMode;
 
   const PublicAuctionsScreen({super.key, this.isGuestMode = false});
 

@@ -8,6 +8,8 @@ import 'package:root2route/features/notifications/cubit/notification_cubit.dart'
 import 'package:root2route/features/notifications/cubit/notification_state.dart';
 import 'package:root2route/screens/notifications_screen.dart';
 import 'package:root2route/screens/order/cart_screen.dart';
+import 'package:root2route/features/cart/cubit/cart_cubit.dart';
+import 'package:root2route/features/cart/cubit/cart_state.dart';
 
 /// A Products tab used exclusively in the Guest navigation flow.
 /// It provides 3 sub-tabs: Market, Auctions, and My Orders — all in
@@ -34,9 +36,33 @@ class GuestProductsTab extends StatelessWidget {
             ),
           ),
           actions: [
+            BlocBuilder<CartCubit, CartState>(
+              builder: (context, state) {
+                final cartCount = state.cartItems.length;
+                return IconButton(
+                  onPressed: () => Navigator.pushNamed(context, CartScreen.id),
+                  icon: Badge(
+                    isLabelVisible: cartCount > 0,
+                    label: Text(cartCount.toString()),
+                    backgroundColor: AppColors.primary,
+                    child: const Icon(
+                      Icons.shopping_cart_outlined,
+                      color: Colors.black87,
+                    ),
+                  ),
+                );
+              },
+            ),
             IconButton(
-              icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black87),
-              onPressed: () => Navigator.pushNamed(context, CartScreen.id),
+              icon: const Icon(Icons.chat_bubble_outline, color: Colors.black87),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('يرجى تسجيل الدخول أولاً لاستخدام المحادثات'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              },
             ),
             BlocBuilder<NotificationCubit, NotificationState>(
               builder: (context, state) {

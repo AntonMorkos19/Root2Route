@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/services/cart_service.dart';
 import 'package:root2route/screens/order/checkout_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:root2route/features/cart/cubit/cart_cubit.dart';
+import 'package:root2route/features/cart/cubit/cart_state.dart';
 
 class CartScreen extends StatefulWidget {
   static const String id = '/cartScreen';
@@ -15,48 +18,46 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   final CartService _cartService = CartService();
 
-  void _removeItem(String productId) {
-    setState(() {
-      _cartService.removeItem(productId);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final items = _cartService.items;
-    final total = _cartService.totalPrice;
+    return BlocBuilder<CartCubit, CartState>(
+      builder: (context, state) {
+        final items = state.cartItems;
+        final total = _cartService.totalPrice;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
-      appBar: AppBar(
-        title: const Text('My Cart', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-      ),
-      body: items.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey.shade400),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Your cart is empty',
-                    style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+        return Scaffold(
+          backgroundColor: const Color(0xFFF4F6F9),
+          appBar: AppBar(
+            title: const Text('My Cart', style: TextStyle(fontWeight: FontWeight.bold)),
+            backgroundColor: AppColors.primary,
+            elevation: 0,
+          ),
+          body: items.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey.shade400),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Your cart is empty',
+                        style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: items.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final item = items[index];
-                return _buildCartItem(item);
-              },
-            ),
-      bottomNavigationBar: items.isNotEmpty ? _buildBottomCheckout(total) : null,
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: items.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final item = items[index];
+                    return _buildCartItem(item);
+                  },
+                ),
+          bottomNavigationBar: items.isNotEmpty ? _buildBottomCheckout(total) : null,
+        );
+      },
     );
   }
 
@@ -128,7 +129,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
           IconButton(
-            onPressed: () => _removeItem(productId),
+            onPressed: () => context.read<CartCubit>().removeItem(productId),
             icon: const Icon(Icons.delete_outline, color: Colors.red),
           ),
         ],

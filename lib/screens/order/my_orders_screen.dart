@@ -163,8 +163,15 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               title: 'Success',
               text: state.message,
               onConfirmBtnTap: () {
-                Navigator.of(context, rootNavigator: true).pop();
-                _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
+                Navigator.of(context, rootNavigator: true).pop(); // Close the QuickAlert
+                
+                if (_organizationId != null) {
+                  _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
+                } else {
+                  // Fallback: If _organizationId is null, try to retrieve it from your local storage/cache first, 
+                  // or trigger a general refresh if your Cubit supports a parameterless refresh.
+                  debugPrint("Warning: _organizationId is null. Cannot refresh orders automatically.");
+                }
               },
             );
           } else if (state is ShipmentError) {

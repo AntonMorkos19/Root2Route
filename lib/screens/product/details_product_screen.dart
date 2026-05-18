@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/services/api.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
-import 'package:root2route/screens/order/checkout_screen.dart';
 import 'package:root2route/screens/order/cart_screen.dart';
 import 'package:root2route/services/cart_service.dart';
+import 'package:root2route/services/chat_service.dart';
+import 'package:root2route/screens/chat/chat_screen.dart';
+import 'package:root2route/features/chat/cubit/chat_messages_cubit.dart';
+import 'package:root2route/features/cart/cubit/cart_cubit.dart';
+import 'package:root2route/features/cart/cubit/cart_state.dart';
 
 class DetailsProductScreen extends StatefulWidget {
   final String productId;
@@ -122,48 +127,53 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(top: 10, right: 16),
-            child: Stack(
-              alignment: Alignment.topRight,
-              clipBehavior: Clip.none,
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.black26,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.shopping_cart,
-                      color: Colors.white,
+            child: BlocBuilder<CartCubit, CartState>(
+              builder: (context, state) {
+                final cartCount = state.cartItems.length;
+                return Stack(
+                  alignment: Alignment.topRight,
+                  clipBehavior: Clip.none,
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.black26,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.shopping_cart,
+                          color: Colors.white,
+                        ),
+                        onPressed: () => Navigator.pushNamed(context, CartScreen.id),
+                      ),
                     ),
-                    onPressed: () => Navigator.pushNamed(context, CartScreen.id).then((_) => setState(() {})),
-                  ),
-                ),
-                if (CartService().items.isNotEmpty)
-                  Positioned(
-                    right: -2,
-                    top: -2,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 1.5),
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 18,
-                        minHeight: 18,
-                      ),
-                      child: Center(
-                        child: Text(
-                          "${CartService().items.length}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                    if (cartCount > 0)
+                      Positioned(
+                        right: -2,
+                        top: -2,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 18,
+                            minHeight: 18,
+                          ),
+                          child: Center(
+                            child: Text(
+                              "$cartCount",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-              ],
+                  ],
+                );
+              },
             ),
           ),
         ],
@@ -540,72 +550,153 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
           ),
         ],
       ),
-      child: ElevatedButton.icon(
-        onPressed: () {
-          if (isGuest) {
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.info,
-              title: 'Login Required',
-              text: 'You need to login to buy or bid.',
-              confirmBtnText: 'Login',
-              onConfirmBtnTap: () {
-                Navigator.pop(context); // close alert
-                Navigator.pushNamed(context, LoginScreen.id);
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                if (isGuest) {
+                  QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.info,
+                    title: 'Login Required',
+                    text: 'You need to login to contact seller.',
+                    confirmBtnText: 'Login',
+                    onConfirmBtnTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, LoginScreen.id);
+                    },
+                  );
+                  return;
+                }
+                
+                if (productOrgId.isEmpty) return;
+
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.loading,
+                  title: 'Starting Chat...',
+                  text: 'Please wait',
+                  barrierDismissible: false,
+                );
+
+                try {
+                  final roomId = await ChatService().startChat(
+                    organizationId: productOrgId,
+                    productId: widget.productId,
+                  );
+                  if (context.mounted) {
+                    Navigator.pop(context); // close loading alert
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BlocProvider(
+                          create: (_) => ChatMessagesCubit(ChatService()),
+                          child: ChatScreen(roomId: roomId),
+                        ),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.error,
+                      title: 'Error',
+                      text: e.toString(),
+                    );
+                  }
+                }
               },
-            );
-            return;
-          }
-          final String name = _productData?['name'] ?? _productData?['Name'] ?? 'Unknown Product';
-          final dynamic priceRaw = _productData?['directSalePrice'] ?? _productData?['DirectSalePrice'] ?? 0;
-          final double price = priceRaw is num ? priceRaw.toDouble() : double.tryParse(priceRaw.toString()) ?? 0.0;
-
-          final images = _productData?['images'] ?? _productData?['Images'];
-          final List<dynamic> imagesList = (images is List) ? images : [];
-          String? firstImageUrl;
-          if (imagesList.isNotEmpty) {
-            if (imagesList[0] is Map) {
-              firstImageUrl = imagesList[0]['url'] ?? imagesList[0]['Url'];
-            } else {
-              firstImageUrl = imagesList[0].toString();
-            }
-          }
-
-          final bool alreadyInCart = CartService().items.any((item) => item['productId'] == widget.productId);
-
-          CartService().addItem(
-            productId: widget.productId,
-            name: name,
-            price: price,
-            imageUrl: firstImageUrl,
-            quantity: 1,
-          );
-          
-          setState(() {}); // Update the badge
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(alreadyInCart ? 'Item already in cart!' : 'Product added to cart!'),
-              backgroundColor: alreadyInCart ? Colors.orange : AppColors.primary,
+              icon: const Icon(Icons.chat_bubble_outline, color: AppColors.primary),
+              label: const Text(
+                'Contact Seller',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: AppColors.primary, width: 1.5),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
             ),
-          );
-        },
-        icon: const Icon(Icons.add_shopping_cart_rounded, color: Colors.white),
-        label: const Text(
-          'Add to Cart',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
           ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+          const SizedBox(width: 12),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                if (isGuest) {
+                  QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.info,
+                    title: 'Login Required',
+                    text: 'You need to login to buy or bid.',
+                    confirmBtnText: 'Login',
+                    onConfirmBtnTap: () {
+                      Navigator.pop(context); // close alert
+                      Navigator.pushNamed(context, LoginScreen.id);
+                    },
+                  );
+                  return;
+                }
+                final String name = _productData?['name'] ?? _productData?['Name'] ?? 'Unknown Product';
+                final dynamic priceRaw = _productData?['directSalePrice'] ?? _productData?['DirectSalePrice'] ?? 0;
+                final double price = priceRaw is num ? priceRaw.toDouble() : double.tryParse(priceRaw.toString()) ?? 0.0;
+
+                final images = _productData?['images'] ?? _productData?['Images'];
+                final List<dynamic> imagesList = (images is List) ? images : [];
+                String? firstImageUrl;
+                if (imagesList.isNotEmpty) {
+                  if (imagesList[0] is Map) {
+                    firstImageUrl = imagesList[0]['url'] ?? imagesList[0]['Url'];
+                  } else {
+                    firstImageUrl = imagesList[0].toString();
+                  }
+                }
+
+                final bool alreadyInCart = CartService().items.any((item) => item['productId'] == widget.productId);
+
+                context.read<CartCubit>().addItem(
+                  productId: widget.productId,
+                  name: name,
+                  price: price,
+                  imageUrl: firstImageUrl,
+                  quantity: 1,
+                );
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(alreadyInCart ? 'Item already in cart!' : 'Product added to cart!'),
+                    backgroundColor: alreadyInCart ? Colors.orange : AppColors.primary,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add_shopping_cart_rounded, color: Colors.white),
+              label: const Text(
+                'Add to Cart',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

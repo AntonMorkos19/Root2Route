@@ -24,6 +24,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _directPriceController = TextEditingController();
   final _descriptionController = TextEditingController();
    final _auctionPriceController = TextEditingController();
+  final _barcodeController = TextEditingController();
 
   String? _selectedCategory;
   String? _selectedUnit;
@@ -52,6 +53,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _directPriceController.dispose();
     _descriptionController.dispose();
      _auctionPriceController.dispose();
+    _barcodeController.dispose();
     super.dispose();
   }
 
@@ -119,6 +121,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 ? (double.tryParse(_auctionPriceController.text.trim()) ?? 0.0)
                 : 0.0,
          expiryDate: _expiryDate?.toIso8601String(),
+         barcode: _barcodeController.text.trim(),
         images: _pickedImages,
       );
 
@@ -296,6 +299,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 _Label('Expiry Date (Optional)'),
                 const SizedBox(height: 8),
                 _DatePickerWidget(),
+                const SizedBox(height: 18),
+                _Label('Barcode (Optional)'),
+                const SizedBox(height: 8),
+                CustomTextFormField(
+                  color: Colors.black,
+                  icon: Icons.qr_code_scanner,
+                  label: 'e.g. 123456789012',
+                  controller: _barcodeController,
+                  keyboardType: TextInputType.text,
+                ),
                 const SizedBox(height: 18),
                 _Label('Description (Optional)'),
                 const SizedBox(height: 8),

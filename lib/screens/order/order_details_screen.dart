@@ -172,7 +172,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 QuickAlert.show(
                   context: context,
                   type: QuickAlertType.success,
-                  title: 'Sent ✅',
+                  title: 'Sent',
                   text: state.message,
                   onConfirmBtnTap: () {
                     Navigator.of(context, rootNavigator: true).pop();
@@ -206,7 +206,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 QuickAlert.show(
                   context: context,
                   type: QuickAlertType.success,
-                  title: 'Received ✅',
+                  title: 'Received',
                   text: state.message,
                   onConfirmBtnTap: () {
                     Navigator.of(context, rootNavigator: true).pop();
@@ -335,6 +335,33 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             ),
             const SizedBox(height: 16),
 
+             if (order.status == 2 || order.status == 3) ...[
+              _buildInfoCard(
+                title: 'Dispatch Details',
+                icon: Icons.assignment_turned_in_outlined,
+                children: [
+                  _buildDispatchRow(
+                    Icons.local_shipping,
+                    'Carrier Name',
+                    order.carrier?.isNotEmpty == true ? order.carrier! : 'Not specified',
+                  ),
+                  _buildDispatchRow(
+                    Icons.qr_code,
+                    'Tracking Number',
+                    order.trackingNumber?.isNotEmpty == true ? order.trackingNumber! : 'Not specified',
+                  ),
+                  _buildDispatchRow(
+                    Icons.phone,
+                    'Driver\'s Phone',
+                    order.driverPhone?.isNotEmpty == true ? order.driverPhone! : 'Not specified',
+                    isClickable: order.driverPhone?.isNotEmpty == true,
+                    context: context,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+
             // ── Shipping Info ────────────────────────────────
             _buildInfoCard(
               title: 'Shipping Information',
@@ -349,8 +376,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             ),
             const SizedBox(height: 16),
 
-            // ── Order Items ──────────────────────────────────
-            _buildInfoCard(
+             _buildInfoCard(
               title: 'Items (${order.items.length})',
               icon: Icons.inventory_2_outlined,
               children: order.items.isEmpty
@@ -415,8 +441,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             ),
             const SizedBox(height: 16),
 
-            // ── Total ────────────────────────────────────────
-            Container(
+             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -450,8 +475,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               ),
             ),
 
-            // ── Note ─────────────────────────────────────────
-            if (order.note.isNotEmpty) ...[
+             if (order.note.isNotEmpty) ...[
               const SizedBox(height: 16),
               _buildInfoCard(
                 title: 'Note',
@@ -465,15 +489,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               ),
             ],
 
-            const SizedBox(height: 100), // Space for bottom bar
+            const SizedBox(height: 100),  
           ],
         ),
       ),
     );
   }
-
-  // ── Reusable card & row (unchanged UI) ─────────────────────
-
+ 
   Widget _buildInfoCard({
     required String title,
     required IconData icon,
@@ -516,6 +538,51 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
+  Widget _buildDispatchRow(IconData icon, String label, String value, {bool isClickable = false, BuildContext? context}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: Colors.grey.shade500),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+            ),
+          ),
+          isClickable
+              ? InkWell(
+                  onTap: () {
+                    if (context != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Copied $value')),
+                      );
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(4),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    child: Text(
+                      value,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: AppColors.primary,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                )
+              : Text(
+                  value,
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -550,8 +617,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             orderId: widget.orderId,
             dispatchCubit: context.read<DispatchCubit>(),
           ),
-          icon: const Text('📦', style: TextStyle(fontSize: 18)),
-          label: const Text(
+           label: const Text(
             'Dispatch Shipment',
             style: TextStyle(
               fontSize: 16,
@@ -574,24 +640,44 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     if (order.status == 2 && !widget.isSellerView) {
       return _bottomBar(
         child: ElevatedButton.icon(
-          onPressed: () {
-            // shipmentId is required; fall back to orderId-based status if null
-            if (order.shipmentId != null) {
-              context.read<ConfirmDeliveryCubit>().confirmDelivery(
-                    shipmentId: order.shipmentId!,
-                    status: 3, // Delivered
-                  );
+          onPressed: () async {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.loading,
+              title: 'Confirming...',
+              text: 'Please wait',
+              barrierDismissible: false,
+            );
+
+            final result = await _orderService.changeOrderStatus(
+              orderId: widget.orderId,
+              newStatus: 3, // Delivered
+            );
+
+            if (!mounted) return;
+            Navigator.of(context, rootNavigator: true).pop(); // dismiss loading
+
+            if (result['success'] == true) {
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.success,
+                title: 'Received',
+                text: 'Order received successfully!',
+                onConfirmBtnTap: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  _detailsCubit.fetchOrderDetails(widget.orderId);
+                },
+              );
             } else {
               QuickAlert.show(
                 context: context,
-                type: QuickAlertType.warning,
-                title: 'Warning',
-                text: 'No tracking number associated with this order.',
+                type: QuickAlertType.error,
+                title: 'Error',
+                text: result['message'] ?? 'Failed to confirm receipt.',
               );
             }
           },
-          icon: const Text('✅', style: TextStyle(fontSize: 18)),
-          label: const Text(
+           label: const Text(
             'Confirm Receipt',
             style: TextStyle(
               fontSize: 16,

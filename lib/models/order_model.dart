@@ -48,6 +48,9 @@ class OrderModel {
   final List<OrderItemModel> items;
   final String organizationId;
   final int? shipmentId;
+  final String? carrier;
+  final String? trackingNumber;
+  final String? driverPhone;
 
   OrderModel({
     required this.id,
@@ -66,6 +69,9 @@ class OrderModel {
     this.items = const [],
     this.organizationId = '',
     this.shipmentId,
+    this.carrier,
+    this.trackingNumber,
+    this.driverPhone,
   });
 
   static int _parseStatus(dynamic raw) {
@@ -135,6 +141,9 @@ class OrderModel {
       items: parsedItems,
       organizationId: (json['organizationId'] ?? json['OrganizationId'] ?? '').toString(),
       shipmentId: parsedShipmentId,
+      carrier: (json['carrier'] ?? json['Carrier'] ?? json['carrierName'] ?? json['CarrierName'])?.toString(),
+      trackingNumber: (json['trackingNumber'] ?? json['TrackingNumber'])?.toString(),
+      driverPhone: (json['driverPhone'] ?? json['DriverPhone'])?.toString(),
     );
   }
 

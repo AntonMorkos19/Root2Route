@@ -659,6 +659,7 @@ class ApiService {
     bool isAvailableForAuction = false,
     double startBiddingPrice = 0.0,
     String? expiryDate,
+    String? barcode,
     int weightUnit = 0,
     int productType = 0,
     List<XFile> images = const [],
@@ -681,6 +682,10 @@ class ApiService {
 
       if (expiryDate != null && expiryDate.isNotEmpty) {
         dataMap['ExpiryDate'] = expiryDate;
+      }
+
+      if (barcode != null && barcode.isNotEmpty) {
+        dataMap['Barcode'] = barcode;
       }
 
       // Attach image files
@@ -795,6 +800,7 @@ class ApiService {
     required bool isAvailableForAuction,
     required double startBiddingPrice,
     String? expiryDate,
+    String? barcode,
     required int weightUnit,
     required int productType,
   }) async {
@@ -813,6 +819,7 @@ class ApiService {
           "isAvailableForAuction": isAvailableForAuction,
           "startBiddingPrice": startBiddingPrice,
           "expiryDate": expiryDate,
+          "barcode": barcode,
           "weightUnit": weightUnit,
           "productType": productType,
         },

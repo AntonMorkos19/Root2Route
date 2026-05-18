@@ -388,6 +388,10 @@ import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/services/api.dart'; // Ensure path is correct
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
+import 'package:root2route/services/chat_service.dart';
+import 'package:root2route/screens/chat/chat_screen.dart';
+import 'package:root2route/features/chat/cubit/chat_messages_cubit.dart';
+import 'package:root2route/core/theme/app_colors.dart';
 
 class AuctionDetailsScreen extends StatefulWidget {
   static const String id = '/auctionDetailsScreen';
@@ -731,9 +735,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           _buildBidHistoryCard(),
           const SizedBox(height: 24),
 
-          // Bid Button
-          if (auction.isActive)
-            if (isOwner)
+          // Bid Button and Contact Seller Button
+          if (isOwner) ...[
+            if (auction.isActive)
               ElevatedButton.icon(
                 onPressed: null,
                 icon: const Icon(Icons.edit, color: Colors.white),
@@ -753,31 +757,107 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                   ),
                 ),
               )
-            else
-              ElevatedButton(
-                onPressed: () {
-                  if (isGuest) {
-                    Navigator.pushNamed(context, LoginScreen.id);
-                    return;
-                  }
-                  _showBidBottomSheet(currentHighest, _auctionId);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2ECC71),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+          ] else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      if (isGuest) {
+                        Navigator.pushNamed(context, LoginScreen.id);
+                        return;
+                      }
+                      final sellerId = pOrgId;
+                      if (sellerId == null || sellerId.isEmpty) return;
+
+                      QuickAlert.show(
+                        context: context,
+                        type: QuickAlertType.loading,
+                        title: 'Starting Chat...',
+                        text: 'Please wait',
+                        barrierDismissible: false,
+                      );
+
+                      try {
+                        final roomId = await ChatService().startChat(
+                          organizationId: sellerId,
+                          productId: auction.productId,
+                        );
+                        if (context.mounted) {
+                          Navigator.pop(context); // close loading
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BlocProvider(
+                                create: (_) => ChatMessagesCubit(ChatService()),
+                                child: ChatScreen(roomId: roomId),
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                          QuickAlert.show(
+                            context: context,
+                            type: QuickAlertType.error,
+                            title: 'Error',
+                            text: e.toString(),
+                          );
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.chat_bubble_outline, color: AppColors.primary),
+                    label: const Text(
+                      'Contact Seller',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: AppColors.primary, width: 1.5),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                 ),
-                child: Text(
-                  isGuest ? 'Login to Bid' : 'Place Bid',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                if (auction.isActive) ...[
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (isGuest) {
+                          Navigator.pushNamed(context, LoginScreen.id);
+                          return;
+                        }
+                        _showBidBottomSheet(currentHighest, _auctionId);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2ECC71),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        isGuest ? 'Login to Bid' : 'Place Bid',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                ],
+              ],
+            ),
+          ],
         ],
       ),
     );

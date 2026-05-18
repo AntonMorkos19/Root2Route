@@ -11,6 +11,7 @@ import 'package:root2route/features/shipments/cubit/shipment_address_cubit.dart'
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
 import 'package:root2route/models/shipment_address_model.dart';
 import 'package:root2route/screens/farmer/farmer_home_screen.dart';
+import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 
 class CheckoutScreen extends StatefulWidget {
   static const String id = '/checkoutScreen';
@@ -245,7 +246,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           (result['message']?.toString().toLowerCase().contains('success') ?? false);
 
       if (isActuallySuccess) {
-        _cartService.clearCart();
+        context.read<CartCubit>().clearCart();
         QuickAlert.show(
           context: context,
           type: QuickAlertType.success,

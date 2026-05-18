@@ -23,6 +23,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   late TextEditingController _descriptionController;
   late TextEditingController _directPriceController;
   late TextEditingController _auctionPriceController;
+  late TextEditingController _barcodeController;
 
   bool _directSale = false;
   bool _forAuction = false;
@@ -40,6 +41,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     // Safe extraction of fields to deal with Backend casing issues
     final name = p['name'] ?? p['Name'] ?? '';
     final description = p['description'] ?? p['Description'] ?? '';
+    final barcode = p['barcode'] ?? p['Barcode'] ?? '';
 
     final stockQty = p['stockQuantity'] ?? p['StockQuantity'] ?? 0;
     final directPrice = p['directSalePrice'] ?? p['DirectSalePrice'] ?? 0;
@@ -71,6 +73,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _auctionPriceController = TextEditingController(
       text: auctionPrice.toString(),
     );
+    _barcodeController = TextEditingController(text: barcode.toString());
   }
 
   @override
@@ -80,6 +83,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _descriptionController.dispose();
     _directPriceController.dispose();
     _auctionPriceController.dispose();
+    _barcodeController.dispose();
     super.dispose();
   }
 
@@ -149,6 +153,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 ? (double.tryParse(_auctionPriceController.text.trim()) ?? 0.0)
                 : 0.0,
         expiryDate: _expiryDate?.toUtc().toIso8601String(),
+        barcode: _barcodeController.text.trim(),
         weightUnit: _weightUnit,
         productType: _productType,
       );
@@ -296,6 +301,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
           _Label('Expiry Date (Optional)'),
           const SizedBox(height: 8),
           _DatePickerWidget(),
+          const SizedBox(height: 18),
+
+          _Label('Barcode (Optional)'),
+          const SizedBox(height: 8),
+          CustomTextFormField(
+            color: Colors.black,
+            icon: Icons.qr_code_scanner,
+            label: 'e.g. 123456789012',
+            controller: _barcodeController,
+            keyboardType: TextInputType.text,
+          ),
           const SizedBox(height: 18),
 
           _Label('Description (Optional)'),

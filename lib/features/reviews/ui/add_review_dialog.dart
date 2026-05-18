@@ -172,31 +172,34 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: Colors.grey.shade200),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(5, (index) {
-                          final starIndex = index + 1;
-                          return GestureDetector(
-                            onTap: isLoading
-                                ? null
-                                : () => setState(
-                                    () => _selectedRating = starIndex),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6),
-                              child: Icon(
-                                starIndex <= _selectedRating
-                                    ? Icons.star_rounded
-                                    : Icons.star_outline_rounded,
-                                color: starIndex <= _selectedRating
-                                    ? const Color(0xFFFFB300)
-                                    : Colors.grey.shade400,
-                                size: 40,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(5, (index) {
+                            final starIndex = index + 1;
+                            return GestureDetector(
+                              onTap: isLoading
+                                  ? null
+                                  : () => setState(
+                                      () => _selectedRating = starIndex),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6),
+                                child: Icon(
+                                  starIndex <= _selectedRating
+                                      ? Icons.star_rounded
+                                      : Icons.star_outline_rounded,
+                                  color: starIndex <= _selectedRating
+                                      ? const Color(0xFFFFB300)
+                                      : Colors.grey.shade400,
+                                  size: 36,
+                                ),
                               ),
-                            ),
-                          );
-                        }),
+                            );
+                          }),
+                        ),
                       ),
                     ),
                     if (_selectedRating > 0) ...[

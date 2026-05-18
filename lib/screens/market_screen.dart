@@ -9,6 +9,11 @@ import 'package:root2route/features/notifications/cubit/notification_cubit.dart'
 import 'package:root2route/features/notifications/cubit/notification_state.dart';
 import 'package:root2route/screens/notifications_screen.dart';
 import 'package:root2route/screens/order/cart_screen.dart';
+import 'package:root2route/screens/chat/chat_rooms_screen.dart';
+import 'package:root2route/features/chat/cubit/chat_rooms_cubit.dart';
+import 'package:root2route/services/chat_service.dart';
+import 'package:root2route/features/cart/cubit/cart_cubit.dart';
+import 'package:root2route/features/cart/cubit/cart_state.dart';
 
 class MarketScreen extends StatefulWidget {
   final String? organizationId;
@@ -41,9 +46,36 @@ class _MarketScreenState extends State<MarketScreen> {
             ),
           ),
           actions: [
+            BlocBuilder<CartCubit, CartState>(
+              builder: (context, state) {
+                final cartCount = state.cartItems.length;
+                return IconButton(
+                  onPressed: () => Navigator.pushNamed(context, CartScreen.id),
+                  icon: Badge(
+                    isLabelVisible: cartCount > 0,
+                    label: Text(cartCount.toString()),
+                    backgroundColor: AppColors.primary,
+                    child: const Icon(
+                      Icons.shopping_cart_outlined,
+                      color: Colors.black87,
+                    ),
+                  ),
+                );
+              },
+            ),
             IconButton(
-              icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black87),
-              onPressed: () => Navigator.pushNamed(context, CartScreen.id),
+              icon: const Icon(Icons.chat_bubble_outline, color: Colors.black87),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (_) => ChatRoomsCubit(ChatService()),
+                      child: const ChatRoomsScreen(),
+                    ),
+                  ),
+                );
+              },
             ),
             BlocBuilder<NotificationCubit, NotificationState>(
               builder: (context, state) {

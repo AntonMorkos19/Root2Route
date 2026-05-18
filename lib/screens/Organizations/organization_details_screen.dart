@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
-import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/organization_model.dart';
 import 'package:root2route/screens/Organizations/edit_organization_screen.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/services/storage_service.dart';
 
 class OrganizationDetailsScreen extends StatefulWidget {
   final OrganizationModel organization;
@@ -129,134 +129,15 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     );
   }
 
-  void _showChangeOwnerDialog() {
-    final ownerIdController = TextEditingController();
-    final dialogFormKey = GlobalKey<FormState>();
-    showDialog(
-      context: context,
-      builder:
-          (ctx) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: Row(
-              children: const [
-                Icon(Icons.swap_horiz, color: AppColors.OrganizationColor),
-                SizedBox(width: 8),
-                Text(
-                  'Transfer Ownership',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            content: Form(
-              key: dialogFormKey,
-              child: CustomTextFormField(
-                icon: Icons.person_outline,
-                label: 'New Owner ID (GUID)',
-                controller: ownerIdController,
-                color: Colors.black,
-                cursorColor: AppColors.OrganizationColor,
-                borderColor: AppColors.OrganizationColor,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter the new owner ID';
-                  }
-                  return null;
-                },
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.OrganizationColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () {
-                  if (!dialogFormKey.currentState!.validate()) return;
-                  Navigator.pop(ctx);
-                  _changeOwner(ownerIdController.text.trim());
-                },
-                child: const Text(
-                  'Transfer',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-    );
-  }
-
-  Future<void> _changeOwner(String newOwnerId) async {
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.warning,
-      title: 'Transfer Ownership?',
-      text:
-          'You will lose ownership of this organization. This cannot be easily reversed.',
-      confirmBtnText: 'Yes, Transfer',
-      cancelBtnText: 'Cancel',
-      confirmBtnColor: Colors.red,
-      showCancelBtn: true,
-      onConfirmBtnTap: () async {
-        Navigator.pop(context);
-
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.loading,
-          title: 'Transferring',
-          text: 'Please wait...',
-          barrierDismissible: false,
-        );
-
-        final result = await _api.changeOrganizationOwner(
-          organizationId: widget.organization.id,
-          newOwnerId: newOwnerId,
-        );
-
-        if (mounted) Navigator.pop(context);
-
-        if (mounted) {
-          if (result['success'] == true) {
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.success,
-              title: 'Transferred!',
-              text: 'Ownership transferred successfully.',
-              confirmBtnText: 'OK',
-              onConfirmBtnTap: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-            );
-          } else {
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.error,
-              title: 'Error',
-              text: result['message'] ?? 'Failed to transfer ownership',
-              confirmBtnText: 'OK',
-            );
-          }
-        }
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     final org = widget.organization;
     final String imageUrl = _getFullImageUrl(org.logoUrl);
     final bool hasImage = imageUrl.isNotEmpty;
+
+    // Show the ⋮ menu only if this org belongs to the logged-in user.
+    final bool isOwner = StorageService().organizationId == org.id;
 
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f7),
@@ -271,64 +152,53 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.black),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            onSelected: (value) {
-              switch (value) {
-                case 'edit':
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => EditOrganizationScreen(organization: org),
-                    ),
-                  ).then((_) => setState(() {}));
-                  break;
+        actions: isOwner
+            ? [
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, color: Colors.black),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'edit':
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                EditOrganizationScreen(organization: org),
+                          ),
+                        ).then((_) => setState(() {}));
+                        break;
 
-                case 'owner':
-                  _showChangeOwnerDialog();
-                  break;
-                case 'delete':
-                  _deleteOrganization();
-                  break;
-              }
-            },
-            itemBuilder:
-                (context) => [
-                  const PopupMenuItem(
-                    value: 'edit',
-                    child: ListTile(
-                      leading: Icon(Icons.edit, color: Colors.orange),
-                      title: Text('Edit Organization'),
-                      contentPadding: EdgeInsets.zero,
-                      dense: true,
+                      case 'delete':
+                        _deleteOrganization();
+                        break;
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: ListTile(
+                        leading: Icon(Icons.edit, color: Colors.orange),
+                        title: Text('Edit Organization'),
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                      ),
                     ),
-                  ),
-
-                  const PopupMenuItem(
-                    value: 'owner',
-                    child: ListTile(
-                      leading: Icon(Icons.swap_horiz, color: Colors.purple),
-                      title: Text('Transfer Ownership'),
-                      contentPadding: EdgeInsets.zero,
-                      dense: true,
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        leading: Icon(Icons.delete, color: Colors.red),
+                        title: Text('Delete Organization'),
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                      ),
                     ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'delete',
-                    child: ListTile(
-                      leading: Icon(Icons.delete, color: Colors.red),
-                      title: Text('Delete Organization'),
-                      contentPadding: EdgeInsets.zero,
-                      dense: true,
-                    ),
-                  ),
-                ],
-          ),
-        ],
+                  ],
+                ),
+              ]
+            : null,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

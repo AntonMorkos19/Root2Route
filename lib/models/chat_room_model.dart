@@ -1,46 +1,55 @@
+import 'package:flutter/foundation.dart';
+
 class ChatRoomModel {
   final String id;
-  final List<String> participants;
+  final String chatTitle;       // Dynamic: otherPartyName > organizationName
+  final String organizationName;
+  final String productName;
   final String lastMessage;
+  final String lastMessageAt;
   final int unreadCount;
   final bool isClosed;
 
   ChatRoomModel({
     required this.id,
-    this.participants = const [],
+    this.chatTitle = '',
+    this.organizationName = '',
+    this.productName = '',
     this.lastMessage = '',
+    this.lastMessageAt = '',
     this.unreadCount = 0,
     this.isClosed = false,
   });
 
   factory ChatRoomModel.fromJson(Map<String, dynamic> json) {
-    final idRaw = json['id'] ?? json['Id'] ?? json['roomId'] ?? '';
-    final lastMessageRaw = json['lastMessage'] ?? json['LastMessage'] ?? '';
-    final unreadCountRaw = json['unreadCount'] ?? json['UnreadCount'] ?? 0;
-    final isClosedRaw = json['isClosed'] ?? json['IsClosed'] ?? false;
+    debugPrint("Room JSON: $json");
     
-    List<String> parsedParticipants = [];
-    final partsRaw = json['participants'] ?? json['Participants'];
-    if (partsRaw is List) {
-      parsedParticipants = partsRaw.map((e) => e.toString()).toList();
-    }
+    // Dynamic title: backend returns otherPartyName for buyer context, organizationName for seller context
+    final chatTitle = (json['otherPartyName'] ?? json['organizationName'] ?? 'Chat').toString();
 
     return ChatRoomModel(
-      id: idRaw.toString(),
-      participants: parsedParticipants,
-      lastMessage: lastMessageRaw.toString(),
-      unreadCount: unreadCountRaw is int ? unreadCountRaw : int.tryParse(unreadCountRaw.toString()) ?? 0,
-      isClosed: isClosedRaw is bool ? isClosedRaw : isClosedRaw.toString().toLowerCase() == 'true',
+      id: (json['id'] ?? json['Id'] ?? json['chatRoomId'] ?? json['roomId'] ?? '').toString(),
+      chatTitle: chatTitle,
+      organizationName: (json['organizationName'] ?? json['otherPartyName'] ?? json['sellerName'] ?? json['participantName'] ?? 'Unknown').toString(),
+      productName: (json['productName'] ?? '').toString(),
+      lastMessage: (json['lastMessageSnippet'] ?? json['lastMessage'] ?? json['LastMessage'] ?? '').toString(),
+      lastMessageAt: (json['lastMessageAt'] ?? json['LastMessageAt'] ?? json['updatedAt'] ?? json['createdAt'] ?? '').toString(),
+      unreadCount: json['unreadCount'] is int ? json['unreadCount'] : int.tryParse(json['unreadCount'].toString()) ?? 0,
+      isClosed: (json['isClosed'] ?? json['IsClosed'] ?? false) == true,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'participants': participants,
+      'chatTitle': chatTitle,
+      'organizationName': organizationName,
+      'productName': productName,
       'lastMessage': lastMessage,
+      'lastMessageAt': lastMessageAt,
       'unreadCount': unreadCount,
       'isClosed': isClosed,
     };
   }
 }
+

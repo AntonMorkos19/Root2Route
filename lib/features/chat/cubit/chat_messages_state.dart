@@ -9,8 +9,12 @@ class ChatMessagesLoading extends ChatMessagesState {}
 class ChatMessagesLoaded extends ChatMessagesState {
   final List<ChatMessageModel> messages;
   final bool isSending;
+  final bool isClosed;
 
-  ChatMessagesLoaded(this.messages, {this.isSending = false});
+  ChatMessagesLoaded(this.messages, {
+    this.isSending = false,
+    this.isClosed = false,
+  });
 }
 
 class ChatMessagesError extends ChatMessagesState {

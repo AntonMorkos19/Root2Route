@@ -8,7 +8,7 @@ import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/screens/order/cart_screen.dart';
 import 'package:root2route/services/cart_service.dart';
 import 'package:root2route/services/chat_service.dart';
-import 'package:root2route/screens/chat/chat_screen.dart';
+import 'package:root2route/screens/chat/chat_details_screen.dart';
 import 'package:root2route/features/chat/cubit/chat_messages_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_state.dart';
@@ -592,19 +592,26 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                       MaterialPageRoute(
                         builder: (_) => BlocProvider(
                           create: (_) => ChatMessagesCubit(ChatService()),
-                          child: ChatScreen(roomId: roomId),
+                          child: ChatDetailsScreen(
+                            roomId: roomId,
+                            roomName: _productData?['sellerName']
+                                ?? _productData?['organizationName']
+                                ?? 'Seller',
+                          ),
                         ),
                       ),
                     );
                   }
-                } catch (e) {
+                } catch (e, stackTrace) {
+                  debugPrint("🔥 EXACT ERROR: $e");
+                  debugPrint("🔥 STACK TRACE: $stackTrace");
                   if (context.mounted) {
                     Navigator.pop(context);
                     QuickAlert.show(
                       context: context,
                       type: QuickAlertType.error,
                       title: 'Error',
-                      text: e.toString(),
+                      text: 'Connection failed. Please check the logs.',
                     );
                   }
                 }

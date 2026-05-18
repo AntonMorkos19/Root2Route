@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+
 
 class CartService {
   static final CartService _instance = CartService._internal();
@@ -27,7 +27,7 @@ class CartService {
         "name": name,
         "price": price,
         "imageUrl": imageUrl,
-        "quantity": 1, // Always 1 because the seller sells the entire quantity
+        "quantity": 1,
       });
     }
   }
@@ -41,6 +41,9 @@ class CartService {
   }
 
   double get totalPrice {
-    return _items.fold(0.0, (sum, item) => sum + (item['price'] * item['quantity']));
+    return _items.fold(
+      0.0,
+      (sum, item) => sum + (item['price'] * item['quantity']),
+    );
   }
 }

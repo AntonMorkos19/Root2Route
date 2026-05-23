@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/core/theme/app_colors.dart';
@@ -373,12 +374,12 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
       onRefresh: _fetchProducts,
       color: AppColors.primary,
       child: GridView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.w),
         itemCount: _products.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
+          mainAxisSpacing: 16.h,
+          crossAxisSpacing: 16.w,
           childAspectRatio: 0.68,
         ),
         itemBuilder: (context, index) {
@@ -428,7 +429,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -459,7 +460,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
           ),
           // Info Area
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(10.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -467,34 +468,35 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                   name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: 15.sp,
                     color: Colors.black87,
                   ),
                 ),
+                SizedBox(height: 4.h),
                 Row(
                   children: [
                     Text(
                       'EGP ${displayPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.sp,
                         color: AppColors.primary,
                       ),
                     ),
                     if (showAuctionOnlyBadge) ...[
-                      const SizedBox(width: 8),
+                      SizedBox(width: 6.w),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                         decoration: BoxDecoration(
                           color: Colors.orange.shade100,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(4.r),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Auction Only',
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 10.sp,
                             fontWeight: FontWeight.bold,
                             color: Colors.deepOrange,
                           ),
@@ -503,7 +505,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                     ],
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 // Actions
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -521,17 +523,31 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                         );
                         if (result == true) _fetchProducts();
                       },
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          Icons.edit_outlined,
-                          size: 18,
-                          color: Colors.blue.shade700,
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(6.w),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Icon(
+                              Icons.edit_outlined,
+                              size: 18.w,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            'Edit',
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     InkWell(
@@ -545,35 +561,63 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                           },
                         );
                       },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.gavel_rounded,
-                          size: 16,
-                          color: AppColors.primary,
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 6.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Icon(
+                              Icons.gavel_rounded,
+                              size: 16.w,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            'Auction',
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     InkWell(
                       onTap: () => _deleteProduct(id),
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          Icons.delete_outline_rounded,
-                          size: 18,
-                          color: Colors.red.shade700,
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(6.w),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Icon(
+                              Icons.delete_outline_rounded,
+                              size: 18.w,
+                              color: Colors.red.shade700,
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            'Delete',
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.red.shade700,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

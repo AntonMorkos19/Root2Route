@@ -99,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       const CircleAvatar(
                         radius: 40,
-                        backgroundColor: AppColors.OrganizationColor,
+                        backgroundColor: AppColors.primary,
                         child: Icon(
                           Icons.person,
                           size: 40,
@@ -124,7 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 26),
                         child: CustomButton(
                           text: 'Edit Profile',
-                          color: AppColors.OrganizationColor,
+                          color: AppColors.primary,
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -191,10 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                   child: ListTile(
-                    leading: const Icon(
-                      Icons.star_rate,
-                      color: Colors.amber,
-                    ),
+                    leading: const Icon(Icons.star_rate, color: Colors.amber),
                     title: const Text(
                       'Customer Reviews',
                       style: TextStyle(fontWeight: FontWeight.w600),
@@ -205,7 +202,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       if (orgId == null || orgId.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('No active organization found to view reviews.'),
+                            content: Text(
+                              'No active organization found to view reviews.',
+                            ),
                             backgroundColor: Colors.orange,
                           ),
                         );
@@ -214,8 +213,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              OrganizationReviewsScreen(organizationId: orgId),
+                          builder:
+                              (context) => OrganizationReviewsScreen(
+                                organizationId: orgId,
+                              ),
                         ),
                       );
                     },

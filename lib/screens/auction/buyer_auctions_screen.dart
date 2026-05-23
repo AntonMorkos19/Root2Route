@@ -101,56 +101,65 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
   }
 
   Future<void> _handleCheckout(String auctionId, String title) async {
-    // 1. Confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
+      builder:
+          (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.shopping_cart_checkout_rounded,
+                    color: AppColors.primary,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Confirm Checkout',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                ),
+              ],
+            ),
+            content: Text(
+              'Are you sure you want to checkout "$title"?',
+              style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
               ),
-              child: const Icon(Icons.shopping_cart_checkout_rounded,
-                  color: AppColors.primary, size: 22),
-            ),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Text('Confirm Checkout',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            ),
-          ],
-        ),
-        content: Text(
-          'Are you sure you want to checkout "$title"?',
-          style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancel',
-                style: TextStyle(color: Colors.grey.shade600)),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Checkout'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-            ),
-            child: const Text('Checkout'),
-          ),
-        ],
-      ),
     );
 
     if (confirmed != true || !mounted) return;
 
-    // 2. Show loading
     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
@@ -162,7 +171,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
     try {
       final res = await _api.checkoutAuction(auctionId);
       if (!mounted) return;
-      Navigator.pop(context); // dismiss loading
+      Navigator.pop(context);
 
       if (res['success'] == true) {
         await QuickAlert.show(
@@ -173,7 +182,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
           confirmBtnText: 'Great',
           confirmBtnColor: AppColors.primary,
         );
-        _fetchWon(); // refresh won list
+        _fetchWon();
       } else {
         QuickAlert.show(
           context: context,
@@ -185,7 +194,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
       }
     } catch (e) {
       if (!mounted) return;
-      Navigator.pop(context); // dismiss loading
+      Navigator.pop(context);
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
@@ -200,121 +209,95 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            expandedHeight: 160,
-            floating: false,
-            pinned: true,
-            backgroundColor: AppColors.primary,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_rounded,
-                  color: Colors.white, size: 20),
-              onPressed: () => Navigator.pop(context),
+      appBar: AppBar(
+        toolbarHeight: 100, // زودنا الطول عشان يشيل العنوان والوصف
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        centerTitle: false,
+        // 💡 السهم بقى لوحده وواضح
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_rounded,
+              color: Colors.white,
+              size: 20,
             ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [AppColors.primary, Color(0xFF1B5E20)],
-                  ),
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(Icons.receipt_long_rounded,
-                                  color: Colors.white, size: 22),
-                            ),
-                            const SizedBox(width: 12),
-                            const Text(
-                              'My Auctions',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Track your bids and claim your wins',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.85),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        // 💡 العنوان والوصف مترتبين تحت بعض
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'My Auctions',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
               ),
             ),
-            bottom: TabBar(
-              controller: _tabController,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white60,
-              indicatorColor: Colors.white,
-              indicatorWeight: 3,
-              labelStyle: const TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: 14),
-              tabs: const [
-                Tab(
-                    icon: Icon(Icons.how_to_vote_rounded, size: 18),
-                    text: 'Participated'),
-                Tab(
-                    icon: Icon(Icons.emoji_events_rounded, size: 18),
-                    text: 'Won'),
-              ],
-            ),
-          ),
-        ],
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            // ── Participated Tab ──
-            _buildListTab(
-              data: _participated,
-              isLoading: _loadingParticipated,
-              error: _participatedError,
-              onRefresh: _fetchParticipated,
-              emptyIcon: Icons.how_to_vote_rounded,
-              emptyTitle: 'No Participated Auctions',
-              emptySubtitle:
-                  'Auctions you bid on will appear here.',
-              cardBuilder: (auction) =>
-                  _ParticipatedAuctionCard(auction: auction),
-            ),
-            // ── Won Tab ──
-            _buildListTab(
-              data: _won,
-              isLoading: _loadingWon,
-              error: _wonError,
-              onRefresh: _fetchWon,
-              emptyIcon: Icons.emoji_events_rounded,
-              emptyTitle: 'No Won Auctions',
-              emptySubtitle: 'Your winning auctions will show up here.',
-              cardBuilder: (auction) => _WonAuctionCard(
-                auction: auction,
-                onCheckout: _handleCheckout,
+            const SizedBox(height: 4),
+            Text(
+              'Track your bids and claim your wins',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ],
         ),
+        // 💡 الـ Gradient الجميل بتاعك
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.primary, Color(0xFF1B5E20)],
+            ),
+          ),
+        ),
+        // 💡 الـ Tabs ثابتة تحت
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white60,
+          indicatorColor: Colors.white,
+          indicatorWeight: 3,
+          tabs: const [Tab(text: 'Participated'), Tab(text: 'Won')],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildListTab(
+            data: _participated,
+            isLoading: _loadingParticipated,
+            error: _participatedError,
+            onRefresh: _fetchParticipated,
+            emptyIcon: Icons.how_to_vote_rounded,
+            emptyTitle: 'No Participated Auctions',
+            emptySubtitle: 'Auctions you bid on will appear here.',
+            cardBuilder:
+                (auction) => _ParticipatedAuctionCard(auction: auction),
+          ),
+          _buildListTab(
+            data: _won,
+            isLoading: _loadingWon,
+            error: _wonError,
+            onRefresh: _fetchWon,
+            emptyIcon: Icons.emoji_events_rounded,
+            emptyTitle: 'No Won Auctions',
+            emptySubtitle: 'Your winning auctions will show up here.',
+            cardBuilder:
+                (auction) => _WonAuctionCard(
+                  auction: auction,
+                  onCheckout: _handleCheckout,
+                ),
+          ),
+        ],
       ),
     );
   }
@@ -357,7 +340,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
   }
 }
 
-// ─── Helper: resolve image URL ────────────────────────────────────────────────
+// ─── الدوال المساعدة والـ Cards (زي ما هي) ──────────────────────────────────────────
 
 String? _resolveImageUrl(dynamic auction) {
   final images =
@@ -373,13 +356,7 @@ String? _resolveImageUrl(dynamic auction) {
 }
 
 String _resolveTitle(dynamic auction) {
-  return auction['title'] ??
-      auction['Title'] ??
-      auction['name'] ??
-      auction['Name'] ??
-      auction['productName'] ??
-      auction['ProductName'] ??
-      'Auction';
+  return auction['title'] ?? auction['Title'] ?? auction['name'] ?? 'Auction';
 }
 
 Widget _imagePlaceholder({double size = 48}) {
@@ -391,51 +368,16 @@ Widget _imagePlaceholder({double size = 48}) {
   );
 }
 
-// ─── Participated Auction Card ────────────────────────────────────────────────
-
 class _ParticipatedAuctionCard extends StatelessWidget {
   final dynamic auction;
-
   const _ParticipatedAuctionCard({required this.auction});
 
   @override
   Widget build(BuildContext context) {
     final title = _resolveTitle(auction);
     final displayUrl = _resolveImageUrl(auction);
-
-    final rawBid = auction['currentBid'] ??
-        auction['CurrentBid'] ??
-        auction['highestBid'] ??
-        auction['HighestBid'] ??
-        auction['currentHighestBid'] ??
-        auction['reservePrice'] ??
-        auction['ReservePrice'] ??
-        0;
+    final rawBid = auction['currentBid'] ?? 0;
     final currentBid = double.tryParse(rawBid.toString()) ?? 0.0;
-
-    final status = auction['status'] ??
-        auction['Status'] ??
-        auction['auctionStatus'] ??
-        '';
-    final statusStr = status.toString().toLowerCase();
-
-    Color statusColor;
-    String statusLabel;
-    if (statusStr.contains('active') || statusStr.contains('live')) {
-      statusColor = Colors.green;
-      statusLabel = 'LIVE';
-    } else if (statusStr.contains('ended') || statusStr.contains('completed')) {
-      statusColor = Colors.grey;
-      statusLabel = 'ENDED';
-    } else if (statusStr.contains('upcoming') ||
-        statusStr.contains('pending')) {
-      statusColor = Colors.orange;
-      statusLabel = 'UPCOMING';
-    } else {
-      statusColor = Colors.blueGrey;
-      statusLabel = status.toString().toUpperCase();
-      if (statusLabel.isEmpty) statusLabel = 'UNKNOWN';
-    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -444,91 +386,50 @@ class _ParticipatedAuctionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
-          // Image
           ClipRRect(
-            borderRadius:
-                const BorderRadius.horizontal(left: Radius.circular(20)),
+            borderRadius: const BorderRadius.horizontal(
+              left: Radius.circular(20),
+            ),
             child: SizedBox(
-              width: 110,
-              height: 120,
-              child: displayUrl != null && displayUrl.isNotEmpty
-                  ? Image.network(displayUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _imagePlaceholder(size: 32))
-                  : _imagePlaceholder(size: 32),
+              width: 100,
+              height: 100,
+              child:
+                  displayUrl != null
+                      ? Image.network(displayUrl, fit: BoxFit.cover)
+                      : _imagePlaceholder(size: 32),
             ),
           ),
-          // Info
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Status badge
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (statusLabel == 'LIVE')
-                          Padding(
-                            padding: const EdgeInsets.only(right: 4),
-                            child: Icon(Icons.circle,
-                                size: 6, color: statusColor),
-                          ),
-                        Text(
-                          statusLabel,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: statusColor,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 6),
                   Text(
                     title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
-                      color: Colors.black87,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Highest Bid',
-                    style: TextStyle(
-                        fontSize: 11, color: Colors.grey.shade500),
+                    'Current Bid',
+                    style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                   ),
                   Text(
-                    currentBid > 0
-                        ? 'EGP ${currentBid.toStringAsFixed(0)}'
-                        : 'No bids yet',
-                    style: TextStyle(
+                    'EGP ${currentBid.toStringAsFixed(0)}',
+                    style: const TextStyle(
                       fontWeight: FontWeight.w800,
-                      fontSize: 15,
-                      color: currentBid > 0
-                          ? AppColors.primary
-                          : Colors.grey.shade400,
+                      color: AppColors.primary,
                     ),
                   ),
                 ],
@@ -541,42 +442,18 @@ class _ParticipatedAuctionCard extends StatelessWidget {
   }
 }
 
-// ─── Won Auction Card ─────────────────────────────────────────────────────────
-
 class _WonAuctionCard extends StatelessWidget {
   final dynamic auction;
   final Future<void> Function(String auctionId, String title) onCheckout;
-
-  const _WonAuctionCard({
-    required this.auction,
-    required this.onCheckout,
-  });
+  const _WonAuctionCard({required this.auction, required this.onCheckout});
 
   @override
   Widget build(BuildContext context) {
     final title = _resolveTitle(auction);
     final displayUrl = _resolveImageUrl(auction);
-
-    final rawPrice = auction['finalPrice'] ??
-        auction['FinalPrice'] ??
-        auction['winningBid'] ??
-        auction['WinningBid'] ??
-        auction['winningPrice'] ??
-        auction['currentBid'] ??
-        auction['reservePrice'] ??
-        0;
+    final rawPrice = auction['finalPrice'] ?? 0;
     final winningPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
-
-    final auctionId = (auction['id'] ?? auction['Id'] ?? auction['auctionId'] ?? '')
-        .toString();
-
-    final checkoutStatus =
-        (auction['checkoutStatus'] ?? auction['CheckoutStatus'] ?? '')
-            .toString()
-            .toLowerCase();
-    final isCheckedOut = checkoutStatus.contains('completed') ||
-        checkoutStatus.contains('paid') ||
-        checkoutStatus.contains('done');
+    final auctionId = (auction['id'] ?? '').toString();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -585,191 +462,56 @@ class _WonAuctionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image + Winner badge
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(20)),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 160,
-                  child: displayUrl != null && displayUrl.isNotEmpty
-                      ? Image.network(displayUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _imagePlaceholder())
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            child: SizedBox(
+              width: double.infinity,
+              height: 140,
+              child:
+                  displayUrl != null
+                      ? Image.network(displayUrl, fit: BoxFit.cover)
                       : _imagePlaceholder(),
-                ),
-              ),
-              // Winner badge
-              Positioned(
-                top: 12,
-                left: 12,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFC107),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFFFC107).withOpacity(0.4),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.emoji_events_rounded,
-                          size: 14, color: Colors.white),
-                      SizedBox(width: 5),
-                      Text(
-                        'WON',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 11,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (isCheckedOut)
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade600,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.check_circle_rounded,
-                            size: 14, color: Colors.white),
-                        SizedBox(width: 4),
-                        Text(
-                          'PAID',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 11,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
+            ),
           ),
-          // Info + Checkout
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Winning Price',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            winningPrice > 0
-                                ? 'EGP ${winningPrice.toStringAsFixed(0)}'
-                                : '—',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 18,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ],
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
                     ),
-                    if (!isCheckedOut)
-                      ElevatedButton.icon(
-                        onPressed: () => onCheckout(auctionId, title),
-                        icon: const Icon(
-                            Icons.shopping_cart_checkout_rounded,
-                            size: 16),
-                        label: const Text(
-                          'Checkout',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
-                          elevation: 2,
-                          shadowColor: AppColors.primary.withOpacity(0.4),
-                        ),
+                    Text(
+                      'EGP ${winningPrice.toStringAsFixed(0)}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primary,
                       ),
-                    if (isCheckedOut)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.check_rounded,
-                                size: 16, color: Colors.grey.shade500),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Completed',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    ),
                   ],
+                ),
+                ElevatedButton(
+                  onPressed: () => onCheckout(auctionId, title),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Checkout'),
                 ),
               ],
             ),
@@ -780,14 +522,11 @@ class _WonAuctionCard extends StatelessWidget {
   }
 }
 
-// ─── Shared Helper Widgets ────────────────────────────────────────────────────
-
 class _EmptyState extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
   final Future<void> Function() onRefresh;
-
   const _EmptyState({
     required this.icon,
     required this.title,
@@ -798,49 +537,22 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon,
-                  size: 52, color: AppColors.primary.withOpacity(0.5)),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-            ),
-            const SizedBox(height: 24),
-            OutlinedButton.icon(
-              onPressed: onRefresh,
-              icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Refresh'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 60, color: Colors.grey.shade400),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            subtitle,
+            style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+          ),
+          const SizedBox(height: 20),
+          OutlinedButton(onPressed: onRefresh, child: const Text('Refresh')),
+        ],
       ),
     );
   }
@@ -849,39 +561,18 @@ class _EmptyState extends StatelessWidget {
 class _ErrorState extends StatelessWidget {
   final String message;
   final Future<void> Function() onRetry;
-
   const _ErrorState({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline_rounded,
-                size: 60, color: Colors.red.shade300),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 50, color: Colors.redAccent),
+          Text(message),
+          TextButton(onPressed: onRetry, child: const Text('Retry')),
+        ],
       ),
     );
   }

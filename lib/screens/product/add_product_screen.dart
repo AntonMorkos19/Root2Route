@@ -200,6 +200,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
           ),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline, color: Colors.black87),
+            onPressed: () => _showInfoGuide(context),
+          ),
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -664,6 +670,119 @@ class _AddProductScreenState extends State<AddProductScreen> {
           value: value,
           onChanged: onChanged,
           activeColor: AppColors.primary,
+        ),
+      ],
+    );
+  }
+
+  void _showInfoGuide(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 24.0,
+            right: 24.0,
+            top: 24.0,
+            bottom: MediaQuery.of(context).padding.bottom + 24.0,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'How to list your product?',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildGuideRow(
+                '🏷️',
+                'Direct Sale',
+                'Sell your product at a fixed price. Buyers can purchase immediately or negotiate with you via chat.',
+              ),
+              const SizedBox(height: 16),
+              _buildGuideRow(
+                '⚖️',
+                'Auction',
+                'Start a bidding system. Set a starting price and let buyers compete. Highest bidder wins.',
+              ),
+              const SizedBox(height: 16),
+              _buildGuideRow(
+                '📅',
+                'Expiry Date',
+                'Optional but highly recommended for fresh crops and perishables to ensure buyer trust.',
+              ),
+              const SizedBox(height: 16),
+              _buildGuideRow(
+                '🔤',
+                'Barcode / Description',
+                'Add details or a barcode to make your product easily scannable and searchable.',
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    'Got it!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGuideRow(String emoji, String title, String description) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(emoji, style: const TextStyle(fontSize: 24)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

@@ -270,6 +270,12 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
           'Create Auction',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline, color: Colors.black87),
+            onPressed: () => _showInfoGuide(context),
+          ),
+        ],
       ),
       body: BlocListener<AuctionCubit, AuctionState>(
         listener: (context, state) {
@@ -492,6 +498,120 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showInfoGuide(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 24.0,
+            right: 24.0,
+            top: 24.0,
+            bottom: MediaQuery.of(context).padding.bottom + 24.0,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Auction Terms Explained',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildGuideRow(
+                '💰',
+                'Starting Price',
+                'The initial price at which the bidding starts.',
+              ),
+              const SizedBox(height: 16),
+              _buildGuideRow(
+                '📈',
+                'Minimum Bid Increment',
+                'The smallest amount a buyer can add to the current highest bid (e.g., if set to 10, the next bid must be at least 10 EGP higher).',
+              ),
+              const SizedBox(height: 16),
+              _buildGuideRow(
+                '🛡️',
+                'Reserve Price',
+                'A hidden minimum price you are willing to accept. If the final bid at the end of the auction does not reach this amount, the product will not be sold. Leave empty if you don\'t need one.',
+              ),
+              const SizedBox(height: 16),
+              _buildGuideRow(
+                '🗓️',
+                'Schedule',
+                'Set the exact start and end dates/times. Once the end time is reached, the highest bidder wins automatically.',
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2ECC71),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Got it!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGuideRow(String emoji, String title, String description) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(emoji, style: const TextStyle(fontSize: 24)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

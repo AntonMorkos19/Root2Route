@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/core/theme/app_colors.dart';
@@ -14,14 +15,7 @@ import 'package:root2route/screens/order/order_details_screen.dart';
 import 'package:root2route/features/shipments/widgets/dispatch_bottom_sheet.dart';
 import 'package:root2route/features/reviews/ui/add_review_dialog.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Shell screen — owns the two cubits and the TabBar scaffold only.
-// It never touches any order list directly.
-// ─────────────────────────────────────────────────────────────────────────────
-
 class MyOrdersScreen extends StatefulWidget {
-  /// When true (Guest flow), shows only the buyer's order list without
-  /// the "My Orders / Received Orders" TabBar toggle.
   final bool isGuestMode;
 
   const MyOrdersScreen({super.key, this.isGuestMode = false});
@@ -113,10 +107,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     Navigator.push(
       ctx,
       MaterialPageRoute(
-        builder: (_) => OrderDetailsScreen(
-          orderId: orderId,
-          isSellerView: isSellerView,
-        ),
+        builder:
+            (_) => OrderDetailsScreen(
+              orderId: orderId,
+              isSellerView: isSellerView,
+            ),
       ),
     ).then((_) {
       _myOrdersCubit.fetchMyOrders();
@@ -136,14 +131,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         backgroundColor: const Color(0xFFF4F6F9),
         body: _MyOrdersTab(
           cubit: _myOrdersCubit,
-          onUpdateStatus: (orderId, status) =>
-              _updateOrderStatus(context, orderId, status),
+          onUpdateStatus:
+              (orderId, status) => _updateOrderStatus(context, orderId, status),
           onOrderTap: (orderId) => _onOrderCardTap(context, orderId, false),
         ),
       );
     }
 
-    // ── Standard mode: "My Orders" + "Received Orders" tabs ───────────────
     return BlocProvider<DispatchCubit>.value(
       value: _dispatchCubit,
       child: BlocListener<DispatchCubit, ShipmentState>(
@@ -163,14 +157,17 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               title: 'Success',
               text: state.message,
               onConfirmBtnTap: () {
-                Navigator.of(context, rootNavigator: true).pop(); // Close the QuickAlert
-                
+                Navigator.of(
+                  context,
+                  rootNavigator: true,
+                ).pop(); // Close the QuickAlert
+
                 if (_organizationId != null) {
                   _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
                 } else {
-                  // Fallback: If _organizationId is null, try to retrieve it from your local storage/cache first, 
-                  // or trigger a general refresh if your Cubit supports a parameterless refresh.
-                  debugPrint("Warning: _organizationId is null. Cannot refresh orders automatically.");
+                  debugPrint(
+                    "Warning: _organizationId is null. Cannot refresh orders automatically.",
+                  );
                 }
               },
             );
@@ -196,12 +193,22 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               backgroundColor: AppColors.primary,
               elevation: 0,
               automaticallyImplyLeading: false,
-              bottom: const TabBar(
-                indicatorColor: Colors.white,
+              bottom: TabBar(
                 labelColor: Colors.white,
-                unselectedLabelColor: Colors.white70,
-                tabs: [
-                  Tab(text: 'My Orders'),
+                unselectedLabelColor: Colors.white60,
+                labelStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.sp,
+                ),
+                unselectedLabelStyle: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14.sp,
+                ),
+
+                tabs: const [
+                  Tab(
+                    text: 'My Orders',
+                  ), // بتكتب النص بس وهو بياخد الستايل من فوق
                   Tab(text: 'Received Orders'),
                 ],
               ),
@@ -210,16 +217,20 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               children: [
                 _MyOrdersTab(
                   cubit: _myOrdersCubit,
-                  onUpdateStatus: (orderId, status) =>
-                      _updateOrderStatus(context, orderId, status),
-                  onOrderTap: (orderId) => _onOrderCardTap(context, orderId, false),
+                  onUpdateStatus:
+                      (orderId, status) =>
+                          _updateOrderStatus(context, orderId, status),
+                  onOrderTap:
+                      (orderId) => _onOrderCardTap(context, orderId, false),
                 ),
                 _ReceivedOrdersTab(
                   cubit: _receivedOrdersCubit,
                   organizationId: _organizationId,
-                  onUpdateStatus: (orderId, status) =>
-                      _updateOrderStatus(context, orderId, status),
-                  onOrderTap: (orderId) => _onOrderCardTap(context, orderId, true),
+                  onUpdateStatus:
+                      (orderId, status) =>
+                          _updateOrderStatus(context, orderId, status),
+                  onOrderTap:
+                      (orderId) => _onOrderCardTap(context, orderId, true),
                 ),
               ],
             ),
@@ -229,13 +240,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Tab 1 — My Orders (Buyer)
-// Strictly reads from MyOrdersCubit only.
-// AutomaticKeepAliveClientMixin keeps the tab alive when switching tabs
-// so the list is never re-fetched or re-rendered from a sibling cubit.
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _MyOrdersTab extends StatefulWidget {
   final MyOrdersCubit cubit;
@@ -254,7 +258,6 @@ class _MyOrdersTab extends StatefulWidget {
 
 class _MyOrdersTabState extends State<_MyOrdersTab>
     with AutomaticKeepAliveClientMixin {
-  // Filter lives here — strictly local to this tab.
   String _filter = 'All';
 
   @override
@@ -262,16 +265,16 @@ class _MyOrdersTabState extends State<_MyOrdersTab>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // required by AutomaticKeepAliveClientMixin
+    super.build(context);
 
-    // ── Strictly bound to MyOrdersCubit only ──────────────────────────────
     return BlocBuilder<MyOrdersCubit, OrderState>(
-      bloc: widget.cubit, // explicit binding — never resolves via context
-      buildWhen: (previous, current) =>
-          current is OrderInitial ||
-          current is OrderLoading ||
-          current is OrderListLoaded ||
-          current is OrderError,
+      bloc: widget.cubit,
+      buildWhen:
+          (previous, current) =>
+              current is OrderInitial ||
+              current is OrderLoading ||
+              current is OrderListLoaded ||
+              current is OrderError,
       builder: (context, state) {
         if (state is OrderInitial || state is OrderLoading) {
           return const Center(
@@ -286,8 +289,11 @@ class _MyOrdersTabState extends State<_MyOrdersTab>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline,
-                      size: 60, color: Colors.red.shade300),
+                  Icon(
+                    Icons.error_outline,
+                    size: 60,
+                    color: Colors.red.shade300,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     state.message,
@@ -309,15 +315,16 @@ class _MyOrdersTabState extends State<_MyOrdersTab>
           );
         }
 
-        // Extract list strictly from this cubit's state — never shared.
         final List<OrderModel> orders =
             state is OrderListLoaded ? state.orders : const [];
 
-        final filteredOrders = orders.where((o) {
-          if (_filter == 'Active') return o.status == 0 || o.status == 1 || o.status == 2;
-          if (_filter == 'History') return o.status == 3 || o.status == 4;
-          return true;
-        }).toList();
+        final filteredOrders =
+            orders.where((o) {
+              if (_filter == 'Active')
+                return o.status == 0 || o.status == 1 || o.status == 2;
+              if (_filter == 'History') return o.status == 3 || o.status == 4;
+              return true;
+            }).toList();
 
         return Column(
           children: [
@@ -329,24 +336,25 @@ class _MyOrdersTabState extends State<_MyOrdersTab>
               child: RefreshIndicator(
                 onRefresh: () => widget.cubit.fetchMyOrders(),
                 color: AppColors.primary,
-                child: filteredOrders.isEmpty
-                    ? _EmptyState(
-                        icon: Icons.receipt_long_outlined,
-                        title: 'No orders found',
-                        subtitle: 'Your placed orders will appear here',
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: filteredOrders.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: 12),
-                        itemBuilder: (context, index) => _OrderCard(
-                          order: filteredOrders[index],
-                          isSeller: false,
-                          onUpdateStatus: widget.onUpdateStatus,
-                          onTap: widget.onOrderTap,
+                child:
+                    filteredOrders.isEmpty
+                        ? _EmptyState(
+                          icon: Icons.receipt_long_outlined,
+                          title: 'No orders found',
+                          subtitle: 'Your placed orders will appear here',
+                        )
+                        : ListView.separated(
+                          padding: EdgeInsets.all(16.w),
+                          itemCount: filteredOrders.length,
+                          separatorBuilder: (_, __) => SizedBox(height: 12.h),
+                          itemBuilder:
+                              (context, index) => _OrderCard(
+                                order: filteredOrders[index],
+                                isSeller: false,
+                                onUpdateStatus: widget.onUpdateStatus,
+                                onTap: widget.onOrderTap,
+                              ),
                         ),
-                      ),
               ),
             ),
           ],
@@ -355,11 +363,6 @@ class _MyOrdersTabState extends State<_MyOrdersTab>
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Tab 2 — Received Orders (Seller)
-// Strictly reads from ReceivedOrdersCubit only.
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _ReceivedOrdersTab extends StatefulWidget {
   final ReceivedOrdersCubit cubit;
@@ -380,7 +383,6 @@ class _ReceivedOrdersTab extends StatefulWidget {
 
 class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
     with AutomaticKeepAliveClientMixin {
-  // Filter lives here — strictly local to this tab.
   String _filter = 'All';
 
   @override
@@ -396,8 +398,11 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.storefront_outlined,
-                size: 80, color: Colors.grey.shade400),
+            Icon(
+              Icons.storefront_outlined,
+              size: 80,
+              color: Colors.grey.shade400,
+            ),
             const SizedBox(height: 16),
             Text(
               'No Organization',
@@ -416,11 +421,12 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
     // ── Strictly bound to ReceivedOrdersCubit only ────────────────────────
     return BlocConsumer<ReceivedOrdersCubit, OrderState>(
       bloc: widget.cubit, // explicit binding — never resolves via context
-      buildWhen: (previous, current) =>
-          current is OrderInitial ||
-          current is OrderLoading ||
-          current is OrderListLoaded ||
-          current is OrderError,
+      buildWhen:
+          (previous, current) =>
+              current is OrderInitial ||
+              current is OrderLoading ||
+              current is OrderListLoaded ||
+              current is OrderError,
       listenWhen: (previous, current) => current is OrderError,
       listener: (context, state) {
         if (state is OrderError) {
@@ -446,8 +452,11 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline,
-                      size: 60, color: Colors.red.shade300),
+                  Icon(
+                    Icons.error_outline,
+                    size: 60,
+                    color: Colors.red.shade300,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     state.message,
@@ -456,8 +465,10 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
-                    onPressed: () => widget.cubit
-                        .fetchReceivedOrders(widget.organizationId!),
+                    onPressed:
+                        () => widget.cubit.fetchReceivedOrders(
+                          widget.organizationId!,
+                        ),
                     icon: const Icon(Icons.refresh),
                     label: const Text('Retry'),
                     style: ElevatedButton.styleFrom(
@@ -474,11 +485,13 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
         final List<OrderModel> orders =
             state is OrderListLoaded ? state.orders : const [];
 
-        final filteredOrders = orders.where((o) {
-          if (_filter == 'Active') return o.status == 0 || o.status == 1 || o.status == 2;
-          if (_filter == 'History') return o.status == 3 || o.status == 4;
-          return true;
-        }).toList();
+        final filteredOrders =
+            orders.where((o) {
+              if (_filter == 'Active')
+                return o.status == 0 || o.status == 1 || o.status == 2;
+              if (_filter == 'History') return o.status == 3 || o.status == 4;
+              return true;
+            }).toList();
 
         return Column(
           children: [
@@ -488,27 +501,30 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
             ),
             Expanded(
               child: RefreshIndicator(
-                onRefresh: () =>
-                    widget.cubit.fetchReceivedOrders(widget.organizationId!),
+                onRefresh:
+                    () => widget.cubit.fetchReceivedOrders(
+                      widget.organizationId!,
+                    ),
                 color: AppColors.primary,
-                child: filteredOrders.isEmpty
-                    ? _EmptyState(
-                        icon: Icons.inbox_outlined,
-                        title: 'No received orders found',
-                        subtitle: 'Customer orders will appear here',
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: filteredOrders.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: 12),
-                        itemBuilder: (context, index) => _OrderCard(
-                          order: filteredOrders[index],
-                          isSeller: true,
-                          onUpdateStatus: widget.onUpdateStatus,
-                          onTap: widget.onOrderTap,
+                child:
+                    filteredOrders.isEmpty
+                        ? _EmptyState(
+                          icon: Icons.inbox_outlined,
+                          title: 'No received orders found',
+                          subtitle: 'Customer orders will appear here',
+                        )
+                        : ListView.separated(
+                          padding: EdgeInsets.all(16.w),
+                          itemCount: filteredOrders.length,
+                          separatorBuilder: (_, __) => SizedBox(height: 12.h),
+                          itemBuilder:
+                              (context, index) => _OrderCard(
+                                order: filteredOrders[index],
+                                isSeller: true,
+                                onUpdateStatus: widget.onUpdateStatus,
+                                onTap: widget.onOrderTap,
+                              ),
                         ),
-                      ),
               ),
             ),
           ],
@@ -531,13 +547,13 @@ class _FilterChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Row(
         children: [
           _chip('All'),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           _chip('Active'),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           _chip('History'),
         ],
       ),
@@ -554,8 +570,9 @@ class _FilterChips extends StatelessWidget {
       },
       selectedColor: AppColors.primary.withOpacity(0.2),
       labelStyle: TextStyle(
+        fontSize: 13.sp,
+        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
         color: isSelected ? AppColors.primary : Colors.black87,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
     );
   }
@@ -619,23 +636,35 @@ class _OrderCard extends StatelessWidget {
 
   Color _statusColor(int status) {
     switch (status) {
-      case 0: return Colors.orange;
-      case 1: return Colors.blue;
-      case 2: return Colors.indigo;
-      case 3: return Colors.green;
-      case 4: return Colors.red;
-      default: return Colors.grey;
+      case 0:
+        return Colors.orange;
+      case 1:
+        return Colors.blue;
+      case 2:
+        return Colors.indigo;
+      case 3:
+        return Colors.green;
+      case 4:
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
   IconData _statusIcon(int status) {
     switch (status) {
-      case 0: return Icons.hourglass_empty;
-      case 1: return Icons.check_circle_outline;
-      case 2: return Icons.local_shipping_outlined;
-      case 3: return Icons.done_all;
-      case 4: return Icons.cancel_outlined;
-      default: return Icons.help_outline;
+      case 0:
+        return Icons.hourglass_empty;
+      case 1:
+        return Icons.check_circle_outline;
+      case 2:
+        return Icons.local_shipping_outlined;
+      case 3:
+        return Icons.done_all;
+      case 4:
+        return Icons.cancel_outlined;
+      default:
+        return Icons.help_outline;
     }
   }
 
@@ -643,13 +672,15 @@ class _OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = _statusColor(order.status);
     final icon = _statusIcon(order.status);
-    final dateStr = order.createdAt != null
-        ? '${order.createdAt!.day}/${order.createdAt!.month}/${order.createdAt!.year}'
-        : '';
+    final dateStr =
+        order.createdAt != null
+            ? '${order.createdAt!.day}/${order.createdAt!.month}/${order.createdAt!.year}'
+            : '';
 
-    final double finalTotal = order.totalAmount > 0
-        ? order.totalAmount
-        : order.items.fold(0.0, (sum, item) => sum + item.totalPrice);
+    final double finalTotal =
+        order.totalAmount > 0
+            ? order.totalAmount
+            : order.items.fold(0.0, (sum, item) => sum + item.totalPrice);
 
     final String formattedTotal = finalTotal
         .toStringAsFixed(0)
@@ -663,10 +694,10 @@ class _OrderCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(order.id),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
@@ -687,33 +718,35 @@ class _OrderCard extends StatelessWidget {
                     order.items.isNotEmpty
                         ? order.items.first.productName
                         : 'No product',
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 6),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 6.h,
+                  ),
                   decoration: BoxDecoration(
                     color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(icon, size: 14, color: color),
-                      const SizedBox(width: 4),
+                      Icon(icon, size: 14.w, color: color),
+                      SizedBox(width: 4.w),
                       Text(
                         order.statusText,
                         style: TextStyle(
                           color: color,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                          fontSize: 12.sp,
                         ),
                       ),
                     ],
@@ -721,52 +754,59 @@ class _OrderCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             const Divider(height: 1),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             // ── Quantity + date row ──────────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.shopping_basket_outlined,
-                        size: 16, color: Colors.grey.shade600),
-                    const SizedBox(width: 6),
+                    Icon(
+                      Icons.shopping_basket_outlined,
+                      size: 16.w,
+                      color: Colors.grey.shade600,
+                    ),
+                    SizedBox(width: 6.w),
                     Text(
                       order.items.isNotEmpty
                           ? 'Quantity: ${order.items.first.quantity}'
                           : '1 item',
                       style: TextStyle(
-                          fontSize: 14, color: Colors.grey.shade700),
+                        fontSize: 12.sp,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                   ],
                 ),
                 if (dateStr.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Text(
-                      dateStr,
-                      style: TextStyle(
-                          fontSize: 12, color: Colors.grey.shade500),
+                  Text(
+                    dateStr,
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: Colors.grey.shade600,
                     ),
                   ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             // ── Items count + total row ──────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   '${order.items.length} item${order.items.length != 1 ? 's' : ''}',
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
                 Text(
                   '$formattedTotal EGP',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.bold,
                     color: AppColors.primary,
                   ),
                 ),
@@ -774,7 +814,7 @@ class _OrderCard extends StatelessWidget {
             ),
             // ── Action buttons ───────────────────────────────────────────
             if (actionButtons.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               ...actionButtons,
             ],
           ],
@@ -795,16 +835,20 @@ class _OrderCard extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: () => onUpdateStatus(order.id, 3),
               icon: const Icon(Icons.check_circle_outline, color: Colors.white),
-              label: const Text(
+              label: Text(
                 'Confirm Receipt',
                 style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.white),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.sp,
+                  color: Colors.white,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
@@ -819,32 +863,41 @@ class _OrderCard extends StatelessWidget {
               onPressed: () {
                 if (order.items.isEmpty) {
                   QuickAlert.show(
-                      context: context,
-                      type: QuickAlertType.warning,
-                      title: 'Oops',
-                      text: 'No products found in this order to review.');
+                    context: context,
+                    type: QuickAlertType.warning,
+                    title: 'Oops',
+                    text: 'No products found in this order to review.',
+                  );
                   return;
                 }
                 showDialog(
                   context: context,
-                  builder: (context) => AddReviewDialog(
-                    targetOrganizationId: order.organizationId,
-                    orderId: order.id,
-                    productId: order.items.first.productId,
-                  ),
+                  builder:
+                      (context) => AddReviewDialog(
+                        targetOrganizationId: order.organizationId,
+                        orderId: order.id,
+                        productId: order.items.first.productId,
+                      ),
                 );
               },
-              icon: const Icon(Icons.star_outline_rounded, color: AppColors.primary),
-              label: const Text(
+              icon: const Icon(
+                Icons.star_outline_rounded,
+                color: AppColors.primary,
+              ),
+              label: Text(
                 'Rate & Review',
                 style: TextStyle(
-                    fontWeight: FontWeight.bold, color: AppColors.primary),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.sp,
+                  color: AppColors.primary,
+                ),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.primary),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
@@ -860,13 +913,16 @@ class _OrderCard extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => onUpdateStatus(order.id, 1),
                   icon: const Icon(Icons.check, color: Colors.white, size: 18),
-                  label: const Text('Accept',
-                      style: TextStyle(color: Colors.white)),
+                  label: const Text(
+                    'Accept',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -875,13 +931,16 @@ class _OrderCard extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => onUpdateStatus(order.id, 4),
                   icon: const Icon(Icons.close, color: Colors.white, size: 18),
-                  label: const Text('Reject',
-                      style: TextStyle(color: Colors.white)),
+                  label: const Text(
+                    'Reject',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -895,22 +954,26 @@ class _OrderCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () => showDispatchBottomSheet(
-                context,
-                orderId: order.id,
-                dispatchCubit: context.read<DispatchCubit>(),
-              ),
+              onPressed:
+                  () => showDispatchBottomSheet(
+                    context,
+                    orderId: order.id,
+                    dispatchCubit: context.read<DispatchCubit>(),
+                  ),
               icon: const Icon(Icons.local_shipping, color: Colors.white),
               label: const Text(
                 'Mark as Shipped',
                 style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.white),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),

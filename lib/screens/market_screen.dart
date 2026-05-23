@@ -1,9 +1,8 @@
- 
 import 'package:flutter/material.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/main_market_screen.dart';
 import 'package:root2route/screens/product/my_products_screen.dart';
-import 'package:root2route/screens/auction/public_auctions_screen.dart';
+import 'package:root2route/screens/auction/auctions_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/notifications/cubit/notification_cubit.dart';
 import 'package:root2route/features/notifications/cubit/notification_state.dart';
@@ -64,15 +63,19 @@ class _MarketScreenState extends State<MarketScreen> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.chat_bubble_outline, color: Colors.black87),
+              icon: const Icon(
+                Icons.chat_bubble_outline,
+                color: Colors.black87,
+              ),
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BlocProvider(
-                      create: (_) => ChatRoomsCubit(ChatService()),
-                      child: const ChatRoomsScreen(),
-                    ),
+                    builder:
+                        (context) => BlocProvider(
+                          create: (_) => ChatRoomsCubit(ChatService()),
+                          child: const ChatRoomsScreen(),
+                        ),
                   ),
                 );
               },
@@ -84,12 +87,13 @@ class _MarketScreenState extends State<MarketScreen> {
                   unreadCount = state.unreadCount;
                 }
                 return IconButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const NotificationsScreen(),
-                    ),
-                  ),
+                  onPressed:
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationsScreen(),
+                        ),
+                      ),
                   icon: Badge(
                     isLabelVisible: unreadCount > 0,
                     label: Text(unreadCount.toString()),
@@ -122,9 +126,9 @@ class _MarketScreenState extends State<MarketScreen> {
         ),
         body: TabBarView(
           children: [
-             MainMarketTab(organizationId: widget.organizationId),
+            MainMarketTab(organizationId: widget.organizationId),
             MyProductsScreen(organizationId: widget.organizationId ?? ''),
-            const PublicAuctionsScreen(),
+            const AuctionsScreen(),
           ],
         ),
       ),

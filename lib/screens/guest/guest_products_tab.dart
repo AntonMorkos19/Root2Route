@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/main_market_screen.dart';
-import 'package:root2route/screens/auction/public_auctions_screen.dart';
+import 'package:root2route/screens/auction/auctions_screen.dart';
 import 'package:root2route/screens/order/my_orders_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/notifications/cubit/notification_cubit.dart';
@@ -54,7 +54,10 @@ class GuestProductsTab extends StatelessWidget {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.chat_bubble_outline, color: Colors.black87),
+              icon: const Icon(
+                Icons.chat_bubble_outline,
+                color: Colors.black87,
+              ),
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -71,12 +74,13 @@ class GuestProductsTab extends StatelessWidget {
                   unreadCount = state.unreadCount;
                 }
                 return IconButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const NotificationsScreen(),
-                    ),
-                  ),
+                  onPressed:
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationsScreen(),
+                        ),
+                      ),
                   icon: Badge(
                     isLabelVisible: unreadCount > 0,
                     label: Text(unreadCount.toString()),
@@ -101,9 +105,15 @@ class GuestProductsTab extends StatelessWidget {
               fontSize: 13,
             ),
             tabs: const [
-              Tab(text: 'Market', icon: Icon(Icons.storefront_outlined, size: 20)),
+              Tab(
+                text: 'Market',
+                icon: Icon(Icons.storefront_outlined, size: 20),
+              ),
               Tab(text: 'Auctions', icon: Icon(Icons.gavel_rounded, size: 20)),
-              Tab(text: 'My Orders', icon: Icon(Icons.receipt_long_outlined, size: 20)),
+              Tab(
+                text: 'My Orders',
+                icon: Icon(Icons.receipt_long_outlined, size: 20),
+              ),
             ],
           ),
         ),
@@ -112,7 +122,7 @@ class GuestProductsTab extends StatelessWidget {
             // Market — FAB is hidden via isGuestMode flag
             MainMarketTab(isGuestMode: true),
             // Auctions — Bid button hidden via isGuestMode flag
-            PublicAuctionsScreen(isGuestMode: true),
+            AuctionsScreen(isGuestMode: true),
             // My Orders — guest mode skips the Received Orders tab entirely
             MyOrdersScreen(isGuestMode: true),
           ],

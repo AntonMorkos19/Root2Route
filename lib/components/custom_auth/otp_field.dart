@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class OtpField extends StatefulWidget {
   final Function(String) onChanged;
@@ -50,8 +51,8 @@ class _OtpScreenState extends State<OtpField> {
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
         maxLength: 1,
-        style: const TextStyle(
-          fontSize: 20,
+        style: TextStyle(
+          fontSize: 22.sp,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),

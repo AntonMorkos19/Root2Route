@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NegotiationOfferCard extends StatelessWidget {
   final double? price;
@@ -55,7 +56,7 @@ class NegotiationOfferCard extends StatelessWidget {
                 style: TextStyle(
                   color: iconColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  fontSize: 16.sp,
                 ),
               ),
             ],
@@ -64,9 +65,9 @@ class NegotiationOfferCard extends StatelessWidget {
           if (price != null)
             Text(
               'Price: \$${price!.toStringAsFixed(2)}',
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.black87,
-                fontSize: 14,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -74,9 +75,9 @@ class NegotiationOfferCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Quantity: $quantity',
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.black87,
-                fontSize: 14,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -90,13 +91,13 @@ class NegotiationOfferCard extends StatelessWidget {
                   color: Colors.blue.shade100,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
                     'Waiting for response...',
                     style: TextStyle(
                       color: Colors.blue,
                       fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                      fontSize: 14.sp,
                     ),
                   ),
                 ),
@@ -116,7 +117,7 @@ class NegotiationOfferCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text('Accept', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      child: Text('Accept', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -131,7 +132,7 @@ class NegotiationOfferCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text('Reject', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      child: Text('Reject', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -149,7 +150,7 @@ class NegotiationOfferCard extends StatelessWidget {
                   style: TextStyle(
                     color: isAccepted ? Colors.green.shade800 : Colors.red.shade800,
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    fontSize: 14.sp,
                   ),
                 ),
               ),

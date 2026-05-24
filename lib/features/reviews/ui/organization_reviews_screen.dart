@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/reviews/cubit/review_cubit.dart';
 import 'package:root2route/features/reviews/cubit/review_state.dart';
@@ -19,10 +20,12 @@ class OrganizationReviewsScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text(
             'Customer Reviews',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
           ),
-          backgroundColor: AppColors.primary,
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
           elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.black87),
         ),
         body: BlocBuilder<ReviewCubit, ReviewState>(
           builder: (context, state) {
@@ -43,7 +46,7 @@ class OrganizationReviewsScreen extends StatelessWidget {
                     Text(
                       state.message,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 18.sp),
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
@@ -77,7 +80,7 @@ class OrganizationReviewsScreen extends StatelessWidget {
                       Text(
                         'No reviews yet',
                         style: TextStyle(
-                            fontSize: 18, color: Colors.grey.shade600),
+                            fontSize: 22.sp, color: Colors.grey.shade600),
                       ),
                     ],
                   ),
@@ -143,8 +146,8 @@ class OrganizationReviewsScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       reviewerName,
-                                      style: const TextStyle(
-                                        fontSize: 16,
+                                      style: TextStyle(
+                                        fontSize: 18.sp,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -172,7 +175,7 @@ class OrganizationReviewsScreen extends StatelessWidget {
                             Text(
                               comment,
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 16.sp,
                                 color: Colors.grey.shade700,
                                 height: 1.4,
                               ),

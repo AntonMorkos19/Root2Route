@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
@@ -38,11 +39,12 @@ class _AddressesScreenState extends State<AddressesScreen> {
         appBar: AppBar(
           title: const Text(
             'My Addresses',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
           ),
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
           elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.black87),
         ),
         body: BlocBuilder<ShipmentAddressCubit, ShipmentState>(
           bloc: _cubit,
@@ -71,7 +73,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
                       Text(
                         state.message,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 18.sp),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
@@ -114,9 +116,9 @@ class _AddressesScreenState extends State<AddressesScreen> {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           icon: const Icon(Icons.add_location_alt_outlined),
-          label: const Text(
+          label: Text(
             'Add New Address',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
           ),
         ),
       ),
@@ -146,7 +148,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
           Text(
             'No saved addresses found',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 22.sp,
               fontWeight: FontWeight.w600,
               color: Colors.grey.shade700,
             ),
@@ -154,7 +156,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
           const SizedBox(height: 8),
           Text(
             'Add a new address to see it here',
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+            style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade400),
           ),
         ],
       ),
@@ -222,8 +224,8 @@ class _AddressCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   address.fullName.isNotEmpty ? address.fullName : 'Address',
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
@@ -248,10 +250,10 @@ class _AddressCard extends StatelessWidget {
                         color: AppColors.primary,
                       ),
                       const SizedBox(width: 4),
-                      const Text(
+                      Text(
                         'Default',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary,
                         ),
@@ -294,12 +296,12 @@ class _AddressCard extends StatelessWidget {
   Widget _detailRow(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.grey.shade500),
+        Icon(icon, size: 18, color: Colors.grey.shade500),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+            style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade700),
           ),
         ),
       ],
@@ -426,10 +428,10 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Add New Address 📍',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 22.sp,
                             fontWeight: FontWeight.w900,
                             color: Colors.black87,
                           ),
@@ -437,7 +439,7 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                         Text(
                           'Enter address details',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 16.sp,
                             color: Colors.grey.shade600,
                           ),
                         ),
@@ -534,10 +536,10 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                             color: Colors.amber.shade700,
                           ),
                           const SizedBox(width: 8),
-                          const Text(
+                          Text(
                             'Set as default address',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 16.sp,
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,
                             ),
@@ -547,7 +549,7 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                       Switch(
                         value: _isDefault,
                         onChanged: (v) => setState(() => _isDefault = v),
-                        activeColor: AppColors.primary,
+                        activeThumbColor: AppColors.primary,
                       ),
                     ],
                   ),
@@ -575,8 +577,8 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                             ),
                     label: Text(
                       _isSubmitting ? 'Saving...' : 'Save Address',
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: 18.sp,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -604,7 +606,7 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                       'Cancel',
                       style: TextStyle(
                         color: Colors.grey.shade600,
-                        fontSize: 15,
+                        fontSize: 18.sp,
                       ),
                     ),
                   ),

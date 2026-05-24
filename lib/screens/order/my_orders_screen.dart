@@ -198,11 +198,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 unselectedLabelColor: Colors.white60,
                 labelStyle: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 14.sp,
+                  fontSize: 16.sp,
                 ),
                 unselectedLabelStyle: TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 14.sp,
+                  fontSize: 16.sp,
                 ),
 
                 tabs: const [
@@ -298,7 +298,7 @@ class _MyOrdersTabState extends State<_MyOrdersTab>
                   Text(
                     state.message,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 18.sp),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
@@ -406,12 +406,12 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
             const SizedBox(height: 16),
             Text(
               'No Organization',
-              style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 20.sp, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 8),
             Text(
               'You need a store to receive orders',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+              style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade400),
             ),
           ],
         ),
@@ -461,7 +461,7 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
                   Text(
                     state.message,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 18.sp),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
@@ -570,7 +570,7 @@ class _FilterChips extends StatelessWidget {
       },
       selectedColor: AppColors.primary.withOpacity(0.2),
       labelStyle: TextStyle(
-        fontSize: 13.sp,
+        fontSize: 14.sp,
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
         color: isSelected ? AppColors.primary : Colors.black87,
       ),
@@ -603,12 +603,12 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               title,
-              style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 20.sp, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 8),
             Text(
               subtitle,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+              style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade400),
             ),
           ],
         ),
@@ -719,7 +719,7 @@ class _OrderCard extends StatelessWidget {
                         ? order.items.first.productName
                         : 'No product',
                     style: TextStyle(
-                      fontSize: 16.sp,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
@@ -746,7 +746,7 @@ class _OrderCard extends StatelessWidget {
                         style: TextStyle(
                           color: color,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12.sp,
+                          fontSize: 14.sp,
                         ),
                       ),
                     ],
@@ -774,7 +774,7 @@ class _OrderCard extends StatelessWidget {
                           ? 'Quantity: ${order.items.first.quantity}'
                           : '1 item',
                       style: TextStyle(
-                        fontSize: 12.sp,
+                        fontSize: 14.sp,
                         color: Colors.grey.shade600,
                       ),
                     ),
@@ -784,7 +784,7 @@ class _OrderCard extends StatelessWidget {
                   Text(
                     dateStr,
                     style: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: 12.sp,
                       color: Colors.grey.shade600,
                     ),
                   ),
@@ -798,14 +798,14 @@ class _OrderCard extends StatelessWidget {
                 Text(
                   '${order.items.length} item${order.items.length != 1 ? 's' : ''}',
                   style: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: 12.sp,
                     color: Colors.grey.shade600,
                   ),
                 ),
                 Text(
                   '$formattedTotal EGP',
                   style: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
                   ),
@@ -839,7 +839,7 @@ class _OrderCard extends StatelessWidget {
                 'Confirm Receipt',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 14.sp,
+                  fontSize: 16.sp,
                   color: Colors.white,
                 ),
               ),
@@ -888,7 +888,7 @@ class _OrderCard extends StatelessWidget {
                 'Rate & Review',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 14.sp,
+                  fontSize: 16.sp,
                   color: AppColors.primary,
                 ),
               ),

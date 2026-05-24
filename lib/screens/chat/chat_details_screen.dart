@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/chat/cubit/chat_messages_cubit.dart';
@@ -169,10 +170,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           Expanded(
             child: Text(
               widget.roomName,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.black87,
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: 18.sp,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -213,7 +214,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                   'Closed',
                   style: TextStyle(
                     color: Colors.grey.shade500,
-                    fontSize: 12,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -365,7 +366,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14.sp,
                 color: Colors.grey.shade500,
                 fontWeight: FontWeight.w500,
               ),
@@ -437,7 +438,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                         message.text.isEmpty ? '📎 Attachment' : message.text,
                         style: TextStyle(
                           color: isMe ? Colors.white : Colors.black87,
-                          fontSize: 14.5,
+                          fontSize: 16.sp,
                         ),
                       ),
                   ],
@@ -451,7 +452,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                 Text(
                   _formatTime(message.createdAt),
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12.sp,
                     color: Colors.grey.shade500,
                   ),
                 ),
@@ -495,7 +496,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                 'This conversation is closed.',
                 style: TextStyle(
                   color: Colors.grey.shade600,
-                  fontSize: 14,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -557,7 +558,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           Text(
             'No messages yet',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 20.sp,
               fontWeight: FontWeight.bold,
               color: Colors.grey.shade500,
             ),
@@ -565,7 +566,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           const SizedBox(height: 8),
           Text(
             'Say hello to start the conversation!',
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+            style: TextStyle(fontSize: 15.sp, color: Colors.grey.shade400),
           ),
         ],
       ),
@@ -584,7 +585,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15),
+              style: TextStyle(fontSize: 16.sp),
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 
@@ -55,7 +56,7 @@ class AccountTypeButton extends StatelessWidget {
               child: Text(
                 text,
                 style: TextStyle(
-                  fontSize: 12.5,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                   color:
                       selected

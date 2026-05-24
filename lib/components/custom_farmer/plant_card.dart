@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/plant_model.dart';
 import 'package:root2route/screens/farmer/plant_details_screen.dart';
@@ -43,8 +44,8 @@ class PlantCard extends StatelessWidget {
                     textDirection: TextDirection.ltr,
                     child: Text(
                       plant.name,
-                      style: const TextStyle(
-                        fontSize: 18,
+                      style: TextStyle(
+                        fontSize: 20.sp,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
                       ),
@@ -57,7 +58,7 @@ class PlantCard extends StatelessWidget {
                     Text(
                       plant.scientificName!,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14.sp,
                         color: Colors.grey.shade500,
                         fontStyle: FontStyle.italic,
                       ),
@@ -98,7 +99,7 @@ class PlantCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.left,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 14.sp,
                           color: Colors.grey.shade600,
                           height: 1.5,
                         ),
@@ -126,11 +127,11 @@ class PlantCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         elevation: 0,
                       ),
-                      child: const Text(
+                      child: Text(
                         'View Details',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                           fontSize: 16.sp,
                         ),
                       ),
                     ),
@@ -245,7 +246,7 @@ class _InfoChip extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 12.sp,
               color: color,
               fontWeight: FontWeight.w600,
             ),

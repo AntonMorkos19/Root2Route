@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
@@ -130,10 +131,10 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'Leave a Review',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 22.sp,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
                       ),
@@ -142,7 +143,7 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
                     Text(
                       'Share your experience with this product',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14.sp,
                         color: Colors.grey.shade600,
                       ),
                     ),
@@ -150,12 +151,12 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
                     const SizedBox(height: 24),
 
                     // ── Star Rating ────────────────────────────
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Your Rating',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
@@ -207,7 +208,7 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
                       Text(
                         _ratingLabel(_selectedRating),
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w500,
                           color: Colors.amber.shade700,
                         ),
@@ -254,10 +255,10 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Cancel',
                               style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.w600),
+                                  fontSize: 16.sp, fontWeight: FontWeight.w600),
                             ),
                           ),
                         ),
@@ -287,10 +288,10 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
+                                : Text(
                                     'Submit Review',
                                     style: TextStyle(
-                                      fontSize: 15,
+                                      fontSize: 16.sp,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),

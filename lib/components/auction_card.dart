@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/auction_model.dart';
 import 'countdown_timer_widget.dart';
@@ -126,8 +127,8 @@ class _AuctionCardState extends State<AuctionCard> {
                         children: [
                           Text(
                             auction.productName ?? 'Auction',
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: TextStyle(
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
                             ),
@@ -138,7 +139,7 @@ class _AuctionCardState extends State<AuctionCard> {
                           Text(
                             'Starting: EGP ${auction.startingPrice.toStringAsFixed(2)}',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 14.sp,
                               color: Colors.grey.shade600,
                               fontWeight: FontWeight.w500,
                             ),
@@ -267,7 +268,7 @@ class _AuctionCardState extends State<AuctionCard> {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 11,
+          fontSize: 12.sp,
           fontWeight: FontWeight.w700,
           color: textColor,
           letterSpacing: 0.3,
@@ -286,7 +287,7 @@ class _AuctionCardState extends State<AuctionCard> {
           child: Text(
             text,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: Colors.grey.shade700,
             ),
@@ -317,7 +318,7 @@ class _AuctionCardState extends State<AuctionCard> {
                   ? 'Winner: ${auction.winnerName}'
                   : 'Auction ended',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
                 color: Colors.grey.shade700,
               ),
@@ -346,7 +347,7 @@ class _AuctionCardState extends State<AuctionCard> {
             targetDate: targetDate,
             prefix: label,
             textStyle: TextStyle(
-              fontSize: 13,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w700,
               color: color,
             ),
@@ -379,7 +380,7 @@ class _AuctionCardState extends State<AuctionCard> {
                     Text(
                       'Your Auction',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey.shade600,
                       ),
@@ -481,7 +482,7 @@ class _ActionButton extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                   color: color,
                 ),

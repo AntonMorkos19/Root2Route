@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 
 class InfoAccountCard extends StatelessWidget {
@@ -36,12 +37,12 @@ class InfoAccountCard extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(fontSize: 17, color: AppColors.iconSecondary),
+                style: TextStyle(fontSize: 18.sp, color: AppColors.iconSecondary),
               ),
             ),
             Text(
               info,
-              style: TextStyle(fontSize: 17, color: AppColors.textPrimary),
+              style: TextStyle(fontSize: 18.sp, color: AppColors.textPrimary),
             ),
           ],
         ),

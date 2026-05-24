@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
@@ -206,9 +207,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Edit Product',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 20.sp),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -237,7 +238,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         "Image updating is not currently supported for this action.",
                         style: TextStyle(
                           color: Colors.amber.shade900,
-                          fontSize: 13,
+                          fontSize: 14.sp,
                         ),
                       ),
                     ),
@@ -345,10 +346,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Selling Options',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18.sp,
               fontWeight: FontWeight.w700,
               color: Colors.black87,
             ),
@@ -422,7 +423,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             style: TextStyle(
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w600,
-              fontSize: 15,
+              fontSize: 16.sp,
             ),
           ),
         ),
@@ -431,9 +432,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
           child: ElevatedButton.icon(
             onPressed: _submit,
             icon: const Icon(Icons.update_rounded, size: 20),
-            label: const Text(
+            label: Text(
               'Update Product',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16.sp),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
@@ -453,9 +454,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   Widget _Label(String text) => Text(
     text,
-    style: const TextStyle(
+    style: TextStyle(
       fontWeight: FontWeight.w600,
-      fontSize: 14,
+      fontSize: 16.sp,
       color: Colors.black87,
     ),
   );
@@ -471,10 +472,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
       controller: controller,
       keyboardType: keyboardType,
       validator: validator,
-      style: const TextStyle(color: Colors.black87, fontSize: 15),
+      style: TextStyle(color: Colors.black87, fontSize: 16.sp),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15.sp),
         prefixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -525,7 +526,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             Text(
               label,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 16.sp,
                 color:
                     _expiryDate == null ? Colors.grey.shade400 : Colors.black87,
               ),
@@ -577,16 +578,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 14,
+                  fontSize: 16.sp,
                   color: Colors.black87,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade500),
               ),
             ],
           ),
@@ -594,7 +595,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: AppColors.primary,
+          activeThumbColor: AppColors.primary,
         ),
       ],
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/components/Organizations/organization_card.dart';
 import 'package:root2route/components/Organizations/add_organization_card.dart';
-import 'package:root2route/components/custom_button.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/organization_model.dart';
 import 'package:root2route/screens/Organizations/organizations_list_screen.dart';
@@ -83,7 +83,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Container(
-                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
@@ -95,47 +94,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ],
                   ),
-                  child: Column(
-                    children: [
-                      const CircleAvatar(
-                        radius: 40,
-                        backgroundColor: AppColors.primary,
-                        child: Icon(
-                          Icons.person,
-                          size: 40,
-                          color: Colors.white,
+                  child: ListTile(
+                    leading: const Icon(
+                      Icons.person_outline,
+                      color: AppColors.OrganizationColor,
+                    ),
+                    title: const Text(
+                      'Account Settings',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AccountScreen(),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Anton',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'antonmorkos6@gmail.com',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      const SizedBox(height: 15),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 26),
-                        child: CustomButton(
-                          text: 'Edit Profile',
-                          color: AppColors.primary,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AccountScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -227,13 +203,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
-                  children: const [
+                  children: [
                     Text(
                       'My Organizations',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Color(0xff2D3748),
+                        fontSize: 18.sp,
+                        color: const Color(0xff2D3748),
                       ),
                     ),
                   ],

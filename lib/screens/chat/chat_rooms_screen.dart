@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/chat/cubit/chat_messages_cubit.dart';
 import 'package:root2route/features/chat/cubit/chat_rooms_cubit.dart';
@@ -49,12 +50,12 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
-        title: const Text(
+        title: Text(
           'Messages',
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: 22.sp,
           ),
         ),
         iconTheme: const IconThemeData(color: Colors.black87),
@@ -115,7 +116,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
                     style: TextStyle(
                       color: Colors.green.shade700,
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: 20.sp,
                     ),
                   ),
                 ),
@@ -145,7 +146,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
                     style: TextStyle(
                       fontWeight:
                           hasUnread ? FontWeight.bold : FontWeight.w600,
-                      fontSize: 15,
+                      fontSize: 16.sp,
                       color: Colors.black87,
                     ),
                     maxLines: 1,
@@ -157,7 +158,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
                         ? 'No messages yet'
                         : room.lastMessage,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14.sp,
                       color: hasUnread
                           ? Colors.black87
                           : Colors.grey.shade500,
@@ -183,9 +184,9 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
                 ),
                 child: Text(
                   room.unreadCount > 99 ? '99+' : room.unreadCount.toString(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 11,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -206,7 +207,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
           Text(
             'No conversations yet',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 20.sp,
               fontWeight: FontWeight.bold,
               color: Colors.grey.shade600,
             ),
@@ -215,7 +216,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
           Text(
             'Contact a seller on any product page\nto start a conversation.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+            style: TextStyle(fontSize: 15.sp, color: Colors.grey.shade400),
           ),
         ],
       ),
@@ -234,7 +235,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15),
+              style: TextStyle(fontSize: 16.sp),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(

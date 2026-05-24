@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/screens/Organizations/add_organization_screen.dart';
 
 class AddOrganizationCard extends StatelessWidget {
@@ -52,18 +53,18 @@ class AddOrganizationCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Add New Organization',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 17,
-                      color: Color(0xff2D3748),
+                      fontSize: 18.sp,
+                      color: const Color(0xff2D3748),
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Create a new workspace',
-                    style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 14.sp),
                   ),
                 ],
               ),

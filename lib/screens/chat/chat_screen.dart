@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/chat/cubit/chat_messages_cubit.dart';
 import 'package:root2route/features/chat/cubit/chat_messages_state.dart';
@@ -139,9 +140,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Text(
                       'Offer Status: ${message.offerStatus.toUpperCase()}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        fontSize: 14.sp,
                         color: Colors.black54,
                       ),
                       textAlign: TextAlign.center,

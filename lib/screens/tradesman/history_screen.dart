@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/components/custom_merchant/custom_SummaryCard.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/tradesman/purchases_screen.dart';
@@ -22,11 +23,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
         automaticallyImplyLeading: false,
         toolbarHeight: 70,
         backgroundColor: Colors.white,
-        title: const Text(
+        title: Text(
           "History",
           style: TextStyle(
             color: Colors.black,
-            fontSize: 22,
+            fontSize: 24.sp,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -84,7 +85,7 @@ Expanded(
                         child: Text(
                           "Purchases",
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.w700,
                             color: isPurchasesSelected
                                 ? Colors.black
@@ -114,7 +115,7 @@ Expanded(
                         child: Text(
                           "Sales",
                           style: TextStyle(
-                                                        fontSize: 16,
+                            fontSize: 18.sp,
 
                             fontWeight: FontWeight.w700,
                             color: !isPurchasesSelected
@@ -131,13 +132,13 @@ Expanded(
 
             const SizedBox(height: 20),
 
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 "Recent Activity",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 18.sp,
                 ),
               ),
             ),

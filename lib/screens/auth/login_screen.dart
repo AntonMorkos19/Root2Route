@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/components/custom_auth/auth_background.dart';
@@ -185,11 +186,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ForgotPasswordScreen.id,
                                       );
                                     },
-                                    child: const Text(
+                                    child: Text(
                                       "Forgot password?",
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 14,
+                                        fontSize: 16.sp,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),

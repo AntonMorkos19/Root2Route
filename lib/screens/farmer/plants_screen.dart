@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/components/custom_farmer/plant_card.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/plant_model.dart';
@@ -106,11 +107,11 @@ class _PlantsScreenState extends State<PlantsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'Plants',
               style: TextStyle(
                 color: AppColors.textPrimary,
-                fontSize: 22,
+                fontSize: 24.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -118,7 +119,7 @@ class _PlantsScreenState extends State<PlantsScreen> {
               'Explore plant information',
               style: TextStyle(
                 color: Colors.grey.shade500,
-                fontSize: 13,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -244,7 +245,7 @@ class _ErrorState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.grey, fontSize: 15),
+              style: TextStyle(color: Colors.grey, fontSize: 16.sp),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -290,7 +291,7 @@ class _EmptyState extends StatelessWidget {
                   ? 'No plants found matching your search'
                   : 'No plants available yet',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade500, fontSize: 15),
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 16.sp),
             ),
             if (!isSearch) ...[
               const SizedBox(height: 24),

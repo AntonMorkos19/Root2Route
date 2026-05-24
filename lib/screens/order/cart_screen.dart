@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/services/cart_service.dart';
 import 'package:root2route/screens/order/checkout_screen.dart';
@@ -28,7 +29,7 @@ class _CartScreenState extends State<CartScreen> {
         return Scaffold(
           backgroundColor: const Color(0xFFF4F6F9),
           appBar: AppBar(
-            title: const Text('My Cart', style: TextStyle(fontWeight: FontWeight.bold)),
+            title: Text('My Cart', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp)),
             backgroundColor: AppColors.primary,
             elevation: 0,
           ),
@@ -41,7 +42,7 @@ class _CartScreenState extends State<CartScreen> {
                       const SizedBox(height: 16),
                       Text(
                         'Your cart is empty',
-                        style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+                        style: TextStyle(fontSize: 20.sp, color: Colors.grey.shade600),
                       ),
                     ],
                   ),
@@ -112,15 +113,15 @@ class _CartScreenState extends State<CartScreen> {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   '${price.toStringAsFixed(0)} EGP',
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primary,
                   ),
@@ -158,14 +159,14 @@ class _CartScreenState extends State<CartScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Total Price:',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  style: TextStyle(fontSize: 18.sp, color: Colors.grey),
                 ),
                 Text(
                   '${total.toStringAsFixed(0)} EGP',
-                  style: const TextStyle(
-                    fontSize: 22,
+                  style: TextStyle(
+                    fontSize: 24.sp,
                     fontWeight: FontWeight.w900,
                     color: Colors.black87,
                   ),
@@ -190,10 +191,10 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   elevation: 5,
                 ),
-                child: const Text(
+                child: Text(
                   'Proceed to Checkout',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),

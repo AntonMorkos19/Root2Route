@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 
 class SelectionCard extends StatelessWidget {
@@ -50,9 +51,9 @@ class SelectionCard extends StatelessWidget {
             const SizedBox(height: 15),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.iconPrimary,
-                fontSize: 18,
+                fontSize: 20.sp,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1,
               ),

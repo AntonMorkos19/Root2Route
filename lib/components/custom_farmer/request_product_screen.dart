@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/components/custom_button.dart';
 class RequestProductScreen extends StatelessWidget {
   final String title;
@@ -41,7 +42,7 @@ class RequestProductScreen extends StatelessWidget {
 
             Text(
               title,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
 
@@ -50,7 +51,7 @@ class RequestProductScreen extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15, color: Colors.grey),
+              style: TextStyle(fontSize: 16.sp, color: Colors.grey),
             ),
 
             const SizedBox(height: 22),

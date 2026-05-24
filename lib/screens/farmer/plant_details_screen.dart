@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/plant_model.dart';
 import 'package:root2route/services/api.dart';
@@ -95,9 +96,9 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                           Text(
                             plant.name,
                             textAlign: TextAlign.right,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 26,
+                              fontSize: 28.sp,
                               fontWeight: FontWeight.bold,
                               shadows: [
                                 Shadow(color: Colors.black54, blurRadius: 8),
@@ -108,9 +109,9 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                             const SizedBox(height: 4),
                             Text(
                               plant.scientificName!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white70,
-                                fontSize: 14,
+                                fontSize: 16.sp,
                                 fontStyle: FontStyle.italic,
                               ),
                             ),
@@ -176,10 +177,10 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     _EmptyDetails(),
 
                   const SizedBox(height: 28),
-                  const Text(
+                  Text(
                     'Plant Guide Steps',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
                     ),
@@ -245,7 +246,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
             const SizedBox(height: 8),
             Text(
               _stepsError!,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14.sp),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
@@ -308,10 +309,10 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                       alignment: Alignment.center,
                       child: Text(
                         '${step.stepOrder}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          fontSize: 14.sp,
                         ),
                       ),
                     ),
@@ -335,8 +336,8 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                           padding: const EdgeInsets.only(top: 4.0),
                           child: Text(
                             step.title,
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: TextStyle(
+                               fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
                               color: Color(0xff333333),
                             ),
@@ -346,7 +347,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                         Text(
                           step.instruction,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 16.sp,
                             color: Colors.grey.shade600,
                             height: 1.4,
                           ),
@@ -433,7 +434,7 @@ class _QuickInfoRow extends StatelessWidget {
                         Text(
                           item.label,
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12.sp,
                             color: Colors.grey.shade500,
                           ),
                         ),
@@ -442,7 +443,7 @@ class _QuickInfoRow extends StatelessWidget {
                           item.value,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.bold,
                             color: item.color,
                           ),
@@ -516,8 +517,8 @@ class _DetailSection extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
@@ -535,7 +536,7 @@ class _DetailSection extends StatelessWidget {
               content,
               textAlign: TextAlign.left,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 16.sp,
                 color: Colors.grey.shade700,
                 height: 1.6,
               ),
@@ -559,7 +560,7 @@ class _EmptyDetails extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               'No additional details available',
-              style: TextStyle(color: Colors.grey.shade500, fontSize: 15),
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 16.sp),
             ),
           ],
         ),

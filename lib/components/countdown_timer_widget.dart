@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Reusable countdown widget that ticks every second.
 class CountdownTimerWidget extends StatefulWidget {
@@ -80,10 +81,10 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget> {
     return Text(
       timeStr,
       style: widget.textStyle ??
-          const TextStyle(
-            fontSize: 13,
+          TextStyle(
+            fontSize: 14.sp,
             fontWeight: FontWeight.w600,
-            fontFeatures: [FontFeature.tabularFigures()],
+            fontFeatures: const [FontFeature.tabularFigures()],
           ),
     );
   }

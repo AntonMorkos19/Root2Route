@@ -190,7 +190,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
               Text(
                 'Please log in and create an organization to view this page.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 18.sp, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
@@ -271,19 +271,19 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Manage My Auctions',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 15,
+                            fontSize: 16.sp,
                           ),
                         ),
                         Text(
                           'View upcoming, active & ended auctions',
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.8),
-                            fontSize: 12,
+                            fontSize: 14.sp,
                           ),
                         ),
                       ],
@@ -323,7 +323,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
               Text(
                 _errorMessage!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 18.sp),
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
@@ -355,7 +355,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
             Text(
               'No products found.',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 20.sp,
                 color: Colors.grey.shade600,
                 fontWeight: FontWeight.bold,
               ),
@@ -363,7 +363,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
             const SizedBox(height: 8),
             Text(
               'Add your first product to get started.',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+              style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade500),
             ),
           ],
         ),
@@ -470,7 +470,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 15.sp,
+                    fontSize: 16.sp,
                     color: Colors.black87,
                   ),
                 ),
@@ -481,7 +481,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                       'EGP ${displayPrice.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14.sp,
+                        fontSize: 16.sp,
                         color: AppColors.primary,
                       ),
                     ),
@@ -496,7 +496,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                         child: Text(
                           'Auction Only',
                           style: TextStyle(
-                            fontSize: 10.sp,
+                            fontSize: 12.sp,
                             fontWeight: FontWeight.bold,
                             color: Colors.deepOrange,
                           ),
@@ -542,7 +542,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                           Text(
                             'Edit',
                             style: TextStyle(
-                              fontSize: 11.sp,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
                               color: Colors.blue.shade700,
                             ),
@@ -583,7 +583,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                           Text(
                             'Auction',
                             style: TextStyle(
-                              fontSize: 11.sp,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
                               color: AppColors.primary,
                             ),
@@ -612,7 +612,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                           Text(
                             'Delete',
                             style: TextStyle(
-                              fontSize: 11.sp,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
                               color: Colors.red.shade700,
                             ),

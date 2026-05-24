@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 
 class AuthHeader extends StatelessWidget {
@@ -30,8 +31,8 @@ class AuthHeader extends StatelessWidget {
         Text(
           title,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 18,
+          style: TextStyle(
+            fontSize: 20.sp,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -41,7 +42,7 @@ class AuthHeader extends StatelessWidget {
           description,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 16.sp,
             color: const Color.fromARGB(240, 255, 255, 255),
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/services/api.dart';
@@ -162,9 +163,9 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                           child: Center(
                             child: Text(
                               "$cartCount",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 10,
+                                fontSize: 12.sp,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -361,8 +362,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                       Expanded(
                         child: Text(
                           name,
-                          style: const TextStyle(
-                            fontSize: 26,
+                          style: TextStyle(
+                            fontSize: 28.sp,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -372,8 +373,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                         children: [
                           Text(
                             '${price.toStringAsFixed(0)} EGP',
-                            style: const TextStyle(
-                              fontSize: 22,
+                            style: TextStyle(
+                              fontSize: 24.sp,
                               fontWeight: FontWeight.w900,
                               color: AppColors.primary,
                             ),
@@ -386,10 +387,10 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                                 color: Colors.orange.shade100,
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Auction Only',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14.sp,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.deepOrange,
                                 ),
@@ -427,16 +428,16 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                     ],
                   ),
                   const SizedBox(height: 30),
-                  const Text(
+                  Text(
                     "Description",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     description,
                     style: TextStyle(
                       color: Colors.grey.shade600,
-                      fontSize: 16,
+                      fontSize: 18.sp,
                       height: 1.6,
                     ),
                   ),
@@ -485,7 +486,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
             style: TextStyle(
               color: textColor,
               fontWeight: FontWeight.bold,
-              fontSize: 13,
+              fontSize: 14.sp,
             ),
           ),
         ],
@@ -514,11 +515,11 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
         child: ElevatedButton.icon(
           onPressed: null,
           icon: const Icon(Icons.edit, color: Colors.white),
-          label: const Text(
+          label: Text(
             'You own this product',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: 20.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -617,11 +618,11 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                 }
               },
               icon: const Icon(Icons.chat_bubble_outline, color: AppColors.primary),
-              label: const Text(
+              label: Text(
                 'Contact Seller',
                 style: TextStyle(
                   color: AppColors.primary,
-                  fontSize: 16,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -686,11 +687,11 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                 );
               },
               icon: const Icon(Icons.add_shopping_cart_rounded, color: Colors.white),
-              label: const Text(
+              label: Text(
                 'Add to Cart',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),

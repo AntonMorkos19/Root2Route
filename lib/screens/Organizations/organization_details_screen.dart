@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/core/theme/app_colors.dart';
@@ -247,10 +248,10 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                                   org.name.length >= 2
                                       ? org.name.substring(0, 2).toUpperCase()
                                       : org.name.toUpperCase(),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 24,
+                                    fontSize: 26.sp,
                                   ),
                                 ),
                               )
@@ -259,10 +260,10 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                     const SizedBox(height: 14),
                     Text(
                       org.name,
-                      style: const TextStyle(
-                        fontSize: 22,
+                      style: TextStyle(
+                        fontSize: 24.sp,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xff1a1a1a),
+                        color: const Color(0xff1a1a1a),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -281,7 +282,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                           org.typeName,
                           style: TextStyle(
                             color: Colors.grey.shade600,
-                            fontSize: 14,
+                            fontSize: 16.sp,
                           ),
                         ),
                       ],
@@ -327,10 +328,10 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
       alignment: Alignment.centerLeft,
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 18,
+        style: TextStyle(
+          fontSize: 20.sp,
           fontWeight: FontWeight.bold,
-          color: Color(0xff333333),
+          color: const Color(0xff333333),
         ),
       ),
     );
@@ -375,7 +376,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
             const SizedBox(height: 8),
             Text(
               _statsError!,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14.sp),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
@@ -449,7 +450,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
               Text(
                 '$value',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 24.sp,
                   fontWeight: FontWeight.bold,
                   color: color,
                 ),
@@ -460,7 +461,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
           Text(
             label,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14.sp,
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w500,
             ),
@@ -505,7 +506,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 14.sp,
                     color: Colors.grey.shade500,
                     fontWeight: FontWeight.w500,
                   ),
@@ -513,9 +514,9 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    color: Color(0xff333333),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: const Color(0xff333333),
                     fontWeight: FontWeight.w500,
                   ),
                 ),

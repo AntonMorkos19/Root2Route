@@ -1,10 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/components/custom_button.dart';
-import 'package:root2route/components/info_account_card.dart';
-import 'package:root2route/components/settings_account_card.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/add_organization_screen.dart';
@@ -22,38 +19,56 @@ class AccountScreen extends StatefulWidget {
 class _AccountScreenState extends State<AccountScreen> {
   @override
   Widget build(BuildContext context) {
+    final String fullName = StorageService().userFullName ?? 'Guest User';
+    final String email = StorageService().userEmail ?? 'No Email';
+    final bool isGuest = StorageService().isGuest;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
+        title: const Text(
+          'My Account',
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: const [SizedBox(width: 10)],
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.only(bottom: 30),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.backgroundColor],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+            const SizedBox(height: 10),
+
+            Center(
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.15),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: CircleAvatar(
+                  radius: 54,
+                  backgroundColor: Colors.white,
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundColor: AppColors.primary.withOpacity(0.1),
+                    child: const Icon(
+                      Icons.person_rounded,
+                      size: 55,
+                      color: AppColors.primary,
+                    ),
+                  ),
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 20),
-                  const Icon(
-                    Icons.person,
-                    size: 100,
-                    color: AppColors.textPrimary,
-                  ),
-                ],
-              ),
             ),
+
+            const SizedBox(height: 20),
 
             Padding(
               padding: EdgeInsets.symmetric(
@@ -62,9 +77,9 @@ class _AccountScreenState extends State<AccountScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!StorageService().hasOrganization) ...[
-                    const SizedBox(height: 20),
-                    GestureDetector(
+                  if (!isGuest && !StorageService().hasOrganization) ...[
+                    const SizedBox(height: 24),
+                    InkWell(
                       onTap:
                           () => Navigator.push(
                             context,
@@ -72,15 +87,16 @@ class _AccountScreenState extends State<AccountScreen> {
                               builder: (_) => const AddOrganizationScreen(),
                             ),
                           ),
+                      borderRadius: BorderRadius.circular(16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF2ECC71), Color(0xFF1B8A4E)],
+                            colors: [AppColors.primary, Color(0xFF1B5E20)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.primary.withOpacity(0.3),
@@ -129,25 +145,24 @@ class _AccountScreenState extends State<AccountScreen> {
                             ),
                             const Icon(
                               Icons.arrow_forward_ios_rounded,
-                              color: Colors.white70,
+                              color: Colors.white,
                               size: 18,
                             ),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
                   ],
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   const Padding(
                     padding: EdgeInsets.only(left: 8, bottom: 10),
                     child: Text(
                       "Personal Information",
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: Colors.black87,
                       ),
                     ),
                   ),
@@ -155,48 +170,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: const Column(
-                      children: [
-                        InfoAccountCard(
-                          icon: Icons.badge_outlined,
-                          title: 'Name',
-                          info: 'Anton Morkos',
-                        ),
-                        InfoAccountCard(
-                          icon: Icons.alternate_email,
-                          title: 'Email',
-                          info: 'Antonmorkos6@gmail.com',
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 25),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 8, bottom: 10),
-                    child: Text(
-                      "Settings & Security",
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.03),
@@ -207,59 +181,269 @@ class _AccountScreenState extends State<AccountScreen> {
                     ),
                     child: Column(
                       children: [
-                        SettingsAccountCard(
-                          icon: Icons.lock_reset_rounded,
-                          title: 'Change Password',
-                          value: '',
-                          iconButton: Icons.arrow_forward_ios,
-                          onPressed: () {},
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          leading: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.badge_outlined,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          title: const Text(
+                            'Name',
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          ),
+                          trailing: Text(
+                            fullName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
+                          ),
                         ),
-                        SettingsAccountCard(
-                          icon: Icons.language_rounded,
-                          title: 'Language Settings',
-                          value: 'English',
-                          iconButton: Icons.arrow_forward_ios,
-                          onPressed: () => _showLanguageDialog(context),
+                        const Divider(
+                          height: 1,
+                          indent: 56,
+                          endIndent: 16,
+                          color: Color(0xFFF0F0F0),
                         ),
-                        SettingsAccountCard(
-                          icon: Icons.delete_forever_rounded,
-                          title: 'Delete Account',
-                          value: '',
-                          iconButton: Icons.arrow_forward_ios,
-                          onPressed: () => (),
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          leading: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.alternate_email,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          title: const Text(
+                            'Email',
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          ),
+                          trailing: Text(
+                            email,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
 
-
-
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomButton(
-                      text: 'Logout',
-                      color: Colors.redAccent.withOpacity(0.9),
-                      onPressed:
-                          () => QuickAlert.show(
-                            context: context,
-                            type: QuickAlertType.confirm,
-                            title: 'Logout',
-                            text: 'Are you sure you want to exit?',
-                            confirmBtnColor: Colors.red,
-                            onConfirmBtnTap: () async {
-                              Navigator.pop(context);
-                              await ApiService().logout();
-                              if (!mounted) return;
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const LoginScreen(),
-                                ),
-                                (route) => false,
-                              );
-                            },
-                          ),
+                  const SizedBox(height: 24),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8, bottom: 10),
+                    child: Text(
+                      "Settings & Security",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
+                  ),
+
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          leading: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.lock_reset_rounded,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          title: const Text(
+                            'Change Password',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 14,
+                            color: Colors.grey,
+                          ),
+                          onTap: () {},
+                        ),
+                        const Divider(
+                          height: 1,
+                          indent: 56,
+                          endIndent: 16,
+                          color: Color(0xFFF0F0F0),
+                        ),
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          leading: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.language_rounded,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          title: const Text(
+                            'Language Settings',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Text(
+                                'English',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 14,
+                                color: Colors.grey,
+                              ),
+                            ],
+                          ),
+                          onTap: () => _showLanguageDialog(context),
+                        ),
+                        const Divider(
+                          height: 1,
+                          indent: 56,
+                          endIndent: 16,
+                          color: Color(0xFFF0F0F0),
+                        ),
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          leading: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.delete_forever_rounded,
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                          title: const Text(
+                            'Delete Account',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 14,
+                            color: Colors.redAccent,
+                          ),
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'This feature will be available soon.',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                backgroundColor: Colors.grey,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+                  CustomButton(
+                    text: isGuest ? 'Login' : 'Logout',
+                    color:
+                        isGuest
+                            ? AppColors.primary
+                            : Colors.redAccent.withOpacity(0.9),
+                    onPressed: () {
+                      if (isGuest) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
+                          (route) => false,
+                        );
+                      } else {
+                        QuickAlert.show(
+                          context: context,
+                          type: QuickAlertType.confirm,
+                          title: 'Logout',
+                          text: 'Are you sure you want to exit?',
+                          confirmBtnColor: Colors.red,
+                          onConfirmBtnTap: () async {
+                            Navigator.pop(context);
+                            await ApiService().logout();
+                            if (!mounted) return;
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const LoginScreen(),
+                              ),
+                              (route) => false,
+                            );
+                          },
+                        );
+                      }
+                    },
                   ),
                   const SizedBox(height: 50),
                 ],

@@ -53,30 +53,30 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         fillColor: widget.fillColor ?? Colors.transparent,
         filled: true,
         labelText: widget.label,
-        labelStyle: MaterialStateTextStyle.resolveWith((states) {
-          if (states.contains(MaterialState.error)) {
+        labelStyle: WidgetStateTextStyle.resolveWith((states) {
+          if (states.contains(WidgetState.error)) {
             return const TextStyle(color: AppColors.colorError);
           }
-          if (states.contains(MaterialState.focused)) {
+          if (states.contains(WidgetState.focused)) {
             return TextStyle(color: AppColors.primary);
           }
           return TextStyle(color: AppColors.textOnSecondary);
         }),
-        floatingLabelStyle: MaterialStateTextStyle.resolveWith((states) {
-          if (states.contains(MaterialState.error)) {
+        floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+          if (states.contains(WidgetState.error)) {
             return const TextStyle(color: AppColors.colorError);
           }
-          if (states.contains(MaterialState.focused)) {
+          if (states.contains(WidgetState.focused)) {
             return TextStyle(color: widget.borderColor ?? AppColors.primary);
           }
           return TextStyle(color: AppColors.textOnSecondary);
         }),
         prefixIcon: Icon(widget.icon),
-        prefixIconColor: MaterialStateColor.resolveWith((states) {
-          if (states.contains(MaterialState.error)) {
+        prefixIconColor: WidgetStateColor.resolveWith((states) {
+          if (states.contains(WidgetState.error)) {
             return AppColors.colorError;
           }
-          if (states.contains(MaterialState.focused)) {
+          if (states.contains(WidgetState.focused)) {
             return widget.borderColor ?? AppColors.primary;
           }
           return AppColors.iconSecondary;

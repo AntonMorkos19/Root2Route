@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 
 class TransactionItem extends StatelessWidget {
@@ -59,18 +60,18 @@ class TransactionItem extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 15,
+                      fontSize: 16.sp,
                     ),
                   ),
                   const SizedBox(height: 6),
 
                   Text(
                     amount,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.grey,
-                      fontSize: 15,
+                      fontSize: 16.sp,
                     ),
                   ),
                 ],
@@ -82,9 +83,9 @@ class TransactionItem extends StatelessWidget {
               children: [
                 Text(
                   price,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                    fontSize: 16.sp,
                     color: Colors.black,
                   ),
                 ),
@@ -101,7 +102,7 @@ class TransactionItem extends StatelessWidget {
                     status,
                     style: TextStyle(
                       color: statusColor,
-                      fontSize: 12,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

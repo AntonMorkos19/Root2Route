@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
@@ -184,12 +185,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Add Product',
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.w700,
-            fontSize: 18,
+            fontSize: 20.sp,
           ),
         ),
         leading: IconButton(
@@ -526,7 +527,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             style: TextStyle(
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w600,
-              fontSize: 15,
+              fontSize: 16.sp,
             ),
           ),
         ),
@@ -535,9 +536,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
           child: ElevatedButton.icon(
             onPressed: _submit,
             icon: const Icon(Icons.update_rounded, size: 20),
-            label: const Text(
+            label: Text(
               'Sell Product',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16.sp),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
@@ -560,9 +561,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
     padding: const EdgeInsets.only(bottom: 8),
     child: Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontWeight: FontWeight.w600,
-        fontSize: 14,
+        fontSize: 16.sp,
         color: Colors.black87,
       ),
     ),
@@ -601,7 +602,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     String? Function(String?)? validator,
   }) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       items:
           items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
       onChanged: onChanged,
@@ -661,7 +662,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
               Text(
                 subtitle,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: TextStyle(fontSize: 14.sp, color: Colors.grey),
               ),
             ],
           ),
@@ -669,7 +670,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: AppColors.primary,
+          activeThumbColor: AppColors.primary,
         ),
       ],
     );
@@ -694,10 +695,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'How to list your product?',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 22.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
@@ -738,12 +739,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Got it!',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 18.sp,
                     ),
                   ),
                 ),
@@ -759,7 +760,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(emoji, style: const TextStyle(fontSize: 24)),
+        Text(emoji, style: TextStyle(fontSize: 26.sp)),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -767,17 +768,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 18.sp,
                   color: Colors.black87,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 description,
-                style: const TextStyle(
-                  fontSize: 14,
+                style: TextStyle(
+                  fontSize: 16.sp,
                   color: Colors.black54,
                 ),
               ),

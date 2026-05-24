@@ -1,5 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/components/Organizations/organization_card.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/organization_model.dart';
@@ -37,12 +37,12 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'All Organizations',
           style: TextStyle(
-            color: Color(0xff2D3748),
+            color: const Color(0xff2D3748),
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: 20.sp,
           ),
         ),
         leading: IconButton(
@@ -120,10 +120,10 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
         children: [
           Icon(Icons.business_outlined, size: 80, color: Colors.grey.shade300),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'No Organizations Yet',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 20.sp,
               fontWeight: FontWeight.w600,
               color: Colors.grey,
             ),

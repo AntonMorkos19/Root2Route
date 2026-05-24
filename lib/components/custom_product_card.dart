@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/details_product_model.dart';
 import 'package:root2route/screens/product/details_product_screen.dart';
@@ -70,7 +71,7 @@ class CustomProductCard extends StatelessWidget {
                         product.badgeText,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 12,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -89,8 +90,8 @@ class CustomProductCard extends StatelessWidget {
                     product.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13,
+                    style: TextStyle(
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -109,12 +110,12 @@ class CustomProductCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(25),
                     ),
                     alignment: Alignment.center,
-                    child: const Text(
+                    child: Text(
                       "Details",
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 16.sp,
                       ),
                     ),
                   ),
@@ -137,7 +138,7 @@ class CustomProductCard extends StatelessWidget {
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
+            style: TextStyle(fontSize: 15.sp, color: Colors.grey),
           ),
         ),
       ],

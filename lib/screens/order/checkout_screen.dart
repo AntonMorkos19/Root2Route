@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
@@ -90,10 +91,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
+                      Text(
                         'No Saved Addresses',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 20.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -129,7 +130,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
@@ -137,7 +138,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       child: Text(
                         'Select Delivery Address',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 20.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -306,9 +307,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Checkout',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
         ),
         backgroundColor: const Color(0xFF2ECC71),
         elevation: 0,
@@ -338,14 +339,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
                           Icon(Icons.local_shipping, color: Color(0xFF2ECC71)),
                           SizedBox(width: 8),
                           Text(
                             'Shipping Details',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 22.sp,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -423,10 +424,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                     elevation: 5,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Confirm Order',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),

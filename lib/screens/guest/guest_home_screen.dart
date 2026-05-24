@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/account_screen.dart';
 import 'package:root2route/screens/guest/guest_products_tab.dart';
@@ -44,14 +45,14 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
               indicatorColor: AppColors.primary,
               labelTextStyle: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
-                  return const TextStyle(
-                    fontSize: 12,
+                  return TextStyle(
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textSecondary,
                   );
                 }
-                return const TextStyle(
-                  fontSize: 12,
+                return TextStyle(
+                  fontSize: 14.sp,
                   color: AppColors.textSecondary,
                 );
               }),

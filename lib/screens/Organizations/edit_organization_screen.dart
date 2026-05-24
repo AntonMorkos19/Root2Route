@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
@@ -296,22 +297,22 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                           right: 20,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
+                            children: [
                               Text(
                                 "Modify Your Organization",
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 22,
+                                  fontSize: 24.sp,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.5,
                                 ),
                               ),
-                              SizedBox(height: 6),
+                              const SizedBox(height: 6),
                               Text(
                                 "Update your organization details quickly and professionally.",
                                 style: TextStyle(
                                   color: Colors.white70,
-                                  fontSize: 15,
+                                  fontSize: 16.sp,
                                   height: 1.4,
                                 ),
                               ),

@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
 import 'package:root2route/screens/Organizations/add_organization_screen.dart';
@@ -79,14 +80,14 @@ class _TradesmanHomeScreenState extends State<TradesmanHomeScreen> {
               indicatorColor: AppColors.primary,
               labelTextStyle: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
-                  return const TextStyle(
-                    fontSize: 12,
+                  return TextStyle(
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textSecondary,
                   );
                 }
-                return const TextStyle(
-                  fontSize: 12,
+                return TextStyle(
+                  fontSize: 14.sp,
                   color: AppColors.textSecondary,
                 );
               }),

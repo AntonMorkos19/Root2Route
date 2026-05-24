@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/main_market_screen.dart';
 import 'package:root2route/screens/auction/auctions_screen.dart';
@@ -11,9 +12,6 @@ import 'package:root2route/screens/order/cart_screen.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_state.dart';
 
-/// A Products tab used exclusively in the Guest navigation flow.
-/// It provides 3 sub-tabs: Market, Auctions, and My Orders — all in
-/// view-only / read mode (action buttons are hidden for guests).
 class GuestProductsTab extends StatelessWidget {
   const GuestProductsTab({super.key});
 
@@ -27,12 +25,12 @@ class GuestProductsTab extends StatelessWidget {
           backgroundColor: Colors.white,
           elevation: 1,
           centerTitle: true,
-          title: const Text(
+          title: Text(
             'Products',
             style: TextStyle(
               color: Colors.black87,
               fontWeight: FontWeight.w800,
-              fontSize: 22,
+              fontSize: 24.sp,
             ),
           ),
           actions: [
@@ -100,10 +98,7 @@ class GuestProductsTab extends StatelessWidget {
             unselectedLabelColor: Colors.grey,
             indicatorColor: AppColors.primary,
             indicatorWeight: 3,
-            labelStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
+            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
             tabs: const [
               Tab(
                 text: 'Market',

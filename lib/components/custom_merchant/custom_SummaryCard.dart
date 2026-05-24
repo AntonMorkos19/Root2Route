@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomSummaryCard extends StatelessWidget {
   
@@ -23,12 +23,12 @@ class CustomSummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(color: Colors.grey,fontSize: 16)),
+          Text(title, style: TextStyle(color: Colors.grey, fontSize: 18.sp)),
           const SizedBox(height: 14),
           Text(
             amount,
-            style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 20.sp, fontWeight: FontWeight.bold),
           ),
                   const SizedBox(height: 10),
 

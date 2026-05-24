@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
  import 'package:root2route/models/organization_model.dart';
 import 'package:root2route/screens/Organizations/organization_details_screen.dart';
 
@@ -79,10 +80,10 @@ class OrganizationCard extends StatelessWidget {
                             : (organization.name.isNotEmpty
                                 ? organization.name.toUpperCase()
                                 : 'OR'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 18,
+                          fontSize: 20.sp,
                         ),
                       ),
                     )
@@ -99,10 +100,10 @@ class OrganizationCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           organization.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                            color: Color(0xff2D3748),
+                            fontSize: 18.sp,
+                            color: const Color(0xff2D3748),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -124,7 +125,7 @@ class OrganizationCard extends StatelessWidget {
                           organization.contactEmail ?? 'No email provided',
                           style: TextStyle(
                             color: Colors.grey.shade600,
-                            fontSize: 13,
+                            fontSize: 14.sp,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

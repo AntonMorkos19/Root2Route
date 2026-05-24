@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/core/theme/app_colors.dart';
@@ -233,9 +234,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             return Scaffold(
               backgroundColor: const Color(0xFFF4F6F9),
               appBar: AppBar(
-                title: const Text(
+                title: Text(
                   'Order Details',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
                 ),
                 backgroundColor: AppColors.primary,
                 elevation: 0,
@@ -320,7 +321,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   Text(
                     order.statusText,
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.w900,
                       color: color,
                     ),
@@ -328,7 +329,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   const SizedBox(height: 4),
                   Text(
                     dateStr,
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -431,7 +432,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                     foregroundColor: AppColors.primary,
                                   ),
-                                  child: const Text('Review', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                  child: Text('Review', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                           ],
@@ -458,15 +459,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Total Amount',
                     style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600),
+                        fontSize: 18.sp, fontWeight: FontWeight.w600),
                   ),
                   Text(
                     '${order.totalAmount.toStringAsFixed(0)} EGP',
-                    style: const TextStyle(
-                      fontSize: 22,
+                    style: TextStyle(
+                      fontSize: 24.sp,
                       fontWeight: FontWeight.w900,
                       color: AppColors.primary,
                     ),
@@ -524,8 +525,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               const SizedBox(width: 8),
               Text(
                 title,
-                style: const TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                    fontSize: 18.sp, fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -548,7 +549,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 16.sp),
             ),
           ),
           isClickable
@@ -565,9 +566,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     child: Text(
                       value,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 16.sp,
                         color: AppColors.primary,
                         decoration: TextDecoration.underline,
                       ),
@@ -576,7 +577,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 )
               : Text(
                   value,
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
                 ),
         ],
       ),
@@ -591,12 +592,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         children: [
           Text(
             label,
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 16.sp),
           ),
           Text(
             value.isEmpty ? 'N/A' : value,
             style:
-                const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
           ),
         ],
       ),
@@ -617,10 +618,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             orderId: widget.orderId,
             dispatchCubit: context.read<DispatchCubit>(),
           ),
-           label: const Text(
+           label: Text(
             'Dispatch Shipment',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -677,10 +678,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               );
             }
           },
-           label: const Text(
+           label: Text(
             'Confirm Receipt',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -702,10 +703,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         child: OutlinedButton.icon(
           onPressed: _cancelOrder,
           icon: const Icon(Icons.cancel_outlined, color: Colors.red),
-          label: const Text(
+          label: Text(
             'Cancel Order',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18.sp,
               fontWeight: FontWeight.bold,
               color: Colors.red,
             ),

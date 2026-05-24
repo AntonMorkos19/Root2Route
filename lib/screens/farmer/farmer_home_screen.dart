@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
-import 'package:root2route/screens/farmer/RequestProduct.dart';
 import 'package:root2route/screens/farmer/plants_screen.dart';
 import 'package:root2route/screens/market_screen.dart';
 import 'package:root2route/screens/farmer/scan_screen.dart';
@@ -50,41 +50,11 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
     }
   }
 
-  Widget? funFab() {
-    switch (index) {
-      case 0:
-        return FloatingActionButton(
-          backgroundColor: AppColors.primary,
-          shape: const CircleBorder(),
-          child: const Icon(Icons.add, color: AppColors.iconPrimary),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder:
-                  (_) => AlertDialog(
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    contentPadding: const EdgeInsets.all(16),
-                    content: const RequestProduct(),
-                  ),
-            );
-          },
-        );
-
-      default:
-        return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
       body: screens[index],
-      floatingActionButton: funFab(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: Container(
         margin: const EdgeInsets.only(left: 15, right: 15, bottom: 20),
         decoration: BoxDecoration(
@@ -104,14 +74,14 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
               indicatorColor: AppColors.primary,
               labelTextStyle: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
-                  return const TextStyle(
-                    fontSize: 12,
+                  return TextStyle(
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textSecondary,
                   );
                 }
-                return const TextStyle(
-                  fontSize: 12,
+                return TextStyle(
+                  fontSize: 14.sp,
                   color: AppColors.textSecondary,
                 );
               }),

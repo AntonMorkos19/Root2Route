@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/custom_farmer/selection_card.dart';
@@ -80,12 +81,12 @@ class _ScanScreenState extends State<ScanScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         toolbarHeight: 70,
-        title: const Text(
+        title: Text(
           "Scan Crop",
           style: TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
-            fontSize: 24,
+            fontSize: 20.sp,
           ),
         ),
         centerTitle: true,
@@ -101,10 +102,10 @@ class _ScanScreenState extends State<ScanScreen> {
               child: Column(
                 children: [
                   const SizedBox(height: 20),
-                  const Text(
+                  Text(
                     "Take a photo of the affected plant to identify the disease.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    style: TextStyle(fontSize: 18.sp, color: Colors.grey),
                   ),
                   const SizedBox(height: 40),
                   Row(
@@ -144,7 +145,7 @@ class _ScanScreenState extends State<ScanScreen> {
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.6),
-              child: const Center(
+              child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -154,7 +155,7 @@ class _ScanScreenState extends State<ScanScreen> {
                       "AI is Analyzing...",
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 20.sp,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -175,7 +176,7 @@ class _ScanScreenState extends State<ScanScreen> {
         borderRadius: BorderRadius.circular(15),
         border: Border.all(color: AppColors.primary.withOpacity(0.3)),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Icon(Icons.lightbulb_outline, color: AppColors.primary),
           SizedBox(width: 10),
@@ -185,7 +186,7 @@ class _ScanScreenState extends State<ScanScreen> {
             Text(
               "Focus on the affected part of the plant for 98% more accurate results.",
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 14.sp,
                 color: Color.fromARGB(255, 137, 136, 136),
                 height: 1.4,
               ),

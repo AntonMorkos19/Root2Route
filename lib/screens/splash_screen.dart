@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/screens/farmer/farmer_home_screen.dart';
@@ -130,11 +131,11 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 const SizedBox(height: 28),
 
-                const Text(
+                Text(
                   'Root2Route',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 32,
+                    fontSize: 34.sp,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
                   ),
@@ -146,7 +147,7 @@ class _SplashScreenState extends State<SplashScreen>
                   "Manage  • Connect  •  Grow",
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.85),
-                    fontSize: 16,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0.8,
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/shipments/cubit/dispatch_cubit.dart';
@@ -115,10 +116,10 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Dispatch Shipment 📦',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.w900,
                       color: Colors.black87,
                     ),
@@ -126,7 +127,7 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
                   Text(
                     'Enter shipping details',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14.sp,
                       color: Colors.grey.shade600,
                     ),
                   ),
@@ -186,11 +187,11 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: _submit,
-              icon: const Text('📦', style: TextStyle(fontSize: 18)),
-              label: const Text(
+              icon: Text('📦', style: TextStyle(fontSize: 20.sp)),
+              label: Text(
                 'Confirm Dispatch',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
@@ -213,7 +214,7 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 16.sp),
               ),
             ),
           ),

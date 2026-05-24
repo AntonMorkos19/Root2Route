@@ -136,27 +136,29 @@ class _AuctionsScreenState extends State<AuctionsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (!widget.isGuestMode) ...[
-              GestureDetector(
-                onTap:
-                    () => Navigator.pushNamed(context, BuyerAuctionsScreen.id),
+      backgroundColor: Colors.transparent,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!widget.isGuestMode) ...[
+            Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
+              child: InkWell(
+                onTap: () => Navigator.pushNamed(context, BuyerAuctionsScreen.id),
+                borderRadius: BorderRadius.circular(16.r),
                 child: Container(
-                  margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 14.h,
-                  ),
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12.r),
+                    gradient: const LinearGradient(
+                      colors: [AppColors.primary, Color(0xFF1B5E20)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16.r),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.09),
+                        color: AppColors.primary.withOpacity(0.35),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -167,16 +169,16 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                       Container(
                         padding: EdgeInsets.all(8.w),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(10.r),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.gavel_rounded,
-                          color: AppColors.primary,
-                          size: 20,
+                          color: Colors.white,
+                          size: 20.w,
                         ),
                       ),
-                      SizedBox(width: 14.w),
+                      SizedBox(width: 12.w),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,7 +187,7 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                             Text(
                               'My Auctions',
                               style: TextStyle(
-                                color: Colors.black87,
+                                color: Colors.white,
                                 fontSize: 15.sp,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -194,7 +196,7 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                             Text(
                               'Track your bids and active auctions',
                               style: TextStyle(
-                                color: Colors.black54,
+                                color: Colors.white.withOpacity(0.8),
                                 fontSize: 12.sp,
                               ),
                             ),
@@ -203,40 +205,23 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                       ),
                       Icon(
                         Icons.arrow_forward_ios_rounded,
-                        color: AppColors.primary,
-                        size: 14.w,
+                        color: Colors.white,
+                        size: 16.w,
                       ),
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: 16.h),
-            ],
-            Padding(
-              padding: EdgeInsets.only(
-                left: 16.w,
-                right: 16.w,
-                top: widget.isGuestMode ? 16.h : 0,
-              ),
-              child: Text(
-                'Current Activity',
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
             ),
-            SizedBox(height: 12.h),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.w),
+          ],
+          
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            child: Container(
+              height: 45.h,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [AppColors.primary, Color(0xFF1B5E20)],
-                ),
-                borderRadius: BorderRadius.circular(16.r),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.r),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.04),
@@ -245,100 +230,55 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.gavel_rounded,
-                                color: Colors.white,
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'Auction Marketplace',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 22.sp,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8.h),
-                        Text(
-                          'Discover and bid on fresh agricultural products',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.85),
-                            fontSize: 13.sp,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  TabBar(
-                    controller: _tabController,
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.white60,
-                    indicatorColor: Colors.white,
-                    indicatorWeight: 3,
-                    labelStyle: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.sp,
-                    ),
-                    tabs: const [
-                      Tab(
-                        icon: Icon(Icons.flash_on_rounded, size: 18),
-                        text: 'Live Auctions',
-                      ),
-                      Tab(
-                        icon: Icon(Icons.history_rounded, size: 18),
-                        text: 'Ended',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: TabBarView(
+              child: TabBar(
                 controller: _tabController,
-                children: [
-                  _LiveAuctionsTab(
-                    auctions: _liveAuctions,
-                    productDataMap: _productDataMap,
-                    isLoading: _loadingLive,
-                    error: _liveError,
-                    onRefresh: _fetchLive,
-                    isGuestMode: widget.isGuestMode,
-                  ),
-                  _EndedAuctionsTab(
-                    auctions: _endedAuctions,
-                    productDataMap: _productDataMap,
-                    isLoading: _loadingEnded,
-                    error: _endedError,
-                    onRefresh: _fetchEnded,
-                  ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                dividerColor: Colors.transparent,
+                indicator: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.grey.shade600,
+                labelStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.sp,
+                ),
+                unselectedLabelStyle: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14.sp,
+                ),
+                tabs: const [
+                  Tab(text: 'Live Auctions'),
+                  Tab(text: 'Ended'),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _LiveAuctionsTab(
+                  auctions: _liveAuctions,
+                  productDataMap: _productDataMap,
+                  isLoading: _loadingLive,
+                  error: _liveError,
+                  onRefresh: _fetchLive,
+                  isGuestMode: widget.isGuestMode,
+                ),
+                _EndedAuctionsTab(
+                  auctions: _endedAuctions,
+                  productDataMap: _productDataMap,
+                  isLoading: _loadingEnded,
+                  error: _endedError,
+                  onRefresh: _fetchEnded,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -383,7 +323,7 @@ class _LiveAuctionsTab extends StatelessWidget {
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.6,
+                    height: MediaQuery.of(context).size.height * 0.4,
                     child: _EmptyState(
                       icon: Icons.flash_on_rounded,
                       title: 'No Live Auctions',

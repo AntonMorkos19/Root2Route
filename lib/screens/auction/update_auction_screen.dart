@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
+import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
 import 'package:root2route/models/auction_model.dart';
@@ -75,7 +77,7 @@ class _UpdateAuctionScreenState extends State<UpdateAuctionScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF2ECC71),
+              primary: AppColors.primary,
               onPrimary: Colors.white,
               onSurface: Colors.black87,
             ),
@@ -97,7 +99,7 @@ class _UpdateAuctionScreenState extends State<UpdateAuctionScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF2ECC71),
+              primary: AppColors.primary,
               onPrimary: Colors.white,
               onSurface: Colors.black87,
             ),
@@ -193,7 +195,7 @@ class _UpdateAuctionScreenState extends State<UpdateAuctionScreen> {
             color: const Color(0xFFE8F8EE),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: const Color(0xFF2ECC71), size: 20),
+          child: Icon(icon, color: AppColors.primary, size: 20),
         ),
         const SizedBox(width: 12),
         Text(
@@ -386,18 +388,18 @@ class _UpdateAuctionScreenState extends State<UpdateAuctionScreen> {
                 ElevatedButton(
                   onPressed: _submitAuction,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2ECC71),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Update Auction',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

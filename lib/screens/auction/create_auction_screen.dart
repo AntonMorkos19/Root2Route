@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/quickalert.dart';
+import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
 import 'package:root2route/services/api.dart';
@@ -139,7 +141,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF2ECC71),
+              primary: AppColors.primary,
               onPrimary: Colors.white,
               onSurface: Colors.black87,
             ),
@@ -161,7 +163,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF2ECC71),
+              primary: AppColors.primary,
               onPrimary: Colors.white,
               onSurface: Colors.black87,
             ),
@@ -392,18 +394,18 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                 ElevatedButton(
                   onPressed: _submitAuction,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2ECC71),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Create Auction',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -433,7 +435,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
             color: const Color(0xFFE8F8EE),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: const Color(0xFF2ECC71), size: 20),
+          child: Icon(icon, color: AppColors.primary, size: 20),
         ),
         const SizedBox(width: 12),
         Text(
@@ -558,19 +560,19 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2ECC71),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Got it!',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 14.sp,
                     ),
                   ),
                 ),
@@ -603,10 +605,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
               const SizedBox(height: 4),
               Text(
                 description,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
+                style: const TextStyle(fontSize: 14, color: Colors.black54),
               ),
             ],
           ),

@@ -41,7 +41,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _receivedOrdersCubit = ReceivedOrdersCubit();
     _dispatchCubit = DispatchCubit();
 
-    // Only fetch received orders when NOT in guest mode
     if (!widget.isGuestMode &&
         _organizationId != null &&
         _organizationId!.isNotEmpty) {
@@ -120,8 +119,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       }
     });
   }
-
-  // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -206,9 +203,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
 
                 tabs: const [
-                  Tab(
-                    text: 'My Orders',
-                  ), // بتكتب النص بس وهو بياخد الستايل من فوق
+                  Tab(text: 'My Orders'),
                   Tab(text: 'Received Orders'),
                 ],
               ),
@@ -771,8 +766,8 @@ class _OrderCard extends StatelessWidget {
                     SizedBox(width: 6.w),
                     Text(
                       order.items.isNotEmpty
-                          ? 'Quantity: ${order.items.first.quantity}'
-                          : '1 item',
+                          ? 'Quantity: ${order.items.first.quantity} kg'
+                          : '${order.items.length} item${order.items.length != 1 ? 's' : ''}',
                       style: TextStyle(
                         fontSize: 14.sp,
                         color: Colors.grey.shade600,
@@ -839,7 +834,7 @@ class _OrderCard extends StatelessWidget {
                 'Confirm Receipt',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16.sp,
+                  fontSize: 14.sp,
                   color: Colors.white,
                 ),
               ),
@@ -847,7 +842,7 @@ class _OrderCard extends StatelessWidget {
                 backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
@@ -888,7 +883,7 @@ class _OrderCard extends StatelessWidget {
                 'Rate & Review',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16.sp,
+                  fontSize: 14.sp,
                   color: AppColors.primary,
                 ),
               ),
@@ -896,7 +891,7 @@ class _OrderCard extends StatelessWidget {
                 side: const BorderSide(color: AppColors.primary),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
@@ -913,15 +908,19 @@ class _OrderCard extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => onUpdateStatus(order.id, 1),
                   icon: const Icon(Icons.check, color: Colors.white, size: 18),
-                  label: const Text(
+                  label: Text(
                     'Accept',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                 ),
@@ -931,15 +930,19 @@ class _OrderCard extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => onUpdateStatus(order.id, 4),
                   icon: const Icon(Icons.close, color: Colors.white, size: 18),
-                  label: const Text(
+                  label: Text(
                     'Reject',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                 ),
@@ -961,18 +964,19 @@ class _OrderCard extends StatelessWidget {
                     dispatchCubit: context.read<DispatchCubit>(),
                   ),
               icon: const Icon(Icons.local_shipping, color: Colors.white),
-              label: const Text(
+              label: Text(
                 'Mark as Shipped',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
+                  fontSize: 14.sp,
                   color: Colors.white,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigo,
+                backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),

@@ -412,9 +412,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
         TextButton(
           onPressed: () => Navigator.pop(context),
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(8),
               side: BorderSide(color: Colors.grey.shade300),
             ),
           ),
@@ -423,7 +423,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             style: TextStyle(
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w600,
-              fontSize: 16.sp,
+              fontSize: 14.sp,
             ),
           ),
         ),
@@ -434,14 +434,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
             icon: const Icon(Icons.update_rounded, size: 20),
             label: Text(
               'Update Product',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16.sp),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 18),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(8),
               ),
               elevation: 4,
               shadowColor: AppColors.primary.withOpacity(0.4),

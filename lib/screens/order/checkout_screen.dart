@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
+import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/services/order_service.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/services/cart_service.dart';
@@ -110,11 +111,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2ECC71),
+                          backgroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Add New Address',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
@@ -311,7 +320,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           'Checkout',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
         ),
-        backgroundColor: const Color(0xFF2ECC71),
+        backgroundColor: AppColors.primary,
         elevation: 0,
       ),
       body: Center(
@@ -417,17 +426,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ElevatedButton(
                   onPressed: _submitOrder,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2ECC71),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     elevation: 5,
                   ),
                   child: Text(
                     'Confirm Order',
                     style: TextStyle(
-                      fontSize: 20.sp,
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),

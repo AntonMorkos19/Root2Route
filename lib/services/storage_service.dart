@@ -13,6 +13,7 @@ class StorageService {
   static const String _keyTokenExpiry = 'token_expiry';
   static const String _keyIsVerified = 'is_verified'; 
   static const String _keyHasOrganization = 'has_organization'; 
+  static const String _keyIsFirstTime = 'is_first_time';
   
   static const String _keyRefreshToken = 'refresh_token';
   static const String _keyOrganizationId = 'organization_id';
@@ -59,6 +60,11 @@ class StorageService {
     await _prefs.setBool(_keyHasOrganization, value);
   }
 
+  // ✅ Save is first time status
+  Future<void> saveIsFirstTime(bool value) async {
+    await _prefs.setBool(_keyIsFirstTime, value);
+  }
+
   // ✅ Save verification status
   Future<void> saveIsVerified(bool value) async {
     await _prefs.setBool(_keyIsVerified, value);
@@ -77,6 +83,8 @@ class StorageService {
   bool get isVerified => _prefs.getBool(_keyIsVerified) ?? false;
   
   bool get hasOrganization => _prefs.getBool(_keyHasOrganization) ?? false;
+
+  bool get isFirstTime => _prefs.getBool(_keyIsFirstTime) ?? true;
 
   bool get isGuest => token == null || token!.isEmpty;
   String? get currentUserOrgId => organizationId;

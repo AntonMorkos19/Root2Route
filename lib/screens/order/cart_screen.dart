@@ -185,16 +185,16 @@ class _CartScreenState extends State<CartScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   elevation: 5,
                 ),
                 child: Text(
                   'Proceed to Checkout',
                   style: TextStyle(
-                    fontSize: 20.sp,
+                    fontSize: 15.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),

@@ -382,7 +382,7 @@ class _QuickInfoRow extends StatelessWidget {
           icon: Icons.local_florist,
           label: 'Season',
           value: plant.plantingSeason!,
-          color: const Color(0xFF2ECC71),
+          color: AppColors.primary,
         ),
       );
 
@@ -575,7 +575,7 @@ class _PlaceholderImage extends StatelessWidget {
     return Container(
       color: Colors.grey.shade100,
       child: const Center(
-        child: Icon(Icons.eco, size: 80, color: Color(0xFF2ECC71)),
+        child: Icon(Icons.eco, size: 80, color: AppColors.primary),
       ),
     );
   }

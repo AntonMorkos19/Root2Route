@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/screens/farmer/farmer_home_screen.dart';
+import 'package:root2route/screens/intro_screen.dart';
 import 'package:root2route/services/storage_service.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -45,6 +46,18 @@ class _SplashScreenState extends State<SplashScreen>
     await Future.delayed(const Duration(milliseconds: 2000));
 
     if (!mounted) return;
+
+    final isFirstTime = StorageService().isFirstTime;
+
+    if (isFirstTime) {
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const IntroScreen()),
+        (route) => false,
+      );
+      return;
+    }
 
     final isLoggedIn = StorageService().isLoggedIn;
     final isTokenValid = StorageService().isTokenValid;

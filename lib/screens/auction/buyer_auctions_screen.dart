@@ -149,7 +149,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 child: const Text('Checkout'),

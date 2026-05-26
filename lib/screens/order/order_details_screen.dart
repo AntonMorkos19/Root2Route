@@ -126,9 +126,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             context: context,
             type: QuickAlertType.success,
             title: result['success'] == true ? 'Cancelled' : 'Note',
-            text: result['success'] == true
-                ? 'Your order has been cancelled successfully.'
-                : 'This order is already cancelled.',
+            text:
+                result['success'] == true
+                    ? 'Your order has been cancelled successfully.'
+                    : 'This order is already cancelled.',
             onConfirmBtnTap: () {
               Navigator.pop(context);
               _detailsCubit.fetchOrderDetails(widget.orderId);
@@ -236,7 +237,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               appBar: AppBar(
                 title: Text(
                   'Order Details',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.sp,
+                  ),
                 ),
                 backgroundColor: AppColors.primary,
                 elevation: 0,
@@ -269,15 +273,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               Icon(Icons.error_outline, size: 60, color: Colors.red.shade300),
               const SizedBox(height: 16),
               Text(
-                state is OrderError
-                    ? state.message
-                    : 'Order not found',
+                state is OrderError ? state.message : 'Order not found',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: () =>
-                    _detailsCubit.fetchOrderDetails(widget.orderId),
+                onPressed:
+                    () => _detailsCubit.fetchOrderDetails(widget.orderId),
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
                 style: ElevatedButton.styleFrom(
@@ -292,10 +294,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
     final color = _statusColor(order.status);
     final icon = _statusIcon(order.status);
-    final dateStr = order.createdAt != null
-        ? '${order.createdAt!.day}/${order.createdAt!.month}/${order.createdAt!.year}'
-          ' - ${order.createdAt!.hour}:${order.createdAt!.minute.toString().padLeft(2, '0')}'
-        : 'N/A';
+    final dateStr =
+        order.createdAt != null
+            ? '${order.createdAt!.day}/${order.createdAt!.month}/${order.createdAt!.year}'
+                ' - ${order.createdAt!.hour}:${order.createdAt!.minute.toString().padLeft(2, '0')}'
+            : 'N/A';
 
     return RefreshIndicator(
       onRefresh: () => _detailsCubit.fetchOrderDetails(widget.orderId),
@@ -329,14 +332,17 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   const SizedBox(height: 4),
                   Text(
                     dateStr,
-                    style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade600),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
 
-             if (order.status == 2 || order.status == 3) ...[
+            if (order.status == 2 || order.status == 3) ...[
               _buildInfoCard(
                 title: 'Dispatch Details',
                 icon: Icons.assignment_turned_in_outlined,
@@ -344,17 +350,23 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   _buildDispatchRow(
                     Icons.local_shipping,
                     'Carrier Name',
-                    order.carrier?.isNotEmpty == true ? order.carrier! : 'Not specified',
+                    order.carrier?.isNotEmpty == true
+                        ? order.carrier!
+                        : 'Not specified',
                   ),
                   _buildDispatchRow(
                     Icons.qr_code,
                     'Tracking Number',
-                    order.trackingNumber?.isNotEmpty == true ? order.trackingNumber! : 'Not specified',
+                    order.trackingNumber?.isNotEmpty == true
+                        ? order.trackingNumber!
+                        : 'Not specified',
                   ),
                   _buildDispatchRow(
                     Icons.phone,
                     'Driver\'s Phone',
-                    order.driverPhone?.isNotEmpty == true ? order.driverPhone! : 'Not specified',
+                    order.driverPhone?.isNotEmpty == true
+                        ? order.driverPhone!
+                        : 'Not specified',
                     isClickable: order.driverPhone?.isNotEmpty == true,
                     context: context,
                   ),
@@ -363,7 +375,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               const SizedBox(height: 16),
             ],
 
-            // ── Shipping Info ────────────────────────────────
             _buildInfoCard(
               title: 'Shipping Information',
               icon: Icons.local_shipping_outlined,
@@ -377,72 +388,85 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             ),
             const SizedBox(height: 16),
 
-             _buildInfoCard(
+            _buildInfoCard(
               title: 'Items (${order.items.length})',
               icon: Icons.inventory_2_outlined,
-              children: order.items.isEmpty
-                  ? [
-                      const Text(
-                        'No items data',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ]
-                  : order.items.map((item) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                item.productName,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w500),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            Text(
-                              'x${item.quantity}',
-                              style:
-                                  TextStyle(color: Colors.grey.shade600),
-                            ),
-                            const SizedBox(width: 16),
-                            Text(
-                              '${item.unitPrice.toStringAsFixed(0)} EGP',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            if (order.status == 3 && !widget.isSellerView)
-                              Padding(
-                                padding: const EdgeInsets.only(left: 8),
-                                child: TextButton(
-                                  onPressed: () {
-                                    showAddReviewDialog(
-                                      context,
-                                      targetOrganizationId: item.organizationId.isNotEmpty 
-                                          ? item.organizationId 
-                                          : order.organizationId,
-                                      orderId: order.id,
-                                      productId: item.productId,
-                                    );
-                                  },
-                                  style: TextButton.styleFrom(
-                                    padding: EdgeInsets.zero,
-                                    minimumSize: const Size(50, 30),
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    foregroundColor: AppColors.primary,
+              children:
+                  order.items.isEmpty
+                      ? [
+                        const Text(
+                          'No items data',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ]
+                      : order.items.map((item) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  item.productName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  child: Text('Review', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
+                              Text(
+                                '${item.quantity} kg',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 14.sp,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Text(
+                                '${item.unitPrice.toStringAsFixed(0)} EGP',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (order.status == 3 && !widget.isSellerView)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: TextButton(
+                                    onPressed: () {
+                                      showAddReviewDialog(
+                                        context,
+                                        targetOrganizationId:
+                                            item.organizationId.isNotEmpty
+                                                ? item.organizationId
+                                                : order.organizationId,
+                                        orderId: order.id,
+                                        productId: item.productId,
+                                      );
+                                    },
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: const Size(50, 30),
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      foregroundColor: AppColors.primary,
+                                    ),
+                                    child: Text(
+                                      'Review',
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
             ),
             const SizedBox(height: 16),
 
-             Container(
+            Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -462,7 +486,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   Text(
                     'Total Amount',
                     style: TextStyle(
-                        fontSize: 18.sp, fontWeight: FontWeight.w600),
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   Text(
                     '${order.totalAmount.toStringAsFixed(0)} EGP',
@@ -476,7 +502,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               ),
             ),
 
-             if (order.note.isNotEmpty) ...[
+            if (order.note.isNotEmpty) ...[
               const SizedBox(height: 16),
               _buildInfoCard(
                 title: 'Note',
@@ -490,13 +516,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               ),
             ],
 
-            const SizedBox(height: 100),  
+            const SizedBox(height: 100),
           ],
         ),
       ),
     );
   }
- 
+
   Widget _buildInfoCard({
     required String title,
     required IconData icon,
@@ -525,8 +551,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               const SizedBox(width: 8),
               Text(
                 title,
-                style: TextStyle(
-                    fontSize: 18.sp, fontWeight: FontWeight.w800),
+                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -539,7 +564,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
-  Widget _buildDispatchRow(IconData icon, String label, String value, {bool isClickable = false, BuildContext? context}) {
+  Widget _buildDispatchRow(
+    IconData icon,
+    String label,
+    String value, {
+    bool isClickable = false,
+    BuildContext? context,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -554,31 +585,34 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           ),
           isClickable
               ? InkWell(
-                  onTap: () {
-                    if (context != null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Copied $value')),
-                      );
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(4),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    child: Text(
-                      value,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.sp,
-                        color: AppColors.primary,
-                        decoration: TextDecoration.underline,
-                      ),
+                onTap: () {
+                  if (context != null) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Copied $value')));
+                  }
+                },
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 2,
+                  ),
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.sp,
+                      color: AppColors.primary,
+                      decoration: TextDecoration.underline,
                     ),
                   ),
-                )
-              : Text(
-                  value,
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
                 ),
+              )
+              : Text(
+                value,
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
+              ),
         ],
       ),
     );
@@ -596,8 +630,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           ),
           Text(
             value.isEmpty ? 'N/A' : value,
-            style:
-                TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
           ),
         ],
       ),
@@ -613,24 +646,25 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     if (order.status == 1 && widget.isSellerView) {
       return _bottomBar(
         child: ElevatedButton.icon(
-          onPressed: () => showDispatchBottomSheet(
-            context,
-            orderId: widget.orderId,
-            dispatchCubit: context.read<DispatchCubit>(),
-          ),
-           label: Text(
+          onPressed:
+              () => showDispatchBottomSheet(
+                context,
+                orderId: widget.orderId,
+                dispatchCubit: context.read<DispatchCubit>(),
+              ),
+          label: Text(
             'Dispatch Shipment',
             style: TextStyle(
-              fontSize: 18.sp,
+              fontSize: 14.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green.shade600,
-            padding: const EdgeInsets.symmetric(vertical: 14),
+            backgroundColor: AppColors.primary,
+            padding: const EdgeInsets.symmetric(vertical: 12),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
         ),
@@ -678,19 +712,19 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               );
             }
           },
-           label: Text(
+          label: Text(
             'Confirm Receipt',
             style: TextStyle(
-              fontSize: 18.sp,
+              fontSize: 14.sp,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green.shade600,
-            padding: const EdgeInsets.symmetric(vertical: 14),
+            backgroundColor: AppColors.primary,
+            padding: const EdgeInsets.symmetric(vertical: 12),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
         ),
@@ -706,16 +740,16 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           label: Text(
             'Cancel Order',
             style: TextStyle(
-              fontSize: 18.sp,
+              fontSize: 14.sp,
               fontWeight: FontWeight.bold,
               color: Colors.red,
             ),
           ),
           style: OutlinedButton.styleFrom(
             side: const BorderSide(color: Colors.red, width: 1.5),
-            padding: const EdgeInsets.symmetric(vertical: 14),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
         ),
@@ -740,9 +774,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           ),
         ],
       ),
-      child: SafeArea(
-        child: SizedBox(width: double.infinity, child: child),
-      ),
+      child: SafeArea(child: SizedBox(width: double.infinity, child: child)),
     );
   }
 }

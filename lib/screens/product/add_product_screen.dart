@@ -24,7 +24,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _quantityController = TextEditingController();
   final _directPriceController = TextEditingController();
   final _descriptionController = TextEditingController();
-   final _auctionPriceController = TextEditingController();
+  final _auctionPriceController = TextEditingController();
   final _barcodeController = TextEditingController();
 
   String? _selectedCategory;
@@ -43,7 +43,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     'Tool': 2,
     'Chemical': 3,
   };
-  final List<String> _units = ['Kg', 'pkg', 'Liter'];
+  final List<String> _units = ['Kg', 'Liter', 'pkg'];
 
   final _api = ApiService();
 
@@ -53,7 +53,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _quantityController.dispose();
     _directPriceController.dispose();
     _descriptionController.dispose();
-     _auctionPriceController.dispose();
+    _auctionPriceController.dispose();
     _barcodeController.dispose();
     super.dispose();
   }
@@ -121,16 +121,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
             _forAuction
                 ? (double.tryParse(_auctionPriceController.text.trim()) ?? 0.0)
                 : 0.0,
-         expiryDate: _expiryDate?.toIso8601String(),
-         barcode: _barcodeController.text.trim(),
+        expiryDate: _expiryDate?.toIso8601String(),
+        barcode: _barcodeController.text.trim(),
         images: _pickedImages,
       );
 
       if (!mounted) return;
-      Navigator.pop(context); // Close loading alert
-
+      Navigator.pop(context);
       if (result['success'] == true) {
-         await QuickAlert.show(
+        await QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
           title: 'Success',
@@ -257,7 +256,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   validator:
                       (v) =>
                           (v == null || v.trim().isEmpty) ? 'Required' : null,
-                  label: 'e.g. Fresh Tomatoes',
+                  label: ' Product Name',
                   controller: _nameController,
                 ),
                 const SizedBox(height: 18),
@@ -516,9 +515,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
         TextButton(
           onPressed: () => Navigator.pop(context),
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(8),
               side: BorderSide(color: Colors.grey.shade300),
             ),
           ),
@@ -527,7 +526,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             style: TextStyle(
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w600,
-              fontSize: 16.sp,
+              fontSize: 14.sp,
             ),
           ),
         ),
@@ -538,14 +537,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
             icon: const Icon(Icons.update_rounded, size: 20),
             label: Text(
               'Sell Product',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16.sp),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 18),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(8),
               ),
               elevation: 4,
               shadowColor: AppColors.primary.withOpacity(0.4),
@@ -734,9 +733,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: Text(
@@ -744,7 +743,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 18.sp,
+                      fontSize: 14.sp,
                     ),
                   ),
                 ),
@@ -777,10 +776,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               const SizedBox(height: 4),
               Text(
                 description,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: Colors.black54,
-                ),
+                style: TextStyle(fontSize: 16.sp, color: Colors.black54),
               ),
             ],
           ),

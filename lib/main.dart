@@ -14,6 +14,7 @@ import 'package:root2route/screens/auth/register_screen.dart';
 import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/screens/splash_screen.dart';
+import 'package:root2route/screens/intro_screen.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/core/navigator_service.dart';
 import 'package:root2route/screens/order/checkout_screen.dart';
@@ -49,6 +50,48 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               useMaterial3: false,
               fontFamily: 'Roboto',
+              primaryColor: const Color(0xFF1B7A35),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1B7A35),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  textStyle: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF1B7A35),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  textStyle: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              outlinedButtonTheme: OutlinedButtonThemeData(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF1B7A35),
+                  side: const BorderSide(color: Color(0xFF1B7A35), width: 1.5),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  textStyle: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
               textTheme: TextTheme(
                 displayLarge: TextStyle(fontSize: 34.sp, fontWeight: FontWeight.bold),
                 displayMedium: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.bold),
@@ -70,6 +113,7 @@ class MyApp extends StatelessWidget {
             initialRoute: SplashScreen.id,
             routes: {
               SplashScreen.id: (_) => const SplashScreen(),
+              IntroScreen.id: (_) => const IntroScreen(),
               LoginScreen.id: (_) => const LoginScreen(),
               RegisterScreen.id: (_) => const RegisterScreen(),
               ForgotPasswordScreen.id: (_) => const ForgotPasswordScreen(),

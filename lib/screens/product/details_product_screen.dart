@@ -403,8 +403,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   ),
                   const SizedBox(height: 16),
                   Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
                       _buildChip(
                         icon: Icons.category_rounded,
@@ -471,7 +471,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
     required Color textColor,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
@@ -479,14 +479,14 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: textColor),
-          const SizedBox(width: 6),
+          Icon(icon, size: 14, color: textColor),
+          const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
               color: textColor,
               fontWeight: FontWeight.bold,
-              fontSize: 14.sp,
+              fontSize: 12.sp,
             ),
           ),
         ],
@@ -514,20 +514,20 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
         ),
         child: ElevatedButton.icon(
           onPressed: null,
-          icon: const Icon(Icons.edit, color: Colors.white),
+          icon: const Icon(Icons.edit, color: Colors.white, size: 16),
           label: Text(
             'You own this product',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 20.sp,
+              fontSize: 14.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
           style: ElevatedButton.styleFrom(
             disabledBackgroundColor: Colors.grey.shade400,
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
         ),
@@ -617,21 +617,21 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   }
                 }
               },
-              icon: const Icon(Icons.chat_bubble_outline, color: AppColors.primary),
+              icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFF1B7A35), size: 16),
               label: Text(
                 'Contact Seller',
                 style: TextStyle(
-                  color: AppColors.primary,
-                  fontSize: 18.sp,
+                  color: const Color(0xFF1B7A35),
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
-                side: const BorderSide(color: AppColors.primary, width: 1.5),
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                side: const BorderSide(color: Color(0xFF1B7A35), width: 1.5),
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
@@ -686,20 +686,20 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   ),
                 );
               },
-              icon: const Icon(Icons.add_shopping_cart_rounded, color: Colors.white),
+              icon: const Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 16),
               label: Text(
                 'Add to Cart',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18.sp,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: const Color(0xFF1B7A35),
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),

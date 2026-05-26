@@ -13,6 +13,7 @@ import 'package:root2route/screens/chat/chat_details_screen.dart';
 import 'package:root2route/features/chat/cubit/chat_messages_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_state.dart';
+import 'package:root2route/components/custom_button.dart';
 
 class DetailsProductScreen extends StatefulWidget {
   final String productId;
@@ -43,10 +44,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
       _isLoading = true;
       _errorMessage = null;
     });
-
     try {
       final result = await _api.getProductById(widget.productId);
-
       if (result['success'] == true && result['data'] != null) {
         setState(() {
           _productData = result['data'];
@@ -59,6 +58,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
               msg.trim().isEmpty
                   ? 'Failed to load product data. Server did not send error details.'
                   : msg;
+
           _isLoading = false;
         });
       }
@@ -142,7 +142,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                           Icons.shopping_cart,
                           color: Colors.white,
                         ),
-                        onPressed: () => Navigator.pushNamed(context, CartScreen.id),
+                        onPressed:
+                            () => Navigator.pushNamed(context, CartScreen.id),
                       ),
                     ),
                     if (cartCount > 0)
@@ -221,23 +222,37 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
 
     final data = _productData!;
     final String name = data['name'] ?? data['Name'] ?? 'Unknown Product';
-    
-    final bool isAvailableForDirectSale = data['isAvailableForDirectSale'] == true || data['IsAvailableForDirectSale'] == true;
-    final bool isAvailableForAuction = data['isAvailableForAuction'] == true || data['IsAvailableForAuction'] == true;
+    final bool isAvailableForDirectSale =
+        data['isAvailableForDirectSale'] == true ||
+        data['IsAvailableForDirectSale'] == true;
+    final bool isAvailableForAuction =
+        data['isAvailableForAuction'] == true ||
+        data['IsAvailableForAuction'] == true;
 
     double price = 0.0;
     bool showAuctionBadge = false;
-
     if (isAvailableForDirectSale) {
-      final dynamic priceRaw = data['directSalePrice'] ?? data['DirectSalePrice'] ?? 0;
-      price = priceRaw is num ? priceRaw.toDouble() : double.tryParse(priceRaw.toString()) ?? 0.0;
+      final dynamic priceRaw =
+          data['directSalePrice'] ?? data['DirectSalePrice'] ?? 0;
+      price =
+          priceRaw is num
+              ? priceRaw.toDouble()
+              : double.tryParse(priceRaw.toString()) ?? 0.0;
     } else if (isAvailableForAuction) {
-      final dynamic priceRaw = data['startBiddingPrice'] ?? data['StartBiddingPrice'] ?? 0;
-      price = priceRaw is num ? priceRaw.toDouble() : double.tryParse(priceRaw.toString()) ?? 0.0;
+      final dynamic priceRaw =
+          data['startBiddingPrice'] ?? data['StartBiddingPrice'] ?? 0;
+      price =
+          priceRaw is num
+              ? priceRaw.toDouble()
+              : double.tryParse(priceRaw.toString()) ?? 0.0;
       showAuctionBadge = true;
     } else {
-      final dynamic priceRaw = data['directSalePrice'] ?? data['DirectSalePrice'] ?? 0;
-      price = priceRaw is num ? priceRaw.toDouble() : double.tryParse(priceRaw.toString()) ?? 0.0;
+      final dynamic priceRaw =
+          data['directSalePrice'] ?? data['DirectSalePrice'] ?? 0;
+      price =
+          priceRaw is num
+              ? priceRaw.toDouble()
+              : double.tryParse(priceRaw.toString()) ?? 0.0;
     }
     final String description =
         data['description'] ??
@@ -382,7 +397,10 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                           if (showAuctionBadge) ...[
                             const SizedBox(height: 4),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.orange.shade100,
                                 borderRadius: BorderRadius.circular(6),
@@ -430,7 +448,10 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   const SizedBox(height: 30),
                   Text(
                     "Description",
-                    style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -495,11 +516,17 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
   }
 
   Widget _buildBottomBar() {
-    final String productOrgId = _productData?['organizationId'] ?? _productData?['OrganizationId'] ?? '';
+    final String productOrgId =
+        _productData?['organizationId'] ??
+        _productData?['OrganizationId'] ??
+        '';
     final bool isGuest = StorageService().isGuest;
     final String? currentOrgId = StorageService().currentUserOrgId;
 
-    if (!isGuest && currentOrgId != null && currentOrgId.isNotEmpty && currentOrgId == productOrgId) {
+    if (!isGuest &&
+        currentOrgId != null &&
+        currentOrgId.isNotEmpty &&
+        currentOrgId == productOrgId) {
       return Container(
         padding: const EdgeInsets.fromLTRB(24, 15, 24, 35),
         decoration: BoxDecoration(
@@ -534,7 +561,10 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
       );
     }
 
-    final bool isAvailableForDirectSale = _productData?['isAvailableForDirectSale'] == true || _productData?['IsAvailableForDirectSale'] == true;
+    final bool isAvailableForDirectSale =
+        _productData?['isAvailableForDirectSale'] == true ||
+        _productData?['IsAvailableForDirectSale'] == true;
+
     if (!isAvailableForDirectSale) {
       return const SizedBox.shrink();
     }
@@ -570,7 +600,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   );
                   return;
                 }
-                
+
                 if (productOrgId.isEmpty) return;
 
                 QuickAlert.show(
@@ -586,20 +616,23 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                     organizationId: productOrgId,
                     productId: widget.productId,
                   );
+
                   if (context.mounted) {
                     Navigator.pop(context); // close loading alert
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => BlocProvider(
-                          create: (_) => ChatMessagesCubit(ChatService()),
-                          child: ChatDetailsScreen(
-                            roomId: roomId,
-                            roomName: _productData?['sellerName']
-                                ?? _productData?['organizationName']
-                                ?? 'Seller',
-                          ),
-                        ),
+                        builder:
+                            (_) => BlocProvider(
+                              create: (_) => ChatMessagesCubit(ChatService()),
+                              child: ChatDetailsScreen(
+                                roomId: roomId,
+                                roomName:
+                                    _productData?['sellerName'] ??
+                                    _productData?['organizationName'] ??
+                                    'Seller',
+                              ),
+                            ),
                       ),
                     );
                   }
@@ -617,7 +650,11 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   }
                 }
               },
-              icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFF1B7A35), size: 16),
+              icon: const Icon(
+                Icons.chat_bubble_outline,
+                color: Color(0xFF1B7A35),
+                size: 16,
+              ),
               label: Text(
                 'Contact Seller',
                 style: TextStyle(
@@ -654,39 +691,80 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   );
                   return;
                 }
-                final String name = _productData?['name'] ?? _productData?['Name'] ?? 'Unknown Product';
-                final dynamic priceRaw = _productData?['directSalePrice'] ?? _productData?['DirectSalePrice'] ?? 0;
-                final double price = priceRaw is num ? priceRaw.toDouble() : double.tryParse(priceRaw.toString()) ?? 0.0;
 
-                final images = _productData?['images'] ?? _productData?['Images'];
+                // حماية من إضافة المنتج مرتين
+                final bool alreadyInCart = CartService().items.any(
+                  (item) => item['productId'] == widget.productId,
+                );
+                if (alreadyInCart) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Item already in cart!'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                  return;
+                }
+
+                final String name =
+                    _productData?['name'] ??
+                    _productData?['Name'] ??
+                    'Unknown Product';
+                final dynamic priceRaw =
+                    _productData?['directSalePrice'] ??
+                    _productData?['DirectSalePrice'] ??
+                    0;
+                final double price =
+                    priceRaw is num
+                        ? priceRaw.toDouble()
+                        : double.tryParse(priceRaw.toString()) ?? 0.0;
+
+                final images =
+                    _productData?['images'] ?? _productData?['Images'];
                 final List<dynamic> imagesList = (images is List) ? images : [];
                 String? firstImageUrl;
+
                 if (imagesList.isNotEmpty) {
                   if (imagesList[0] is Map) {
-                    firstImageUrl = imagesList[0]['url'] ?? imagesList[0]['Url'];
+                    firstImageUrl =
+                        imagesList[0]['url'] ?? imagesList[0]['Url'];
                   } else {
                     firstImageUrl = imagesList[0].toString();
                   }
                 }
 
-                final bool alreadyInCart = CartService().items.any((item) => item['productId'] == widget.productId);
+                final dynamic stockRaw =
+                    _productData?['stockQuantity'] ??
+                    _productData?['StockQuantity'] ??
+                    0;
+                final int stockQuantity =
+                    stockRaw is num
+                        ? stockRaw.toInt()
+                        : int.tryParse(stockRaw.toString()) ?? 0;
+
+                // سحب الكمية كاملة
+                final int quantityToAdd = stockQuantity > 0 ? stockQuantity : 1;
 
                 context.read<CartCubit>().addItem(
                   productId: widget.productId,
                   name: name,
                   price: price,
                   imageUrl: firstImageUrl,
-                  quantity: 1,
+                  quantity: quantityToAdd,
                 );
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(alreadyInCart ? 'Item already in cart!' : 'Product added to cart!'),
-                    backgroundColor: alreadyInCart ? Colors.orange : AppColors.primary,
+                  const SnackBar(
+                    content: Text('Full stock added to cart!'),
+                    backgroundColor: Color(0xFF1B7A35),
                   ),
                 );
               },
-              icon: const Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 16),
+              icon: const Icon(
+                Icons.add_shopping_cart_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
               label: Text(
                 'Add to Cart',
                 style: TextStyle(

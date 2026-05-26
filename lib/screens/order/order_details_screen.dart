@@ -389,7 +389,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             const SizedBox(height: 16),
 
             _buildInfoCard(
-              title: 'Items (${order.items.length})',
+              title: 'Items ',
               icon: Icons.inventory_2_outlined,
               children:
                   order.items.isEmpty
@@ -414,16 +414,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              Text(
-                                '${item.quantity} kg',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 14.sp,
-                                ),
-                              ),
+
                               const SizedBox(width: 16),
                               Text(
-                                '${item.unitPrice.toStringAsFixed(0)} EGP',
+                                item.quantityWithUnit,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),

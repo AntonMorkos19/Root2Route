@@ -27,7 +27,7 @@ class CartService {
         "name": name,
         "price": price,
         "imageUrl": imageUrl,
-        "quantity": 1,
+        "quantity": quantity,
       });
     }
   }

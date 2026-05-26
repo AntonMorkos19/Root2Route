@@ -380,7 +380,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
           crossAxisCount: 2,
           mainAxisSpacing: 16.h,
           crossAxisSpacing: 16.w,
-          childAspectRatio: 0.68,
+          childAspectRatio: 0.60,
         ),
         itemBuilder: (context, index) {
           final product = _products[index];
@@ -413,6 +413,13 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
       final rawPrice = product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
       displayPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
     }
+
+    final stockQuantity = product['stockQuantity'] ?? product['StockQuantity'] ?? 0;
+    final dynamic unitRaw = product['weightUnit'] ?? product['WeightUnit'];
+    final unitString = unitRaw is String ? unitRaw : _getWeightUnitString(unitRaw);
+    final stockText = unitString.isNotEmpty
+        ? '$stockQuantity $unitString Available'
+        : '$stockQuantity Available';
 
     // Safely extract first image URL
     final imagesList = product['images'] ?? product['Images'];
@@ -503,6 +510,25 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                         ),
                       ),
                     ],
+                  ],
+                ),
+                SizedBox(height: 4.h),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.inventory_2_outlined,
+                      size: 14.w,
+                      color: Colors.grey.shade600,
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      stockText,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: 8.h),
@@ -640,5 +666,23 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
         size: 40,
       ),
     );
+  }
+
+  String _getWeightUnitString(dynamic unitIndex) {
+    if (unitIndex == null) return '';
+    final idx = int.tryParse(unitIndex.toString());
+    if (idx == null) {
+      return unitIndex.toString();
+    }
+    switch (idx) {
+      case 0:
+        return 'Kg';
+      case 1:
+        return 'pkg';
+      case 2:
+        return 'Liter';
+      default:
+        return '';
+    }
   }
 }

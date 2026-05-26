@@ -56,8 +56,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     super.dispose();
   }
 
-  // ── Status mutation shared by both tabs ───────────────────────────────────
-
   Future<void> _updateOrderStatus(
     BuildContext ctx,
     String orderId,
@@ -122,7 +120,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ── Guest mode: buyer-only order list, no tab toggle ──────────────────
     if (widget.isGuestMode) {
       return Scaffold(
         backgroundColor: const Color(0xFFF4F6F9),
@@ -154,10 +151,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               title: 'Success',
               text: state.message,
               onConfirmBtnTap: () {
-                Navigator.of(
-                  context,
-                  rootNavigator: true,
-                ).pop(); // Close the QuickAlert
+                Navigator.of(context, rootNavigator: true).pop();
 
                 if (_organizationId != null) {
                   _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
@@ -387,7 +381,6 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
   Widget build(BuildContext context) {
     super.build(context); // required by AutomaticKeepAliveClientMixin
 
-    // Guard: no organization — show static UI without touching any cubit.
     if (widget.organizationId == null || widget.organizationId!.isEmpty) {
       return Center(
         child: Column(
@@ -413,7 +406,6 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
       );
     }
 
-    // ── Strictly bound to ReceivedOrdersCubit only ────────────────────────
     return BlocConsumer<ReceivedOrdersCubit, OrderState>(
       bloc: widget.cubit, // explicit binding — never resolves via context
       buildWhen:
@@ -476,10 +468,8 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
           );
         }
 
-        // Extract list strictly from this cubit's state — never shared.
         final List<OrderModel> orders =
             state is OrderListLoaded ? state.orders : const [];
-
         final filteredOrders =
             orders.where((o) {
               if (_filter == 'Active')
@@ -528,10 +518,6 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Shared pure UI widgets (no cubit access)
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _FilterChips extends StatelessWidget {
   final String currentFilter;
@@ -712,7 +698,7 @@ class _OrderCard extends StatelessWidget {
                   child: Text(
                     order.items.isNotEmpty
                         ? order.items.first.productName
-                        : 'No product',
+                        : 'Unknown',
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
@@ -766,7 +752,7 @@ class _OrderCard extends StatelessWidget {
                     SizedBox(width: 6.w),
                     Text(
                       order.items.isNotEmpty
-                          ? 'Quantity: ${order.items.first.quantity} kg'
+                          ? 'Quantity: ${order.items.first.quantityWithUnit}'
                           : '${order.items.length} item${order.items.length != 1 ? 's' : ''}',
                       style: TextStyle(
                         fontSize: 14.sp,
@@ -790,13 +776,16 @@ class _OrderCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  '${order.items.length} item${order.items.length != 1 ? 's' : ''}',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
+                if (order.items.isNotEmpty)
+                  Text(
+                    '${order.items.length} item${order.items.length != 1 ? 's' : ''}',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.grey.shade600,
+                    ),
+                  )
+                else
+                  const SizedBox(),
                 Text(
                   '$formattedTotal EGP',
                   style: TextStyle(

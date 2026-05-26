@@ -5,6 +5,7 @@ class OrderItemModel {
   final double unitPrice;
   final double totalPrice;
   final String organizationId;
+  final String unitName;
 
   OrderItemModel({
     this.productId = '',
@@ -13,12 +14,45 @@ class OrderItemModel {
     this.unitPrice = 0.0,
     this.totalPrice = 0.0,
     this.organizationId = '',
+    this.unitName = '',
   });
+
+  String get quantityWithUnit {
+    if (unitName.isEmpty) {
+      return '$quantity';
+    }
+    return '$quantity $unitName';
+  }
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
     final qtyRaw = json['quantity'] ?? json['Quantity'] ?? 1;
     final unitRaw = json['unitPrice'] ?? json['UnitPrice'] ?? json['price'] ?? json['Price'] ?? 0;
     final totalRaw = json['totalPrice'] ?? json['TotalPrice'] ?? 0;
+
+    final unitNameRaw = json['unitName'] ?? json['UnitName'] ?? json['unit'] ?? json['Unit'];
+    final weightUnitRaw = json['weightUnit'] ?? json['WeightUnit'];
+
+    String parsedUnitName = '';
+    if (unitNameRaw != null && unitNameRaw.toString().trim().isNotEmpty) {
+      parsedUnitName = unitNameRaw.toString().trim();
+    } else if (weightUnitRaw != null) {
+      final idx = int.tryParse(weightUnitRaw.toString());
+      if (idx != null) {
+        switch (idx) {
+          case 0:
+            parsedUnitName = 'Kg';
+            break;
+          case 1:
+            parsedUnitName = 'pkg';
+            break;
+          case 2:
+            parsedUnitName = 'Liter';
+            break;
+          default:
+            parsedUnitName = '';
+        }
+      }
+    }
 
     return OrderItemModel(
       productId: (json['productId'] ?? json['ProductId'] ?? '').toString(),
@@ -27,6 +61,7 @@ class OrderItemModel {
       unitPrice: unitRaw is num ? unitRaw.toDouble() : double.tryParse(unitRaw.toString()) ?? 0.0,
       totalPrice: totalRaw is num ? totalRaw.toDouble() : double.tryParse(totalRaw.toString()) ?? 0.0,
       organizationId: (json['organizationId'] ?? json['OrganizationId'] ?? '').toString(),
+      unitName: parsedUnitName,
     );
   }
 }

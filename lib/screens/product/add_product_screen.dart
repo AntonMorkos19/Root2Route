@@ -333,7 +333,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  // --- Modified image functions ---
   bool _isPickerActive = false;
 
   Future<void> _pickImages() async {
@@ -482,9 +481,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
             const SizedBox(height: 12),
             _buildField(
               controller: _directPriceController,
-              hint: 'Price (EGP)',
+              hint: 'Price for 1 item in EGP',
               icon: Icons.attach_money,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
             ),
           ],
           const Divider(height: 32),

@@ -36,7 +36,7 @@ class ChatMessageModel {
 
     // type == 3 means NegotiationOffer
     final isOfferRaw = json['isOffer'] ?? json['IsOffer'] ?? (typeInt == 3);
-    final offerStatusRaw = json['offerStatus'] ?? json['OfferStatus'] ?? json['status'] ?? '';
+    final offerStatusRaw = json['offerStatus'] ?? json['OfferStatus'] ?? json['status'] ?? json['Status'] ?? '';
     final proposedPriceRaw = json['proposedPrice'] ?? json['ProposedPrice'] ?? json['price'];
     final proposedQuantityRaw = json['proposedQuantity'] ?? json['ProposedQuantity'] ?? json['quantity'];
 

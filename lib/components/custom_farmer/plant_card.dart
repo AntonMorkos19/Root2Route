@@ -67,8 +67,9 @@ class PlantCard extends StatelessWidget {
 
                   const SizedBox(height: 10),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
                       if (plant.plantingSeason != null)
                         _InfoChip(
@@ -76,9 +77,6 @@ class PlantCard extends StatelessWidget {
                           label: plant.plantingSeason!,
                           color: const Color(0xFF2ECC71),
                         ),
-                      if (plant.plantingSeason != null &&
-                          plant.idealSoil != null)
-                        const SizedBox(width: 8),
                       if (plant.idealSoil != null)
                         _InfoChip(
                           icon: Icons.terrain,
@@ -131,7 +129,7 @@ class PlantCard extends StatelessWidget {
                         'View Details',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                           fontSize: 16.sp,
+                          fontSize: 16.sp,
                         ),
                       ),
                     ),

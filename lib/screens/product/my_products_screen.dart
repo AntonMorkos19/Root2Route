@@ -190,13 +190,26 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
               Text(
                 'Please log in and create an organization to view this page.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18.sp, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                child: const Text('Login', style: TextStyle(color: Colors.white)),
+                onPressed:
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                ),
+                child: const Text(
+                  'Login',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -214,22 +227,23 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => Scaffold(
-                    backgroundColor: const Color(0xFFF4F6F9),
-                    appBar: AppBar(
-                      title: const Text(
-                        'My Auctions',
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontWeight: FontWeight.bold,
+                  builder:
+                      (_) => Scaffold(
+                        backgroundColor: const Color(0xFFF4F6F9),
+                        appBar: AppBar(
+                          title: const Text(
+                            'My Auctions',
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          backgroundColor: Colors.transparent,
+                          elevation: 0,
+                          iconTheme: const IconThemeData(color: Colors.black87),
                         ),
+                        body: const MyAuctionsScreen(),
                       ),
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      iconTheme: const IconThemeData(color: Colors.black87),
-                    ),
-                    body: const MyAuctionsScreen(),
-                  ),
                 ),
               );
             },
@@ -374,13 +388,13 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
       onRefresh: _fetchProducts,
       color: AppColors.primary,
       child: GridView.builder(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 100.h),
         itemCount: _products.length,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 16.h,
           crossAxisSpacing: 16.w,
-          childAspectRatio: 0.60,
+          childAspectRatio: 0.52,
         ),
         itemBuilder: (context, index) {
           final product = _products[index];
@@ -396,30 +410,40 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
     final id = product['id'] ?? product['Id'] ?? '';
     final name = product['name'] ?? product['Name'] ?? 'Unknown';
 
-    final isAvailableForDirectSale = product['isAvailableForDirectSale'] == true || product['IsAvailableForDirectSale'] == true;
-    final isAvailableForAuction = product['isAvailableForAuction'] == true || product['IsAvailableForAuction'] == true;
+    final isAvailableForDirectSale =
+        product['isAvailableForDirectSale'] == true ||
+        product['IsAvailableForDirectSale'] == true;
+    final isAvailableForAuction =
+        product['isAvailableForAuction'] == true ||
+        product['IsAvailableForAuction'] == true;
 
     double displayPrice = 0.0;
     bool showAuctionOnlyBadge = false;
 
     if (isAvailableForDirectSale) {
-      final rawPrice = product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
+      final rawPrice =
+          product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
       displayPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
     } else if (isAvailableForAuction) {
-      final rawPrice = product['startBiddingPrice'] ?? product['StartBiddingPrice'] ?? 0;
+      final rawPrice =
+          product['startBiddingPrice'] ?? product['StartBiddingPrice'] ?? 0;
       displayPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
       showAuctionOnlyBadge = true;
     } else {
-      final rawPrice = product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
+      final rawPrice =
+          product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
       displayPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
     }
 
-    final stockQuantity = product['stockQuantity'] ?? product['StockQuantity'] ?? 0;
+    final stockQuantity =
+        product['stockQuantity'] ?? product['StockQuantity'] ?? 0;
     final dynamic unitRaw = product['weightUnit'] ?? product['WeightUnit'];
-    final unitString = unitRaw is String ? unitRaw : _getWeightUnitString(unitRaw);
-    final stockText = unitString.isNotEmpty
-        ? '$stockQuantity $unitString Available'
-        : '$stockQuantity Available';
+    final unitString =
+        unitRaw is String ? unitRaw : _getWeightUnitString(unitRaw);
+    final stockText =
+        unitString.isNotEmpty
+            ? '$stockQuantity $unitString Available'
+            : '$stockQuantity Available';
 
     // Safely extract first image URL
     final imagesList = product['images'] ?? product['Images'];
@@ -482,7 +506,10 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                   ),
                 ),
                 SizedBox(height: 4.h),
-                Row(
+                Wrap(
+                  spacing: 6.0,
+                  runSpacing: 4.0,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
                       'EGP ${displayPrice.toStringAsFixed(2)}',
@@ -492,10 +519,12 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                         color: AppColors.primary,
                       ),
                     ),
-                    if (showAuctionOnlyBadge) ...[
-                      SizedBox(width: 6.w),
+                    if (showAuctionOnlyBadge)
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 6.w,
+                          vertical: 2.h,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.orange.shade100,
                           borderRadius: BorderRadius.circular(4.r),
@@ -509,7 +538,6 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                           ),
                         ),
                       ),
-                    ],
                   ],
                 ),
                 SizedBox(height: 4.h),
@@ -521,12 +549,16 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                       color: Colors.grey.shade600,
                     ),
                     SizedBox(width: 4.w),
-                    Text(
-                      stockText,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.w500,
+                    Expanded(
+                      child: Text(
+                        stockText,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
@@ -581,10 +613,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                         Navigator.pushNamed(
                           context,
                           CreateAuctionScreen.id,
-                          arguments: {
-                            'id': id,
-                            'name': name,
-                          },
+                          arguments: {'id': id, 'name': name},
                         );
                       },
                       child: Column(

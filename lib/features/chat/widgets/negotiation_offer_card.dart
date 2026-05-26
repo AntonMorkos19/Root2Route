@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:root2route/core/theme/app_colors.dart';
 
 class NegotiationOfferCard extends StatelessWidget {
   final double? price;
@@ -64,7 +65,7 @@ class NegotiationOfferCard extends StatelessWidget {
           const SizedBox(height: 8),
           if (price != null)
             Text(
-              'Price: \$${price!.toStringAsFixed(2)}',
+              'Price: ${price!.toStringAsFixed(2)} EGP',
               style: TextStyle(
                 color: Colors.black87,
                 fontSize: 16.sp,
@@ -86,7 +87,10 @@ class NegotiationOfferCard extends StatelessWidget {
           if (isPending)
             if (isMe)
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade100,
                   borderRadius: BorderRadius.circular(8),
@@ -117,7 +121,13 @@ class NegotiationOfferCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: Text('Accept', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        'Accept',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -132,7 +142,13 @@ class NegotiationOfferCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: Text('Reject', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        'Reject',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -146,9 +162,9 @@ class NegotiationOfferCard extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  isAccepted ? 'Offer Accepted ✓' : 'Offer Rejected ✗',
+                  isAccepted ? 'Offer Accepted' : 'Offer Rejected',
                   style: TextStyle(
-                    color: isAccepted ? Colors.green.shade800 : Colors.red.shade800,
+                    color: isAccepted ? AppColors.primary : Colors.red.shade800,
                     fontWeight: FontWeight.bold,
                     fontSize: 14.sp,
                   ),

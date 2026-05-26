@@ -13,12 +13,14 @@ class ChatDetailsScreen extends StatefulWidget {
   final String roomId;
   final String roomName;
   final bool isClosed;
+  final String roomOrgId;
 
   const ChatDetailsScreen({
     Key? key,
     required this.roomId,
     this.roomName = 'Chat',
     this.isClosed = false,
+    this.roomOrgId = '',
   }) : super(key: key);
 
   @override
@@ -31,14 +33,12 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   String? _currentUserId;
   int _previousMessageCount = 0;
   late bool _isClosed; // local mirror so UI updates instantly after closing
-  late bool _isBuyer;
 
   @override
   void initState() {
     super.initState();
     _isClosed = widget.isClosed;
     _currentUserId = StorageService().currentUserId;
-    _isBuyer = !(StorageService().hasOrganization);
     context.read<ChatMessagesCubit>().fetchHistory(widget.roomId);
   }
 
@@ -73,18 +73,21 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     final chatCubit = context.read<ChatMessagesCubit>();
     showDialog(
       context: context,
-      builder: (dialogContext) => NegotiationDialog(
-        onSend: (price, quantity) {
-          chatCubit.sendMessage(
+      builder:
+          (dialogContext) => NegotiationDialog(
+            onSend: (price, quantity) {
+              final String offerContent =
+                  'Offer: $quantity item${quantity != 1 ? 's' : ''} for ${price.toStringAsFixed(2)} EGP';
+              chatCubit.sendMessage(
                 widget.roomId,
-                '', // backend ignores text for offers, but we send empty to satisfy validation or handle custom formatting
+                offerContent,
                 type: 3,
                 proposedPrice: price,
                 proposedQuantity: quantity,
               );
-          _scrollToBottom();
-        },
-      ),
+              _scrollToBottom();
+            },
+          ),
     );
   }
 
@@ -99,12 +102,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             child: BlocConsumer<ChatMessagesCubit, ChatMessagesState>(
               listener: (context, state) {
                 if (state is ChatMessagesLoaded) {
-                  // Sync dynamic UI lockdown if the backend rejects a send due to closed room
                   if (state.isClosed && !_isClosed) {
                     setState(() => _isClosed = true);
                   }
-                  
-                  // Auto-scroll when new messages arrive
+
                   if (state.messages.length > _previousMessageCount) {
                     _previousMessageCount = state.messages.length;
                     _scrollToBottom();
@@ -119,7 +120,18 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                     ),
                   );
                 }
+                if (state is ChatMessagesActionError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: Colors.orange.shade600,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
               },
+              buildWhen:
+                  (previous, current) => current is! ChatMessagesActionError,
               builder: (context, state) {
                 if (state is ChatMessagesLoading) {
                   return const Center(child: CircularProgressIndicator());
@@ -149,8 +161,11 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       backgroundColor: Colors.white,
       elevation: 0.5,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new,
-            size: 20, color: Colors.black87),
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          size: 20,
+          color: Colors.black87,
+        ),
         onPressed: () => Navigator.pop(context),
       ),
       title: Row(
@@ -159,7 +174,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             radius: 18,
             backgroundColor: Colors.green.shade100,
             child: Text(
-              widget.roomName.isNotEmpty ? widget.roomName[0].toUpperCase() : '?',
+              widget.roomName.isNotEmpty
+                  ? widget.roomName[0].toUpperCase()
+                  : '?',
               style: TextStyle(
                 color: Colors.green.shade700,
                 fontWeight: FontWeight.bold,
@@ -187,18 +204,19 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             onSelected: (value) {
               if (value == 'close') _confirmCloseRoom();
             },
-            itemBuilder: (_) => [
-              const PopupMenuItem(
-                value: 'close',
-                child: Row(
-                  children: [
-                    Icon(Icons.lock_outline, color: Colors.red, size: 18),
-                    SizedBox(width: 8),
-                    Text('End Chat', style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
+            itemBuilder:
+                (_) => [
+                  const PopupMenuItem(
+                    value: 'close',
+                    child: Row(
+                      children: [
+                        Icon(Icons.lock_outline, color: Colors.red, size: 18),
+                        SizedBox(width: 8),
+                        Text('End Chat', style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
+                  ),
+                ],
           )
         else
           Padding(
@@ -228,22 +246,26 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   Future<void> _confirmCloseRoom() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('End Conversation?'),
-        content: const Text(
-            'This will close the chat. Neither party will be able to send new messages.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+      builder:
+          (_) => AlertDialog(
+            title: const Text('End Conversation?'),
+            content: const Text(
+              'This will close the chat. Neither party will be able to send new messages.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text(
+                  'End Chat',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('End Chat',
-                style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
     );
     if (confirmed == true && mounted) {
       await context.read<ChatMessagesCubit>().closeRoom(widget.roomId);
@@ -258,90 +280,102 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 36,
-              height: 4,
-              margin: const EdgeInsets.only(top: 12, bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
+      builder:
+          (_) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 12, bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.delete_outline, color: Colors.red),
+                  title: const Text(
+                    'Delete Message',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.read<ChatMessagesCubit>().deleteMessage(messageId);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.close),
+                  title: const Text('Cancel'),
+                  onTap: () => Navigator.pop(context),
+                ),
+                const SizedBox(height: 8),
+              ],
             ),
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: const Text('Delete Message',
-                  style: TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pop(context);
-                context.read<ChatMessagesCubit>().deleteMessage(messageId);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.close),
-              title: const Text('Cancel'),
-              onTap: () => Navigator.pop(context),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
   Widget _buildMessageList(List<ChatMessageModel> messages, bool isSending) {
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      itemCount: messages.length + (isSending ? 1 : 0),
-      itemBuilder: (context, index) {
-        // Sending indicator at the end
-        if (isSending && index == messages.length) {
-          return Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 8, right: 4),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.6),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(18),
-                  topRight: Radius.circular(18),
-                  bottomLeft: Radius.circular(18),
-                ),
-              ),
-              child: const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          );
-        }
-
-        final message = messages[index];
-        final isMe = message.senderId == _currentUserId;
-        final showDate = index == 0 ||
-            _shouldShowDateDivider(messages[index - 1], message);
-
-        return Column(
-          children: [
-            if (showDate) _buildDateDivider(message.createdAt),
-            _buildBubble(message, isMe),
-          ],
+    return RefreshIndicator(
+      onRefresh: () async {
+        await context.read<ChatMessagesCubit>().fetchHistory(
+          widget.roomId,
+          isSilent: true,
         );
       },
+      child: ListView.builder(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        itemCount: messages.length + (isSending ? 1 : 0),
+        itemBuilder: (context, index) {
+          // Sending indicator at the end
+          if (isSending && index == messages.length) {
+            return Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 8, right: 4),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.6),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(18),
+                    topRight: Radius.circular(18),
+                    bottomLeft: Radius.circular(18),
+                  ),
+                ),
+                child: const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            );
+          }
+
+          final message = messages[index];
+          final isMe = message.senderId == _currentUserId;
+          final showDate =
+              index == 0 ||
+              _shouldShowDateDivider(messages[index - 1], message);
+
+          return Column(
+            children: [
+              if (showDate) _buildDateDivider(message.createdAt),
+              _buildBubble(message, isMe),
+            ],
+          );
+        },
+      ),
     );
   }
 
-  bool _shouldShowDateDivider(
-      ChatMessageModel prev, ChatMessageModel current) {
+  bool _shouldShowDateDivider(ChatMessageModel prev, ChatMessageModel current) {
     if (prev.createdAt == null || current.createdAt == null) return false;
     return prev.createdAt!.day != current.createdAt!.day ||
         prev.createdAt!.month != current.createdAt!.month;
@@ -350,11 +384,12 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   Widget _buildDateDivider(DateTime? date) {
     if (date == null) return const SizedBox.shrink();
     final now = DateTime.now();
-    final label = (date.year == now.year &&
-            date.month == now.month &&
-            date.day == now.day)
-        ? 'Today'
-        : '${date.day}/${date.month}/${date.year}';
+    final label =
+        (date.year == now.year &&
+                date.month == now.month &&
+                date.day == now.day)
+            ? 'Today'
+            : '${date.day}/${date.month}/${date.year}';
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -382,6 +417,13 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     // Temp messages (optimistic) have ids starting with 'temp_'
     final isOptimistic = message.id.startsWith('temp_');
 
+    String displayText = message.text;
+    if (displayText.startsWith('Offer Accepted. Order Generated:')) {
+      displayText = 'Offer accepted ✅';
+    } else if (displayText.isEmpty) {
+      displayText = '📎 Attachment';
+    }
+
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -396,11 +438,15 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           children: [
             GestureDetector(
               // Long-press on own confirmed messages shows delete option
-              onLongPress: isMe && !isOptimistic
-                  ? () => _showDeleteDialog(message.id)
-                  : null,
+              onLongPress:
+                  isMe && !isOptimistic
+                      ? () => _showDeleteDialog(message.id)
+                      : null,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: isMe ? AppColors.primary : Colors.white,
                   borderRadius: BorderRadius.only(
@@ -426,16 +472,20 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                         quantity: message.proposedQuantity ?? 0,
                         offerStatus: message.offerStatus,
                         isMe: isMe,
-                        onAccept: () => context
-                            .read<ChatMessagesCubit>()
-                            .acceptOffer(widget.roomId, message.id),
-                        onReject: () => context
-                            .read<ChatMessagesCubit>()
-                            .rejectOffer(widget.roomId, message.id),
+                        onAccept:
+                            () => context.read<ChatMessagesCubit>().acceptOffer(
+                              widget.roomId,
+                              message.id,
+                            ),
+                        onReject:
+                            () => context.read<ChatMessagesCubit>().rejectOffer(
+                              widget.roomId,
+                              message.id,
+                            ),
                       )
                     else
                       Text(
-                        message.text.isEmpty ? '📎 Attachment' : message.text,
+                        displayText,
                         style: TextStyle(
                           color: isMe ? Colors.white : Colors.black87,
                           fontSize: 16.sp,
@@ -461,9 +511,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                   Icon(
                     isOptimistic ? Icons.access_time : Icons.done_all,
                     size: 14,
-                    color: isOptimistic
-                        ? Colors.grey.shade400
-                        : Colors.green.shade400,
+                    color:
+                        isOptimistic
+                            ? Colors.grey.shade400
+                            : Colors.green.shade400,
                   ),
                 ],
               ],
@@ -473,7 +524,6 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       ),
     );
   }
-
 
   Widget _buildInputBar() {
     if (_isClosed) {
@@ -506,6 +556,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       );
     }
 
+    final String currentOrgId = StorageService().currentUserOrgId ?? '';
+    final bool isSeller =
+        currentOrgId.isNotEmpty && currentOrgId == widget.roomOrgId;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -522,25 +576,24 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
         top: false,
         child: Row(
           children: [
-            // Forced visible button for testing
-            IconButton(
-              icon: const Icon(Icons.handshake_outlined, color: Colors.blue),
-              onPressed: () {
-                debugPrint("DEBUG: Handshake clicked!");
-                _showNegotiationDialog();
-              },
-            ),
+            if (!isSeller)
+              IconButton(
+                icon: const Icon(Icons.handshake_outlined, color: Colors.blue),
+                onPressed: () {
+                  debugPrint("DEBUG: Handshake clicked!");
+                  _showNegotiationDialog();
+                },
+              ),
             Expanded(
               child: TextField(
                 controller: _messageController,
-                decoration: const InputDecoration(hintText: "Type a message..."),
+                decoration: const InputDecoration(
+                  hintText: "Type a message...",
+                ),
                 onSubmitted: (_) => _sendMessage(),
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.send),
-              onPressed: _sendMessage,
-            ),
+            IconButton(icon: const Icon(Icons.send), onPressed: _sendMessage),
           ],
         ),
       ),
@@ -552,8 +605,11 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.chat_bubble_outline,
-              size: 64, color: Colors.grey.shade300),
+          Icon(
+            Icons.chat_bubble_outline,
+            size: 64,
+            color: Colors.grey.shade300,
+          ),
           const SizedBox(height: 16),
           Text(
             'No messages yet',
@@ -589,16 +645,18 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: () => context
-                  .read<ChatMessagesCubit>()
-                  .fetchHistory(widget.roomId),
+              onPressed:
+                  () => context.read<ChatMessagesCubit>().fetchHistory(
+                    widget.roomId,
+                  ),
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],

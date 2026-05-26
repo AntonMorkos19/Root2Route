@@ -6,6 +6,7 @@ import 'package:root2route/features/chat/cubit/chat_rooms_cubit.dart';
 import 'package:root2route/features/chat/cubit/chat_rooms_state.dart';
 import 'package:root2route/models/chat_room_model.dart';
 import 'package:root2route/services/chat_service.dart';
+import 'package:root2route/services/storage_service.dart';
 import 'chat_details_screen.dart';
 
 class ChatRoomsScreen extends StatefulWidget {
@@ -33,6 +34,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
             roomId: room.id,
             roomName: displayName,
             isClosed: room.isClosed,
+            roomOrgId: room.organizationId,
           ),
         ),
       ),
@@ -90,8 +92,16 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
 
   Widget _buildRoomTile(ChatRoomModel room) {
     final hasUnread = room.unreadCount > 0;
-    // chatTitle = otherPartyName (from backend) so buyer sees seller, seller sees buyer
-    final displayName = room.chatTitle.isNotEmpty ? room.chatTitle : 'Unknown';
+
+    // Determine if the current user is the seller for this room
+    final String currentOrgId = StorageService().currentUserOrgId ?? '';
+    final bool isSeller =
+        currentOrgId.isNotEmpty && currentOrgId == room.organizationId;
+
+    // Sellers see customer name; buyers see the seller/organization name
+    final String displayName = isSeller
+        ? (room.customerName.isNotEmpty ? room.customerName : 'Customer')
+        : (room.organizationName.isNotEmpty ? room.organizationName : 'Seller');
 
     return InkWell(
       onTap: () => _openChat(room, displayName),

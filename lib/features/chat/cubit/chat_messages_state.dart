@@ -22,3 +22,12 @@ class ChatMessagesError extends ChatMessagesState {
 
   ChatMessagesError(this.message);
 }
+
+/// Emitted when an action (send/accept/reject) fails, so the BlocBuilder 
+/// can ignore it (keeping the message list visible) while the BlocListener shows a SnackBar.
+class ChatMessagesActionError extends ChatMessagesState {
+  final String message;
+
+  ChatMessagesActionError(this.message);
+}
+

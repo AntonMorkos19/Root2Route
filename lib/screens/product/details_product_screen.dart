@@ -706,33 +706,6 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   return;
                 }
 
-                final String name =
-                    _productData?['name'] ??
-                    _productData?['Name'] ??
-                    'Unknown Product';
-                final dynamic priceRaw =
-                    _productData?['directSalePrice'] ??
-                    _productData?['DirectSalePrice'] ??
-                    0;
-                final double price =
-                    priceRaw is num
-                        ? priceRaw.toDouble()
-                        : double.tryParse(priceRaw.toString()) ?? 0.0;
-
-                final images =
-                    _productData?['images'] ?? _productData?['Images'];
-                final List<dynamic> imagesList = (images is List) ? images : [];
-                String? firstImageUrl;
-
-                if (imagesList.isNotEmpty) {
-                  if (imagesList[0] is Map) {
-                    firstImageUrl =
-                        imagesList[0]['url'] ?? imagesList[0]['Url'];
-                  } else {
-                    firstImageUrl = imagesList[0].toString();
-                  }
-                }
-
                 final dynamic stockRaw =
                     _productData?['stockQuantity'] ??
                     _productData?['StockQuantity'] ??
@@ -742,22 +715,10 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                         ? stockRaw.toInt()
                         : int.tryParse(stockRaw.toString()) ?? 0;
 
-                // سحب الكمية كاملة
-                final int quantityToAdd = stockQuantity > 0 ? stockQuantity : 1;
-
-                context.read<CartCubit>().addItem(
-                  productId: widget.productId,
-                  name: name,
-                  price: price,
-                  imageUrl: firstImageUrl,
-                  quantity: quantityToAdd,
-                );
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Full stock added to cart!'),
-                    backgroundColor: Color(0xFF1B7A35),
-                  ),
+                _showAddToCartBottomSheet(
+                  context,
+                  _productData!,
+                  stockQuantity,
                 );
               },
               icon: const Icon(
@@ -778,6 +739,297 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddToCartBottomSheet(
+    BuildContext context,
+    Map<String, dynamic> productData,
+    int stockQuantity,
+  ) {
+    final String name =
+        productData['name'] ?? productData['Name'] ?? 'Unknown Product';
+    final dynamic priceRaw =
+        productData['directSalePrice'] ?? productData['DirectSalePrice'] ?? 0;
+    final double unitPrice =
+        priceRaw is num
+            ? priceRaw.toDouble()
+            : double.tryParse(priceRaw.toString()) ?? 0.0;
+
+    final images = productData['images'] ?? productData['Images'];
+    final List<dynamic> imagesList = (images is List) ? images : [];
+    String? firstImageUrl;
+    if (imagesList.isNotEmpty) {
+      if (imagesList[0] is Map) {
+        firstImageUrl = imagesList[0]['url'] ?? imagesList[0]['Url'];
+      } else {
+        firstImageUrl = imagesList[0].toString();
+      }
+    }
+    if (firstImageUrl != null && firstImageUrl.startsWith('/')) {
+      firstImageUrl = 'https://root2route.runasp.net$firstImageUrl';
+    }
+
+    final int maxQty = stockQuantity > 0 ? stockQuantity : 1;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            int selectedQuantity = 1;
+            return _QuantitySelectorSheet(
+              productId: widget.productId,
+              name: name,
+              unitPrice: unitPrice,
+              maxQty: maxQty,
+              firstImageUrl: firstImageUrl,
+              onConfirm: (int qty) {
+                Navigator.pop(sheetContext);
+                context.read<CartCubit>().addItem(
+                  productId: widget.productId,
+                  name: name,
+                  price: unitPrice,
+                  imageUrl: firstImageUrl,
+                  quantity: qty,
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('$qty × $name added to cart!'),
+                    backgroundColor: const Color(0xFF1B7A35),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+/// A self-contained StatefulWidget for the quantity selector bottom sheet.
+class _QuantitySelectorSheet extends StatefulWidget {
+  final String productId;
+  final String name;
+  final double unitPrice;
+  final int maxQty;
+  final String? firstImageUrl;
+  final void Function(int quantity) onConfirm;
+
+  const _QuantitySelectorSheet({
+    required this.productId,
+    required this.name,
+    required this.unitPrice,
+    required this.maxQty,
+    required this.firstImageUrl,
+    required this.onConfirm,
+  });
+
+  @override
+  State<_QuantitySelectorSheet> createState() => _QuantitySelectorSheetState();
+}
+
+class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
+  int _selectedQuantity = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    final double total = _selectedQuantity * widget.unitPrice;
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 28,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle bar
+          Center(
+            child: Container(
+              width: 44,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Title
+          Text(
+            'Select Quantity',
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w800,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            widget.name,
+            style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade600),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 24),
+          // Counter Row
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF4F6F9),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Minus button
+                Material(
+                  color:
+                      _selectedQuantity > 1
+                          ? const Color(0xFF1B7A35).withOpacity(0.1)
+                          : Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(10),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap:
+                        _selectedQuantity > 1
+                            ? () => setState(() => _selectedQuantity--)
+                            : null,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Icon(
+                        Icons.remove,
+                        size: 20,
+                        color:
+                            _selectedQuantity > 1
+                                ? const Color(0xFF1B7A35)
+                                : Colors.grey.shade400,
+                      ),
+                    ),
+                  ),
+                ),
+                // Current value
+                Column(
+                  children: [
+                    Text(
+                      '$_selectedQuantity',
+                      style: TextStyle(
+                        fontSize: 28.sp,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    Text(
+                      'of ${widget.maxQty} available',
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+                // Plus button
+                Material(
+                  color:
+                      _selectedQuantity < widget.maxQty
+                          ? const Color(0xFF1B7A35).withOpacity(0.1)
+                          : Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(10),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap:
+                        _selectedQuantity < widget.maxQty
+                            ? () => setState(() => _selectedQuantity++)
+                            : null,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Icon(
+                        Icons.add,
+                        size: 20,
+                        color:
+                            _selectedQuantity < widget.maxQty
+                                ? const Color(0xFF1B7A35)
+                                : Colors.grey.shade400,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Total Price Row
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1B7A35).withOpacity(0.06),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF1B7A35).withOpacity(0.18),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Total Price',
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                Text(
+                  'EGP ${total.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF1B7A35),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 22),
+          // Confirm Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => widget.onConfirm(_selectedQuantity),
+              icon: const Icon(
+                Icons.check_circle_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+              label: Text(
+                'Confirm Purchase',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1B7A35),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),

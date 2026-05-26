@@ -16,9 +16,9 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
   ChatMessagesCubit(this._chatService) : super(ChatMessagesInitial());
 
   Future<void> fetchHistory(String roomId,
-      {int pageNumber = 1, int pageSize = 50}) async {
+      {int pageNumber = 1, int pageSize = 50, bool isSilent = false}) async {
     _currentRoomId = roomId;
-    emit(ChatMessagesLoading());
+    if (!isSilent) emit(ChatMessagesLoading());
     try {
       final messages = await _chatService.getChatHistory(
         roomId,
@@ -49,6 +49,13 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
                     ..add(newMessage);
               emit(ChatMessagesLoaded(updated,
                   isSending: currentState.isSending));
+            } else {
+              // If the message already exists, it might be an update (like offer status changed)
+              final updated = currentState.messages
+                  .map((m) => m.id == newMessage.id ? newMessage : m)
+                  .toList();
+              emit(ChatMessagesLoaded(updated,
+                  isSending: currentState.isSending));
             }
           }
         });
@@ -56,7 +63,15 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
     } catch (e, stackTrace) {
       debugPrint("ERROR fetching history: $e");
       debugPrint("STACK: $stackTrace");
-      emit(ChatMessagesError("Failed to load messages. Please try again."));
+      if (!isSilent) {
+        emit(ChatMessagesError("Failed to load messages. Please try again."));
+      } else {
+        emit(ChatMessagesActionError("Failed to refresh messages."));
+        // restore state if we failed silently
+        if (state is ChatMessagesLoaded) {
+          emit(ChatMessagesLoaded((state as ChatMessagesLoaded).messages, isSending: (state as ChatMessagesLoaded).isSending));
+        }
+      }
     }
   }
 
@@ -143,9 +158,9 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
         // Trigger UI lockdown dynamically instead of showing an error
         emit(ChatMessagesLoaded(currentMessages, isSending: false, isClosed: true));
       } else {
+        // Emit action error for SnackBar, then restore Loaded state for UI
+        emit(ChatMessagesActionError(errorMsg));
         emit(ChatMessagesLoaded(currentMessages, isSending: false));
-        // Emit the error as a string for the UI to display in a SnackBar
-        emit(ChatMessagesError(errorMsg));
       }
     }
   }
@@ -157,7 +172,10 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
     } catch (e, stackTrace) {
       debugPrint("ERROR accepting offer: $e");
       debugPrint("STACK: $stackTrace");
-      emit(ChatMessagesError("Failed to accept offer."));
+      emit(ChatMessagesActionError("Failed to accept offer."));
+      if (state is ChatMessagesLoaded) {
+        emit(ChatMessagesLoaded((state as ChatMessagesLoaded).messages, isSending: (state as ChatMessagesLoaded).isSending));
+      }
     }
   }
 
@@ -168,7 +186,10 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
     } catch (e, stackTrace) {
       debugPrint("ERROR rejecting offer: $e");
       debugPrint("STACK: $stackTrace");
-      emit(ChatMessagesError("Failed to reject offer."));
+      emit(ChatMessagesActionError("Failed to reject offer."));
+      if (state is ChatMessagesLoaded) {
+        emit(ChatMessagesLoaded((state as ChatMessagesLoaded).messages, isSending: (state as ChatMessagesLoaded).isSending));
+      }
     }
   }
 
@@ -178,7 +199,10 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
     } catch (e, stackTrace) {
       debugPrint("ERROR closing room: $e");
       debugPrint("STACK: $stackTrace");
-      emit(ChatMessagesError(e.toString().replaceAll('Exception: ', '')));
+      emit(ChatMessagesActionError(e.toString().replaceAll('Exception: ', '')));
+      if (state is ChatMessagesLoaded) {
+        emit(ChatMessagesLoaded((state as ChatMessagesLoaded).messages, isSending: (state as ChatMessagesLoaded).isSending));
+      }
     }
   }
 
@@ -195,7 +219,8 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
     } catch (e, stackTrace) {
       debugPrint("ERROR deleting message: $e");
       debugPrint("STACK: $stackTrace");
-      emit(ChatMessagesError(e.toString().replaceAll('Exception: ', '')));
+      emit(ChatMessagesActionError(e.toString().replaceAll('Exception: ', '')));
+      emit(ChatMessagesLoaded(currentState.messages, isSending: currentState.isSending));
     }
   }
 
@@ -213,6 +238,8 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
             offerStatus: newStatus,
             createdAt: msg.createdAt,
             type: msg.type,
+            proposedPrice: msg.proposedPrice,
+            proposedQuantity: msg.proposedQuantity,
           );
         }
         return msg;

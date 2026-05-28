@@ -33,13 +33,9 @@ class _MarketScreenState extends State<MarketScreen> {
       child: Scaffold(
         appBar: AppBar(
           elevation: 1,
-          centerTitle: true,
           title: const Text(
             'Marketplace',
-            style: TextStyle(
-              fontWeight: FontWeight.w800,
-              fontSize: 22,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 22),
           ),
           actions: [
             BlocBuilder<CartCubit, CartState>(
@@ -106,17 +102,17 @@ class _MarketScreenState extends State<MarketScreen> {
               fontSize: 14,
             ),
             tabs: const [
-              Tab(text: 'Market', icon: Icon(Icons.storefront)),
               Tab(text: 'My store', icon: Icon(Icons.inventory_2_outlined)),
               Tab(text: 'Auctions', icon: Icon(Icons.gavel)),
+              Tab(text: 'Market', icon: Icon(Icons.storefront)),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            MainMarketTab(organizationId: widget.organizationId),
             MyProductsScreen(organizationId: widget.organizationId ?? ''),
             const AuctionsScreen(),
+            MainMarketTab(organizationId: widget.organizationId),
           ],
         ),
       ),

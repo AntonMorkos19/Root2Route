@@ -334,7 +334,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
+                    color: Theme.of(context).cardTheme.color,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -365,7 +365,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         icon: Icons.person,
                         label: 'Receiver Name',
                         controller: _receiverNameController,
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+                        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
                         validator:
                             (value) =>
                                 value == null || value.trim().isEmpty
@@ -378,7 +379,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         label: 'Receiver Phone',
                         controller: _receiverPhoneController,
                         keyboardType: TextInputType.phone,
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+                        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
                         validator:
                             (value) =>
                                 value == null || value.trim().isEmpty
@@ -390,7 +392,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         icon: Icons.location_city,
                         label: 'City',
                         controller: _shippingCityController,
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+                        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
                         validator:
                             (value) =>
                                 value == null || value.trim().isEmpty
@@ -402,7 +405,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         icon: Icons.streetview,
                         label: 'Street',
                         controller: _shippingStreetController,
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+                        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
                         validator:
                             (value) =>
                                 value == null || value.trim().isEmpty
@@ -415,7 +419,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         label: 'Building Number (Optional)',
                         controller: _buildingNumberController,
                         keyboardType: TextInputType.number,
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+                        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
                         validator: (value) => null,
                       ),
                     ],

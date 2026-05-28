@@ -94,8 +94,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
     }
 
     setState(() => _isLoading = true);
-
-    QuickAlert.show(
+     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
       title: 'Loading',
@@ -185,11 +184,15 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
         elevation: 0,
         title: Text(
           'Create Organization',
-          style: TextStyle(color: Theme.of(context).textTheme.titleLarge?.color),
+          style: TextStyle(
+            color: Theme.of(context).textTheme.titleLarge?.color,
+          ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios,
-              color: Theme.of(context).iconTheme.color),
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Theme.of(context).iconTheme.color,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -211,89 +214,6 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  height: 175,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.15),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(28),
-                    child: Stack(
-                      children: [
-                        // Background Image
-                        Positioned.fill(
-                          child: Image.asset(
-                            'assets/images/Organizations.jpeg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-
-                        Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.black.withValues(alpha: 0.7),
-                                  Colors.black.withValues(alpha: 0.3),
-                                  Colors.transparent,
-                                ],
-                                begin: Alignment.bottomLeft,
-                                end: Alignment.topRight,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        Positioned.fill(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                            child: Container(
-                              color: Colors.black.withValues(alpha: 0.05),
-                            ),
-                          ),
-                        ),
-
-                        // Text content
-                        Positioned(
-                          bottom: 25,
-                          left: 20,
-                          right: 20,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Your first step ",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24.sp,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                "Start your journey in managing your organization professionally.",
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 16.sp,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
                 const SizedBox(height: 25),
                 Center(
                   child: GestureDetector(
@@ -305,13 +225,16 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                             color: Colors.black.withValues(alpha: 0.3),
+                              color: Colors.black.withValues(alpha: 0.3),
                               width: 2,
                             ),
                           ),
                           child: CircleAvatar(
                             radius: 55,
-                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            backgroundColor:
+                                Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerHighest,
                             backgroundImage:
                                 _imageBytes != null
                                     ? MemoryImage(_imageBytes!)
@@ -321,7 +244,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                                     ? Icon(
                                       Icons.add_a_photo_outlined,
                                       size: 30,
-                                      color: AppColors.OrganizationColor,
+                                      color: AppColors.primary,
                                     )
                                     : null,
                           ),
@@ -348,9 +271,9 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                 const SizedBox(height: 20),
                 CustomTextFormField(
                   icon: Icons.business_outlined,
-                  color: Colors.black,
-                  cursorColor: AppColors.OrganizationColor,
-                  borderColor: AppColors.OrganizationColor,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  cursorColor: AppColors.primary,
+                  borderColor: AppColors.primary,
                   label: 'Company Name',
                   controller: nameController,
                   validator: (value) {
@@ -363,9 +286,9 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.email,
-                  color: Colors.black,
-                  cursorColor: AppColors.OrganizationColor,
-                  borderColor: AppColors.OrganizationColor,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  cursorColor: AppColors.primary,
+                  borderColor: AppColors.primary,
                   label: 'Email',
                   controller: emailController,
                   validator: (value) {
@@ -378,9 +301,9 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.phone_outlined,
-                  color: Colors.black,
-                  cursorColor: AppColors.OrganizationColor,
-                  borderColor: AppColors.OrganizationColor,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  cursorColor: AppColors.primary,
+                  borderColor: AppColors.primary,
                   label: 'Phone Number',
                   controller: phoneController,
                   keyboardType: TextInputType.phone,
@@ -398,11 +321,11 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.location_on_outlined,
-                  cursorColor: AppColors.OrganizationColor,
-                  borderColor: AppColors.OrganizationColor,
+                  cursorColor: AppColors.primary,
+                  borderColor: AppColors.primary,
                   label: 'Address',
                   controller: addressController,
-                  color: Colors.black,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
 
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -486,11 +409,11 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
 
                 CustomTextFormField(
                   icon: Icons.description_outlined,
-                  cursorColor: AppColors.OrganizationColor,
-                  borderColor: AppColors.OrganizationColor,
+                  cursorColor: AppColors.primary,
+                  borderColor: AppColors.primary,
                   label: 'Description',
                   controller: descriptionController,
-                  color: Colors.black,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
 
                   maxLines: 3,
                   validator: (value) {
@@ -504,7 +427,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                 const SizedBox(height: 30),
 
                 CustomButton(
-                  color: AppColors.OrganizationColor,
+                  color: AppColors.primary,
                   text: 'Create Company',
                   onPressed: () {
                     _createOrganization();

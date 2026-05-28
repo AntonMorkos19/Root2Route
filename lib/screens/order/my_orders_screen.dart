@@ -177,9 +177,15 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             appBar: AppBar(
               title: const Text(
                 'Orders',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               backgroundColor: AppColors.primary,
+              iconTheme: const IconThemeData(
+                color: Colors.white,
+              ),
               elevation: 0,
               automaticallyImplyLeading: false,
               bottom: TabBar(
@@ -193,7 +199,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   fontWeight: FontWeight.w500,
                   fontSize: 16.sp,
                 ),
-
+                indicatorColor: Colors.white,
                 tabs: const [
                   Tab(text: 'My Orders'),
                   Tab(text: 'Received Orders'),

@@ -25,8 +25,7 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
 
   void _loadData() {
     setState(() {
-      // Calling API that fetches all organizations only
-      _future = _api.getOrganizations();
+       _future = _api.getOrganizations();
     });
   }
 
@@ -58,9 +57,7 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.OrganizationColor,
-                ),
+                child: CircularProgressIndicator(color: AppColors.primary),
               );
             }
 
@@ -92,7 +89,7 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
                     .toList();
 
             return RefreshIndicator(
-              color: AppColors.OrganizationColor,
+              color: AppColors.primary,
               onRefresh: () async => _loadData(),
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -116,8 +113,11 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.business_outlined,
-              size: 80, color: Theme.of(context).colorScheme.outline),
+          Icon(
+            Icons.business_outlined,
+            size: 80,
+            color: Theme.of(context).colorScheme.outline,
+          ),
           const SizedBox(height: 16),
           Text(
             'No Organizations Yet',
@@ -143,7 +143,8 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
             message,
             textAlign: TextAlign.center,
             style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           TextButton(onPressed: _loadData, child: const Text('Try Again')),
         ],

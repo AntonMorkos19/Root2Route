@@ -5,7 +5,7 @@ import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
 import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/screens/auction/bid_history_screen.dart';
- import 'package:root2route/components/auction_card.dart';
+import 'package:root2route/components/auction_card.dart';
 import 'package:root2route/screens/auction/update_auction_screen.dart';
 import 'package:root2route/screens/auction/auction_details_screen.dart';
 import 'package:root2route/services/storage_service.dart';
@@ -119,7 +119,11 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
   }
 
   void _navigateToBids(AuctionModel auction) {
-    Navigator.pushNamed(context, BidHistoryScreen.id, arguments: auction).then((_) => _fetchAuctions());
+    Navigator.pushNamed(
+      context,
+      BidHistoryScreen.id,
+      arguments: auction,
+    ).then((_) => _fetchAuctions());
   }
 
   @override
@@ -136,13 +140,26 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
               Text(
                 'Please log in and create an organization to view this page.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                child: const Text('Login', style: TextStyle(color: Colors.white)),
+                onPressed:
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                ),
+                child: const Text(
+                  'Login',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -152,51 +169,31 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
 
     return Column(
       children: [
-        // 1. Header - View only, Add button removed
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
-          child: Row(
-            children: [
-              const Text(
-                'My Auctions',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const Spacer(),
-              // Refresh button to manually call the API again
-              IconButton(
-                icon: const Icon(Icons.refresh_rounded),
-                color: Colors.grey.shade700,
-                onPressed: _fetchAuctions,
-                tooltip: 'Refresh',
-              ),
+          child: TabBar(
+            controller: _tabController,
+            labelColor: AppColors.primary,
+            unselectedLabelColor:
+                Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey.shade400
+                    : Colors.grey.shade500,
+            indicatorColor: AppColors.primary,
+            indicatorWeight: 3,
+            labelStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
+            tabs: const [
+              Tab(text: 'Upcoming'),
+              Tab(text: 'Active'),
+              Tab(text: 'Ended'),
             ],
           ),
-        ),
-
-        // 2. Sub-tabs (Nested TabBar)
-        TabBar(
-          controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: Colors.grey.shade500,
-          indicatorColor: AppColors.primary,
-          indicatorWeight: 3,
-          labelStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
-          ),
-          tabs: const [
-            Tab(text: 'Upcoming'),
-            Tab(text: 'Active'),
-            Tab(text: 'Ended'),
-          ],
         ),
 
         // 3. Content (TabBarView) - Displays data from API
@@ -338,7 +335,6 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
       ],
     );
   }
-
 }
 
 class _AuctionListPage extends StatefulWidget {
@@ -425,7 +421,10 @@ class _AuctionListPageState extends State<_AuctionListPage>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.grey.shade100,
+              color:
+                  Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF2A2A2A)
+                      : Colors.grey.shade100,
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 48, color: Colors.grey.shade400),
@@ -436,7 +435,9 @@ class _AuctionListPageState extends State<_AuctionListPage>
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).textTheme.titleMedium?.color ?? Colors.grey.shade700,
+              color:
+                  Theme.of(context).textTheme.titleMedium?.color ??
+                  Colors.grey.shade700,
             ),
           ),
           const SizedBox(height: 8),

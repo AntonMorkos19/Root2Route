@@ -488,7 +488,10 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     }
   }
 
-  Future<void> _submitBid(double currentHighestBid, String explicitAuctionId) async {
+  Future<void> _submitBid(
+    double currentHighestBid,
+    String explicitAuctionId,
+  ) async {
     final double? enteredAmount = double.tryParse(_bidController.text.trim());
 
     if (enteredAmount == null || enteredAmount <= currentHighestBid) {
@@ -516,7 +519,6 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
       auctionId: explicitAuctionId,
       amount: enteredAmount,
     );
-
 
     navigator.pop(); // Close loading alert
 
@@ -589,7 +591,8 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => _submitBid(currentHighestBid, explicitAuctionId),
+                  onPressed:
+                      () => _submitBid(currentHighestBid, explicitAuctionId),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2ECC71),
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -669,7 +672,12 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 16,
+                color:
+                    Theme.of(context).textTheme.bodyLarge?.color ??
+                    Colors.white,
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -698,16 +706,22 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     final currentHighest = auction.currentHighestBid ?? auction.startingPrice;
     final bool isGuest = StorageService().isGuest;
     final String? currentOrgId = StorageService().currentUserOrgId;
-    
-    final String? pOrgId = _productData != null 
-        ? (_productData!['organizationId'] ?? _productData!['OrganizationId'])?.toString() 
-        : (auction.organizationId?.isNotEmpty == true ? auction.organizationId : null);
-        
-    final bool isOwner = !isGuest && 
-                         currentOrgId != null && 
-                         currentOrgId.isNotEmpty && 
-                         pOrgId != null &&
-                         currentOrgId == pOrgId;
+
+    final String? pOrgId =
+        _productData != null
+            ? (_productData!['organizationId'] ??
+                    _productData!['OrganizationId'])
+                ?.toString()
+            : (auction.organizationId?.isNotEmpty == true
+                ? auction.organizationId
+                : null);
+
+    final bool isOwner =
+        !isGuest &&
+        currentOrgId != null &&
+        currentOrgId.isNotEmpty &&
+        pOrgId != null &&
+        currentOrgId == pOrgId;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -722,12 +736,13 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           const SizedBox(height: 24),
 
           // Bid History
-          const Text(
+          Text(
             'Bid History',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color:
+                  Theme.of(context).textTheme.titleLarge?.color ?? Colors.white,
             ),
           ),
           const SizedBox(height: 12),
@@ -755,7 +770,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-              )
+              ),
           ] else ...[
             Row(
               children: [
@@ -787,15 +802,18 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => BlocProvider(
-                                create: (_) => ChatMessagesCubit(ChatService()),
-                                child: ChatDetailsScreen(
-                                  roomId: roomId,
-                                  roomName: _productData?['sellerName']
-                                      ?? _productData?['organizationName']
-                                      ?? 'Seller',
-                                ),
-                              ),
+                              builder:
+                                  (_) => BlocProvider(
+                                    create:
+                                        (_) => ChatMessagesCubit(ChatService()),
+                                    child: ChatDetailsScreen(
+                                      roomId: roomId,
+                                      roomName:
+                                          _productData?['sellerName'] ??
+                                          _productData?['organizationName'] ??
+                                          'Seller',
+                                    ),
+                                  ),
                             ),
                           );
                         }
@@ -813,7 +831,10 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                         }
                       }
                     },
-                    icon: const Icon(Icons.chat_bubble_outline, color: AppColors.primary),
+                    icon: const Icon(
+                      Icons.chat_bubble_outline,
+                      color: AppColors.primary,
+                    ),
                     label: const Text(
                       'Contact Seller',
                       style: TextStyle(
@@ -824,7 +845,10 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.surface,
-                      side: const BorderSide(color: AppColors.primary, width: 1.5),
+                      side: const BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -883,10 +907,14 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: const Center(
+        child: Center(
           child: Text(
             'No bids yet. Be the first!',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(
+              color:
+                  Theme.of(context).textTheme.bodyMedium?.color ??
+                  Colors.white70,
+            ),
           ),
         ),
       );
@@ -905,8 +933,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
         ],
       ),
       child: ListView.separated(
-        shrinkWrap:
-            true, // Crucial to avoid errors with SingleChildScrollView
+        shrinkWrap: true, // Crucial to avoid errors with SingleChildScrollView
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _bidsList.length,
         separatorBuilder: (context, index) => const Divider(height: 1),
@@ -926,9 +953,11 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
             ),
             trailing: Text(
               '${amount.toString()} EGP',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color:
+                    Theme.of(context).textTheme.bodyLarge?.color ??
+                    Colors.white,
                 fontSize: 16,
               ),
             ),
@@ -952,7 +981,11 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     String? imageUrl = auction.productImage;
     if (imageUrl == null || imageUrl.isEmpty) {
       if (_productData != null) {
-        imageUrl = _productData!['imageUrl'] ?? _productData!['ImageUrl'] ?? _productData!['image'] ?? _productData!['Image'];
+        imageUrl =
+            _productData!['imageUrl'] ??
+            _productData!['ImageUrl'] ??
+            _productData!['image'] ??
+            _productData!['Image'];
         if (imageUrl == null) {
           final pImages = _productData!['images'] ?? _productData!['Images'];
           if (pImages is List && pImages.isNotEmpty) {
@@ -961,9 +994,10 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
         }
       }
     }
-    final displayUrl = (imageUrl != null && imageUrl.startsWith('/'))
-        ? 'https://root2route.runasp.net$imageUrl'
-        : imageUrl;
+    final displayUrl =
+        (imageUrl != null && imageUrl.startsWith('/'))
+            ? 'https://root2route.runasp.net$imageUrl'
+            : imageUrl;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1016,10 +1050,12 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
               Expanded(
                 child: Text(
                   auction.title ?? auction.productName ?? 'Auction',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color:
+                        Theme.of(context).textTheme.titleLarge?.color ??
+                        Colors.white,
                   ),
                 ),
               ),
@@ -1105,10 +1141,10 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
         const Spacer(),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.white,
           ),
         ),
       ],
@@ -1138,10 +1174,12 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
               const SizedBox(width: 8),
               Text(
                 auction.isUpcoming ? 'Starts In' : 'Time Remaining',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color:
+                      Theme.of(context).textTheme.titleMedium?.color ??
+                      Colors.white,
                 ),
               ),
             ],

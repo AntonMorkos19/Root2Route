@@ -29,6 +29,7 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
       bottomNavigationBar: Container(
         margin: const EdgeInsets.only(left: 15, right: 15, bottom: 20),
         decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
@@ -44,27 +45,29 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
             data: NavigationBarThemeData(
               indicatorColor: AppColors.primary,
               labelTextStyle: WidgetStateProperty.resolveWith((states) {
+                final isDark = Theme.of(context).brightness == Brightness.dark;
                 if (states.contains(WidgetState.selected)) {
                   return TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textSecondary,
+                    color: isDark ? Colors.white : AppColors.primary,
                   );
                 }
                 return TextStyle(
                   fontSize: 14.sp,
-                  color: AppColors.textSecondary,
+                  color: isDark ? Colors.white60 : Colors.black54,
                 );
               }),
               iconTheme: WidgetStateProperty.resolveWith((states) {
+                final isDark = Theme.of(context).brightness == Brightness.dark;
                 if (states.contains(WidgetState.selected)) {
                   return const IconThemeData(
-                    color: AppColors.iconPrimary,
+                    color: Colors.white,
                     size: 26,
                   );
                 }
-                return const IconThemeData(
-                  color: AppColors.iconPrimary,
+                return IconThemeData(
+                  color: isDark ? Colors.white60 : Colors.black54,
                   size: 24,
                 );
               }),
@@ -72,7 +75,7 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
             child: NavigationBar(
               height: 65,
               elevation: 0,
-              backgroundColor: Colors.grey.withOpacity(0.80),
+              backgroundColor: Theme.of(context).colorScheme.surface,
               selectedIndex: index,
               onDestinationSelected: (i) => setState(() => index = i),
               labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,

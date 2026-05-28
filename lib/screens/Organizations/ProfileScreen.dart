@@ -43,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 0,
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.menu, color: Colors.black),
+            icon: Icon(Icons.menu, color: Theme.of(context).iconTheme.color),
             onSelected: (value) {
               if (value == 'all_orgs') {
                 Navigator.push(
@@ -97,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: ListTile(
                     leading: const Icon(
                       Icons.person_outline,
-                      color: AppColors.OrganizationColor,
+                      color: AppColors.primary,
                     ),
                     title: const Text(
                       'Account Settings',
@@ -133,7 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: ListTile(
                     leading: const Icon(
                       Icons.location_on_outlined,
-                      color: AppColors.OrganizationColor,
+                      color: AppColors.primary,
                     ),
                     title: const Text(
                       'My Addresses',
@@ -209,7 +209,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18.sp,
-                        color: const Color(0xff2D3748),
+                        color: Theme.of(context).textTheme.titleLarge?.color ?? const Color(0xff2D3748),
                       ),
                     ),
                   ],
@@ -224,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       padding: EdgeInsets.all(32),
                       child: Center(
                         child: CircularProgressIndicator(
-                          color: AppColors.OrganizationColor,
+                          color: AppColors.primary,
                           strokeWidth: 2,
                         ),
                       ),

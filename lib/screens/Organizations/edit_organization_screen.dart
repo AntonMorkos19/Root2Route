@@ -82,7 +82,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
     }
   }
 
-   String _formatPhoneNumber(String phone) {
+  String _formatPhoneNumber(String phone) {
     String cleaned = phone.replaceAll(RegExp(r'[\s\-]'), '');
     if (cleaned.startsWith('0')) {
       cleaned = '+2$cleaned';
@@ -106,7 +106,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
   Future<void> _updateOrganization() async {
     if (!formKey.currentState!.validate()) return;
 
-     if (selectedType == null) {
+    if (selectedType == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please select an account type'),
@@ -116,7 +116,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       return;
     }
 
-     final orgName = nameController.text.trim();
+    final orgName = nameController.text.trim();
     if (orgName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -127,7 +127,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       return;
     }
 
-     setState(() => _isLoading = true);
+    setState(() => _isLoading = true);
 
     QuickAlert.show(
       context: context,
@@ -137,14 +137,12 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       barrierDismissible: false,
     );
 
-     final formattedPhone = _formatPhoneNumber(phoneController.text.trim());
+    final formattedPhone = _formatPhoneNumber(phoneController.text.trim());
 
-     
     try {
-    
       final result = await _api.updateOrganization(
-        organizationId: widget.organization.id,  
-         name: orgName,
+        organizationId: widget.organization.id,
+        name: orgName,
         description: descriptionController.text.trim(),
         address: addressController.text.trim(),
         contactEmail: emailController.text.trim(),
@@ -155,22 +153,22 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
 
       if (!mounted) return;
 
-       if (mounted) Navigator.pop(context);
- 
+      if (mounted) Navigator.pop(context);
+
       if (result['success'] == true) {
-         QuickAlert.show(
+        QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
           title: 'Success!',
           text: 'Organization updated successfully!',
           confirmBtnText: 'OK',
           onConfirmBtnTap: () {
-            Navigator.pop(context); 
-            Navigator.pop(context, true);  
+            Navigator.pop(context);
+            Navigator.pop(context, true);
           },
         );
       } else {
-         QuickAlert.show(
+        QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
           title: 'Failure',
@@ -182,7 +180,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       if (mounted) Navigator.pop(context);
       if (!mounted) return;
 
-       QuickAlert.show(
+      QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
         title: 'Failure',
@@ -206,13 +204,13 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
 
   @override
   Widget build(BuildContext context) {
-     ImageProvider? avatarImage;
+    ImageProvider? avatarImage;
 
     if (_image != null) {
-       avatarImage = FileImage(_image!);
+      avatarImage = FileImage(_image!);
     } else if (widget.organization.logoUrl != null &&
         widget.organization.logoUrl!.isNotEmpty) {
-       final imageUrl = _getFullImageUrl(widget.organization.logoUrl);
+      final imageUrl = _getFullImageUrl(widget.organization.logoUrl);
       if (imageUrl.isNotEmpty) {
         avatarImage = NetworkImage(imageUrl);
       }
@@ -223,18 +221,18 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Edit Organization',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.white, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: Icon(Icons.arrow_back_ios, color: Theme.of(context).iconTheme.color ?? Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15.0),
-            child: Icon(Icons.business_outlined, size: 30, color: Colors.black),
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Icon(Icons.business_outlined, size: 30, color: Theme.of(context).iconTheme.color ?? Colors.white),
           ),
         ],
       ),
@@ -246,87 +244,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 Container(
-                  height: 175,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(28),
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Image.asset(
-                            'assets/images/Organizations.jpeg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.black.withOpacity(0.7),
-                                  Colors.black.withOpacity(0.3),
-                                  Colors.transparent,
-                                ],
-                                begin: Alignment.bottomLeft,
-                                end: Alignment.topRight,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned.fill(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                            child: Container(
-                              color: Colors.black.withOpacity(0.05),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 25,
-                          left: 20,
-                          right: 20,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Modify Your Organization",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24.sp,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                "Update your organization details quickly and professionally.",
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 16.sp,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-
-                 Center(
+                Center(
                   child: GestureDetector(
                     onTap: _pickImage,
                     child: Stack(
@@ -342,14 +260,15 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                           ),
                           child: CircleAvatar(
                             radius: 55,
-                            backgroundColor: Theme.of(context).colorScheme.surface,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.surface,
                             backgroundImage: avatarImage,
                             child:
                                 avatarImage == null
                                     ? const Icon(
                                       Icons.add_a_photo_outlined,
                                       size: 30,
-                                      color: AppColors.OrganizationColor,
+                                      color: AppColors.primary,
                                     )
                                     : null,
                           ),
@@ -374,11 +293,11 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
 
                 const SizedBox(height: 20),
 
-                 CustomTextFormField(
+                CustomTextFormField(
                   icon: Icons.business_outlined,
-                  color: Colors.black,
-                  cursorColor: AppColors.OrganizationColor,
-                  borderColor: AppColors.OrganizationColor,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  cursorColor: AppColors.primary,
+                  borderColor: AppColors.primary,
                   label: 'Company Name',
                   controller: nameController,
                   validator: (value) {
@@ -391,9 +310,9 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.email,
-                  color: Colors.black,
-                  cursorColor: AppColors.OrganizationColor,
-                  borderColor: AppColors.OrganizationColor,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  cursorColor: AppColors.primary,
+                  borderColor: AppColors.primary,
                   label: 'Email',
                   controller: emailController,
                   validator: (value) {
@@ -411,9 +330,9 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.phone_outlined,
-                  color: Colors.black,
-                  cursorColor: AppColors.OrganizationColor,
-                  borderColor: AppColors.OrganizationColor,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  cursorColor: AppColors.primary,
+                  borderColor: AppColors.primary,
                   label: 'Phone Number',
                   controller: phoneController,
                   keyboardType: TextInputType.phone,
@@ -421,7 +340,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your phone';
                     }
-                     final cleaned = value.replaceAll(RegExp(r'[\s\-]'), '');
+                    final cleaned = value.replaceAll(RegExp(r'[\s\-]'), '');
                     if (!RegExp(r'^[\+]?[0-9]{10,15}$').hasMatch(cleaned)) {
                       return 'Enter a valid phone number (e.g., 01234567890 or +201234567890)';
                     }
@@ -431,11 +350,11 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.location_on_outlined,
-                  cursorColor: AppColors.OrganizationColor,
-                  borderColor: AppColors.OrganizationColor,
+                  cursorColor: AppColors.primary,
+                  borderColor: AppColors.primary,
                   label: 'Address',
                   controller: addressController,
-                  color: Colors.black,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter address';
@@ -444,13 +363,13 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Account Type',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                      color: Theme.of(context).textTheme.titleMedium?.color ?? Colors.white,
                     ),
                   ),
                 ),
@@ -509,13 +428,13 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
 
                 const SizedBox(height: 20),
 
-                 CustomTextFormField(
+                CustomTextFormField(
                   icon: Icons.description_outlined,
-                  cursorColor: AppColors.OrganizationColor,
-                  borderColor: AppColors.OrganizationColor,
+                  cursorColor: AppColors.primary,
+                  borderColor: AppColors.primary,
                   label: 'Description',
                   controller: descriptionController,
-                  color: Colors.black,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
                   maxLines: 3,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -527,9 +446,9 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
 
                 const SizedBox(height: 30),
 
-                 CustomButton(
+                CustomButton(
                   text: 'Update Company',
-                  color: AppColors.OrganizationColor,
+                  color: AppColors.primary,
                   onPressed: _updateOrganization,
                 ),
 

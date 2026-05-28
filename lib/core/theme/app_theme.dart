@@ -71,7 +71,7 @@ class AppTheme {
 
       // ── AppBar ─────────────────────────────────────────────────────────────
       appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,

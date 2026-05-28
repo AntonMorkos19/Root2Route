@@ -33,18 +33,28 @@ class AddOrganizationCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 65,
-              height: 65,
-              decoration: BoxDecoration(
-                color: const Color(0xff0F4C5C).withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.add_rounded,
-                color: Color(0xff0F4C5C),
-                size: 32,
-              ),
+            Builder(
+              builder: (context) {
+                final isDark = Theme.of(context).brightness == Brightness.dark;
+                final primaryColor = isDark ? Colors.white : const Color(0xff0F4C5C);
+                final circleColor = isDark 
+                    ? Colors.white.withOpacity(0.15) 
+                    : const Color(0xff0F4C5C).withOpacity(0.1);
+                
+                return Container(
+                  width: 65,
+                  height: 65,
+                  decoration: BoxDecoration(
+                    color: circleColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.add_rounded,
+                    color: primaryColor,
+                    size: 32,
+                  ),
+                );
+              },
             ),
 
             const SizedBox(width: 16),

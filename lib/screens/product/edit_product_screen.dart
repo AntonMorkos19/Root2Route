@@ -280,7 +280,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             validator:
                 (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
             label: 'Product Name',
-            color: Colors.black,
+            color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
             controller: _nameController,
           ),
           const SizedBox(height: 18),
@@ -305,7 +305,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           _Label('Barcode (Optional)'),
           const SizedBox(height: 8),
           CustomTextFormField(
-            color: Colors.black,
+            color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
             icon: Icons.qr_code_scanner,
             label: 'e.g. 123456789012',
             controller: _barcodeController,
@@ -316,7 +316,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           _Label('Description (Optional)'),
           const SizedBox(height: 8),
           CustomTextFormField(
-            color: Colors.black,
+            color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
             icon: Icons.description_outlined,
             label: 'Describe your product...',
             controller: _descriptionController,
@@ -349,7 +349,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.black87,
+              color: Theme.of(context).textTheme.titleSmall?.color ?? Colors.white70,
             ),
           ),
           const SizedBox(height: 16),
@@ -455,7 +455,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     style: TextStyle(
       fontWeight: FontWeight.w600,
       fontSize: 16.sp,
-      color: Colors.black87,
+      color: Theme.of(context).textTheme.titleSmall?.color ?? Colors.white70,
     ),
   );
 
@@ -579,7 +579,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 16.sp,
-                  color: Colors.black87,
+                  color: Theme.of(context).textTheme.titleSmall?.color ?? Colors.white70,
                 ),
               ),
               const SizedBox(height: 2),

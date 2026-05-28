@@ -240,9 +240,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20.sp,
+                    color: Colors.white,
                   ),
                 ),
                 backgroundColor: AppColors.primary,
+                iconTheme: const IconThemeData(
+                  color: Colors.white,
+                ),
                 elevation: 0,
               ),
               body: _buildBody(state, order),

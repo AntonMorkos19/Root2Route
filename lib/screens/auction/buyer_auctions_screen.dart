@@ -208,7 +208,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         toolbarHeight: 100, // زودنا الطول عشان يشيل العنوان والوصف
         backgroundColor: AppColors.primary,
@@ -382,7 +382,7 @@ class _ParticipatedAuctionCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -458,7 +458,7 @@ class _WonAuctionCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -544,11 +544,20 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).textTheme.titleMedium?.color,
+            ),
           ),
           Text(
             subtitle,
-            style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+            style: TextStyle(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white70
+                  : Colors.grey.shade600,
+              fontSize: 12,
+            ),
           ),
           const SizedBox(height: 20),
           OutlinedButton(onPressed: onRefresh, child: const Text('Refresh')),

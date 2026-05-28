@@ -25,11 +25,13 @@ class _AccountScreenState extends State<AccountScreen> {
     final bool isGuest = StorageService().isGuest;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'My Account',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.titleLarge?.color,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -158,13 +160,14 @@ class _AccountScreenState extends State<AccountScreen> {
                   ],
 
                   const SizedBox(height: 24),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 8, bottom: 10),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, bottom: 10),
                     child: Text(
                       "Personal Information",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: Theme.of(context).textTheme.titleMedium?.color,
                       ),
                     ),
                   ),
@@ -250,13 +253,14 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
 
                   const SizedBox(height: 24),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 8, bottom: 10),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, bottom: 10),
                     child: Text(
                       "Settings & Security",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: Theme.of(context).textTheme.titleMedium?.color,
                       ),
                     ),
                   ),

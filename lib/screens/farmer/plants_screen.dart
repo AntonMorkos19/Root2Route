@@ -101,32 +101,36 @@ class _PlantsScreenState extends State<PlantsScreen> {
         elevation: 0,
         automaticallyImplyLeading: false,
         toolbarHeight: 70,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Plants',
-              style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              'Explore plant information',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.outline,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadPlants,
-            tooltip: 'Refresh',
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'النباتات',
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
+                ),
+                Text(
+                  'استكشف معلومات عن النباتات',
+                  style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white70
+                        : Colors.black54,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -147,14 +151,34 @@ class _PlantsScreenState extends State<PlantsScreen> {
               ),
               child: TextField(
                 controller: _searchController,
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black,
+                ),
                 decoration: InputDecoration(
-                  hintText: 'Search plants',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon:
+                  hintText: 'ابحث عن النباتات',
+                  hintStyle: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white60
+                        : Colors.black54,
+                  ),
+                  suffixIcon: Icon(
+                    Icons.search,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white70
+                        : Colors.black54,
+                  ),
+                  prefixIcon:
                       _searchController.text.isEmpty
                           ? null
                           : IconButton(
-                            icon: const Icon(Icons.close),
+                            icon: Icon(
+                              Icons.close,
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white70
+                                  : Colors.black54,
+                            ),
                             onPressed: () {
                               _searchController.clear();
                               FocusScope.of(context).unfocus();
@@ -234,8 +258,11 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.wifi_off_rounded, size: 72,
-                color: Theme.of(context).colorScheme.outline),
+            Icon(
+              Icons.wifi_off_rounded,
+              size: 72,
+              color: Theme.of(context).colorScheme.outline,
+            ),
             const SizedBox(height: 16),
             Text(
               message,

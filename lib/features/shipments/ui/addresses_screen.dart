@@ -435,14 +435,14 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                           style: TextStyle(
                             fontSize: 22.sp,
                             fontWeight: FontWeight.w900,
-                            color: Colors.black87,
+                            color: Theme.of(context).textTheme.titleLarge?.color,
                           ),
                         ),
                         Text(
                           'Enter address details',
                           style: TextStyle(
                             fontSize: 16.sp,
-                            color: Colors.grey.shade600,
+                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6) ?? Colors.grey.shade600,
                           ),
                         ),
                       ],
@@ -460,7 +460,7 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                         controller: _labelCtrl,
                         icon: Icons.label_outlined,
                         label: 'Label (e.g. Home, Work)',
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
                         borderColor: AppColors.primary,
                         cursorColor: AppColors.primary,
                         validator:
@@ -474,7 +474,7 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                         controller: _cityCtrl,
                         icon: Icons.location_city_outlined,
                         label: 'City',
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
                         borderColor: AppColors.primary,
                         cursorColor: AppColors.primary,
                         validator:
@@ -488,7 +488,7 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                         controller: _streetCtrl,
                         icon: Icons.map_outlined,
                         label: 'Street',
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
                         borderColor: AppColors.primary,
                         cursorColor: AppColors.primary,
                         validator:
@@ -502,7 +502,7 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                         controller: _phoneCtrl,
                         icon: Icons.phone_outlined,
                         label: 'Phone Number',
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
                         borderColor: AppColors.primary,
                         cursorColor: AppColors.primary,
                         keyboardType: TextInputType.phone,
@@ -524,7 +524,9 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white.withOpacity(0.05)
+                        : Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -543,7 +545,7 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
                             style: TextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w600,
-                              color: Colors.black87,
+                              color: Theme.of(context).textTheme.bodyMedium?.color,
                             ),
                           ),
                         ],

@@ -162,20 +162,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'My Products',
-          style: TextStyle(
-              color: Theme.of(context).textTheme.titleLarge?.color,
-              fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Theme.of(context).iconTheme.color),
-      ),
-      body: _buildBody(),
-    );
+    return Scaffold(body: _buildBody());
   }
 
   Widget _buildBody() {
@@ -233,9 +220,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                         appBar: AppBar(
                           title: const Text(
                             'My Auctions',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           backgroundColor: Colors.transparent,
                           elevation: 0,
@@ -376,8 +361,9 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
             Text(
               'Add your first product to get started.',
               style: TextStyle(
-                  fontSize: 16.sp,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+                fontSize: 16.sp,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),

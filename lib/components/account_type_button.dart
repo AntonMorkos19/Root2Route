@@ -19,6 +19,11 @@ class AccountTypeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final unselectedBgColor = isDark ? (Theme.of(context).cardColor) : const Color.fromARGB(255, 255, 255, 255);
+    final unselectedBorderColor = isDark ? Colors.white24 : const Color.fromARGB(255, 0, 0, 0).withOpacity(0.3);
+    final unselectedTextColor = isDark ? Colors.white70 : const Color.fromARGB(255, 0, 0, 0);
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -28,14 +33,14 @@ class AccountTypeButton extends StatelessWidget {
         decoration: BoxDecoration(
           color:
               selected
-                  ? AppColors.OrganizationColor.withOpacity(0.18)
-                  : const Color.fromARGB(255, 255, 255, 255),
+                  ? AppColors.primary.withOpacity(0.18)
+                  : unselectedBgColor,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color:
                 selected
-                    ? AppColors.OrganizationColor
-                    : const Color.fromARGB(255, 0, 0, 0).withOpacity(0.3),
+                    ? AppColors.primary
+                    : unselectedBorderColor,
             width: 1.5,
           ),
         ),
@@ -47,8 +52,8 @@ class AccountTypeButton extends StatelessWidget {
               size: 26,
               color:
                   selected
-                      ? AppColors.OrganizationColor
-                      : const Color.fromARGB(255, 0, 0, 0),
+                      ? AppColors.primary
+                      : unselectedTextColor,
             ),
             const SizedBox(height: 6),
             FittedBox(
@@ -60,8 +65,8 @@ class AccountTypeButton extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color:
                       selected
-                          ? AppColors.OrganizationColor
-                          : const Color.fromARGB(255, 0, 0, 0),
+                          ? AppColors.primary
+                          : unselectedTextColor,
                 ),
               ),
             ),

@@ -14,5 +14,4 @@ class AppColors {
   static const Color textSecondary = AppColors.iconPrimary;
   static const Color textOnSecondary = Colors.grey;
 
-  static const Color OrganizationColor = Color(0xFF1E3A8A);
-}
+ }

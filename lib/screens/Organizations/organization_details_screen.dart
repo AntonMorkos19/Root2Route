@@ -130,7 +130,6 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     final org = widget.organization;
@@ -145,61 +144,74 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Organization Details',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color:
+                Theme.of(context).textTheme.titleLarge?.color ?? Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Theme.of(context).iconTheme.color ?? Colors.black,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: isOwner
-            ? [
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert, color: Colors.black),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  onSelected: (value) {
-                    switch (value) {
-                      case 'edit':
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                EditOrganizationScreen(organization: org),
-                          ),
-                        ).then((_) => setState(() {}));
-                        break;
+        actions:
+            isOwner
+                ? [
+                  PopupMenuButton<String>(
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: Theme.of(context).iconTheme.color ?? Colors.black,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'edit':
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (_) =>
+                                      EditOrganizationScreen(organization: org),
+                            ),
+                          ).then((_) => setState(() {}));
+                          break;
 
-                      case 'delete':
-                        _deleteOrganization();
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'edit',
-                      child: ListTile(
-                        leading: Icon(Icons.edit, color: Colors.orange),
-                        title: Text('Edit Organization'),
-                        contentPadding: EdgeInsets.zero,
-                        dense: true,
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: ListTile(
-                        leading: Icon(Icons.delete, color: Colors.red),
-                        title: Text('Delete Organization'),
-                        contentPadding: EdgeInsets.zero,
-                        dense: true,
-                      ),
-                    ),
-                  ],
-                ),
-              ]
-            : null,
+                        case 'delete':
+                          _deleteOrganization();
+                          break;
+                      }
+                    },
+                    itemBuilder:
+                        (context) => [
+                          const PopupMenuItem(
+                            value: 'edit',
+                            child: ListTile(
+                              leading: Icon(Icons.edit, color: Colors.orange),
+                              title: Text('Edit Organization'),
+                              contentPadding: EdgeInsets.zero,
+                              dense: true,
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: ListTile(
+                              leading: Icon(Icons.delete, color: Colors.red),
+                              title: Text('Delete Organization'),
+                              contentPadding: EdgeInsets.zero,
+                              dense: true,
+                            ),
+                          ),
+                        ],
+                  ),
+                ]
+                : null,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -226,7 +238,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: AppColors.OrganizationColor,
+                        color: AppColors.primary,
                         borderRadius: BorderRadius.circular(20),
                         image:
                             hasImage
@@ -263,7 +275,9 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                       style: TextStyle(
                         fontSize: 24.sp,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xff1a1a1a),
+                        color:
+                            Theme.of(context).textTheme.titleLarge?.color ??
+                            const Color(0xff1a1a1a),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -331,7 +345,9 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
         style: TextStyle(
           fontSize: 20.sp,
           fontWeight: FontWeight.bold,
-          color: const Color(0xff333333),
+          color:
+              Theme.of(context).textTheme.titleLarge?.color ??
+              const Color(0xff333333),
         ),
       ),
     );
@@ -355,7 +371,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
         ),
         child: const Center(
           child: CircularProgressIndicator(
-            color: AppColors.OrganizationColor,
+            color: AppColors.primary,
             strokeWidth: 2,
           ),
         ),
@@ -384,9 +400,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
               onPressed: _loadStatistics,
               icon: const Icon(Icons.refresh, size: 16),
               label: const Text('Retry'),
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.OrganizationColor,
-              ),
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),
           ],
         ),
@@ -493,10 +507,10 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.OrganizationColor.withOpacity(0.08),
+              color: AppColors.primary.withOpacity(0.08),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 20, color: AppColors.OrganizationColor),
+            child: Icon(icon, size: 20, color: AppColors.primary),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -516,7 +530,9 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                   value,
                   style: TextStyle(
                     fontSize: 16.sp,
-                    color: const Color(0xff333333),
+                    color:
+                        Theme.of(context).textTheme.bodyLarge?.color ??
+                        const Color(0xff333333),
                     fontWeight: FontWeight.w500,
                   ),
                 ),

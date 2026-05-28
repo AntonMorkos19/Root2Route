@@ -250,7 +250,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 _Label('Product Name'),
                 const SizedBox(height: 8),
                 CustomTextFormField(
-                  color: Colors.black,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
                   icon: Icons.grass_outlined,
                   validator:
                       (v) =>
@@ -308,7 +308,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 _Label('Barcode (Optional)'),
                 const SizedBox(height: 8),
                 CustomTextFormField(
-                  color: Colors.black,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
                   icon: Icons.qr_code_scanner,
                   label: 'e.g. 123456789012',
                   controller: _barcodeController,
@@ -318,7 +318,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 _Label('Description (Optional)'),
                 const SizedBox(height: 8),
                 CustomTextFormField(
-                  color: Colors.black,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
                   icon: Icons.description_outlined,
                   label: 'Describe your product...',
                   controller: _descriptionController,
@@ -579,11 +579,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
       controller: controller,
       keyboardType: keyboardType,
       validator: validator,
+      style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87, fontSize: 16.sp),
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, size: 20),
+        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15.sp),
+        prefixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
         filled: true,
-        fillColor: const Color(0xFFF8F9FB),
+        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : const Color(0xFFF8F9FB),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -601,6 +603,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
     String? Function(String?)? validator,
   }) {
     return DropdownButtonFormField<String>(
+      dropdownColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.white,
+      style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87, fontSize: 16.sp),
       initialValue: value,
       items:
           items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
@@ -608,9 +612,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
       validator: validator,
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, size: 20),
+        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15.sp),
+        prefixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
         filled: true,
-        fillColor: const Color(0xFFF8F9FB),
+        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : const Color(0xFFF8F9FB),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -625,7 +630,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8F9FB),
+          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : const Color(0xFFF8F9FB),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -636,6 +641,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               _expiryDate == null
                   ? 'Select Date'
                   : _expiryDate!.toLocal().toString().split(' ')[0],
+              style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87),
             ),
           ],
         ),

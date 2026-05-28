@@ -47,16 +47,14 @@ class DispatchCubit extends Cubit<ShipmentState> {
 
   // ── POST /api/v1/shipments/dispatch ──────────────────────────
 
-  /// Dispatches a shipment for the given [orderId].
-  ///
-  /// [addressId]      — saved address ID to use as the delivery address.
-  /// [trackingNumber] — optional carrier tracking number.
-  /// [notes]          — optional dispatch notes.
+   
   Future<void> dispatchShipment({
     required String orderId,
     int? addressId,
     String trackingNumber = '',
     String notes = '',
+    String carrierName = '',
+    String driverPhone = '',
   }) async {
     _emitSafe(const ShipmentLoading());
     try {
@@ -65,6 +63,8 @@ class DispatchCubit extends Cubit<ShipmentState> {
         if (addressId != null) 'addressId': addressId,
         if (trackingNumber.isNotEmpty) 'trackingNumber': trackingNumber,
         if (notes.isNotEmpty) 'notes': notes,
+        if (carrierName.isNotEmpty) 'carrierName': carrierName,
+        if (driverPhone.isNotEmpty) 'driverPhone': driverPhone,
       };
 
       final response = await _dio.post(

@@ -65,10 +65,9 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
     widget.dispatchCubit.dispatchShipment(
       orderId: widget.orderId,
       trackingNumber: _trackingCtrl.text.trim(),
-      notes:
-          _phoneCtrl.text.trim().isNotEmpty
-              ? 'Carrier: ${_carrierCtrl.text.trim()} | Phone: ${_phoneCtrl.text.trim()}'
-              : _carrierCtrl.text.trim(),
+      carrierName: _carrierCtrl.text.trim(),
+      driverPhone: _phoneCtrl.text.trim(),
+      notes: '',
     );
   }
 

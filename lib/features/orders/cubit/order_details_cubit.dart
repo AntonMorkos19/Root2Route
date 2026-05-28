@@ -47,6 +47,8 @@ class OrderDetailsCubit extends Cubit<OrderState> {
       );
 
       final respBody = response.data;
+      
+      print('ORDER JSON RESPONSE: $respBody');
 
       if (respBody is Map) {
         final rawData = respBody['data'] ?? respBody['Data'];

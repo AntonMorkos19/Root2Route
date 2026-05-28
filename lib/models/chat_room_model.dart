@@ -11,6 +11,7 @@ class ChatRoomModel {
   final String lastMessageAt;
   final int unreadCount;
   final bool isClosed;
+  final String? otherPartyName; // The new field from backend
 
   ChatRoomModel({
     required this.id,
@@ -23,13 +24,14 @@ class ChatRoomModel {
     this.lastMessageAt = '',
     this.unreadCount = 0,
     this.isClosed = false,
+    this.otherPartyName,
   });
 
   factory ChatRoomModel.fromJson(Map<String, dynamic> json) {
     debugPrint("Room JSON: $json");
     
     // Dynamic title: backend returns otherPartyName for buyer context, organizationName for seller context
-    final chatTitle = (json['otherPartyName'] ?? json['organizationName'] ?? 'Chat').toString();
+    final chatTitle = (json['chatTitle'] ?? json['otherPartyName'] ?? json['organizationName'] ?? 'Chat').toString();
 
     return ChatRoomModel(
       id: (json['id'] ?? json['Id'] ?? json['chatRoomId'] ?? json['roomId'] ?? '').toString(),
@@ -42,6 +44,7 @@ class ChatRoomModel {
       lastMessageAt: (json['lastMessageAt'] ?? json['LastMessageAt'] ?? json['updatedAt'] ?? json['createdAt'] ?? '').toString(),
       unreadCount: json['unreadCount'] is int ? json['unreadCount'] : int.tryParse(json['unreadCount'].toString()) ?? 0,
       isClosed: (json['isClosed'] ?? json['IsClosed'] ?? false) == true,
+      otherPartyName: json['otherPartyName']?.toString() ?? json['chatTitle']?.toString(),
     );
   }
 
@@ -57,6 +60,7 @@ class ChatRoomModel {
       'lastMessageAt': lastMessageAt,
       'unreadCount': unreadCount,
       'isClosed': isClosed,
+      'otherPartyName': otherPartyName,
     };
   }
 }

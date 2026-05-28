@@ -9,15 +9,31 @@ import 'package:root2route/screens/Organizations/add_organization_screen.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:root2route/features/account/cubit/account_cubit.dart';
+import 'package:root2route/features/account/cubit/account_state.dart';
+import 'package:root2route/features/account/ui/change_password_bottom_sheet.dart';
 
-class AccountScreen extends StatefulWidget {
+class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
 
   @override
-  State<AccountScreen> createState() => _AccountScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => AccountCubit(),
+      child: const _AccountScreenView(),
+    );
+  }
 }
 
-class _AccountScreenState extends State<AccountScreen> {
+class _AccountScreenView extends StatefulWidget {
+  const _AccountScreenView({super.key});
+
+  @override
+  State<_AccountScreenView> createState() => _AccountScreenViewState();
+}
+
+class _AccountScreenViewState extends State<_AccountScreenView> {
   @override
   Widget build(BuildContext context) {
     final String fullName = StorageService().userFullName ?? 'Guest User';
@@ -41,7 +57,44 @@ class _AccountScreenState extends State<AccountScreen> {
           SizedBox(width: 4),
         ],
       ),
-      body: SingleChildScrollView(
+      body: BlocListener<AccountCubit, AccountState>(
+        listener: (context, state) {
+          if (state is DeleteAccountLoading) {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.loading,
+              title: 'Deleting Account',
+              text: 'Please wait...',
+              barrierDismissible: false,
+            );
+          } else if (state is DeleteAccountSuccess) {
+            Navigator.of(context, rootNavigator: true).pop(); // dismiss loading
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.success,
+              title: 'Deleted',
+              text: 'Your account has been deleted successfully.',
+              onConfirmBtnTap: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const LoginScreen(),
+                  ),
+                  (route) => false,
+                );
+              },
+            );
+          } else if (state is DeleteAccountFailure) {
+            Navigator.of(context, rootNavigator: true).pop(); // dismiss loading
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              title: 'Error',
+              text: state.error,
+            );
+          }
+        },
+        child: SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: 10),
@@ -315,7 +368,10 @@ class _AccountScreenState extends State<AccountScreen> {
                             size: 14,
                             color: Colors.grey,
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            final accountCubit = context.read<AccountCubit>();
+                            ChangePasswordBottomSheet.show(context, accountCubit);
+                          },
                         ),
                         const Divider(
                           height: 1,
@@ -400,15 +456,28 @@ class _AccountScreenState extends State<AccountScreen> {
                             color: Colors.redAccent,
                           ),
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'This feature will be available soon.',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                backgroundColor: Colors.grey,
-                                behavior: SnackBarBehavior.floating,
-                              ),
+                            final accountCubit = context.read<AccountCubit>();
+                            showDialog(
+                              context: context,
+                              builder: (dialogContext) {
+                                return AlertDialog(
+                                  title: const Text('Delete Account'),
+                                  content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(dialogContext),
+                                      child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(dialogContext);
+                                        accountCubit.deleteAccount();
+                                      },
+                                      child: const Text('Delete', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           },
                         ),
@@ -461,6 +530,7 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

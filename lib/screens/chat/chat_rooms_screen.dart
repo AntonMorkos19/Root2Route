@@ -90,15 +90,12 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
   Widget _buildRoomTile(ChatRoomModel room) {
     final hasUnread = room.unreadCount > 0;
 
-    // Determine if the current user is the seller for this room
-    final String currentOrgId = StorageService().currentUserOrgId ?? '';
-    final bool isSeller =
-        currentOrgId.isNotEmpty && currentOrgId == room.organizationId;
+    // No longer need isSeller since we use otherPartyName directly from backend
 
-    // Sellers see customer name; buyers see the seller/organization name
-    final String displayName = isSeller
-        ? (room.customerName.isNotEmpty ? room.customerName : 'Customer')
-        : (room.organizationName.isNotEmpty ? room.organizationName : 'Seller');
+    // Use the backend-provided otherPartyName or chatTitle, fallback to Unknown
+    final String displayName = (room.otherPartyName != null && room.otherPartyName!.isNotEmpty)
+        ? room.otherPartyName!
+        : (room.chatTitle.isNotEmpty ? room.chatTitle : 'Unknown');
 
     return InkWell(
       onTap: () => _openChat(room, displayName),

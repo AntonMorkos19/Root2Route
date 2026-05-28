@@ -5,6 +5,7 @@ import 'package:mime/mime.dart';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:root2route/core/constants.dart';
+import 'package:root2route/features/account/models/change_password_request_model.dart';
 import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/models/user_model.dart';
 import 'package:root2route/services/storage_service.dart';
@@ -647,6 +648,53 @@ class ApiService {
   Future<void> logout() async {
     await StorageService().logout();
     print("User logged out and token cleared.");
+  }
+
+  Future<void> deleteMyAccount() async {
+    try {
+      final token = StorageService().token;
+      if (token == null || token.isEmpty) {
+        throw Exception('User is not authenticated.');
+      }
+      
+      await _dio.delete(
+        '/users/me',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      
+      // Clear local storage after successful deletion
+      await StorageService().logout();
+      print("User account deleted and local data cleared.");
+    } on DioException catch (e) {
+      throw Exception(_extractApiError(e));
+    } catch (e) {
+      throw Exception('Failed to delete account: $e');
+    }
+  }
+
+  Future<void> changePassword(ChangePasswordRequestModel request) async {
+    try {
+      final token = StorageService().token;
+      if (token == null || token.isEmpty) {
+        throw Exception('User is not authenticated.');
+      }
+      
+      final response = await _dio.post(
+        '/auth/change-password',
+        data: request.toJson(),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      
+      if (response.data != null && response.data is Map) {
+        if (response.data['success'] == false || response.data['isSuccess'] == false || response.data['succeeded'] == false) {
+          throw Exception(response.data['message'] ?? 'Failed to change password.');
+        }
+      }
+    } on DioException catch (e) {
+      throw Exception(_extractApiError(e));
+    } catch (e) {
+      throw Exception('Failed to change password: $e');
+    }
   }
 
   Future<Map<String, dynamic>> addProduct({

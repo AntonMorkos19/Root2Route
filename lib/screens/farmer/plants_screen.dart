@@ -97,9 +97,7 @@ class _PlantsScreenState extends State<PlantsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
         toolbarHeight: 70,
@@ -110,7 +108,6 @@ class _PlantsScreenState extends State<PlantsScreen> {
             Text(
               'Plants',
               style: TextStyle(
-                color: AppColors.textPrimary,
                 fontSize: 24.sp,
                 fontWeight: FontWeight.bold,
               ),
@@ -118,7 +115,7 @@ class _PlantsScreenState extends State<PlantsScreen> {
             Text(
               'Explore plant information',
               style: TextStyle(
-                color: Colors.grey.shade500,
+                color: Theme.of(context).colorScheme.outline,
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
               ),
@@ -127,7 +124,7 @@ class _PlantsScreenState extends State<PlantsScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: AppColors.textPrimary),
+            icon: const Icon(Icons.refresh),
             onPressed: _loadPlants,
             tooltip: 'Refresh',
           ),
@@ -152,27 +149,24 @@ class _PlantsScreenState extends State<PlantsScreen> {
                 controller: _searchController,
                 decoration: InputDecoration(
                   hintText: 'Search plants',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                  prefixIcon: const Icon(Icons.search),
                   suffixIcon:
                       _searchController.text.isEmpty
                           ? null
                           : IconButton(
-                            icon: const Icon(Icons.close, color: Colors.grey),
+                            icon: const Icon(Icons.close),
                             onPressed: () {
                               _searchController.clear();
                               FocusScope.of(context).unfocus();
                             },
                           ),
-                  filled: true,
-                  fillColor: Colors.white,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: AppColors.primary,
                       width: 1.5,
                     ),
@@ -240,12 +234,16 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, size: 72, color: Colors.grey),
+            Icon(Icons.wifi_off_rounded, size: 72,
+                color: Theme.of(context).colorScheme.outline),
             const SizedBox(height: 16),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 16.sp,
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -283,7 +281,7 @@ class _EmptyState extends StatelessWidget {
             Icon(
               isSearch ? Icons.search_off : Icons.eco_outlined,
               size: 72,
-              color: Colors.grey.shade300,
+              color: Theme.of(context).colorScheme.outline,
             ),
             const SizedBox(height: 16),
             Text(
@@ -291,7 +289,10 @@ class _EmptyState extends StatelessWidget {
                   ? 'No plants found matching your search'
                   : 'No plants available yet',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade500, fontSize: 16.sp),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 16.sp,
+              ),
             ),
             if (!isSearch) ...[
               const SizedBox(height: 24),

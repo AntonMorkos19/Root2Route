@@ -16,16 +16,15 @@ class OrganizationReviewsScreen extends StatelessWidget {
       create: (context) =>
           ReviewCubit()..fetchOrganizationReviews(organizationId),
       child: Scaffold(
-        backgroundColor: const Color(0xFFF4F6F9),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           title: const Text(
             'Customer Reviews',
-            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
           backgroundColor: Colors.transparent,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.black87),
         ),
         body: BlocBuilder<ReviewCubit, ReviewState>(
           builder: (context, state) {
@@ -111,7 +110,7 @@ class OrganizationReviewsScreen extends StatelessWidget {
                     return Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -149,6 +148,7 @@ class OrganizationReviewsScreen extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 18.sp,
                                         fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).textTheme.titleMedium?.color,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
@@ -176,7 +176,7 @@ class OrganizationReviewsScreen extends StatelessWidget {
                               comment,
                               style: TextStyle(
                                 fontSize: 16.sp,
-                                color: Colors.grey.shade700,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
                                 height: 1.4,
                               ),
                             ),

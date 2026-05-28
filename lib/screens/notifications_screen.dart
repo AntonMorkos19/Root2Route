@@ -23,9 +23,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "Notifications",
-          style: TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(
+            color: Theme.of(context).appBarTheme.titleTextStyle?.color,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -45,7 +48,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
           const SizedBox(width: 8),
         ],
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(
+          color: Theme.of(context).appBarTheme.iconTheme?.color,
+        ),
       ),
       body: BlocBuilder<NotificationCubit, NotificationState>(
         builder: (context, state) {
@@ -72,7 +77,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   child: Container(
                     color: notification.isRead
                         ? Colors.transparent
-                        : AppColors.primary.withOpacity(0.1),
+                        : AppColors.primary.withValues(alpha: 0.1),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +109,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               Text(
                                 notification.message,
                                 style: TextStyle(
-                                  color: Colors.grey.shade700,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                               if (notification.createdAt != null) ...[
@@ -113,7 +118,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   "${notification.createdAt!.day}/${notification.createdAt!.month}/${notification.createdAt!.year} ${notification.createdAt!.hour}:${notification.createdAt!.minute.toString().padLeft(2, '0')}",
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey.shade500,
+                                    color: Theme.of(context).colorScheme.outline,
                                   ),
                                 ),
                               ],

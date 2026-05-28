@@ -19,13 +19,13 @@ class PlantCard extends StatelessWidget {
           ),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.OnSecondary,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
-              color: Colors.black12,
+              color: Colors.black.withValues(alpha: 0.12),
               blurRadius: 16,
-              offset: Offset(0, 6),
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -47,7 +47,7 @@ class PlantCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20.sp,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).textTheme.titleLarge?.color,
                       ),
                       textAlign: TextAlign.right,
                     ),
@@ -59,7 +59,7 @@ class PlantCard extends StatelessWidget {
                       plant.scientificName!,
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: Colors.grey.shade500,
+                        color: Theme.of(context).colorScheme.outline,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -98,7 +98,7 @@ class PlantCard extends StatelessWidget {
                         textAlign: TextAlign.left,
                         style: TextStyle(
                           fontSize: 14.sp,
-                          color: Colors.grey.shade600,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           height: 1.5,
                         ),
                       ),
@@ -208,7 +208,7 @@ class _PlaceholderImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.grey.shade100,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: const Center(
         child: Icon(Icons.eco, size: 64, color: Color(0xFF2ECC71)),
       ),

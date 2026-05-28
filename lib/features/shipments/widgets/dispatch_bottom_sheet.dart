@@ -10,7 +10,8 @@ import 'package:root2route/features/shipments/cubit/dispatch_cubit.dart';
 /// Pass the already-provided [dispatchCubit] from the parent's
 /// `context.read<DispatchCubit>()` so the BlocListener on the parent screen
 /// keeps receiving state updates.
-void showDispatchBottomSheet(BuildContext context, {
+void showDispatchBottomSheet(
+  BuildContext context, {
   required String orderId,
   required DispatchCubit dispatchCubit,
 }) {
@@ -18,10 +19,11 @@ void showDispatchBottomSheet(BuildContext context, {
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => _DispatchBottomSheet(
-      orderId: orderId,
-      dispatchCubit: dispatchCubit,
-    ),
+    builder:
+        (_) => _DispatchBottomSheet(
+          orderId: orderId,
+          dispatchCubit: dispatchCubit,
+        ),
   );
 }
 
@@ -63,9 +65,10 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
     widget.dispatchCubit.dispatchShipment(
       orderId: widget.orderId,
       trackingNumber: _trackingCtrl.text.trim(),
-      notes: _phoneCtrl.text.trim().isNotEmpty
-          ? 'Carrier: ${_carrierCtrl.text.trim()} | Phone: ${_phoneCtrl.text.trim()}'
-          : _carrierCtrl.text.trim(),
+      notes:
+          _phoneCtrl.text.trim().isNotEmpty
+              ? 'Carrier: ${_carrierCtrl.text.trim()} | Phone: ${_phoneCtrl.text.trim()}'
+              : _carrierCtrl.text.trim(),
     );
   }
 
@@ -76,8 +79,8 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
       padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
@@ -150,8 +153,9 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
                   color: Colors.black87,
                   borderColor: AppColors.primary,
                   cursorColor: AppColors.primary,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Required' : null,
+                  validator:
+                      (v) =>
+                          (v == null || v.trim().isEmpty) ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
 

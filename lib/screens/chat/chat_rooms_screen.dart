@@ -48,19 +48,16 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
         title: Text(
           'Messages',
           style: TextStyle(
-            color: Colors.black87,
+            color: Theme.of(context).textTheme.titleLarge?.color,
             fontWeight: FontWeight.bold,
             fontSize: 22.sp,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: Theme.of(context).iconTheme.color),
       ),
       body: BlocBuilder<ChatRoomsCubit, ChatRoomsState>(
         builder: (context, state) {
@@ -108,9 +105,9 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           border: Border(
-            bottom: BorderSide(color: Colors.grey.shade100),
+            bottom: BorderSide(color: Theme.of(context).dividerColor),
           ),
         ),
         child: Row(
@@ -120,7 +117,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
               children: [
                 CircleAvatar(
                   radius: 26,
-                  backgroundColor: Colors.green.shade100,
+                  backgroundColor: Colors.green.withValues(alpha: 0.15),
                   child: Text(
                     displayName[0].toUpperCase(),
                     style: TextStyle(
@@ -157,7 +154,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
                       fontWeight:
                           hasUnread ? FontWeight.bold : FontWeight.w600,
                       fontSize: 16.sp,
-                      color: Colors.black87,
+                      color: Theme.of(context).textTheme.titleMedium?.color,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -170,8 +167,8 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: hasUnread
-                          ? Colors.black87
-                          : Colors.grey.shade500,
+                          ? Theme.of(context).textTheme.bodyMedium?.color
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: hasUnread
                           ? FontWeight.w500
                           : FontWeight.normal,
@@ -212,21 +209,21 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.chat_bubble_outline, size: 72, color: Colors.grey.shade300),
+          Icon(Icons.chat_bubble_outline, size: 72, color: Theme.of(context).colorScheme.outline),
           const SizedBox(height: 16),
           Text(
             'No conversations yet',
             style: TextStyle(
               fontSize: 20.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.grey.shade600,
+              color: Theme.of(context).textTheme.titleMedium?.color,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Contact a seller on any product page\nto start a conversation.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15.sp, color: Colors.grey.shade400),
+            style: TextStyle(fontSize: 15.sp, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -245,7 +242,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16.sp),
+              style: TextStyle(fontSize: 16.sp, color: Theme.of(context).textTheme.bodyMedium?.color),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(

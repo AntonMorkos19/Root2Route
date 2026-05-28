@@ -76,15 +76,12 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
         toolbarHeight: 70,
         title: Text(
           "Scan Crop",
           style: TextStyle(
-            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 20.sp,
           ),
@@ -105,7 +102,10 @@ class _ScanScreenState extends State<ScanScreen> {
                   Text(
                     "Take a photo of the affected plant to identify the disease.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18.sp, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 40),
                   Row(
@@ -144,7 +144,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.6),
+              color: Colors.black.withValues(alpha: 0.6),
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -172,9 +172,9 @@ class _ScanScreenState extends State<ScanScreen> {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
+        color: AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -187,7 +187,7 @@ class _ScanScreenState extends State<ScanScreen> {
               "Focus on the affected part of the plant for 98% more accurate results.",
               style: TextStyle(
                 fontSize: 14.sp,
-                color: Color.fromARGB(255, 137, 136, 136),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 height: 1.4,
               ),
             ),

@@ -163,15 +163,16 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'My Products',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Theme.of(context).textTheme.titleLarge?.color,
+              fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: Theme.of(context).iconTheme.color),
       ),
       body: _buildBody(),
     );
@@ -229,18 +230,15 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                 MaterialPageRoute(
                   builder:
                       (_) => Scaffold(
-                        backgroundColor: const Color(0xFFF4F6F9),
                         appBar: AppBar(
                           title: const Text(
                             'My Auctions',
                             style: TextStyle(
-                              color: Colors.black87,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           backgroundColor: Colors.transparent,
                           elevation: 0,
-                          iconTheme: const IconThemeData(color: Colors.black87),
                         ),
                         body: const MyAuctionsScreen(),
                       ),
@@ -260,7 +258,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.35),
+                    color: AppColors.primary.withValues(alpha: 0.35),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -271,7 +269,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
@@ -296,7 +294,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                         Text(
                           'View upcoming, active & ended auctions',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 14.sp,
                           ),
                         ),
@@ -363,21 +361,23 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
             Icon(
               Icons.inventory_2_outlined,
               size: 80,
-              color: Colors.grey.shade400,
+              color: Theme.of(context).colorScheme.outline,
             ),
             const SizedBox(height: 16),
             Text(
               'No products found.',
               style: TextStyle(
                 fontSize: 20.sp,
-                color: Colors.grey.shade600,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Add your first product to get started.',
-              style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade500),
+              style: TextStyle(
+                  fontSize: 16.sp,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -459,11 +459,11 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -502,7 +502,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16.sp,
-                    color: Colors.black87,
+                    color: Theme.of(context).textTheme.titleMedium?.color,
                   ),
                 ),
                 SizedBox(height: 4.h),
@@ -546,7 +546,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                     Icon(
                       Icons.inventory_2_outlined,
                       size: 14.w,
-                      color: Colors.grey.shade600,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     SizedBox(width: 4.w),
                     Expanded(
@@ -556,7 +556,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: Colors.grey.shade600,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -625,7 +625,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                               vertical: 6.h,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
+                              color: AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: Icon(
@@ -688,10 +688,10 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
   Widget _buildPlaceholder() {
     return Container(
       width: double.infinity,
-      color: Colors.grey.shade100,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Icon(
         Icons.image_not_supported_outlined,
-        color: Colors.grey.shade300,
+        color: Theme.of(context).colorScheme.outline,
         size: 40,
       ),
     );

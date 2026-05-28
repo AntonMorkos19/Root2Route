@@ -205,15 +205,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
       appBar: AppBar(
         title: Text(
           'Edit Product',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 20.sp),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: Form(
         key: _formKey,
@@ -261,7 +259,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   Widget _buildFormCard() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -332,7 +330,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   Widget _buildSellingOptionsCard() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -472,7 +470,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
       controller: controller,
       keyboardType: keyboardType,
       validator: validator,
-      style: TextStyle(color: Colors.black87, fontSize: 16.sp),
+      style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87, fontSize: 16.sp),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15.sp),
@@ -482,7 +480,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           vertical: 16,
         ),
         filled: true,
-        fillColor: const Color(0xFFF8F9FB),
+        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.grey.shade100,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.grey.shade200),
@@ -511,7 +509,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8F9FB),
+          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: Colors.grey.shade200),
         ),
@@ -528,7 +526,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
               style: TextStyle(
                 fontSize: 16.sp,
                 color:
-                    _expiryDate == null ? Colors.grey.shade400 : Colors.black87,
+                    _expiryDate == null ? Colors.grey.shade400 : Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
               ),
             ),
             const Spacer(),

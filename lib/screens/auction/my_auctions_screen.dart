@@ -425,7 +425,7 @@ class _AuctionListPageState extends State<_AuctionListPage>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.grey.shade100,
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 48, color: Colors.grey.shade400),
@@ -436,7 +436,7 @@ class _AuctionListPageState extends State<_AuctionListPage>
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.grey.shade700,
+              color: Theme.of(context).textTheme.titleMedium?.color ?? Colors.grey.shade700,
             ),
           ),
           const SizedBox(height: 8),

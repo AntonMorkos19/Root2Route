@@ -61,7 +61,7 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -101,7 +101,7 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
             child: NavigationBar(
               height: 65,
               elevation: 0,
-              backgroundColor: Colors.grey.withOpacity(0.80),
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
               selectedIndex: index,
               onDestinationSelected: (i) => setState(() => index = i),
               labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,

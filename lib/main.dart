@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:root2route/core/theme/app_theme.dart';
 import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
+import 'package:root2route/features/theme/cubit/theme_cubit.dart';
 import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/screens/auction/create_auction_screen.dart';
 import 'package:root2route/screens/auction/bid_history_screen.dart';
@@ -25,16 +27,22 @@ import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await StorageService().init();
-  runApp(const MyApp());
+  // Pre-load persisted theme so first frame already uses correct mode.
+  final themeCubit = ThemeCubit();
+  await themeCubit.loadTheme();
+  runApp(MyApp(themeCubit: themeCubit));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ThemeCubit themeCubit;
+  const MyApp({super.key, required this.themeCubit});
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        // Provide pre-loaded ThemeCubit so it is available app-wide.
+        BlocProvider<ThemeCubit>.value(value: themeCubit),
         BlocProvider<AuctionCubit>(create: (_) => AuctionCubit()),
         BlocProvider<NotificationCubit>(create: (_) => NotificationCubit()..fetchNotifications()),
         BlocProvider<CartCubit>(create: (_) => CartCubit()),
@@ -44,73 +52,15 @@ class MyApp extends StatelessWidget {
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (_, child) {
-          return MaterialApp(
-            navigatorKey: NavigatorService.navigatorKey,
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              useMaterial3: false,
-              fontFamily: 'Roboto',
-              primaryColor: const Color(0xFF1B7A35),
-              elevatedButtonTheme: ElevatedButtonThemeData(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1B7A35),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  textStyle: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF1B7A35),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  textStyle: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              outlinedButtonTheme: OutlinedButtonThemeData(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF1B7A35),
-                  side: const BorderSide(color: Color(0xFF1B7A35), width: 1.5),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  textStyle: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              textTheme: TextTheme(
-                displayLarge: TextStyle(fontSize: 34.sp, fontWeight: FontWeight.bold),
-                displayMedium: TextStyle(fontSize: 28.sp, fontWeight: FontWeight.bold),
-                displaySmall: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w600),
-                headlineLarge: TextStyle(fontSize: 26.sp, fontWeight: FontWeight.bold),
-                headlineMedium: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w700),
-                headlineSmall: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600),
-                titleLarge: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
-                titleMedium: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w600),
-                titleSmall: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
-                bodyLarge: TextStyle(fontSize: 16.sp, height: 1.5),
-                bodyMedium: TextStyle(fontSize: 15.sp, height: 1.5),
-                bodySmall: TextStyle(fontSize: 13.sp, height: 1.4),
-                labelLarge: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
-                labelMedium: TextStyle(fontSize: 13.sp),
-                labelSmall: TextStyle(fontSize: 12.sp),
-              ),
-            ),
-            initialRoute: SplashScreen.id,
+          return BlocBuilder<ThemeCubit, ThemeState>(
+            builder: (context, themeState) {
+              return MaterialApp(
+                navigatorKey: NavigatorService.navigatorKey,
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: themeState.themeMode,
+                initialRoute: SplashScreen.id,
             routes: {
               SplashScreen.id: (_) => const SplashScreen(),
               IntroScreen.id: (_) => const IntroScreen(),
@@ -130,6 +80,8 @@ class MyApp extends StatelessWidget {
               BuyerAuctionsScreen.id: (_) => const BuyerAuctionsScreen(),
               CheckoutScreen.id: (_) => const CheckoutScreen(),
               CartScreen.id: (_) => const CartScreen(),
+            },
+              );
             },
           );
         },

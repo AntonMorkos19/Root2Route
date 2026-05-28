@@ -132,7 +132,10 @@ class _MainMarketTabState extends State<MainMarketTab> {
               const SizedBox(height: 16),
               Text(
                 _errorMessage!,
-                style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -164,14 +167,13 @@ class _MainMarketTabState extends State<MainMarketTab> {
             Icon(
               Icons.inventory_2_outlined,
               size: 80,
-              color: Colors.grey.shade300,
+              color: Theme.of(context).colorScheme.outline,
             ),
             const SizedBox(height: 16),
             const Text(
               'No products available currently',
               style: TextStyle(
                 fontSize: 18,
-                color: Colors.grey,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -337,11 +339,11 @@ class _MainMarketTabState extends State<MainMarketTab> {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -362,7 +364,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
                     child: Container(
                       width: double.infinity,
                       height: double.infinity,
-                      color: const Color(0xFFF8F9FB),
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       child:
                           displayUrl != null && displayUrl.isNotEmpty
                               ? Image.network(
@@ -425,7 +427,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14.sp,
-                        color: const Color(0xFF1A202C), // Primary Text
+                        color: Theme.of(context).textTheme.titleMedium?.color,
                         height: 1.2,
                       ),
                     ),
@@ -445,7 +447,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 11.sp,
-                              color: const Color(0xFF718096), // Secondary Text
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -457,7 +459,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16.sp,
-                        color: const Color(0xFF1A202C), // Primary Text
+                        color: Theme.of(context).textTheme.titleMedium?.color,
                       ),
                     ),
                     if (isMyProduct || (sellerName != null && sellerName.trim().isNotEmpty)) ...[
@@ -467,7 +469,9 @@ class _MainMarketTabState extends State<MainMarketTab> {
                           Icon(
                             isMyProduct ? Icons.verified_user : Icons.storefront_outlined,
                             size: 14,
-                            color: isMyProduct ? const Color(0xFF1B7A35) : Colors.grey[600],
+                            color: isMyProduct
+                                ? const Color(0xFF1B7A35)
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(width: 4),
                           Flexible(
@@ -478,7 +482,9 @@ class _MainMarketTabState extends State<MainMarketTab> {
                               style: TextStyle(
                                 fontSize: isMyProduct ? 12.sp : 11.sp,
                                 fontWeight: isMyProduct ? FontWeight.bold : FontWeight.normal,
-                                color: isMyProduct ? const Color(0xFF1B7A35) : Colors.grey[600],
+                                color: isMyProduct
+                                    ? const Color(0xFF1B7A35)
+                                    : Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),

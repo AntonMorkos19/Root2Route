@@ -181,14 +181,15 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(0, 255, 255, 255),
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Create Organization',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Theme.of(context).textTheme.titleLarge?.color),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: Icon(Icons.arrow_back_ios,
+              color: Theme.of(context).iconTheme.color),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -197,12 +198,11 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
             child: Icon(
               Icons.business_outlined,
               size: 30,
-              color: const Color.fromARGB(255, 0, 0, 0),
+              color: Theme.of(context).iconTheme.color,
             ),
           ),
         ],
       ),
-      backgroundColor: const Color(0xfff5f5f7),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -217,7 +217,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withValues(alpha: 0.15),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -240,8 +240,8 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Colors.black.withOpacity(0.7),
-                                  Colors.black.withOpacity(0.3),
+                                  Colors.black.withValues(alpha: 0.7),
+                                  Colors.black.withValues(alpha: 0.3),
                                   Colors.transparent,
                                 ],
                                 begin: Alignment.bottomLeft,
@@ -255,7 +255,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                           child: BackdropFilter(
                             filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                             child: Container(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                             ),
                           ),
                         ),
@@ -305,18 +305,13 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: const Color.fromARGB(
-                                255,
-                                0,
-                                0,
-                                0,
-                              ).withOpacity(0.3),
+                             color: Colors.black.withValues(alpha: 0.3),
                               width: 2,
                             ),
                           ),
                           child: CircleAvatar(
                             radius: 55,
-                            backgroundColor: Colors.white,
+                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                             backgroundImage:
                                 _imageBytes != null
                                     ? MemoryImage(_imageBytes!)
@@ -420,11 +415,11 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
 
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: const Text(
+                  child: Text(
                     'Account Type',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: Color.fromARGB(255, 0, 0, 0),
+                      color: Theme.of(context).textTheme.titleSmall?.color,
                     ),
                   ),
                 ),

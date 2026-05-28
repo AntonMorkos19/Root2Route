@@ -20,7 +20,7 @@ class AddOrganizationCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -58,7 +58,7 @@ class AddOrganizationCard extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18.sp,
-                      color: const Color(0xff2D3748),
+                      color: Theme.of(context).textTheme.titleMedium?.color ?? const Color(0xff2D3748),
                     ),
                   ),
                   const SizedBox(height: 4),

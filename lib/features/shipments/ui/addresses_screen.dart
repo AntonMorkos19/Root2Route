@@ -35,16 +35,17 @@ class _AddressesScreenState extends State<AddressesScreen> {
     return BlocProvider<ShipmentAddressCubit>.value(
       value: _cubit,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF4F6F9),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           title: const Text(
             'My Addresses',
-            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           centerTitle: true,
           backgroundColor: Colors.transparent,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.black87),
         ),
         body: BlocBuilder<ShipmentAddressCubit, ShipmentState>(
           bloc: _cubit,
@@ -188,7 +189,7 @@ class _AddressCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border:
             address.isDefault
@@ -227,7 +228,7 @@ class _AddressCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Theme.of(context).textTheme.titleMedium?.color,
                   ),
                 ),
               ),
@@ -268,32 +269,33 @@ class _AddressCard extends StatelessWidget {
           const SizedBox(height: 12),
 
           // ── Details ────────────────────────────────────────────────
-          _detailRow(Icons.location_city_outlined, address.city),
+          _detailRow(context, Icons.location_city_outlined, address.city),
           if (address.street.isNotEmpty) ...[
             const SizedBox(height: 6),
-            _detailRow(Icons.map_outlined, address.street),
+            _detailRow(context, Icons.map_outlined, address.street),
           ],
           if (address.buildingNumber.isNotEmpty) ...[
             const SizedBox(height: 6),
             _detailRow(
+              context,
               Icons.apartment_outlined,
               'Building ${address.buildingNumber}',
             ),
           ],
           if (address.phone.isNotEmpty) ...[
             const SizedBox(height: 6),
-            _detailRow(Icons.phone_outlined, address.phone),
+            _detailRow(context, Icons.phone_outlined, address.phone),
           ],
           if (address.notes.isNotEmpty) ...[
             const SizedBox(height: 6),
-            _detailRow(Icons.notes_outlined, address.notes),
+            _detailRow(context, Icons.notes_outlined, address.notes),
           ],
         ],
       ),
     );
   }
 
-  Widget _detailRow(IconData icon, String text) {
+  Widget _detailRow(BuildContext context, IconData icon, String text) {
     return Row(
       children: [
         Icon(icon, size: 18, color: Colors.grey.shade500),
@@ -301,7 +303,7 @@ class _AddressCard extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade700),
+            style: TextStyle(fontSize: 16.sp, color: Theme.of(context).textTheme.bodyMedium?.color),
           ),
         ),
       ],
@@ -387,9 +389,9 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 12),
           padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: SingleChildScrollView(
             child: Column(

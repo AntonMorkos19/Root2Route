@@ -92,11 +92,11 @@ class _AuctionCardState extends State<AuctionCard> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -130,7 +130,7 @@ class _AuctionCardState extends State<AuctionCard> {
                             style: TextStyle(
                               fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Theme.of(context).textTheme.titleMedium?.color,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -140,7 +140,7 @@ class _AuctionCardState extends State<AuctionCard> {
                             'Starting: EGP ${auction.startingPrice.toStringAsFixed(2)}',
                             style: TextStyle(
                               fontSize: 14.sp,
-                              color: Colors.grey.shade600,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -160,7 +160,7 @@ class _AuctionCardState extends State<AuctionCard> {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -213,7 +213,7 @@ class _AuctionCardState extends State<AuctionCard> {
       child: Container(
         width: 52,
         height: 52,
-        color: Colors.grey.shade100,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         child:
             displayUrl != null && displayUrl.isNotEmpty
                 ? Image.network(
@@ -222,13 +222,13 @@ class _AuctionCardState extends State<AuctionCard> {
                   errorBuilder:
                       (_, __, ___) => Icon(
                         Icons.inventory_2_outlined,
-                        color: Colors.grey.shade400,
+                        color: Theme.of(context).colorScheme.outline,
                         size: 24,
                       ),
                 )
                 : Icon(
                   Icons.inventory_2_outlined,
-                  color: Colors.grey.shade400,
+                  color: Theme.of(context).colorScheme.outline,
                   size: 24,
                 ),
       ),
@@ -242,18 +242,18 @@ class _AuctionCardState extends State<AuctionCard> {
 
     switch (widget.auction.status) {
       case 'active':
-        bgColor = const Color(0xFF22C55E).withOpacity(0.12);
+        bgColor = const Color(0xFF22C55E).withValues(alpha: 0.12);
         textColor = const Color(0xFF16A34A);
         label = 'Active';
         break;
       case 'ended':
-        bgColor = Colors.grey.shade200;
-        textColor = Colors.grey.shade600;
+        bgColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+        textColor = Theme.of(context).colorScheme.onSurfaceVariant;
         label = 'Ended';
         break;
       case 'upcoming':
       default:
-        bgColor = const Color(0xFFFBBF24).withOpacity(0.15);
+        bgColor = const Color(0xFFFBBF24).withValues(alpha: 0.15);
         textColor = const Color(0xFFD97706);
         label = 'Upcoming';
         break;
@@ -281,7 +281,7 @@ class _AuctionCardState extends State<AuctionCard> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: Colors.grey.shade500),
+        Icon(icon, size: 14, color: Theme.of(context).colorScheme.outline),
         const SizedBox(width: 4),
         Flexible(
           child: Text(
@@ -289,7 +289,7 @@ class _AuctionCardState extends State<AuctionCard> {
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             overflow: TextOverflow.ellipsis,
           ),
@@ -304,14 +304,13 @@ class _AuctionCardState extends State<AuctionCard> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.grey.shade100, Colors.grey.shade50],
-          ),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           children: [
-            Icon(Icons.flag_rounded, size: 16, color: Colors.grey.shade600),
+            Icon(Icons.flag_rounded,
+                size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(width: 8),
             Text(
               auction.winnerName != null
@@ -320,7 +319,7 @@ class _AuctionCardState extends State<AuctionCard> {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -336,7 +335,7 @@ class _AuctionCardState extends State<AuctionCard> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -368,21 +367,22 @@ class _AuctionCardState extends State<AuctionCard> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.person_outline, size: 14, color: Colors.grey.shade600),
+                    Icon(Icons.person_outline,
+                        size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(width: 6),
                     Text(
                       'Your Auction',
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -467,7 +467,7 @@ class _ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: color.withOpacity(0.08),
+      color: color.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),

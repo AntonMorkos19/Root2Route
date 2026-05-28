@@ -122,7 +122,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Widget build(BuildContext context) {
     if (widget.isGuestMode) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF4F6F9),
         body: _MyOrdersTab(
           cubit: _myOrdersCubit,
           onUpdateStatus:
@@ -175,7 +174,6 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         child: DefaultTabController(
           length: 2,
           child: Scaffold(
-            backgroundColor: const Color(0xFFF4F6F9),
             appBar: AppBar(
               title: const Text(
                 'Orders',
@@ -186,7 +184,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               automaticallyImplyLeading: false,
               bottom: TabBar(
                 labelColor: Colors.white,
-                unselectedLabelColor: Colors.white60,
+                unselectedLabelColor: Colors.white70,
                 labelStyle: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16.sp,
@@ -389,17 +387,23 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
             Icon(
               Icons.storefront_outlined,
               size: 80,
-              color: Colors.grey.shade400,
+              color: Theme.of(context).colorScheme.outline,
             ),
             const SizedBox(height: 16),
             Text(
               'No Organization',
-              style: TextStyle(fontSize: 20.sp, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: 20.sp,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'You need a store to receive orders',
-              style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade400),
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: Theme.of(context).colorScheme.outline,
+              ),
             ),
           ],
         ),
@@ -531,17 +535,17 @@ class _FilterChips extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Row(
         children: [
-          _chip('All'),
+          _chip(context, 'All'),
           SizedBox(width: 8.w),
-          _chip('Active'),
+          _chip(context, 'Active'),
           SizedBox(width: 8.w),
-          _chip('History'),
+          _chip(context, 'History'),
         ],
       ),
     );
   }
 
-  Widget _chip(String label) {
+  Widget _chip(BuildContext context, String label) {
     final isSelected = currentFilter == label;
     return ChoiceChip(
       label: Text(label),
@@ -549,11 +553,13 @@ class _FilterChips extends StatelessWidget {
       onSelected: (selected) {
         if (selected) onChanged(label);
       },
-      selectedColor: AppColors.primary.withOpacity(0.2),
+      selectedColor: AppColors.primary.withValues(alpha: 0.2),
       labelStyle: TextStyle(
         fontSize: 14.sp,
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        color: isSelected ? AppColors.primary : Colors.black87,
+        color: isSelected
+            ? AppColors.primary
+            : Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
   }
@@ -580,16 +586,22 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 80, color: Colors.grey.shade400),
+            Icon(icon, size: 80, color: Theme.of(context).colorScheme.outline),
             const SizedBox(height: 16),
             Text(
               title,
-              style: TextStyle(fontSize: 20.sp, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: 20.sp,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               subtitle,
-              style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade400),
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: Theme.of(context).colorScheme.outline,
+              ),
             ),
           ],
         ),
@@ -677,11 +689,11 @@ class _OrderCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -701,7 +713,7 @@ class _OrderCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: Theme.of(context).textTheme.titleLarge?.color,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -713,7 +725,7 @@ class _OrderCard extends StatelessWidget {
                     vertical: 6.h,
                   ),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: Row(
@@ -746,7 +758,7 @@ class _OrderCard extends StatelessWidget {
                     Icon(
                       Icons.shopping_basket_outlined,
                       size: 16.w,
-                      color: Colors.grey.shade600,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     SizedBox(width: 6.w),
                     Text(
@@ -755,7 +767,7 @@ class _OrderCard extends StatelessWidget {
                           : '${order.items.length} item${order.items.length != 1 ? 's' : ''}',
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: Colors.grey.shade600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -765,7 +777,7 @@ class _OrderCard extends StatelessWidget {
                     dateStr,
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: Colors.grey.shade600,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
               ],
@@ -780,7 +792,7 @@ class _OrderCard extends StatelessWidget {
                     '${order.items.length} item${order.items.length != 1 ? 's' : ''}',
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: Colors.grey.shade600,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   )
                 else

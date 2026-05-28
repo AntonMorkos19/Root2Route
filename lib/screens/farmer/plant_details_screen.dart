@@ -54,7 +54,6 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
   Widget build(BuildContext context) {
     final plant = widget.plant;
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -182,7 +181,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     style: TextStyle(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).textTheme.titleLarge?.color,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -246,7 +245,9 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
             const SizedBox(height: 8),
             Text(
               _stepsError!,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14.sp),
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 14.sp),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
@@ -270,11 +271,11 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -299,7 +300,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: AppColors.primary,
@@ -320,7 +321,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                       Expanded(
                         child: Container(
                           width: 2,
-                          color: AppColors.primary.withOpacity(0.3),
+                           color: AppColors.primary.withValues(alpha: 0.3),
                         ),
                       ),
                   ],
@@ -337,9 +338,9 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                           child: Text(
                             step.title,
                             style: TextStyle(
-                               fontSize: 18.sp,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xff333333),
+                              color: Theme.of(context).textTheme.titleMedium?.color,
                             ),
                           ),
                         ),
@@ -348,7 +349,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                           step.instruction,
                           style: TextStyle(
                             fontSize: 16.sp,
-                            color: Colors.grey.shade600,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             height: 1.4,
                           ),
                         ),
@@ -435,7 +436,7 @@ class _QuickInfoRow extends StatelessWidget {
                           item.label,
                           style: TextStyle(
                             fontSize: 12.sp,
-                            color: Colors.grey.shade500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -493,7 +494,7 @@ class _DetailSection extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
@@ -520,15 +521,15 @@ class _DetailSection extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).textTheme.titleMedium?.color,
                   ),
                 ),
               ],
             ),
 
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Divider(height: 1, color: Color(0xFFEEEEEE)),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Divider(height: 1, color: Theme.of(context).dividerColor),
             ),
 
             // Content
@@ -537,7 +538,7 @@ class _DetailSection extends StatelessWidget {
               textAlign: TextAlign.left,
               style: TextStyle(
                 fontSize: 16.sp,
-                color: Colors.grey.shade700,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 height: 1.6,
               ),
             ),
@@ -556,11 +557,11 @@ class _EmptyDetails extends StatelessWidget {
         padding: const EdgeInsets.only(top: 40),
         child: Column(
           children: [
-            Icon(Icons.eco_outlined, size: 64, color: Colors.grey.shade300),
+            Icon(Icons.eco_outlined, size: 64, color: Theme.of(context).colorScheme.outline),
             const SizedBox(height: 14),
             Text(
               'No additional details available',
-              style: TextStyle(color: Colors.grey.shade500, fontSize: 16.sp),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16.sp),
             ),
           ],
         ),
@@ -573,7 +574,7 @@ class _PlaceholderImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.grey.shade100,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: const Center(
         child: Icon(Icons.eco, size: 80, color: AppColors.primary),
       ),

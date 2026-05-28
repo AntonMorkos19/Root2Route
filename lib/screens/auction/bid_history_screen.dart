@@ -44,16 +44,16 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
       appBar: AppBar(
         title: Text(
           _initialized ? (_auction.productName ?? 'Bid History') : 'Bid History',
-          style: const TextStyle(
-              color: Colors.black87, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Theme.of(context).textTheme.titleLarge?.color,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        backgroundColor: Colors.white,
         elevation: 0.5,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: Theme.of(context).iconTheme.color),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
@@ -93,7 +93,8 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
                   Text(state.message,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          fontSize: 15, color: Colors.grey.shade600)),
+                      fontSize: 15,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   const SizedBox(height: 20),
                   ElevatedButton.icon(
                     onPressed: _refresh,
@@ -127,22 +128,23 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.gavel_rounded,
-                  size: 48, color: Colors.grey.shade400),
+                  size: 48, color: Theme.of(context).colorScheme.outline),
             ),
             const SizedBox(height: 20),
             Text('No bids yet',
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade700)),
+                    color: Theme.of(context).textTheme.titleMedium?.color)),
             const SizedBox(height: 8),
             Text('Bids will appear here once users start bidding.',
-                style:
-                    TextStyle(fontSize: 14, color: Colors.grey.shade500)),
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       );
@@ -178,7 +180,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFFD700).withOpacity(0.3),
+            color: const Color(0xFFFFD700).withValues(alpha: 0.3),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -189,7 +191,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.25),
+              color: Colors.white.withValues(alpha: 0.25),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.emoji_events_rounded,
@@ -210,7 +212,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white.withOpacity(0.9))),
+                          color: Colors.white.withValues(alpha: 0.9))),
                 ]),
           ),
         ]),
@@ -218,7 +220,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -245,12 +247,12 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: isHighest
-            ? const Color(0xFF22C55E).withOpacity(0.06)
-            : Colors.white,
+            ? const Color(0xFF22C55E).withValues(alpha: 0.06)
+            : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: isHighest
-            ? Border.all(color: const Color(0xFF22C55E).withOpacity(0.3))
-            : Border.all(color: Colors.grey.shade100),
+            ? Border.all(color: const Color(0xFF22C55E).withValues(alpha: 0.3))
+            : Border.all(color: Theme.of(context).dividerColor),
       ),
       child: ListTile(
         contentPadding:
@@ -260,8 +262,8 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
           height: 40,
           decoration: BoxDecoration(
             color: isHighest
-                ? const Color(0xFF22C55E).withOpacity(0.15)
-                : Colors.grey.shade100,
+                ? const Color(0xFF22C55E).withValues(alpha: 0.15)
+                : Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Center(
@@ -272,7 +274,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade600)),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
         ),
         title: Text(bid.bidderName,
@@ -281,9 +283,11 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
                 fontWeight: FontWeight.bold,
                 color: isHighest
                     ? const Color(0xFF16A34A)
-                    : Colors.black87)),
+                    : Theme.of(context).textTheme.titleSmall?.color)),
         subtitle: Text(_fmtTs(bid.timestamp),
-            style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+            style: TextStyle(
+                fontSize: 11,
+                color: Theme.of(context).colorScheme.onSurfaceVariant)),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -294,14 +298,14 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
                     fontWeight: FontWeight.bold,
                     color: isHighest
                         ? const Color(0xFF16A34A)
-                        : Colors.black87)),
+                        : Theme.of(context).textTheme.titleSmall?.color)),
             if (isHighest)
               Container(
                 margin: const EdgeInsets.only(top: 2),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF22C55E).withOpacity(0.15),
+                  color: const Color(0xFF22C55E).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text('HIGHEST',

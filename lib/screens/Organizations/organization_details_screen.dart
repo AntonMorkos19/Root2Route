@@ -141,7 +141,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     final bool isOwner = StorageService().organizationId == org.id;
 
     return Scaffold(
-      backgroundColor: const Color(0xfff5f5f7),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -210,7 +210,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
@@ -343,7 +343,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -367,7 +367,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -422,7 +422,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
@@ -477,7 +477,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(

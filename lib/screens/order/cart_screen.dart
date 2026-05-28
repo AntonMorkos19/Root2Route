@@ -27,7 +27,6 @@ class _CartScreenState extends State<CartScreen> {
         final total = _cartService.totalPrice;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF4F6F9),
           appBar: AppBar(
             title: Text('My Cart', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp)),
             backgroundColor: AppColors.primary,
@@ -38,11 +37,11 @@ class _CartScreenState extends State<CartScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey.shade400),
+                      Icon(Icons.shopping_cart_outlined, size: 80, color: Theme.of(context).colorScheme.outline),
                       const SizedBox(height: 16),
                       Text(
                         'Your cart is empty',
-                        style: TextStyle(fontSize: 20.sp, color: Colors.grey.shade600),
+                        style: TextStyle(fontSize: 20.sp, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -75,11 +74,11 @@ class _CartScreenState extends State<CartScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -91,7 +90,7 @@ class _CartScreenState extends State<CartScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
             ),
             child: ClipRRect(
@@ -142,11 +141,11 @@ class _CartScreenState extends State<CartScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -161,14 +160,14 @@ class _CartScreenState extends State<CartScreen> {
               children: [
                 Text(
                   'Total Price:',
-                  style: TextStyle(fontSize: 18.sp, color: Colors.grey),
+                  style: TextStyle(fontSize: 18.sp, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
                 Text(
                   '${total.toStringAsFixed(0)} EGP',
                   style: TextStyle(
                     fontSize: 24.sp,
                     fontWeight: FontWeight.w900,
-                    color: Colors.black87,
+                    color: Theme.of(context).textTheme.titleLarge?.color,
                   ),
                 ),
               ],

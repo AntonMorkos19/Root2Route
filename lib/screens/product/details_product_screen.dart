@@ -355,8 +355,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
           top: MediaQuery.of(context).size.height * 0.4,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
               boxShadow: [
                 BoxShadow(
@@ -530,7 +530,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
       return Container(
         padding: const EdgeInsets.fromLTRB(24, 15, 24, 35),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
@@ -572,7 +572,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 15, 24, 35),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -781,7 +781,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),

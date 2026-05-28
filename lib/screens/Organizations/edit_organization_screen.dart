@@ -219,7 +219,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xfff5f5f7),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -342,7 +342,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                           ),
                           child: CircleAvatar(
                             radius: 55,
-                            backgroundColor: Colors.white,
+                            backgroundColor: Theme.of(context).colorScheme.surface,
                             backgroundImage: avatarImage,
                             child:
                                 avatarImage == null

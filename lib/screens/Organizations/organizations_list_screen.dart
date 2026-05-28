@@ -33,22 +33,20 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff5f5f7),
       appBar: AppBar(
-        backgroundColor: Colors.white,
         centerTitle: true,
         title: Text(
           'All Organizations',
           style: TextStyle(
-            color: const Color(0xff2D3748),
+            color: Theme.of(context).textTheme.titleLarge?.color,
             fontWeight: FontWeight.bold,
             fontSize: 20.sp,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.black,
+            color: Theme.of(context).iconTheme.color,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
@@ -118,14 +116,15 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.business_outlined, size: 80, color: Colors.grey.shade300),
+          Icon(Icons.business_outlined,
+              size: 80, color: Theme.of(context).colorScheme.outline),
           const SizedBox(height: 16),
           Text(
             'No Organizations Yet',
             style: TextStyle(
               fontSize: 20.sp,
               fontWeight: FontWeight.w600,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -143,7 +142,8 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.grey),
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           TextButton(onPressed: _loadData, child: const Text('Try Again')),
         ],

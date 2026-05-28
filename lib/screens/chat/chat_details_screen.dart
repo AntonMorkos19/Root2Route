@@ -94,7 +94,6 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F2F5),
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -158,13 +157,12 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
       elevation: 0.5,
       leading: IconButton(
-        icon: const Icon(
+        icon: Icon(
           Icons.arrow_back_ios_new,
           size: 20,
-          color: Colors.black87,
+          color: Theme.of(context).iconTheme.color,
         ),
         onPressed: () => Navigator.pop(context),
       ),
@@ -172,7 +170,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
         children: [
           CircleAvatar(
             radius: 18,
-            backgroundColor: Colors.green.shade100,
+            backgroundColor: Colors.green.withValues(alpha: 0.15),
             child: Text(
               widget.roomName.isNotEmpty
                   ? widget.roomName[0].toUpperCase()
@@ -188,7 +186,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             child: Text(
               widget.roomName,
               style: TextStyle(
-                color: Colors.black87,
+                color: Theme.of(context).textTheme.titleMedium?.color,
                 fontWeight: FontWeight.bold,
                 fontSize: 18.sp,
               ),
@@ -200,7 +198,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       actions: [
         if (!_isClosed)
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.black87),
+            icon: Icon(Icons.more_vert, color: Theme.of(context).iconTheme.color),
             onSelected: (value) {
               if (value == 'close') _confirmCloseRoom();
             },
@@ -225,13 +223,13 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   'Closed',
                   style: TextStyle(
-                    color: Colors.grey.shade500,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
                   ),
@@ -276,7 +274,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   void _showDeleteDialog(String messageId) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -290,7 +288,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(top: 12, bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -339,7 +337,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                 margin: const EdgeInsets.only(bottom: 8, right: 4),
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.6),
+                  color: AppColors.primary.withValues(alpha: 0.6),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(18),
                     topRight: Radius.circular(18),
@@ -395,19 +393,19 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          Expanded(child: Divider(color: Colors.grey.shade300)),
+          Expanded(child: Divider(color: Theme.of(context).dividerColor)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text(
               label,
               style: TextStyle(
                 fontSize: 14.sp,
-                color: Colors.grey.shade500,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
-          Expanded(child: Divider(color: Colors.grey.shade300)),
+          Expanded(child: Divider(color: Theme.of(context).dividerColor)),
         ],
       ),
     );
@@ -448,7 +446,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: isMe ? AppColors.primary : Colors.white,
+                  color: isMe
+                    ? AppColors.primary
+                    : Theme.of(context).cardColor,
                   borderRadius: BorderRadius.only(
                     topLeft: const Radius.circular(18),
                     topRight: const Radius.circular(18),
@@ -457,7 +457,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -487,7 +487,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                       Text(
                         displayText,
                         style: TextStyle(
-                          color: isMe ? Colors.white : Colors.black87,
+                          color: isMe
+                          ? Colors.white
+                          : Theme.of(context).textTheme.bodyMedium?.color,
                           fontSize: 16.sp,
                         ),
                       ),
@@ -503,7 +505,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                   _formatTime(message.createdAt),
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: Colors.grey.shade500,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 if (isMe) ...[
@@ -530,9 +532,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           border: Border(
-            top: BorderSide(color: Colors.grey.shade300, width: 1),
+            top: BorderSide(
+                color: Theme.of(context).dividerColor, width: 1),
           ),
         ),
         child: SafeArea(
@@ -540,12 +543,14 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.lock_outline, size: 16, color: Colors.grey.shade600),
+              Icon(Icons.lock_outline,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
               const SizedBox(width: 6),
               Text(
                 'This conversation is closed.',
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                 ),
@@ -563,10 +568,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -608,7 +613,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           Icon(
             Icons.chat_bubble_outline,
             size: 64,
-            color: Colors.grey.shade300,
+            color: Theme.of(context).colorScheme.outline,
           ),
           const SizedBox(height: 16),
           Text(
@@ -616,13 +621,16 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             style: TextStyle(
               fontSize: 20.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.grey.shade500,
+              color: Theme.of(context).textTheme.titleMedium?.color,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Say hello to start the conversation!',
-            style: TextStyle(fontSize: 15.sp, color: Colors.grey.shade400),
+            style: TextStyle(
+              fontSize: 15.sp,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),

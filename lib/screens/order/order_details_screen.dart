@@ -233,7 +233,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 state is OrderDetailLoaded ? state.order : null;
 
             return Scaffold(
-              backgroundColor: const Color(0xFFF4F6F9),
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               appBar: AppBar(
                 title: Text(
                   'Order Details',
@@ -464,7 +464,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
@@ -526,7 +526,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -758,7 +758,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(

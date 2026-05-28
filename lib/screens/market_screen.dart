@@ -31,15 +31,12 @@ class _MarketScreenState extends State<MarketScreen> {
     return DefaultTabController(
       length: tabLength,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF4F6F9),
         appBar: AppBar(
-          backgroundColor: Colors.white,
           elevation: 1,
           centerTitle: true,
           title: const Text(
             'Marketplace',
             style: TextStyle(
-              color: Colors.black87,
               fontWeight: FontWeight.w800,
               fontSize: 22,
             ),
@@ -54,19 +51,13 @@ class _MarketScreenState extends State<MarketScreen> {
                     isLabelVisible: cartCount > 0,
                     label: Text(cartCount.toString()),
                     backgroundColor: AppColors.primary,
-                    child: const Icon(
-                      Icons.shopping_cart_outlined,
-                      color: Colors.black87,
-                    ),
+                    child: const Icon(Icons.shopping_cart_outlined),
                   ),
                 );
               },
             ),
             IconButton(
-              icon: const Icon(
-                Icons.chat_bubble_outline,
-                color: Colors.black87,
-              ),
+              icon: const Icon(Icons.chat_bubble_outline),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -98,10 +89,7 @@ class _MarketScreenState extends State<MarketScreen> {
                     isLabelVisible: unreadCount > 0,
                     label: Text(unreadCount.toString()),
                     backgroundColor: Colors.red,
-                    child: const Icon(
-                      Icons.notifications_active_outlined,
-                      color: Colors.black87,
-                    ),
+                    child: const Icon(Icons.notifications_active_outlined),
                   ),
                 );
               },
@@ -110,7 +98,7 @@ class _MarketScreenState extends State<MarketScreen> {
           ],
           bottom: TabBar(
             labelColor: AppColors.primary,
-            unselectedLabelColor: Colors.grey,
+            unselectedLabelColor: Theme.of(context).colorScheme.outline,
             indicatorColor: AppColors.primary,
             indicatorWeight: 3,
             labelStyle: const TextStyle(

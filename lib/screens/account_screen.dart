@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/components/custom_button.dart';
+import 'package:root2route/components/theme_toggle_button.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/add_organization_screen.dart';
@@ -28,12 +29,15 @@ class _AccountScreenState extends State<AccountScreen> {
       appBar: AppBar(
         title: const Text(
           'My Account',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        actions: const [
+          ThemeToggleButton(),
+          SizedBox(width: 4),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -46,26 +50,25 @@ class _AccountScreenState extends State<AccountScreen> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.15),
+                      color: AppColors.primary.withValues(alpha: 0.15),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
                   ],
                 ),
                 child: CircleAvatar(
-                  radius: 54,
-                  backgroundColor: Colors.white,
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: AppColors.primary.withOpacity(0.1),
-                    child: const Icon(
-                      Icons.person_rounded,
-                      size: 55,
-                      color: AppColors.primary,
-                    ),
+                radius: 54,
+                backgroundColor: Theme.of(context).cardColor,
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                  child: const Icon(
+                    Icons.person_rounded,
+                    size: 55,
+                    color: AppColors.primary,
                   ),
                 ),
-              ),
+              ),  ),
             ),
 
             const SizedBox(height: 20),
@@ -99,7 +102,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primary.withOpacity(0.3),
+                              color: AppColors.primary.withValues(alpha: 0.3),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -110,7 +113,7 @@ class _AccountScreenState extends State<AccountScreen> {
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: const Icon(
@@ -162,18 +165,17 @@ class _AccountScreenState extends State<AccountScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
                       ),
                     ),
                   ),
 
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: Colors.black.withValues(alpha: 0.03),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -189,7 +191,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           leading: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
+                              color: AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(
@@ -206,7 +208,6 @@ class _AccountScreenState extends State<AccountScreen> {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
-                              color: Colors.black87,
                             ),
                           ),
                         ),
@@ -224,7 +225,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           leading: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
+                              color: AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(
@@ -241,7 +242,6 @@ class _AccountScreenState extends State<AccountScreen> {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
-                              color: Colors.black87,
                             ),
                           ),
                         ),
@@ -257,18 +257,17 @@ class _AccountScreenState extends State<AccountScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
                       ),
                     ),
                   ),
 
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: Colors.black.withValues(alpha: 0.03),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -276,6 +275,15 @@ class _AccountScreenState extends State<AccountScreen> {
                     ),
                     child: Column(
                       children: [
+                        // ── Dark Mode Toggle ─────────────────────────────
+                        const ThemeToggleTile(),
+                        const Divider(
+                          height: 1,
+                          indent: 56,
+                          endIndent: 16,
+                          color: Color(0xFFF0F0F0),
+                        ),
+                        // ── Change Password ──────────────────────────────
                         ListTile(
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -284,7 +292,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           leading: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
+                              color: AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(
@@ -296,7 +304,6 @@ class _AccountScreenState extends State<AccountScreen> {
                             'Change Password',
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              color: Colors.black87,
                             ),
                           ),
                           trailing: const Icon(
@@ -320,7 +327,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           leading: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
+                              color: AppColors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(
@@ -332,7 +339,6 @@ class _AccountScreenState extends State<AccountScreen> {
                             'Language Settings',
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              color: Colors.black87,
                             ),
                           ),
                           trailing: Row(
@@ -369,7 +375,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           leading: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.1),
+                              color: Colors.red.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(
@@ -412,7 +418,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     color:
                         isGuest
                             ? AppColors.primary
-                            : Colors.redAccent.withOpacity(0.9),
+                            : Colors.redAccent.withValues(alpha: 0.9),
                     onPressed: () {
                       if (isGuest) {
                         Navigator.pushAndRemoveUntil(

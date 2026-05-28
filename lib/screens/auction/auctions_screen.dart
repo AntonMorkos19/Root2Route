@@ -158,7 +158,7 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                     borderRadius: BorderRadius.circular(16.r),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.35),
+                        color: AppColors.primary.withValues(alpha: 0.35),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -169,7 +169,7 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                       Container(
                         padding: EdgeInsets.all(8.w),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(10.r),
                         ),
                         child: Icon(
@@ -196,7 +196,7 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                             Text(
                               'Track your bids and active auctions',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 12.sp,
                               ),
                             ),
@@ -220,11 +220,11 @@ class _AuctionsScreenState extends State<AuctionsScreen>
             child: Container(
               height: 45.h,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(12.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -239,7 +239,7 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 labelColor: Colors.white,
-                unselectedLabelColor: Colors.grey.shade600,
+                unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
                 labelStyle: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14.sp,
@@ -475,14 +475,14 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 64, color: Colors.grey.shade300),
+          Icon(icon, size: 64, color: Theme.of(context).colorScheme.outline),
           const SizedBox(height: 16),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black54,
+              color: Theme.of(context).textTheme.titleLarge?.color,
             ),
           ),
           const SizedBox(height: 8),
@@ -491,7 +491,8 @@ class _EmptyState extends StatelessWidget {
             child: Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade500),
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
           const SizedBox(height: 24),

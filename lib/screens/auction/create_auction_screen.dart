@@ -263,18 +263,21 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: const Text(
+        iconTheme: IconThemeData(color: Theme.of(context).iconTheme.color),
+        title: Text(
           'Create Auction',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Theme.of(context).textTheme.titleLarge?.color,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.help_outline, color: Colors.black87),
+            icon: Icon(Icons.help_outline,
+                color: Theme.of(context).iconTheme.color),
             onPressed: () => _showInfoGuide(context),
           ),
         ],
@@ -331,8 +334,8 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                   validator:
                       (val) =>
                           val == null || val.trim().isEmpty ? 'Required' : null,
-                  fillColor: Colors.white,
-                  color: Colors.black,
+                fillColor: Theme.of(context).colorScheme.surface,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
                 ),
 
                 const SizedBox(height: 12),
@@ -345,11 +348,11 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                   label: 'Starting Price (EGP)',
                   icon: Icons.money,
                   validator: _priceValidator,
-                  fillColor: Colors.white,
+                  fillColor: Theme.of(context).colorScheme.surface,
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
-                  color: Colors.black,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
                 ),
                 const SizedBox(height: 12),
                 CustomTextFormField(
@@ -357,22 +360,22 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                   label: 'Minimum Bid Increment (EGP)',
                   icon: Icons.trending_up,
                   validator: _priceValidator,
-                  fillColor: Colors.white,
+                  fillColor: Theme.of(context).colorScheme.surface,
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
-                  color: Colors.black,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
                 ),
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   label: 'Reserve Price (EGP)',
                   validator: _priceValidator,
                   icon: Icons.security,
-                  fillColor: Colors.white,
+                  fillColor: Theme.of(context).colorScheme.surface,
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
-                  color: Colors.black,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
                   controller: _reservePriceCtrl,
                 ),
 
@@ -432,7 +435,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFFE8F8EE),
+            color: AppColors.primary.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: AppColors.primary, size: 20),
@@ -440,10 +443,10 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
         const SizedBox(width: 12),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Theme.of(context).textTheme.titleMedium?.color,
           ),
         ),
       ],
@@ -461,13 +464,14 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: Theme.of(context).dividerColor),
         ),
         child: Row(
           children: [
-            Icon(Icons.calendar_month, color: Colors.grey.shade600),
+            Icon(Icons.calendar_month,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -475,7 +479,10 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                 children: [
                   Text(
                     label,
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 12,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -483,10 +490,9 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                         ? _formatDateTime(selectedDate)
                         : 'Select Date & Time',
                     style: TextStyle(
-                      color:
-                          selectedDate != null
-                              ? Colors.black87
-                              : Colors.grey.shade500,
+                      color: selectedDate != null
+                          ? Theme.of(context).textTheme.bodyLarge?.color
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 16,
                       fontWeight:
                           selectedDate != null
@@ -522,12 +528,12 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Auction Terms Explained',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).textTheme.titleLarge?.color,
                 ),
               ),
               const SizedBox(height: 20),
@@ -596,16 +602,19 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: Colors.black87,
+                  color: Theme.of(context).textTheme.titleMedium?.color,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 description,
-                style: const TextStyle(fontSize: 14, color: Colors.black54),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),

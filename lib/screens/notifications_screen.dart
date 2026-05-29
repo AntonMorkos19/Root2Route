@@ -21,10 +21,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Notifications",
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "الإشعارات",
           style: TextStyle(
             color: Theme.of(context).appBarTheme.titleTextStyle?.color,
             fontWeight: FontWeight.bold,
@@ -39,7 +41,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               context.read<NotificationCubit>().markAllAsRead();
             },
             child: const Text(
-              "Mark All as Read",
+              "تحديد الكل كمقروء",
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.bold,
@@ -60,7 +62,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             return Center(child: Text(state.message));
           } else if (state is NotificationLoaded) {
             if (state.notifications.isEmpty) {
-              return const Center(child: Text("No notifications yet"));
+              return const Center(child: Text("لا توجد إشعارات حتى الآن"));
             }
 
             return ListView.separated(
@@ -71,24 +73,34 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 return InkWell(
                   onTap: () {
                     if (!notification.isRead) {
-                      context.read<NotificationCubit>().markAsRead(notification.id);
+                      context.read<NotificationCubit>().markAsRead(
+                        notification.id,
+                      );
                     }
                   },
                   child: Container(
-                    color: notification.isRead
-                        ? Colors.transparent
-                        : AppColors.primary.withValues(alpha: 0.1),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    color:
+                        notification.isRead
+                            ? Colors.transparent
+                            : AppColors.primary.withValues(alpha: 0.1),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CircleAvatar(
-                          backgroundColor: notification.isRead
-                              ? Colors.grey.shade300
-                              : AppColors.primary,
+                          backgroundColor:
+                              notification.isRead
+                                  ? Colors.grey.shade300
+                                  : AppColors.primary,
                           child: Icon(
                             Icons.notifications,
-                            color: notification.isRead ? Colors.grey.shade600 : Colors.white,
+                            color:
+                                notification.isRead
+                                    ? Colors.grey.shade600
+                                    : Colors.white,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -99,9 +111,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               Text(
                                 notification.title,
                                 style: TextStyle(
-                                  fontWeight: notification.isRead
-                                      ? FontWeight.normal
-                                      : FontWeight.bold,
+                                  fontWeight:
+                                      notification.isRead
+                                          ? FontWeight.normal
+                                          : FontWeight.bold,
                                   fontSize: 16,
                                 ),
                               ),
@@ -109,7 +122,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               Text(
                                 notification.message,
                                 style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                               if (notification.createdAt != null) ...[
@@ -118,7 +134,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   "${notification.createdAt!.day}/${notification.createdAt!.month}/${notification.createdAt!.year} ${notification.createdAt!.hour}:${notification.createdAt!.minute.toString().padLeft(2, '0')}",
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Theme.of(context).colorScheme.outline,
+                                    color:
+                                        Theme.of(context).colorScheme.outline,
                                   ),
                                 ),
                               ],
@@ -132,9 +149,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               },
             );
           }
-          return const Center(child: Text("Unknown state"));
+          return const Center(child: Text("حالة غير معروفة"));
         },
       ),
-    );
+    ));
   }
 }

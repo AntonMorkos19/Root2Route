@@ -54,15 +54,15 @@ class OrganizationModel {
    String get typeName {
     switch (type) {
       case 0:
-        return 'Farmer';
+        return 'مزارع';
       case 1:
-        return 'Restaurant';
+        return 'مطعم';
       case 2:
-        return 'Factory';
+        return 'مصنع';
       case 3:
-        return 'Tradesman';
+        return 'تاجر';
       default:
-        return 'Unknown';
+        return 'غير معروف';
     }
   }
 }

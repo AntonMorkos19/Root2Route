@@ -27,7 +27,6 @@ import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await StorageService().init();
-  // Pre-load persisted theme so first frame already uses correct mode.
   final themeCubit = ThemeCubit();
   await themeCubit.loadTheme();
   runApp(MyApp(themeCubit: themeCubit));
@@ -41,8 +40,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // Provide pre-loaded ThemeCubit so it is available app-wide.
-        BlocProvider<ThemeCubit>.value(value: themeCubit),
+         BlocProvider<ThemeCubit>.value(value: themeCubit),
         BlocProvider<AuctionCubit>(create: (_) => AuctionCubit()),
         BlocProvider<NotificationCubit>(create: (_) => NotificationCubit()..fetchNotifications()),
         BlocProvider<CartCubit>(create: (_) => CartCubit()),

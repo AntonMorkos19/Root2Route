@@ -91,7 +91,7 @@ class _AuctionsScreenState extends State<AuctionsScreen>
         });
       } else {
         setState(() {
-          _liveError = res['message'] ?? 'Failed to load live auctions.';
+          _liveError = res['message'] ?? 'فشل تحميل المزادات النشطة.';
           _loadingLive = false;
         });
       }
@@ -120,7 +120,7 @@ class _AuctionsScreenState extends State<AuctionsScreen>
         });
       } else {
         setState(() {
-          _endedError = res['message'] ?? 'Failed to load ended auctions.';
+          _endedError = res['message'] ?? 'فشل تحميل المزادات المنتهية.';
           _loadingEnded = false;
         });
       }
@@ -135,20 +135,26 @@ class _AuctionsScreenState extends State<AuctionsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           if (!widget.isGuestMode) ...[
             Padding(
               padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
               child: InkWell(
-                onTap: () => Navigator.pushNamed(context, BuyerAuctionsScreen.id),
+                onTap:
+                    () => Navigator.pushNamed(context, BuyerAuctionsScreen.id),
                 borderRadius: BorderRadius.circular(16.r),
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 18.w,
+                    vertical: 14.h,
+                  ),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [AppColors.primary, Color(0xFF1B5E20)],
@@ -185,7 +191,7 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'My Auctions',
+                              'مزاداتي',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 15.sp,
@@ -194,7 +200,7 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                             ),
                             SizedBox(height: 2.h),
                             Text(
-                              'Track your bids and active auctions',
+                              'تتبع مزايداتك ومزاداتك النشطة',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 12.sp,
@@ -214,7 +220,7 @@ class _AuctionsScreenState extends State<AuctionsScreen>
               ),
             ),
           ],
-          
+
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             child: Container(
@@ -239,7 +245,8 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 labelColor: Colors.white,
-                unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                unselectedLabelColor:
+                    Theme.of(context).colorScheme.onSurfaceVariant,
                 labelStyle: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14.sp,
@@ -248,14 +255,11 @@ class _AuctionsScreenState extends State<AuctionsScreen>
                   fontWeight: FontWeight.w600,
                   fontSize: 14.sp,
                 ),
-                tabs: const [
-                  Tab(text: 'Live Auctions'),
-                  Tab(text: 'Ended'),
-                ],
+                tabs: const [Tab(text: 'مزادات نشطة'), Tab(text: 'منتهية')],
               ),
             ),
           ),
-          
+
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -280,7 +284,7 @@ class _AuctionsScreenState extends State<AuctionsScreen>
           ),
         ],
       ),
-    );
+    ));
   }
 }
 
@@ -326,9 +330,9 @@ class _LiveAuctionsTab extends StatelessWidget {
                     height: MediaQuery.of(context).size.height * 0.4,
                     child: _EmptyState(
                       icon: Icons.flash_on_rounded,
-                      title: 'No Live Auctions',
+                      title: 'لا توجد مزادات نشطة',
                       subtitle:
-                          'Check back soon — new auctions are added regularly.',
+                          'تحقق مرة أخرى قريبًا - يتم إضافة مزادات جديدة بانتظام.',
                       onRefresh: onRefresh,
                     ),
                   ),
@@ -416,8 +420,8 @@ class _EndedAuctionsTab extends StatelessWidget {
                     height: MediaQuery.of(context).size.height * 0.6,
                     child: _EmptyState(
                       icon: Icons.history_rounded,
-                      title: 'No Ended Auctions',
-                      subtitle: 'Completed auctions will appear here.',
+                      title: 'لا توجد مزادات منتهية',
+                      subtitle: 'ستظهر المزادات المكتملة هنا.',
                       onRefresh: onRefresh,
                     ),
                   ),
@@ -492,14 +496,15 @@ class _EmptyState extends StatelessWidget {
               subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           const SizedBox(height: 24),
           TextButton.icon(
             onPressed: onRefresh,
             icon: const Icon(Icons.refresh),
-            label: const Text('Refresh'),
+            label: const Text('تحديث'),
           ),
         ],
       ),
@@ -531,7 +536,7 @@ class _ErrorState extends StatelessWidget {
             style: const TextStyle(color: Colors.black54),
           ),
           const SizedBox(height: 24),
-          ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+          ElevatedButton(onPressed: onRetry, child: const Text('إعادة المحاولة')),
         ],
       ),
     );

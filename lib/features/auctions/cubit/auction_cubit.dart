@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
 import 'package:root2route/models/auction_model.dart';
@@ -194,6 +195,55 @@ class AuctionCubit extends Cubit<AuctionState> {
   }
 
   // ──────────────────────────────────────────────────────
+  // PLACE BID
+  // ──────────────────────────────────────────────────────
+  /// Submits a bid for [auctionId] with the given [amount].
+  ///
+  /// State flow:
+  ///  1. [BidLoading]  – disables the submit button in the UI.
+  ///  2. [BidPlaced]   – on success; the UI clears the field & shows a SnackBar.
+  ///     The cubit then automatically re-fetches details + bid history.
+  ///  3. [AuctionError] – on failure; carries a user-facing message.
+  Future<void> placeBid({
+    required String auctionId,
+    required double amount,
+  }) async {
+    _emitSafe(const BidLoading());
+    try {
+      final result = await _service.placeBid(
+        auctionId: auctionId,
+        amount: amount,
+      );
+
+      if (result['success'] == true) {
+        _emitSafe(BidPlaced(auctionId));
+        // Re-fetch details and bids so the UI refreshes immediately.
+        await fetchAuctionDetails(auctionId);
+      } else {
+        _emitSafe(AuctionError(result['message'] ?? 'Failed to place bid.'));
+      }
+    } on DioException catch (e) {
+      final msg =
+          (e.response?.data is Map)
+              ? (e.response!.data['message'] ?? _extractApiError(e))
+              : _extractApiError(e);
+      _emitSafe(AuctionError(msg));
+    } catch (e) {
+      _emitSafe(AuctionError(e.toString()));
+    }
+  }
+
+  /// Helper to call [_service]'s error extractor (kept private, forwarded here).
+  String _extractApiError(DioException e) {
+    if (e.response == null) return 'No Internet Connection';
+    final d = e.response?.data;
+    if (d is Map) {
+      return d['message'] ?? d['msg'] ?? d['error'] ?? d['title'] ?? 'Server error';
+    }
+    return e.message ?? 'Unexpected error';
+  }
+
+  // ──────────────────────────────────────────────────────
   // FETCH APPROVED PRODUCTS
   // ──────────────────────────────────────────────────────
   Future<void> fetchApprovedProducts(String organizationId) async {
@@ -208,4 +258,3 @@ class AuctionCubit extends Cubit<AuctionState> {
     }
   }
 }
-

@@ -37,8 +37,10 @@ class NegotiationOfferCard extends StatelessWidget {
       iconColor = Colors.red;
     }
 
-    return Container(
-      width: 250,
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Container(
+        width: 250,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: bgColor,
@@ -53,7 +55,7 @@ class NegotiationOfferCard extends StatelessWidget {
               Icon(Icons.handshake_outlined, size: 18, color: iconColor),
               const SizedBox(width: 6),
               Text(
-                'Negotiation Offer',
+                'عرض تفاوض',
                 style: TextStyle(
                   color: iconColor,
                   fontWeight: FontWeight.bold,
@@ -65,7 +67,7 @@ class NegotiationOfferCard extends StatelessWidget {
           const SizedBox(height: 8),
           if (price != null)
             Text(
-              'Price: ${price!.toStringAsFixed(2)} EGP',
+              'السعر: ${price!.toStringAsFixed(2)} جنيه',
               style: TextStyle(
                 color: Colors.black87,
                 fontSize: 16.sp,
@@ -75,7 +77,7 @@ class NegotiationOfferCard extends StatelessWidget {
           if (quantity != null) ...[
             const SizedBox(height: 4),
             Text(
-              'Quantity: $quantity',
+              'الكمية: $quantity',
               style: TextStyle(
                 color: Colors.black87,
                 fontSize: 16.sp,
@@ -97,7 +99,7 @@ class NegotiationOfferCard extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    'Waiting for response...',
+                    'في انتظار الرد...',
                     style: TextStyle(
                       color: Colors.blue,
                       fontWeight: FontWeight.bold,
@@ -122,7 +124,7 @@ class NegotiationOfferCard extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        'Accept',
+                        'قبول',
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.bold,
@@ -143,7 +145,7 @@ class NegotiationOfferCard extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        'Reject',
+                        'رفض',
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.bold,
@@ -162,7 +164,7 @@ class NegotiationOfferCard extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  isAccepted ? 'Offer Accepted' : 'Offer Rejected',
+                  isAccepted ? 'تم قبول العرض' : 'تم رفض العرض',
                   style: TextStyle(
                     color: isAccepted ? AppColors.primary : Colors.red.shade800,
                     fontWeight: FontWeight.bold,
@@ -173,6 +175,6 @@ class NegotiationOfferCard extends StatelessWidget {
             ),
         ],
       ),
-    );
+    ));
   }
 }

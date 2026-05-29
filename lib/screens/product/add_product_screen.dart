@@ -87,9 +87,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.warning,
-        title: 'Selling Method Required',
+        title: 'طريقة البيع مطلوبة',
         text:
-            'Please enable at least one selling method\n(Direct Sale or Auction).',
+            'يرجى تفعيل طريقة بيع واحدة على الأقل\n(بيع مباشر أو مزاد).',
       );
       return;
     }
@@ -98,8 +98,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
-      title: 'Publishing...',
-      text: 'Creating your product, please wait.',
+      title: 'جاري النشر...',
+      text: 'جاري إنشاء منتجك، يرجى الانتظار.',
       barrierDismissible: false,
     );
 
@@ -132,9 +132,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
         await QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
-          title: 'Success',
-          text: 'Product published successfully',
-          confirmBtnText: 'Okay',
+          title: 'نجاح',
+          text: 'تم نشر المنتج بنجاح',
+          confirmBtnText: 'حسناً',
           confirmBtnColor: AppColors.primary,
           onConfirmBtnTap: () {
             Navigator.pop(context); // Close alert
@@ -149,9 +149,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
-          title: 'Failure',
-          text: result['message'] ?? 'Failed to publish product',
-          confirmBtnText: 'Try Again',
+          title: 'فشل',
+          text: result['message'] ?? 'فشل نشر المنتج',
+          confirmBtnText: 'حاول مرة أخرى',
         );
       }
     } catch (e) {
@@ -160,8 +160,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
-        title: 'Unexpected Error',
-        text: 'Something went wrong, please try again later.',
+        title: 'خطأ غير متوقع',
+        text: 'حدث خطأ ما، يرجى المحاولة مرة أخرى لاحقاً.',
       );
     }
   }
@@ -170,21 +170,23 @@ class _AddProductScreenState extends State<AddProductScreen> {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
-      title: 'Failure',
+      title: 'فشل',
       text: message.length > 100 ? '${message.substring(0, 100)}...' : message,
-      confirmBtnText: 'Try Again',
+      confirmBtnText: 'حاول مرة أخرى',
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Add Product',
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          title: Text(
+            'إضافة منتج',
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.w700,
@@ -221,6 +223,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             ],
           ),
         ),
+        ),
       ),
     );
   }
@@ -247,80 +250,82 @@ class _AddProductScreenState extends State<AddProductScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _Label('Product Name'),
-                const SizedBox(height: 8),
+
                 CustomTextFormField(
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.black87,
                   icon: Icons.grass_outlined,
                   validator:
                       (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Required' : null,
-                  label: ' Product Name',
+                          (v == null || v.trim().isEmpty) ? 'مطلوب' : null,
+                  label: ' اسم المنتج',
                   controller: _nameController,
                 ),
                 const SizedBox(height: 18),
-                _Label('Category'),
-                const SizedBox(height: 8),
+
                 _Dropdown(
-                  hint: 'Select a category',
+                  hint: 'اختر فئة',
                   value: _selectedCategory,
                   items: _categoryMap.keys.toList(),
                   icon: Icons.category_outlined,
                   onChanged: (v) => setState(() => _selectedCategory = v),
-                  validator: (v) => v == null ? 'Required' : null,
+                  validator: (v) => v == null ? 'مطلوب' : null,
                 ),
                 const SizedBox(height: 18),
-                _Label('Quantity & Unit'),
-                const SizedBox(height: 8),
+
                 Row(
                   children: [
                     Expanded(
                       child: _buildField(
                         controller: _quantityController,
-                        hint: 'Stock',
+                        hint: 'الكمية (المخزون)',
                         icon: Icons.scale_outlined,
                         keyboardType: TextInputType.number,
                         validator:
                             (v) =>
                                 (v == null || v.trim().isEmpty)
-                                    ? 'Required'
+                                    ? 'مطلوب'
                                     : null,
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: _Dropdown(
-                        hint: 'Unit',
+                        hint: 'الوحدة',
                         value: _selectedUnit,
                         items: _units,
                         icon: Icons.straighten_outlined,
                         onChanged: (v) => setState(() => _selectedUnit = v),
-                        validator: (v) => v == null ? 'Required' : null,
+                        validator: (v) => v == null ? 'مطلوب' : null,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 18),
-                _Label('Expiry Date (Optional)'),
+                _Label('تاريخ الصلاحية (اختياري)'),
                 const SizedBox(height: 8),
                 _DatePickerWidget(),
                 const SizedBox(height: 18),
-                _Label('Barcode (Optional)'),
-                const SizedBox(height: 8),
+
                 CustomTextFormField(
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.black87,
                   icon: Icons.qr_code_scanner,
-                  label: 'e.g. 123456789012',
+                  label: 'الباركود (مثال: 1234567890)',
                   controller: _barcodeController,
+                  textDirection: TextDirection.ltr,
                   keyboardType: TextInputType.text,
                 ),
                 const SizedBox(height: 18),
-                _Label('Description (Optional)'),
-                const SizedBox(height: 8),
+
                 CustomTextFormField(
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.black87,
                   icon: Icons.description_outlined,
-                  label: 'Describe your product...',
+                  label: 'صف منتجك...',
                   controller: _descriptionController,
                   maxLines: 3,
                 ),
@@ -380,7 +385,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Add Product Photos',
+                'إضافة صور المنتج',
                 style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
@@ -471,8 +476,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
         children: [
           _buildOptionToggle(
             icon: Icons.sell_outlined,
-            title: 'Direct Sale',
-            subtitle: 'Fixed price',
+            title: 'بيع مباشر',
+            subtitle: 'سعر ثابت',
             value: _directSale,
             onChanged: (v) => setState(() => _directSale = v),
           ),
@@ -480,8 +485,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
             const SizedBox(height: 12),
             _buildField(
               controller: _directPriceController,
-              hint: 'Price for 1 item in EGP',
+              hint: 'سعر القطعة الواحدة بالجنيه',
               icon: Icons.attach_money,
+              textDirection: TextDirection.ltr,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
@@ -490,8 +496,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
           const Divider(height: 32),
           _buildOptionToggle(
             icon: Icons.gavel_rounded,
-            title: 'Auction',
-            subtitle: 'Bidding system',
+            title: 'مزاد',
+            subtitle: 'نظام المزايدة',
             value: _forAuction,
             onChanged: (v) => setState(() => _forAuction = v),
           ),
@@ -499,8 +505,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
             const SizedBox(height: 12),
             _buildField(
               controller: _auctionPriceController,
-              hint: 'Start Bid (EGP)',
+              hint: 'بدء المزاد (جنيه)',
               icon: Icons.price_change,
+              textDirection: TextDirection.ltr,
               keyboardType: TextInputType.number,
             ),
           ],
@@ -522,7 +529,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             ),
           ),
           child: Text(
-            'Cancel',
+            'إلغاء',
             style: TextStyle(
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w600,
@@ -536,7 +543,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             onPressed: _submit,
             icon: const Icon(Icons.update_rounded, size: 20),
             label: Text(
-              'Sell Product',
+              'بيع المنتج',
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp),
             ),
             style: ElevatedButton.styleFrom(
@@ -573,19 +580,28 @@ class _AddProductScreenState extends State<AddProductScreen> {
     required String hint,
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
+    TextDirection? textDirection,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
+      textDirection: textDirection,
       validator: validator,
-      style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87, fontSize: 16.sp),
+      textAlign: textDirection == TextDirection.ltr ? TextAlign.left : TextAlign.start,
+      style: TextStyle(
+        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+        fontSize: 16.sp,
+      ),
       decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15.sp),
-        prefixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
+        labelText: hint,
+        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 15.sp),
+        suffixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
         filled: true,
-        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : const Color(0xFFF8F9FB),
+        fillColor:
+            Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF2A2A2A)
+                : const Color(0xFFF8F9FB),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -603,19 +619,28 @@ class _AddProductScreenState extends State<AddProductScreen> {
     String? Function(String?)? validator,
   }) {
     return DropdownButtonFormField<String>(
-      dropdownColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.white,
-      style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87, fontSize: 16.sp),
+      dropdownColor:
+          Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF2A2A2A)
+              : Colors.white,
+      style: TextStyle(
+        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+        fontSize: 16.sp,
+      ),
       initialValue: value,
       items:
           items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
       onChanged: onChanged,
       validator: validator,
       decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15.sp),
-        prefixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
+        labelText: hint,
+        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 15.sp),
+        suffixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
         filled: true,
-        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : const Color(0xFFF8F9FB),
+        fillColor:
+            Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF2A2A2A)
+                : const Color(0xFFF8F9FB),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -630,7 +655,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : const Color(0xFFF8F9FB),
+          color:
+              Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF2A2A2A)
+                  : const Color(0xFFF8F9FB),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -639,9 +667,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
             const SizedBox(width: 12),
             Text(
               _expiryDate == null
-                  ? 'Select Date'
+                  ? 'اختر التاريخ'
                   : _expiryDate!.toLocal().toString().split(' ')[0],
-              style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87),
+              style: TextStyle(
+                color:
+                    Theme.of(context).textTheme.bodyMedium?.color ??
+                    Colors.black87,
+              ),
             ),
           ],
         ),
@@ -701,7 +733,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'How to list your product?',
+                'كيف تعرض منتجك؟',
                 style: TextStyle(
                   fontSize: 22.sp,
                   fontWeight: FontWeight.bold,
@@ -711,26 +743,26 @@ class _AddProductScreenState extends State<AddProductScreen> {
               const SizedBox(height: 20),
               _buildGuideRow(
                 '🏷️',
-                'Direct Sale',
-                'Sell your product at a fixed price. Buyers can purchase immediately or negotiate with you via chat.',
+                'بيع مباشر',
+                'بع منتجك بسعر ثابت. يمكن للمشترين الشراء فوراً أو التفاوض معك عبر الدردشة.',
               ),
               const SizedBox(height: 16),
               _buildGuideRow(
                 '⚖️',
-                'Auction',
-                'Start a bidding system. Set a starting price and let buyers compete. Highest bidder wins.',
+                'مزاد',
+                'ابدأ نظام مزايدة. حدد السعر المبدئي ودع المشترين يتنافسون. أعلى مزايد يفوز.',
               ),
               const SizedBox(height: 16),
               _buildGuideRow(
                 '📅',
-                'Expiry Date',
-                'Optional but highly recommended for fresh crops and perishables to ensure buyer trust.',
+                'تاريخ الصلاحية',
+                'اختياري ولكنه يوصى به بشدة للمحاصيل الطازجة والقابلة للتلف لضمان ثقة المشتري.',
               ),
               const SizedBox(height: 16),
               _buildGuideRow(
                 '🔤',
-                'Barcode / Description',
-                'Add details or a barcode to make your product easily scannable and searchable.',
+                'الباركود / الوصف',
+                'أضف تفاصيل أو باركود لجعل منتجك سهل المسح والبحث عنه.',
               ),
               const SizedBox(height: 32),
               SizedBox(
@@ -745,7 +777,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     ),
                   ),
                   child: Text(
-                    'Got it!',
+                    'فهمت!',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

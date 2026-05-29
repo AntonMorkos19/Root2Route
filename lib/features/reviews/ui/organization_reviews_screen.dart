@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/reviews/cubit/review_cubit.dart';
 import 'package:root2route/features/reviews/cubit/review_state.dart';
+import 'package:intl/intl.dart' as intl;
 
 class OrganizationReviewsScreen extends StatelessWidget {
   final String organizationId;
@@ -15,13 +16,15 @@ class OrganizationReviewsScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) =>
           ReviewCubit()..fetchOrganizationReviews(organizationId),
-      child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: AppBar(
-          title: const Text(
-            'Customer Reviews',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          appBar: AppBar(
+            title: const Text(
+              'تقييمات العملاء',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           centerTitle: true,
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -55,7 +58,7 @@ class OrganizationReviewsScreen extends StatelessWidget {
                             .fetchOrganizationReviews(organizationId);
                       },
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
+                      label: const Text('إعادة المحاولة'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                       ),
@@ -77,7 +80,7 @@ class OrganizationReviewsScreen extends StatelessWidget {
                           size: 80, color: Colors.grey.shade400),
                       const SizedBox(height: 16),
                       Text(
-                        'No reviews yet',
+                        'لا توجد تقييمات حتى الآن',
                         style: TextStyle(
                             fontSize: 22.sp, color: Colors.grey.shade600),
                       ),
@@ -105,7 +108,10 @@ class OrganizationReviewsScreen extends StatelessWidget {
                     final comment = review['comment']?.toString() ?? '';
                     final reviewerName = review['reviewerName']?.toString() ??
                         review['buyerName']?.toString() ??
-                        'Customer';
+                        'عميل';
+
+                    final bool isNameRtl = intl.Bidi.detectRtlDirectionality(reviewerName);
+                    final bool isCommentRtl = comment.isEmpty ? true : intl.Bidi.detectRtlDirectionality(comment);
 
                     return Container(
                       padding: const EdgeInsets.all(16),
@@ -145,6 +151,8 @@ class OrganizationReviewsScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       reviewerName,
+                                      textDirection: isNameRtl ? TextDirection.rtl : TextDirection.ltr,
+                                      textAlign: isNameRtl ? TextAlign.right : TextAlign.left,
                                       style: TextStyle(
                                         fontSize: 18.sp,
                                         fontWeight: FontWeight.bold,
@@ -174,6 +182,8 @@ class OrganizationReviewsScreen extends StatelessWidget {
                             const SizedBox(height: 12),
                             Text(
                               comment,
+                              textDirection: isCommentRtl ? TextDirection.rtl : TextDirection.ltr,
+                              textAlign: isCommentRtl ? TextAlign.right : TextAlign.left,
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 color: Theme.of(context).textTheme.bodyMedium?.color,
@@ -191,6 +201,7 @@ class OrganizationReviewsScreen extends StatelessWidget {
 
             return const SizedBox.shrink();
           },
+        ),
         ),
       ),
     );

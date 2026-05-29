@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/services.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:quickalert/quickalert.dart';
+import 'package:root2route/components/floating_nav_bar.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
-import 'package:root2route/screens/Organizations/add_organization_screen.dart';
+ import 'package:root2route/screens/Organizations/add_organization_screen.dart';
 import 'package:root2route/screens/market_screen.dart';
 import 'package:root2route/screens/product/my_products_screen.dart';
 
@@ -17,6 +20,7 @@ class _TradesmanHomeScreenState extends State<TradesmanHomeScreen> {
   int index = 0;
 
   final screens = const [MarketScreen(), ProfileScreen()];
+
   Widget? funFab() {
     switch (index) {
       case 0:
@@ -28,8 +32,7 @@ class _TradesmanHomeScreenState extends State<TradesmanHomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder:
-                    (context) => const MyProductsScreen(organizationId: ''),
+                builder: (context) => const MyProductsScreen(organizationId: ''),
               ),
             );
           },
@@ -55,81 +58,41 @@ class _TradesmanHomeScreenState extends State<TradesmanHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      extendBody: true,
-      floatingActionButton: funFab(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-
-      body: screens[index],
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.only(left: 15, right: 15, bottom: 20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) async {
+        if (didPop) return;
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.warning,
+          title: 'تأكيد الخروج',
+          text: 'هل تريد إغلاق التطبيق بالفعل؟',
+          confirmBtnText: 'خروج',
+          cancelBtnText: 'إلغاء',
+          showCancelBtn: true,
+          confirmBtnColor: Colors.red,
+          onConfirmBtnTap: () {
+            Navigator.of(context, rootNavigator: true).pop();
+            SystemNavigator.pop();
+          },
+          onCancelBtnTap: () {
+            Navigator.of(context, rootNavigator: true).pop();
+          },
+        );
+      },
+      child: Scaffold(
+        extendBody: true,
+        backgroundColor: AppColors.backgroundColor,
+        floatingActionButton: funFab(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        body: screens[index],
+        bottomNavigationBar: FloatingGNavBar(
+          selectedIndex: index,
+          onTabChange: (i) => setState(() => index = i),
+          tabs: const [
+            GButton(icon: Icons.shopping_bag_outlined, text: 'السوق'),
+            GButton(icon: Icons.person_outline, text: 'الحساب'),
           ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: NavigationBarTheme(
-            data: NavigationBarThemeData(
-              indicatorColor: AppColors.primary,
-              labelTextStyle: WidgetStateProperty.resolveWith((states) {
-                final isDark = Theme.of(context).brightness == Brightness.dark;
-                if (states.contains(WidgetState.selected)) {
-                  return TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : AppColors.primary,
-                  );
-                }
-                return TextStyle(
-                  fontSize: 14.sp,
-                  color: isDark ? Colors.white60 : Colors.black54,
-                );
-              }),
-              iconTheme: WidgetStateProperty.resolveWith((states) {
-                final isDark = Theme.of(context).brightness == Brightness.dark;
-                if (states.contains(WidgetState.selected)) {
-                  return const IconThemeData(
-                    color: Colors.white,
-                    size: 26,
-                  );
-                }
-                return IconThemeData(
-                  color: isDark ? Colors.white60 : Colors.black54,
-                  size: 24,
-                );
-              }),
-            ),
-            child: NavigationBar(
-              height: 65,
-              elevation: 0,
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              selectedIndex: index,
-              onDestinationSelected: (i) => setState(() => index = i),
-              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.shopping_bag_outlined),
-                  selectedIcon: Icon(Icons.shopping_bag),
-                  label: "Market",
-                ),
-
-                NavigationDestination(
-                  icon: Icon(Icons.person_outline),
-                  selectedIcon: Icon(Icons.person),
-                  label: "Profile",
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );

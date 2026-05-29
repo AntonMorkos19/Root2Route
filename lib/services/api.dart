@@ -1616,7 +1616,7 @@ class ApiService {
       final token = StorageService().token;
       final response = await _dio.post(
         '/auctions/$auctionId/bid',
-        data: {"auctionId": auctionId, "amount": amount},
+        data: {"amount": amount},
         options: Options(
           headers: token != null ? {'Authorization': 'Bearer $token'} : null,
         ),

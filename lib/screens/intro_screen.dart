@@ -27,56 +27,65 @@ class IntroScreen extends StatelessWidget {
       imagePadding: EdgeInsets.zero,
     );
 
-    return IntroductionScreen(
-      globalBackgroundColor: Colors.white,
-      allowImplicitScrolling: true,
-      pages: [
-        PageViewModel(
-          title: "Welcome to Root2Route",
-          body:
-              "Your ultimate agricultural marketplace. Connect directly with a trusted network of buyers and sellers to trade crops with ease and confidence.",
-          image: _buildImage(Icons.agriculture_rounded),
-          decoration: pageDecoration,
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: IntroductionScreen(
+        globalBackgroundColor: Colors.white,
+        allowImplicitScrolling: true,
+        pages: [
+          PageViewModel(
+            title: "أهلاً بك في Root2Route",
+            body:
+                "سوقك الزراعي المتكامل. تواصل مباشرةً مع شبكة موثوقة من المشترين والبائعين لتداول المحاصيل بسهولة وثقة.",
+            image: _buildImage(Icons.agriculture_rounded),
+            decoration: pageDecoration,
+          ),
+          PageViewModel(
+            title: "وصول مباشر للسوق",
+            body:
+                "تخلّص من الوسيط. اشترِ المنتجات الطازجة مباشرةً من المزارعين أو بِع محصولك لشبكة واسعة من العملاء.",
+            image: _buildImage(Icons.shopping_basket_rounded),
+            decoration: pageDecoration,
+          ),
+          PageViewModel(
+            title: "مزادات فورية",
+            body:
+                "انضم للمزايدة الحية! احصل على محاصيل عالية الجودة بأفضل الأسعار أو حقّق أعلى عائد من محصولك.",
+            image: _buildImage(Icons.gavel_rounded),
+            decoration: pageDecoration,
+          ),
+        ],
+        onDone: () => _onIntroEnd(context),
+        onSkip: () => _onIntroEnd(context),
+        showSkipButton: true,
+        skipOrBackFlex: 0,
+        nextFlex: 0,
+        skip: const Text(
+          'تخطي',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF2E7D32),
+          ),
         ),
-        PageViewModel(
-          title: "Direct Market Access",
-          body:
-              "Cut out the middleman. Buy premium fresh produce straight from farmers or sell your harvest to a massive network.",
-          image: _buildImage(Icons.shopping_basket_rounded),
-          decoration: pageDecoration,
+        next: const Icon(Icons.arrow_forward, color: Color(0xFF2E7D32)),
+        done: const Text(
+          'ابدأ',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF2E7D32),
+          ),
         ),
-        PageViewModel(
-          title: "Real-Time Auctions",
-          body:
-              "Join live bidding! Secure high-quality crops at the best market prices or maximize the profit of your own yield.",
-          image: _buildImage(Icons.gavel_rounded),
-          decoration: pageDecoration,
-        ),
-      ],
-      onDone: () => _onIntroEnd(context),
-      onSkip: () => _onIntroEnd(context),
-      showSkipButton: true,
-      skipOrBackFlex: 0,
-      nextFlex: 0,
-      skip: const Text(
-        'Skip',
-        style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF2E7D32)),
-      ),
-      next: const Icon(Icons.arrow_forward, color: Color(0xFF2E7D32)),
-      done: const Text(
-        'Done',
-        style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF2E7D32)),
-      ),
-      curve: Curves.fastLinearToSlowEaseIn,
-      controlsMargin: const EdgeInsets.all(16),
-      controlsPadding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
-      dotsDecorator: const DotsDecorator(
-        size: Size(10.0, 10.0),
-        color: Color(0xFFBDBDBD),
-        activeSize: Size(22.0, 10.0),
-        activeColor: Color(0xFF2E7D32),
-        activeShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(25.0)),
+        curve: Curves.fastLinearToSlowEaseIn,
+        controlsMargin: const EdgeInsets.all(16),
+        controlsPadding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
+        dotsDecorator: const DotsDecorator(
+          size: Size(10.0, 10.0),
+          color: Color(0xFFBDBDBD),
+          activeSize: Size(22.0, 10.0),
+          activeColor: Color(0xFF2E7D32),
+          activeShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(25.0)),
+          ),
         ),
       ),
     );

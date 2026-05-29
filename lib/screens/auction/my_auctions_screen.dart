@@ -64,20 +64,20 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
                 ),
                 const SizedBox(width: 12),
                 const Text(
-                  'Cancel Auction',
+                  'إلغاء المزاد',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
               ],
             ),
             content: const Text(
-              'Are you sure? This action cannot be undone.',
+              'هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.',
               style: TextStyle(fontSize: 15, color: Colors.black54),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
                 child: Text(
-                  'Cancel',
+                  'إلغاء',
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
                 ),
               ),
@@ -94,7 +94,7 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
                   ),
                   elevation: 0,
                 ),
-                child: const Text('Confirm'),
+                child: const Text('تأكيد'),
               ),
             ],
           ),
@@ -129,17 +129,19 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
   @override
   Widget build(BuildContext context) {
     if (StorageService().isGuest) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.lock_outline, size: 80, color: Colors.grey.shade400),
-              const SizedBox(height: 16),
-              Text(
-                'Please log in and create an organization to view this page.',
-                textAlign: TextAlign.center,
+      return Directionality(
+        textDirection: TextDirection.rtl,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.lock_outline, size: 80, color: Colors.grey.shade400),
+                const SizedBox(height: 16),
+                Text(
+                  'يرجى تسجيل الدخول وإنشاء شركة لعرض هذه الصفحة.',
+                  textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey.shade600,
@@ -157,17 +159,19 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
                   backgroundColor: AppColors.primary,
                 ),
                 child: const Text(
-                  'Login',
+                  'تسجيل الدخول',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
             ],
           ),
         ),
-      );
+      ));
     }
 
-    return Column(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Column(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
@@ -189,9 +193,9 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
               fontSize: 14,
             ),
             tabs: const [
-              Tab(text: 'Upcoming'),
-              Tab(text: 'Active'),
-              Tab(text: 'Ended'),
+              Tab(text: 'القادمة'),
+              Tab(text: 'النشطة'),
+              Tab(text: 'المنتهية'),
             ],
           ),
         ),
@@ -291,7 +295,7 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
                       ElevatedButton.icon(
                         onPressed: _fetchAuctions,
                         icon: const Icon(Icons.refresh_rounded),
-                        label: const Text('Retry'),
+                        label: const Text('إعادة المحاولة'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
@@ -320,7 +324,7 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Loading your auctions...',
+                      'جاري تحميل مزاداتك...',
                       style: TextStyle(
                         fontSize: 15,
                         color: Colors.grey.shade500,
@@ -333,7 +337,7 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
           ),
         ),
       ],
-    );
+    ));
   }
 }
 
@@ -401,18 +405,18 @@ class _AuctionListPageState extends State<_AuctionListPage>
     switch (tab) {
       case 'active':
         icon = Icons.flash_on_rounded;
-        title = 'No active auctions';
-        subtitle = 'Auctions will appear here once they start.';
+        title = 'لا توجد مزادات نشطة';
+        subtitle = 'ستظهر المزادات هنا بمجرد بدئها.';
         break;
       case 'ended':
         icon = Icons.history_rounded;
-        title = 'No ended auctions';
-        subtitle = 'Completed auctions will be shown here.';
+        title = 'لا توجد مزادات منتهية';
+        subtitle = 'ستظهر المزادات المكتملة هنا.';
         break;
       default:
         icon = Icons.schedule_rounded;
-        title = 'No upcoming auctions';
-        subtitle = 'Your upcoming auctions will appear here.';
+        title = 'لا توجد مزادات قادمة';
+        subtitle = 'ستظهر مزاداتك القادمة هنا.';
     }
     return Center(
       child: Column(

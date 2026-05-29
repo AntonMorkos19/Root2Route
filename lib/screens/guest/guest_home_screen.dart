@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:root2route/core/theme/app_colors.dart';
-import 'package:root2route/screens/account_screen.dart';
-import 'package:root2route/screens/guest/guest_products_tab.dart';
+import 'package:flutter/services.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:quickalert/quickalert.dart';
+import 'package:root2route/components/floating_nav_bar.dart';
+import 'package:root2route/screens/Organizations/ProfileScreen.dart';
+ import 'package:root2route/screens/guest/guest_products_tab.dart';
 
 class GuestHomeScreen extends StatefulWidget {
   static const String id = '/guesthomescreen';
@@ -16,83 +18,42 @@ class GuestHomeScreen extends StatefulWidget {
 class _GuestHomeScreenState extends State<GuestHomeScreen> {
   int index = 0;
 
-  final List<Widget> _screens = const [
-    GuestProductsTab(),
-    AccountScreen(),
-  ];
+  final List<Widget> _screens = const [GuestProductsTab(), ProfileScreen()];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      body: _screens[index],
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.only(left: 15, right: 15, bottom: 20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) async {
+        if (didPop) return;
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.warning,
+          title: 'تأكيد الخروج',
+          text: 'هل تريد إغلاق التطبيق بالفعل؟',
+          confirmBtnText: 'خروج',
+          cancelBtnText: 'إلغاء',
+          showCancelBtn: true,
+          confirmBtnColor: Colors.red,
+          onConfirmBtnTap: () {
+            Navigator.of(context, rootNavigator: true).pop();
+            SystemNavigator.pop();
+          },
+          onCancelBtnTap: () {
+            Navigator.of(context, rootNavigator: true).pop();
+          },
+        );
+      },
+      child: Scaffold(
+        extendBody: true,
+        body: _screens[index],
+        bottomNavigationBar: FloatingGNavBar(
+          selectedIndex: index,
+          onTabChange: (i) => setState(() => index = i),
+          tabs: const [
+            GButton(icon: Icons.eco_outlined, text: 'المنتجات'),
+            GButton(icon: Icons.person_outline, text: 'بروفيل'),
           ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: NavigationBarTheme(
-            data: NavigationBarThemeData(
-              indicatorColor: AppColors.primary,
-              labelTextStyle: WidgetStateProperty.resolveWith((states) {
-                final isDark = Theme.of(context).brightness == Brightness.dark;
-                if (states.contains(WidgetState.selected)) {
-                  return TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : AppColors.primary,
-                  );
-                }
-                return TextStyle(
-                  fontSize: 14.sp,
-                  color: isDark ? Colors.white60 : Colors.black54,
-                );
-              }),
-              iconTheme: WidgetStateProperty.resolveWith((states) {
-                final isDark = Theme.of(context).brightness == Brightness.dark;
-                if (states.contains(WidgetState.selected)) {
-                  return const IconThemeData(
-                    color: Colors.white,
-                    size: 26,
-                  );
-                }
-                return IconThemeData(
-                  color: isDark ? Colors.white60 : Colors.black54,
-                  size: 24,
-                );
-              }),
-            ),
-            child: NavigationBar(
-              height: 65,
-              elevation: 0,
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              selectedIndex: index,
-              onDestinationSelected: (i) => setState(() => index = i),
-              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.category_outlined),
-                  selectedIcon: Icon(Icons.category),
-                  label: 'Products',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.person_outline),
-                  selectedIcon: Icon(Icons.person),
-                  label: 'Account',
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );

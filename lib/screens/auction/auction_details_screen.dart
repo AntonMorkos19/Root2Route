@@ -414,6 +414,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
   List<dynamic> _bidsList = [];
   final TextEditingController _bidController = TextEditingController();
 
+  /// Cached auction model — used to keep the UI visible during BidLoading/BidPlaced.
+  AuctionModel? _lastAuction;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -488,10 +491,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     }
   }
 
-  Future<void> _submitBid(
-    double currentHighestBid,
-    String explicitAuctionId,
-  ) async {
+  /// Validates the entered amount and delegates to the Cubit.
+  /// The Cubit emits [BidLoading] → [BidPlaced] or [AuctionError].
+  void _submitBid(double currentHighestBid, String explicitAuctionId) {
     final double? enteredAmount = double.tryParse(_bidController.text.trim());
 
     if (enteredAmount == null || enteredAmount <= currentHighestBid) {
@@ -504,46 +506,11 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
       return;
     }
 
-    Navigator.pop(context); // Close Bottom Sheet
-
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.loading,
-      title: 'Placing Bid...',
-      text: 'Please wait',
-      barrierDismissible: false,
-    );
-
-    final navigator = Navigator.of(context, rootNavigator: true);
-    final result = await _api.placeBid(
+    // Delegate to the Cubit — it handles Loading → Success/Error states.
+    context.read<AuctionCubit>().placeBid(
       auctionId: explicitAuctionId,
       amount: enteredAmount,
     );
-
-    navigator.pop(); // Close loading alert
-
-    if (!mounted) return;
-
-    if (result['success'] == true) {
-      // Updating Cubit data so new number appears on top
-      context.read<AuctionCubit>().fetchAuctionDetails(explicitAuctionId);
-      // Updating bids list
-      _fetchBids(explicitAuctionId);
-
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.success,
-        title: 'Success!',
-        text: 'Your bid was placed successfully.',
-      );
-    } else {
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'Bid Failed',
-        text: result['message'] ?? 'An error occurred.',
-      );
-    }
   }
 
   void _showBidBottomSheet(double currentHighestBid, String explicitAuctionId) {
@@ -554,65 +521,99 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 24,
-            right: 24,
-            top: 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Enter Bid Amount',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      // Use a StatefulBuilder so the bottom sheet can rebuild on cubit changes.
+      builder: (sheetContext) {
+        return BlocConsumer<AuctionCubit, AuctionState>(
+          listener: (ctx, state) {
+            // When bid succeeds, close the sheet, refresh bids, show SnackBar.
+            if (state is BidPlaced) {
+              Navigator.of(sheetContext).pop(); // close bottom sheet
+            } else if (state is AuctionError) {
+              // Error SnackBar is shown in the outer BlocConsumer — nothing to do here.
+            }
+          },
+          builder: (ctx, state) {
+            final bool isBidLoading = state is BidLoading;
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+                left: 24,
+                right: 24,
+                top: 24,
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Must be higher than $currentHighestBid EGP',
-                style: TextStyle(color: Colors.grey.shade600),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _bidController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: 'e.g. ${currentHighestBid + 100}',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Enter Bid Amount',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  suffixText: 'EGP',
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed:
-                      () => _submitBid(currentHighestBid, explicitAuctionId),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2ECC71),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Must be higher than $currentHighestBid EGP',
+                    style: TextStyle(color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _bidController,
+                    keyboardType: TextInputType.number,
+                    enabled: !isBidLoading, // lock while loading
+                    decoration: InputDecoration(
+                      hintText: 'e.g. ${currentHighestBid + 100}',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      suffixText: 'EGP',
                     ),
                   ),
-                  child: const Text(
-                    'Confirm Bid',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      // Disable the button while loading to prevent double-taps.
+                      onPressed:
+                          isBidLoading
+                              ? null
+                              : () => _submitBid(
+                                currentHighestBid,
+                                explicitAuctionId,
+                              ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2ECC71),
+                        disabledBackgroundColor: const Color(
+                          0xFF2ECC71,
+                        ).withOpacity(0.6),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child:
+                          isBidLoading
+                              ? const SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : const Text(
+                                'Confirm Bid',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 24),
+                ],
               ),
-              const SizedBox(height: 24),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -636,24 +637,92 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
       ),
       body: BlocConsumer<AuctionCubit, AuctionState>(
         listener: (context, state) {
+          // Fetch product info when auction details arrive.
           if (state is AuctionSuccess<AuctionModel>) {
             if (_productData == null && !_isLoadingProduct) {
               _fetchProductData(state.data.productId);
             }
           }
+
+          // ── Bid events ──────────────────────────────────────
+          if (state is BidPlaced) {
+            _bidController.clear();
+            _fetchBids(state.auctionId); // refresh bids list
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text(
+                      'Bid placed successfully!',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+                backgroundColor: const Color(0xFF2ECC71),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
+          }
+
+          if (state is AuctionError) {
+            // Only show SnackBar for bid-related errors (not for general fetch errors
+            // which are handled by the builder showing an error widget).
+            // We show a SnackBar here so the auction details remain visible.
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        state.message,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: Colors.redAccent,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
+          }
         },
         builder: (context, state) {
-          if (state is AuctionLoading || state is AuctionInitial) {
+          // Cache the last successfully loaded auction.
+          if (state is AuctionSuccess<AuctionModel>) {
+            _lastAuction = state.data;
+          }
+
+          // Full-screen spinner only on initial load (no data yet).
+          if ((state is AuctionLoading || state is AuctionInitial) &&
+              _lastAuction == null) {
             return const Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2ECC71)),
               ),
             );
-          } else if (state is AuctionError) {
-            return _buildErrorWidget(state.message);
-          } else if (state is AuctionSuccess<AuctionModel>) {
-            return _buildDetailsWidget(state.data);
           }
+
+          // Errors before details were ever loaded → show full-screen error.
+          if (state is AuctionError && _lastAuction == null) {
+            return _buildErrorWidget(state.message);
+          }
+
+          // BidLoading / BidPlaced / AuctionError after details loaded →
+          // keep showing the last known details (SnackBar handles feedback).
+          if (_lastAuction != null) {
+            return _buildDetailsWidget(_lastAuction!);
+          }
+
           return const Center(child: Text('No details available.'));
         },
       ),
@@ -1025,6 +1094,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                 image: DecorationImage(
                   image: NetworkImage(displayUrl),
                   fit: BoxFit.cover,
+                  onError: (exception, stackTrace) {
+                    debugPrint('Error loading auction image: $exception');
+                  },
                 ),
               ),
             )

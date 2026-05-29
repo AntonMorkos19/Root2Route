@@ -14,6 +14,7 @@ class StorageService {
   static const String _keyIsVerified = 'is_verified'; 
   static const String _keyHasOrganization = 'has_organization'; 
   static const String _keyIsFirstTime = 'is_first_time';
+  static const String _keyIsExplicitGuest = 'is_explicit_guest';
   
   static const String _keyRefreshToken = 'refresh_token';
   static const String _keyOrganizationId = 'organization_id';
@@ -41,6 +42,7 @@ class StorageService {
     if (refreshToken != null) {
       await _prefs.setString(_keyRefreshToken, refreshToken);
     }
+    await _prefs.remove(_keyIsExplicitGuest);
   }
 
   Future<void> saveTokens({
@@ -49,6 +51,7 @@ class StorageService {
   }) async {
     await _prefs.setString(_keyToken, accessToken);
     await _prefs.setString(_keyRefreshToken, refreshToken);
+    await _prefs.remove(_keyIsExplicitGuest);
   }
 
   Future<void> saveOrganizationId(String orgId) async {
@@ -63,6 +66,11 @@ class StorageService {
   // ✅ Save is first time status
   Future<void> saveIsFirstTime(bool value) async {
     await _prefs.setBool(_keyIsFirstTime, value);
+  }
+
+  // ✅ Save explicit guest status
+  Future<void> saveIsExplicitGuest(bool value) async {
+    await _prefs.setBool(_keyIsExplicitGuest, value);
   }
 
   // ✅ Save verification status
@@ -86,6 +94,8 @@ class StorageService {
 
   bool get isFirstTime => _prefs.getBool(_keyIsFirstTime) ?? true;
 
+  bool get isExplicitGuest => _prefs.getBool(_keyIsExplicitGuest) ?? false;
+
   bool get isGuest => token == null || token!.isEmpty;
   String? get currentUserOrgId => organizationId;
   String? get currentUserId => userId;
@@ -101,6 +111,7 @@ class StorageService {
     await _prefs.remove(_keyHasOrganization);
     await _prefs.remove(_keyRefreshToken);
     await _prefs.remove(_keyOrganizationId);
+    await _prefs.remove(_keyIsExplicitGuest);
   }
 
   bool get isTokenValid {

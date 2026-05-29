@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/core/theme/app_colors.dart';
@@ -56,7 +57,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
           String msg = result['message'] ?? '';
           _errorMessage =
               msg.trim().isEmpty
-                  ? 'Failed to load product data. Server did not send error details.'
+                  ? 'فشل تحميل بيانات المنتج. لم يرسل الخادم تفاصيل الخطأ.'
                   : msg;
 
           _isLoading = false;
@@ -64,26 +65,26 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'An unexpected error occurred: $e';
+        _errorMessage = 'حدث خطأ غير متوقع: $e';
         _isLoading = false;
       });
     }
   }
 
   String _getProductTypeString(dynamic typeIndex) {
-    if (typeIndex == null) return 'Product';
+    if (typeIndex == null) return 'منتج';
     final idx = int.tryParse(typeIndex.toString()) ?? 0;
     switch (idx) {
       case 0:
-        return 'Crop';
+        return 'محصول';
       case 1:
-        return 'Processed';
+        return 'مصنع';
       case 2:
-        return 'Tool';
+        return 'أداة';
       case 3:
-        return 'Chemical';
+        return 'كيماويات';
       default:
-        return 'Crop';
+        return 'محصول';
     }
   }
 
@@ -92,11 +93,11 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
     final idx = int.tryParse(unitIndex.toString()) ?? 0;
     switch (idx) {
       case 0:
-        return 'Kg';
+        return 'كجم';
       case 1:
-        return 'pkg';
+        return 'عبوة';
       case 2:
-        return 'Liter';
+        return 'لتر';
       default:
         return '';
     }
@@ -104,9 +105,11 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: const Color(0xFFF4F6F9),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        backgroundColor: const Color(0xFFF4F6F9),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -182,7 +185,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
       ),
       body: _buildBody(),
       bottomNavigationBar: _productData != null ? _buildBottomBar() : null,
-    );
+    ));
   }
 
   Widget _buildBody() {
@@ -206,13 +209,13 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                _errorMessage ?? 'Product not found.',
+                _errorMessage ?? 'المنتج غير موجود.',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _fetchProductDetails,
-                child: const Text('Retry'),
+                child: const Text('إعادة المحاولة'),
               ),
             ],
           ),
@@ -221,7 +224,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
     }
 
     final data = _productData!;
-    final String name = data['name'] ?? data['Name'] ?? 'Unknown Product';
+    final String name = data['name'] ?? data['Name'] ?? 'منتج غير معروف';
     final bool isAvailableForDirectSale =
         data['isAvailableForDirectSale'] == true ||
         data['IsAvailableForDirectSale'] == true;
@@ -257,7 +260,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
     final String description =
         data['description'] ??
         data['Description'] ??
-        'No description available.';
+        'لا يوجد وصف متاح.';
     final dynamic stockRaw =
         data['stockQuantity'] ?? data['StockQuantity'] ?? 0;
     final int quantity =
@@ -406,7 +409,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                'Auction Only',
+                                'مزاد فقط',
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.bold,
@@ -432,7 +435,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                       ),
                       _buildChip(
                         icon: Icons.inventory_2_rounded,
-                        label: '$quantity In Stock',
+                        label: '$quantity في المخزن',
                         color: Colors.orange.shade50,
                         textColor: Colors.orange.shade800,
                       ),
@@ -447,7 +450,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   ),
                   const SizedBox(height: 30),
                   Text(
-                    "Description",
+                    "الوصف",
                     style: TextStyle(
                       fontSize: 22.sp,
                       fontWeight: FontWeight.bold,
@@ -543,7 +546,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
           onPressed: null,
           icon: const Icon(Icons.edit, color: Colors.white, size: 16),
           label: Text(
-            'You own this product',
+            'أنت تملك هذا المنتج',
             style: TextStyle(
               color: Colors.white,
               fontSize: 14.sp,
@@ -590,9 +593,9 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   QuickAlert.show(
                     context: context,
                     type: QuickAlertType.info,
-                    title: 'Login Required',
-                    text: 'You need to login to contact seller.',
-                    confirmBtnText: 'Login',
+                    title: 'تسجيل الدخول مطلوب',
+                    text: 'تحتاج إلى تسجيل الدخول لمراسلة البائع.',
+                    confirmBtnText: 'تسجيل الدخول',
                     onConfirmBtnTap: () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, LoginScreen.id);
@@ -606,8 +609,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                 QuickAlert.show(
                   context: context,
                   type: QuickAlertType.loading,
-                  title: 'Starting Chat...',
-                  text: 'Please wait',
+                  title: 'جاري بدء الدردشة...',
+                  text: 'يرجى الانتظار',
                   barrierDismissible: false,
                 );
 
@@ -644,8 +647,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                     QuickAlert.show(
                       context: context,
                       type: QuickAlertType.error,
-                      title: 'Error',
-                      text: 'Connection failed. Please check the logs.',
+                      title: 'خطأ',
+                      text: 'فشل الاتصال. يرجى التحقق من السجلات.',
                     );
                   }
                 }
@@ -656,7 +659,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                 size: 16,
               ),
               label: Text(
-                'Contact Seller',
+                'مراسلة البائع',
                 style: TextStyle(
                   color: const Color(0xFF1B7A35),
                   fontSize: 14.sp,
@@ -681,9 +684,9 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   QuickAlert.show(
                     context: context,
                     type: QuickAlertType.info,
-                    title: 'Login Required',
-                    text: 'You need to login to buy or bid.',
-                    confirmBtnText: 'Login',
+                    title: 'تسجيل الدخول مطلوب',
+                    text: 'تحتاج إلى تسجيل الدخول للشراء أو المزايدة.',
+                    confirmBtnText: 'تسجيل الدخول',
                     onConfirmBtnTap: () {
                       Navigator.pop(context); // close alert
                       Navigator.pushNamed(context, LoginScreen.id);
@@ -699,7 +702,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                 if (alreadyInCart) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Item already in cart!'),
+                      content: Text('العنصر موجود بالفعل في السلة!'),
                       backgroundColor: Colors.orange,
                     ),
                   );
@@ -727,7 +730,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                 size: 16,
               ),
               label: Text(
-                'Add to Cart',
+                'أضف إلى السلة',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -788,7 +791,6 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
       builder: (sheetContext) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
-            int selectedQuantity = 1;
             return _QuantitySelectorSheet(
               productId: widget.productId,
               name: name,
@@ -807,7 +809,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('$qty × $name added to cart!'),
-                    backgroundColor: const Color(0xFF1B7A35),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
@@ -843,7 +845,33 @@ class _QuantitySelectorSheet extends StatefulWidget {
 }
 
 class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
+  late TextEditingController _controller;
+  late FocusNode _focusNode;
   int _selectedQuantity = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: '$_selectedQuantity');
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus) {
+        if (_controller.text.isEmpty || int.tryParse(_controller.text) == 0) {
+          setState(() {
+            _selectedQuantity = 1;
+            _controller.text = '1';
+          });
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -872,18 +900,41 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
           ),
           const SizedBox(height: 20),
           // Title
-          Text(
-            'Select Quantity',
-            style: TextStyle(
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w800,
-              color: Colors.black87,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Select Quantity',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w800,
+                  color: Theme.of(context).textTheme.titleLarge?.color,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _selectedQuantity = widget.maxQty;
+                    _controller.text = '$_selectedQuantity';
+                  });
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                ),
+                child: const Text(
+                  'Buy All',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 4),
           Text(
             widget.name,
-            style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade600),
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -892,7 +943,7 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF4F6F9),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
@@ -902,14 +953,23 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
                 Material(
                   color:
                       _selectedQuantity > 1
-                          ? const Color(0xFF1B7A35).withOpacity(0.1)
-                          : Colors.grey.shade200,
+                          ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.12)
+                          : (Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white.withOpacity(0.04)
+                              : Colors.grey.shade200),
                   borderRadius: BorderRadius.circular(10),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10),
                     onTap:
                         _selectedQuantity > 1
-                            ? () => setState(() => _selectedQuantity--)
+                            ? () {
+                              setState(() {
+                                _selectedQuantity--;
+                                _controller.text = '$_selectedQuantity';
+                              });
+                            }
                             : null,
                     child: Padding(
                       padding: const EdgeInsets.all(10),
@@ -918,23 +978,82 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
                         size: 20,
                         color:
                             _selectedQuantity > 1
-                                ? const Color(0xFF1B7A35)
-                                : Colors.grey.shade400,
+                                ? Theme.of(context).colorScheme.primary
+                                : (Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.white24
+                                    : Colors.grey.shade400),
                       ),
                     ),
                   ),
                 ),
-                // Current value
+                // Current value (Editable TextField)
                 Column(
                   children: [
-                    Text(
-                      '$_selectedQuantity',
-                      style: TextStyle(
-                        fontSize: 28.sp,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black87,
+                    Container(
+                      width: 80,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? Colors.black26
+                                : Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.2),
+                          width: 1.5,
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: TextField(
+                        controller: _controller,
+                        focusNode: _focusNode,
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        style: TextStyle(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.w900,
+                          color: Theme.of(context).textTheme.titleLarge?.color,
+                        ),
+                        cursorColor: Theme.of(context).colorScheme.primary,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
+                          filled: false,
+                        ),
+                        onChanged: (val) {
+                          if (val.isEmpty) {
+                            setState(() {
+                              _selectedQuantity = 0;
+                            });
+                            return;
+                          }
+                          int? parsed = int.tryParse(val);
+                          if (parsed != null) {
+                            if (parsed > widget.maxQty) {
+                              parsed = widget.maxQty;
+                              _controller.text = '$parsed';
+                              _controller
+                                  .selection = TextSelection.fromPosition(
+                                TextPosition(offset: _controller.text.length),
+                              );
+                            }
+                            setState(() {
+                              _selectedQuantity = parsed!;
+                            });
+                          }
+                        },
                       ),
                     ),
+                    const SizedBox(height: 6),
                     Text(
                       'of ${widget.maxQty} available',
                       style: TextStyle(
@@ -948,14 +1067,23 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
                 Material(
                   color:
                       _selectedQuantity < widget.maxQty
-                          ? const Color(0xFF1B7A35).withOpacity(0.1)
-                          : Colors.grey.shade200,
+                          ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.12)
+                          : (Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white.withOpacity(0.04)
+                              : Colors.grey.shade200),
                   borderRadius: BorderRadius.circular(10),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(10),
                     onTap:
                         _selectedQuantity < widget.maxQty
-                            ? () => setState(() => _selectedQuantity++)
+                            ? () {
+                              setState(() {
+                                _selectedQuantity++;
+                                _controller.text = '$_selectedQuantity';
+                              });
+                            }
                             : null,
                     child: Padding(
                       padding: const EdgeInsets.all(10),
@@ -964,8 +1092,11 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
                         size: 20,
                         color:
                             _selectedQuantity < widget.maxQty
-                                ? const Color(0xFF1B7A35)
-                                : Colors.grey.shade400,
+                                ? Theme.of(context).colorScheme.primary
+                                : (Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.white24
+                                    : Colors.grey.shade400),
                       ),
                     ),
                   ),
@@ -978,10 +1109,10 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: const Color(0xFF1B7A35).withOpacity(0.06),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.06),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: const Color(0xFF1B7A35).withOpacity(0.18),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.18),
               ),
             ),
             child: Row(
@@ -992,7 +1123,7 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 Text(
@@ -1000,7 +1131,7 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w900,
-                    color: const Color(0xFF1B7A35),
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ],
@@ -1011,7 +1142,13 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () => widget.onConfirm(_selectedQuantity),
+              onPressed:
+                  _selectedQuantity > 0
+                      ? () {
+                        FocusScope.of(context).unfocus();
+                        widget.onConfirm(_selectedQuantity);
+                      }
+                      : null,
               icon: const Icon(
                 Icons.check_circle_rounded,
                 color: Colors.white,
@@ -1026,7 +1163,7 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1B7A35),
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

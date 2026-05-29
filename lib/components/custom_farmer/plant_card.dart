@@ -41,7 +41,7 @@ class PlantCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Directionality(
-                    textDirection: TextDirection.ltr,
+                    textDirection: TextDirection.rtl,
                     child: Text(
                       plant.name,
                       style: TextStyle(
@@ -49,7 +49,7 @@ class PlantCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).textTheme.titleLarge?.color,
                       ),
-                      textAlign: TextAlign.right,
+                      textAlign: TextAlign.start,
                     ),
                   ),
 
@@ -90,12 +90,12 @@ class PlantCard extends StatelessWidget {
 
                   if (plant.description != null)
                     Directionality(
-                      textDirection: TextDirection.ltr,
+                      textDirection: TextDirection.rtl,
                       child: Text(
                         plant.description!,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.left,
+                        textAlign: TextAlign.start,
                         style: TextStyle(
                           fontSize: 14.sp,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -126,7 +126,7 @@ class PlantCard extends StatelessWidget {
                         elevation: 0,
                       ),
                       child: Text(
-                        'View Details',
+                        'عرض التفاصيل',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16.sp,

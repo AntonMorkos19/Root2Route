@@ -28,15 +28,16 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => BlocProvider(
-          create: (_) => ChatMessagesCubit(ChatService()),
-          child: ChatDetailsScreen(
-            roomId: room.id,
-            roomName: displayName,
-            isClosed: room.isClosed,
-            roomOrgId: room.organizationId,
-          ),
-        ),
+        builder:
+            (_) => BlocProvider(
+              create: (_) => ChatMessagesCubit(ChatService()),
+              child: ChatDetailsScreen(
+                roomId: room.id,
+                roomName: displayName,
+                isClosed: room.isClosed,
+                roomOrgId: room.organizationId,
+              ),
+            ),
       ),
     );
     // 2. Refresh rooms list to clear the badge on the tapped room
@@ -47,10 +48,12 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Messages',
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'الرسائل',
           style: TextStyle(
             color: Theme.of(context).textTheme.titleLarge?.color,
             fontWeight: FontWeight.bold,
@@ -76,15 +79,15 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 itemCount: state.rooms.length,
-                itemBuilder: (context, index) =>
-                    _buildRoomTile(state.rooms[index]),
+                itemBuilder:
+                    (context, index) => _buildRoomTile(state.rooms[index]),
               ),
             );
           }
           return const SizedBox.shrink();
         },
       ),
-    );
+    ));
   }
 
   Widget _buildRoomTile(ChatRoomModel room) {
@@ -93,9 +96,10 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
     // No longer need isSeller since we use otherPartyName directly from backend
 
     // Use the backend-provided otherPartyName or chatTitle, fallback to Unknown
-    final String displayName = (room.otherPartyName != null && room.otherPartyName!.isNotEmpty)
-        ? room.otherPartyName!
-        : (room.chatTitle.isNotEmpty ? room.chatTitle : 'Unknown');
+    final String displayName =
+        (room.otherPartyName != null && room.otherPartyName!.isNotEmpty)
+            ? room.otherPartyName!
+            : (room.chatTitle.isNotEmpty ? room.chatTitle : 'غير معروف');
 
     return InkWell(
       onTap: () => _openChat(room, displayName),
@@ -148,8 +152,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
                   Text(
                     displayName,
                     style: TextStyle(
-                      fontWeight:
-                          hasUnread ? FontWeight.bold : FontWeight.w600,
+                      fontWeight: hasUnread ? FontWeight.bold : FontWeight.w600,
                       fontSize: 16.sp,
                       color: Theme.of(context).textTheme.titleMedium?.color,
                     ),
@@ -159,16 +162,16 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
                   const SizedBox(height: 3),
                   Text(
                     room.lastMessage.isEmpty
-                        ? 'No messages yet'
+                        ? 'لا توجد رسائل حتى الآن'
                         : room.lastMessage,
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: hasUnread
-                          ? Theme.of(context).textTheme.bodyMedium?.color
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontWeight: hasUnread
-                          ? FontWeight.w500
-                          : FontWeight.normal,
+                      color:
+                          hasUnread
+                              ? Theme.of(context).textTheme.bodyMedium?.color
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight:
+                          hasUnread ? FontWeight.w500 : FontWeight.normal,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -180,8 +183,7 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
             // Unread badge
             if (hasUnread)
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                 decoration: BoxDecoration(
                   color: Colors.green,
                   borderRadius: BorderRadius.circular(12),
@@ -206,10 +208,14 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.chat_bubble_outline, size: 72, color: Theme.of(context).colorScheme.outline),
+          Icon(
+            Icons.chat_bubble_outline,
+            size: 72,
+            color: Theme.of(context).colorScheme.outline,
+          ),
           const SizedBox(height: 16),
           Text(
-            'No conversations yet',
+            'لا توجد محادثات حتى الآن',
             style: TextStyle(
               fontSize: 20.sp,
               fontWeight: FontWeight.bold,
@@ -218,9 +224,12 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Contact a seller on any product page\nto start a conversation.',
+            'تواصل مع بائع في أي صفحة منتج\nلبدء محادثة.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15.sp, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: TextStyle(
+              fontSize: 15.sp,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -239,18 +248,22 @@ class _ChatRoomsScreenState extends State<ChatRoomsScreen> {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16.sp, color: Theme.of(context).textTheme.bodyMedium?.color),
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () => context.read<ChatRoomsCubit>().fetchRooms(),
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: const Text('إعادة المحاولة'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],

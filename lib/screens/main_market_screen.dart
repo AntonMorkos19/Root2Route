@@ -55,14 +55,14 @@ class _MainMarketTabState extends State<MainMarketTab> {
         });
       } else {
         setState(() {
-          _errorMessage = result['message'] ?? 'Failed to load products';
+          _errorMessage = result['message'] ?? 'فشل في تحميل المنتجات';
           _isLoading = false;
         });
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'An unexpected error occurred: $e';
+        _errorMessage = 'حدث خطأ غير متوقع: $e';
         _isLoading = false;
       });
     }
@@ -70,8 +70,10 @@ class _MainMarketTabState extends State<MainMarketTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       floatingActionButton:
           widget.isGuestMode
               ? null
@@ -98,7 +100,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
-                            "Loading organization data, please wait...",
+                            "جاري تحميل بيانات الشركة، يرجى الانتظار...",
                           ),
                         ),
                       );
@@ -106,7 +108,8 @@ class _MainMarketTabState extends State<MainMarketTab> {
                   },
                 ),
               ),
-      body: _buildBody(),
+        body: _buildBody(),
+      ),
     );
   }
 
@@ -143,7 +146,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
                 onPressed: _fetchProducts,
                 icon: const Icon(Icons.refresh, color: Colors.white),
                 label: const Text(
-                  'Retry',
+                  'إعادة المحاولة',
                   style: TextStyle(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -171,11 +174,8 @@ class _MainMarketTabState extends State<MainMarketTab> {
             ),
             const SizedBox(height: 16),
             const Text(
-              'No products available currently',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              'لا توجد منتجات متاحة حالياً',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -208,7 +208,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
   }
 
   Widget _buildProductCard(BuildContext context, dynamic product) {
-    final String name = product['name'] ?? product['Name'] ?? 'Unknown Product';
+    final String name = product['name'] ?? product['Name'] ?? 'منتج غير معروف';
     final dynamic stockRaw =
         product['stockQuantity'] ?? product['StockQuantity'] ?? 0;
     final int stockQty =
@@ -225,20 +225,20 @@ class _MainMarketTabState extends State<MainMarketTab> {
         final idx = int.tryParse(unitRaw.toString()) ?? 0;
         switch (idx) {
           case 0:
-            unitName = 'Kg';
+            unitName = 'كجم';
             break;
           case 1:
-            unitName = 'pkg';
+            unitName = 'عبوة';
             break;
           case 2:
-            unitName = 'Liter';
+            unitName = 'لتر';
             break;
         }
       }
     }
 
     final dynamic typeRaw = product['productType'] ?? product['ProductType'];
-    String typeStr = 'Crop';
+    String typeStr = 'محصول';
     if (typeRaw != null) {
       if (typeRaw is String) {
         typeStr = typeRaw;
@@ -246,20 +246,20 @@ class _MainMarketTabState extends State<MainMarketTab> {
         final idx = int.tryParse(typeRaw.toString()) ?? 0;
         switch (idx) {
           case 0:
-            typeStr = 'Crop';
+            typeStr = 'محصول';
             break;
           case 1:
-            typeStr = 'Processed';
+            typeStr = 'مصنع';
             break;
           case 2:
-            typeStr = 'Tool';
+            typeStr = 'أداة';
             break;
           case 3:
-            typeStr = 'Chemical';
+            typeStr = 'كيماويات';
             break;
+        }
       }
     }
-  }
     final String productOrgId =
         product['organizationId']?.toString() ??
         product['OrganizationId']?.toString() ??
@@ -271,7 +271,8 @@ class _MainMarketTabState extends State<MainMarketTab> {
         currentUserOrgId.isNotEmpty &&
         currentUserOrgId == productOrgId;
 
-    final String? sellerName = product['organizationName'] ??
+    final String? sellerName =
+        product['organizationName'] ??
         product['OrganizationName'] ??
         product['sellerName'] ??
         product['seller']?.toString();
@@ -364,7 +365,8 @@ class _MainMarketTabState extends State<MainMarketTab> {
                     child: Container(
                       width: double.infinity,
                       height: double.infinity,
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       child:
                           displayUrl != null && displayUrl.isNotEmpty
                               ? Image.network(
@@ -442,12 +444,15 @@ class _MainMarketTabState extends State<MainMarketTab> {
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(
-                            'Stock: $stockQty ${unitName.isNotEmpty ? unitName : ''}',
+                            'المخزون: $stockQty ${unitName.isNotEmpty ? unitName : ''}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 11.sp,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -462,29 +467,42 @@ class _MainMarketTabState extends State<MainMarketTab> {
                         color: Theme.of(context).textTheme.titleMedium?.color,
                       ),
                     ),
-                    if (isMyProduct || (sellerName != null && sellerName.trim().isNotEmpty)) ...[
+                    if (isMyProduct ||
+                        (sellerName != null &&
+                            sellerName.trim().isNotEmpty)) ...[
                       const SizedBox(height: 4),
                       Row(
                         children: [
                           Icon(
-                            isMyProduct ? Icons.verified_user : Icons.storefront_outlined,
+                            isMyProduct
+                                ? Icons.verified_user
+                                : Icons.storefront_outlined,
                             size: 14,
-                            color: isMyProduct
-                                ? const Color(0xFF1B7A35)
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                            color:
+                                isMyProduct
+                                    ? const Color(0xFF1B7A35)
+                                    : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(width: 4),
                           Flexible(
                             child: Text(
-                              isMyProduct ? 'Your Product' : sellerName!,
+                              isMyProduct ? 'منتجك' : sellerName!,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: isMyProduct ? 12.sp : 11.sp,
-                                fontWeight: isMyProduct ? FontWeight.bold : FontWeight.normal,
-                                color: isMyProduct
-                                    ? const Color(0xFF1B7A35)
-                                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontWeight:
+                                    isMyProduct
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                color:
+                                    isMyProduct
+                                        ? const Color(0xFF1B7A35)
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -501,7 +519,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        'View Details',
+                        'عرض التفاصيل',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

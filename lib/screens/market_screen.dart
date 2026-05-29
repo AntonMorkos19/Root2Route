@@ -30,90 +30,95 @@ class _MarketScreenState extends State<MarketScreen> {
 
     return DefaultTabController(
       length: tabLength,
-      child: Scaffold(
-        appBar: AppBar(
-          elevation: 1,
-          title: const Text(
-            'Marketplace',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 22),
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          appBar: AppBar(
+            elevation: 1,
+            centerTitle: false,
+            title: const Text(
+              'السوق',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 22),
+            ),
+            actions: [
+              BlocBuilder<CartCubit, CartState>(
+                builder: (context, state) {
+                  final cartCount = state.cartItems.length;
+                  return IconButton(
+                    onPressed:
+                        () => Navigator.pushNamed(context, CartScreen.id),
+                    icon: Badge(
+                      isLabelVisible: cartCount > 0,
+                      label: Text(cartCount.toString()),
+                      backgroundColor: AppColors.primary,
+                      child: const Icon(Icons.shopping_cart_outlined),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.chat_bubble_outline),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => BlocProvider(
+                            create: (_) => ChatRoomsCubit(ChatService()),
+                            child: const ChatRoomsScreen(),
+                          ),
+                    ),
+                  );
+                },
+              ),
+              BlocBuilder<NotificationCubit, NotificationState>(
+                builder: (context, state) {
+                  int unreadCount = 0;
+                  if (state is NotificationLoaded) {
+                    unreadCount = state.unreadCount;
+                  }
+                  return IconButton(
+                    onPressed:
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const NotificationsScreen(),
+                          ),
+                        ),
+                    icon: Badge(
+                      isLabelVisible: unreadCount > 0,
+                      label: Text(unreadCount.toString()),
+                      backgroundColor: Colors.red,
+                      child: const Icon(Icons.notifications_active_outlined),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
+            ],
+            bottom: TabBar(
+              labelColor: AppColors.primary,
+              unselectedLabelColor: Theme.of(context).colorScheme.outline,
+              indicatorColor: AppColors.primary,
+              indicatorWeight: 3,
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+              tabs: const [
+                Tab(text: 'السوق', icon: Icon(Icons.storefront)),
+                Tab(text: 'المزادات', icon: Icon(Icons.gavel)),
+                Tab(text: 'متجري', icon: Icon(Icons.inventory_2_outlined)),
+              ],
+            ),
           ),
-          actions: [
-            BlocBuilder<CartCubit, CartState>(
-              builder: (context, state) {
-                final cartCount = state.cartItems.length;
-                return IconButton(
-                  onPressed: () => Navigator.pushNamed(context, CartScreen.id),
-                  icon: Badge(
-                    isLabelVisible: cartCount > 0,
-                    label: Text(cartCount.toString()),
-                    backgroundColor: AppColors.primary,
-                    child: const Icon(Icons.shopping_cart_outlined),
-                  ),
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.chat_bubble_outline),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => BlocProvider(
-                          create: (_) => ChatRoomsCubit(ChatService()),
-                          child: const ChatRoomsScreen(),
-                        ),
-                  ),
-                );
-              },
-            ),
-            BlocBuilder<NotificationCubit, NotificationState>(
-              builder: (context, state) {
-                int unreadCount = 0;
-                if (state is NotificationLoaded) {
-                  unreadCount = state.unreadCount;
-                }
-                return IconButton(
-                  onPressed:
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const NotificationsScreen(),
-                        ),
-                      ),
-                  icon: Badge(
-                    isLabelVisible: unreadCount > 0,
-                    label: Text(unreadCount.toString()),
-                    backgroundColor: Colors.red,
-                    child: const Icon(Icons.notifications_active_outlined),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(width: 8),
-          ],
-          bottom: TabBar(
-            labelColor: AppColors.primary,
-            unselectedLabelColor: Theme.of(context).colorScheme.outline,
-            indicatorColor: AppColors.primary,
-            indicatorWeight: 3,
-            labelStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-            tabs: const [
-              Tab(text: 'My store', icon: Icon(Icons.inventory_2_outlined)),
-              Tab(text: 'Auctions', icon: Icon(Icons.gavel)),
-              Tab(text: 'Market', icon: Icon(Icons.storefront)),
+          body: TabBarView(
+            children: [
+              MainMarketTab(organizationId: widget.organizationId),
+              const AuctionsScreen(),
+              MyProductsScreen(organizationId: widget.organizationId ?? ''),
             ],
           ),
-        ),
-        body: TabBarView(
-          children: [
-            MyProductsScreen(organizationId: widget.organizationId ?? ''),
-            const AuctionsScreen(),
-            MainMarketTab(organizationId: widget.organizationId),
-          ],
         ),
       ),
     );

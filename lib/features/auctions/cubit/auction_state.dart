@@ -15,6 +15,19 @@ class AuctionLoading extends AuctionState {
   const AuctionLoading();
 }
 
+/// Dedicated loading state while a bid is being submitted.
+/// Unlike [AuctionLoading], this does NOT replace the details screen UI.
+class BidLoading extends AuctionState {
+  const BidLoading();
+}
+
+/// Emitted after a bid is placed successfully.
+/// The Cubit will immediately re-fetch details & bids after emitting this.
+class BidPlaced extends AuctionState {
+  final String auctionId;
+  const BidPlaced(this.auctionId);
+}
+
 /// Generic success state carrying typed data.
 class AuctionSuccess<T> extends AuctionState {
   final T data;

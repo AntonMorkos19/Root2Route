@@ -20,18 +20,12 @@ class GuestProductsTab extends StatelessWidget {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF4F6F9),
         appBar: AppBar(
-          backgroundColor: Colors.white,
           elevation: 1,
           centerTitle: true,
           title: Text(
-            'Products',
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.w800,
-              fontSize: 24.sp,
-            ),
+            'استكشف السوق',
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24.sp),
           ),
           actions: [
             BlocBuilder<CartCubit, CartState>(
@@ -43,19 +37,13 @@ class GuestProductsTab extends StatelessWidget {
                     isLabelVisible: cartCount > 0,
                     label: Text(cartCount.toString()),
                     backgroundColor: AppColors.primary,
-                    child: const Icon(
-                      Icons.shopping_cart_outlined,
-                      color: Colors.black87,
-                    ),
+                    child: const Icon(Icons.shopping_cart_outlined),
                   ),
                 );
               },
             ),
             IconButton(
-              icon: const Icon(
-                Icons.chat_bubble_outline,
-                color: Colors.black87,
-              ),
+              icon: const Icon(Icons.chat_bubble_outline),
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -83,10 +71,7 @@ class GuestProductsTab extends StatelessWidget {
                     isLabelVisible: unreadCount > 0,
                     label: Text(unreadCount.toString()),
                     backgroundColor: Colors.red,
-                    child: const Icon(
-                      Icons.notifications_active_outlined,
-                      color: Colors.black87,
-                    ),
+                    child: const Icon(Icons.notifications_active_outlined),
                   ),
                 );
               },

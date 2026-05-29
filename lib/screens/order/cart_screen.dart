@@ -21,44 +21,60 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CartCubit, CartState>(
-      builder: (context, state) {
-        final items = state.cartItems;
-        final total = _cartService.totalPrice;
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: BlocBuilder<CartCubit, CartState>(
+        builder: (context, state) {
+          final items = state.cartItems;
+          final total = _cartService.totalPrice;
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('My Cart', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp)),
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                'عربة التسوق',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
+            ),
             backgroundColor: AppColors.primary,
             elevation: 0,
           ),
-          body: items.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.shopping_cart_outlined, size: 80, color: Theme.of(context).colorScheme.outline),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Your cart is empty',
-                        style: TextStyle(fontSize: 20.sp, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      ),
-                    ],
+          body:
+              items.isEmpty
+                  ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.shopping_cart_outlined,
+                          size: 80,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'عربة التسوق فارغة',
+                          style: TextStyle(
+                            fontSize: 20.sp,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  : ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: items.length,
+                    separatorBuilder:
+                        (context, index) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final item = items[index];
+                      return _buildCartItem(item);
+                    },
                   ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: items.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    return _buildCartItem(item);
-                  },
-                ),
-          bottomNavigationBar: items.isNotEmpty ? _buildBottomCheckout(total) : null,
+          bottomNavigationBar:
+              items.isNotEmpty ? _buildBottomCheckout(total) : null,
         );
       },
-    );
+    ));
   }
 
   Widget _buildCartItem(Map<String, dynamic> item) {
@@ -67,9 +83,10 @@ class _CartScreenState extends State<CartScreen> {
     final productId = item['productId'] as String;
     final imageUrl = item['imageUrl'] as String?;
 
-    final displayUrl = (imageUrl != null && imageUrl.startsWith('/'))
-        ? 'https://root2route.runasp.net$imageUrl'
-        : imageUrl;
+    final displayUrl =
+        (imageUrl != null && imageUrl.startsWith('/'))
+            ? 'https://root2route.runasp.net$imageUrl'
+            : imageUrl;
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -95,14 +112,23 @@ class _CartScreenState extends State<CartScreen> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: displayUrl != null
-                  ? Image.network(
-                      displayUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.image_not_supported_outlined, color: Colors.grey, size: 30),
-                    )
-                  : const Icon(Icons.inventory_2_outlined, color: Colors.grey, size: 30),
+              child:
+                  displayUrl != null
+                      ? Image.network(
+                        displayUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder:
+                            (context, error, stackTrace) => const Icon(
+                              Icons.image_not_supported_outlined,
+                              color: Colors.grey,
+                              size: 30,
+                            ),
+                      )
+                      : const Icon(
+                        Icons.inventory_2_outlined,
+                        color: Colors.grey,
+                        size: 30,
+                      ),
             ),
           ),
           const SizedBox(width: 16),
@@ -112,13 +138,16 @@ class _CartScreenState extends State<CartScreen> {
               children: [
                 Text(
                   name,
-                  style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${price.toStringAsFixed(0)} EGP',
+                  '${price.toStringAsFixed(0)} جنيه',
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
@@ -159,11 +188,14 @@ class _CartScreenState extends State<CartScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total Price:',
-                  style: TextStyle(fontSize: 18.sp, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  'السعر الإجمالي:',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 Text(
-                  '${total.toStringAsFixed(0)} EGP',
+                  '${total.toStringAsFixed(0)} جنيه',
                   style: TextStyle(
                     fontSize: 24.sp,
                     fontWeight: FontWeight.w900,
@@ -191,7 +223,7 @@ class _CartScreenState extends State<CartScreen> {
                   elevation: 5,
                 ),
                 child: Text(
-                  'Proceed to Checkout',
+                  'المتابعة للدفع',
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.bold,

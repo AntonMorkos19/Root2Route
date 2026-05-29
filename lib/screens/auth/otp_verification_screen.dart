@@ -14,7 +14,7 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/screens/auth/create_new_password.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
- import 'package:root2route/services/api.dart';
+import 'package:root2route/services/api.dart';
 
 enum OtpType { emailVerification, passwordRecovery }
 
@@ -67,7 +67,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void _verifyOtp() async {
     if (otpCode.length < 6) {
-      _showError("Please enter the full 6-digit code");
+      _showError("برجاء إدخال الكود المكون من 6 أرقام كاملاً");
       return;
     }
 
@@ -84,23 +84,28 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     setState(() => isLoading = true);
     try {
-      final result = await ApiService().verifyOTP(email: widget.email, otpCode: otpCode);
+      final result = await ApiService().verifyOTP(
+        email: widget.email,
+        otpCode: otpCode,
+      );
 
       if (mounted) {
         if (result['success'] == true) {
           final hasToken = result['hasToken'] ?? false;
-          
+
           QuickAlert.show(
             context: context,
             type: QuickAlertType.success,
-            title: "Success",
-            text: hasToken 
-                ? "Email Verified and Logged In Successfully!" 
-                : "Email Verified Successfully! Please Login.",
+            title: "تم بنجاح",
+            text:
+                hasToken
+                    ? "تم تفعيل البريد الإلكتروني وتسجيل الدخول بنجاح!"
+                    : "تم تفعيل البريد الإلكتروني بنجاح! برجاء تسجيل الدخول.",
             confirmBtnColor: green,
+            confirmBtnText: "موافق",
             onConfirmBtnTap: () async {
               Navigator.pop(context); // close alert
-              
+
               if (hasToken) {
                 if (mounted) {
                   Navigator.pushNamedAndRemoveUntil(
@@ -120,7 +125,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             },
           );
         } else {
-          _showError(result['message'] ?? "Verification failed");
+          _showError(result['message'] ?? "فشلت عملية التحقق");
         }
       }
     } catch (e) {
@@ -137,13 +142,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Code resent successfully"),
+            content: Text("تم إعادة إرسال الكود بنجاح"),
             backgroundColor: green,
           ),
         );
       }
     } catch (e) {
-      if (mounted) _showError("Failed to resend code. Try again.");
+      if (mounted) _showError("فشل إرسال كود التحقق. برجاء المحاولة مرة أخرى.");
     }
   }
 
@@ -151,8 +156,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.error,
-      title: "Failed",
+      title: "فشلت العملية",
       text: message,
+      confirmBtnText: "موافق",
     );
   }
 
@@ -168,75 +174,80 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AuthHeader(
-                    title: 'Verification Code',
-                    description:
-                        'Enter the 6-digit code sent to \n${widget.email}',
-                    icon: Icons.verified_outlined,
-                  ),
-                  const SizedBox(height: 16),
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    AuthHeader(
+                      title: 'كود التحقق',
+                      description:
+                          'أدخل الكود المكون من 6 أرقام المرسل إلى \n${widget.email}',
+                      icon: Icons.verified_outlined,
+                    ),
+                    const SizedBox(height: 16),
 
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(18),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 11, sigmaY: 11),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.25),
-                            width: 1,
-                          ),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 10),
-                            OtpField(onChanged: (value) => otpCode = value),
-                            const SizedBox(height: 26),
-
-                            isLoading
-                                ? const CircularProgressIndicator(color: green)
-                                : CustomButton(
-                                  text: 'Verify',
-                                  onPressed: _verifyOtp,
-                                ),
-
-                            const SizedBox(height: 16),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  secondsLeft > 0
-                                      ? 'Resend in 00:${secondsLeft.toString().padLeft(2, '0')}'
-                                      : 'Didn’t receive the code?',
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                                const SizedBox(width: 4),
-                                if (secondsLeft == 0)
-                                  TextButton(
-                                    onPressed: _resendOtp,
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: AppColors.primary,
-                                    ),
-                                    child: const Text('Resend'),
-                                  ),
-                              ],
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 11, sigmaY: 11),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.25),
+                              width: 1,
                             ),
-                          ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(height: 10),
+                              OtpField(onChanged: (value) => otpCode = value),
+                              const SizedBox(height: 26),
+
+                              isLoading
+                                  ? const CircularProgressIndicator(
+                                    color: green,
+                                  )
+                                  : CustomButton(
+                                    text: 'تحقق',
+                                    onPressed: _verifyOtp,
+                                  ),
+
+                              const SizedBox(height: 16),
+
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    secondsLeft > 0
+                                        ? 'إعادة الإرسال خلال 00:${secondsLeft.toString().padLeft(2, '0')}'
+                                        : 'لم تصلك الرسالة؟',
+                                    style: const TextStyle(color: Colors.grey),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  if (secondsLeft == 0)
+                                    TextButton(
+                                      onPressed: _resendOtp,
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: AppColors.primary,
+                                      ),
+                                      child: const Text('إعادة إرسال'),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                ],
+                    const SizedBox(height: 14),
+                  ],
+                ),
               ),
             ),
           ),

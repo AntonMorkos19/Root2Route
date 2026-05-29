@@ -19,20 +19,16 @@ class AuthHeader extends StatelessWidget {
     return Column(
       children: [
         CircleAvatar(
-          radius: 38,
+          radius: 50,
           backgroundColor: Colors.white.withOpacity(0.15),
-          child: Icon(
-            icon,
-            size: 36,
-            color: AppColors.primary,
-          ),
+          child: Icon(icon, size: 55, color: AppColors.primary),
         ),
         const SizedBox(height: 16),
         Text(
           title,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 20.sp,
+            fontSize: 25.sp,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -42,7 +38,8 @@ class AuthHeader extends StatelessWidget {
           description,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 16.sp,
+            fontSize: 20.sp,
+            fontWeight: FontWeight.bold,
             color: const Color.fromARGB(240, 255, 255, 255),
           ),
         ),

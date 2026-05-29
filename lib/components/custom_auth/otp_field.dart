@@ -11,8 +11,7 @@ class OtpField extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpField> {
-  // Set length to 6
-  final int length = 6;
+   final int length = 6;
   late List<TextEditingController> controllers;
   late List<FocusNode> focusNodes;
 
@@ -43,24 +42,28 @@ class _OtpScreenState extends State<OtpField> {
 
   Widget _buildOtpBox(int index) {
     return SizedBox(
-      // Smaller width to fit 6 fields side by side
-      width: 45,
+      width: 44.w,
+      height: 48.w,
       child: TextField(
         controller: controllers[index],
         focusNode: focusNodes[index],
         textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
+        textAlignVertical: TextAlignVertical.center,
+        keyboardType: TextInputType.visiblePassword, // Allows both letters and digits easily
         maxLength: 1,
         style: TextStyle(
-          fontSize: 22.sp,
+          fontSize: 20.sp,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
         decoration: InputDecoration(
           counterText: "",
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.12),
+          contentPadding: EdgeInsets.zero,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+            borderSide: BorderSide(color: Colors.white.withOpacity(0.25)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),

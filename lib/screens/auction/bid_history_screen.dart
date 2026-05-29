@@ -24,29 +24,32 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_initialized) {
-      _auction =
-          ModalRoute.of(context)!.settings.arguments as AuctionModel;
+      _auction = ModalRoute.of(context)!.settings.arguments as AuctionModel;
       _initialized = true;
       context.read<AuctionCubit>().fetchBids(
-            auctionId: _auction.id,
-            auction: _auction,
-          );
+        auctionId: _auction.id,
+        auction: _auction,
+      );
     }
   }
 
   void _refresh() {
     context.read<AuctionCubit>().fetchBids(
-          auctionId: _auction.id,
-          auction: _auction,
-        );
+      auctionId: _auction.id,
+      auction: _auction,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
         title: Text(
-          _initialized ? (_auction.productName ?? 'Bid History') : 'Bid History',
+          _initialized
+              ? (_auction.productName ?? 'سجل المزايدات')
+              : 'سجل المزايدات',
           style: TextStyle(
             color: Theme.of(context).textTheme.titleLarge?.color,
             fontWeight: FontWeight.bold,
@@ -58,26 +61,30 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: _refresh,
-            tooltip: 'Refresh',
+            tooltip: 'تحديث',
           ),
         ],
       ),
       body: BlocConsumer<AuctionCubit, AuctionState>(
         listener: (context, state) {
           if (state is AuctionError) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.red.shade600,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red.shade600,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
           }
         },
         builder: (context, state) {
           if (state is AuctionLoading) {
             return const Center(
-                child: CircularProgressIndicator(color: AppColors.primary));
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
           }
           if (state is BidHistoryLoaded) {
             return _buildBidList(state);
@@ -87,24 +94,31 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline_rounded,
-                      size: 64, color: Colors.red.shade300),
+                  Icon(
+                    Icons.error_outline_rounded,
+                    size: 64,
+                    color: Colors.red.shade300,
+                  ),
                   const SizedBox(height: 16),
-                  Text(state.message,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
+                  Text(
+                    state.message,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
                       fontSize: 15,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   ElevatedButton.icon(
                     onPressed: _refresh,
                     icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('Retry'),
+                    label: const Text('إعادة المحاولة'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                 ],
@@ -114,7 +128,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
           return const SizedBox();
         },
       ),
-    );
+    ));
   }
 
   Widget _buildBidList(BidHistoryLoaded state) {
@@ -131,20 +145,29 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.gavel_rounded,
-                  size: 48, color: Theme.of(context).colorScheme.outline),
+              child: Icon(
+                Icons.gavel_rounded,
+                size: 48,
+                color: Theme.of(context).colorScheme.outline,
+              ),
             ),
             const SizedBox(height: 20),
-            Text('No bids yet',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.titleMedium?.color)),
+            Text(
+              'لا توجد مزايدات حتى الآن',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).textTheme.titleMedium?.color,
+              ),
+            ),
             const SizedBox(height: 8),
-            Text('Bids will appear here once users start bidding.',
-                style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            Text(
+              'ستظهر المزايدات هنا بمجرد أن يبدأ المستخدمون بالمزايدة.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       );
@@ -186,59 +209,80 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
           ),
         ],
       ),
-      child: Column(children: [
-        Row(children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.emoji_events_rounded,
-                color: Colors.white, size: 28),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('🏆 Auction Winner',
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.emoji_events_rounded,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '🏆 الفائز بالمزاد',
                       style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white)),
-                  const SizedBox(height: 4),
-                  Text(auction.winnerName ?? highestBid.bidderName,
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white.withValues(alpha: 0.9))),
-                ]),
-          ),
-        ]),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Winning Bid',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white)),
-                Text('EGP ${highestBid.amount.toStringAsFixed(2)}',
-                    style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white)),
-              ]),
-        ),
-      ]),
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      auction.winnerName ?? highestBid.bidderName,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'المزايدة الفائزة',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  '${highestBid.amount.toStringAsFixed(2)} جنيه',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -246,74 +290,98 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: isHighest
-            ? const Color(0xFF22C55E).withValues(alpha: 0.06)
-            : Theme.of(context).cardColor,
+        color:
+            isHighest
+                ? const Color(0xFF22C55E).withValues(alpha: 0.06)
+                : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: isHighest
-            ? Border.all(color: const Color(0xFF22C55E).withValues(alpha: 0.3))
-            : Border.all(color: Theme.of(context).dividerColor),
+        border:
+            isHighest
+                ? Border.all(
+                  color: const Color(0xFF22C55E).withValues(alpha: 0.3),
+                )
+                : Border.all(color: Theme.of(context).dividerColor),
       ),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         leading: Container(
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: isHighest
-                ? const Color(0xFF22C55E).withValues(alpha: 0.15)
-                : Theme.of(context).colorScheme.surfaceContainerHighest,
+            color:
+                isHighest
+                    ? const Color(0xFF22C55E).withValues(alpha: 0.15)
+                    : Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Center(
-            child: isHighest
-                ? const Icon(Icons.star_rounded,
-                    color: Color(0xFF22C55E), size: 22)
-                : Text('#$rank',
-                    style: TextStyle(
+            child:
+                isHighest
+                    ? const Icon(
+                      Icons.star_rounded,
+                      color: Color(0xFF22C55E),
+                      size: 22,
+                    )
+                    : Text(
+                      '#$rank',
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
           ),
         ),
-        title: Text(bid.bidderName,
-            style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isHighest
+        title: Text(
+          bid.bidderName,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color:
+                isHighest
                     ? const Color(0xFF16A34A)
-                    : Theme.of(context).textTheme.titleSmall?.color)),
-        subtitle: Text(_fmtTs(bid.timestamp),
-            style: TextStyle(
-                fontSize: 11,
-                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    : Theme.of(context).textTheme.titleSmall?.color,
+          ),
+        ),
+        subtitle: Text(
+          _fmtTs(bid.timestamp),
+          style: TextStyle(
+            fontSize: 11,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('EGP ${bid.amount.toStringAsFixed(2)}',
-                style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: isHighest
+            Text(
+              '${bid.amount.toStringAsFixed(2)} جنيه',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color:
+                    isHighest
                         ? const Color(0xFF16A34A)
-                        : Theme.of(context).textTheme.titleSmall?.color)),
+                        : Theme.of(context).textTheme.titleSmall?.color,
+              ),
+            ),
             if (isHighest)
               Container(
                 margin: const EdgeInsets.only(top: 2),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: const Color(0xFF22C55E).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text('HIGHEST',
-                    style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF16A34A),
-                        letterSpacing: 0.5)),
+                child: const Text(
+                  'الأعلى',
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF16A34A),
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ),
           ],
         ),
@@ -323,8 +391,18 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
 
   String _fmtTs(DateTime dt) {
     const m = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final h = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
     final ap = dt.hour >= 12 ? 'PM' : 'AM';

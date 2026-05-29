@@ -58,7 +58,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
       } else {
         setState(() {
           _participatedError =
-              res['message'] ?? 'Failed to load participated auctions.';
+              res['message'] ?? 'فشل في تحميل المزادات المشارك بها.';
           _loadingParticipated = false;
         });
       }
@@ -87,7 +87,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
         });
       } else {
         setState(() {
-          _wonError = res['message'] ?? 'Failed to load won auctions.';
+          _wonError = res['message'] ?? 'فشل في تحميل المزادات الفائزة.';
           _loadingWon = false;
         });
       }
@@ -125,21 +125,21 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Text(
-                    'Confirm Checkout',
+                    'تأكيد الدفع',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                 ),
               ],
             ),
             content: Text(
-              'Are you sure you want to checkout "$title"?',
+              'هل أنت متأكد أنك تريد الدفع لـ "$title"؟',
               style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
                 child: Text(
-                  'Cancel',
+                  'إلغاء',
                   style: TextStyle(color: Colors.grey.shade600),
                 ),
               ),
@@ -152,7 +152,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text('Checkout'),
+                child: const Text('دفع'),
               ),
             ],
           ),
@@ -163,8 +163,8 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
-      title: 'Processing',
-      text: 'Completing checkout...',
+      title: 'جاري المعالجة',
+      text: 'جاري إكمال الدفع...',
       barrierDismissible: false,
     );
 
@@ -177,9 +177,9 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
         await QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
-          title: 'Checkout Complete!',
-          text: res['message'] ?? 'Your order has been placed successfully.',
-          confirmBtnText: 'Great',
+          title: 'اكتمل الدفع!',
+          text: res['message'] ?? 'تم تقديم طلبك بنجاح.',
+          confirmBtnText: 'رائع',
           confirmBtnColor: AppColors.primary,
         );
         _fetchWon();
@@ -187,9 +187,9 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
-          title: 'Checkout Failed',
-          text: res['message'] ?? 'Something went wrong. Please try again.',
-          confirmBtnText: 'OK',
+          title: 'فشل الدفع',
+          text: res['message'] ?? 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
+          confirmBtnText: 'موافق',
         );
       }
     } catch (e) {
@@ -198,17 +198,19 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
-        title: 'Error',
-        text: 'An unexpected error occurred: $e',
-        confirmBtnText: 'OK',
+        title: 'خطأ',
+        text: 'حدث خطأ غير متوقع: $e',
+        confirmBtnText: 'موافق',
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         toolbarHeight: 100, // زودنا الطول عشان يشيل العنوان والوصف
         backgroundColor: AppColors.primary,
@@ -231,7 +233,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'My Auctions',
+              'مزاداتي',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 22,
@@ -240,7 +242,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
             ),
             const SizedBox(height: 4),
             Text(
-              'Track your bids and claim your wins',
+              'تتبع مزايداتك واستلم مزاداتك الفائزة',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.8),
                 fontSize: 13,
@@ -266,7 +268,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
           unselectedLabelColor: Colors.white60,
           indicatorColor: Colors.white,
           indicatorWeight: 3,
-          tabs: const [Tab(text: 'Participated'), Tab(text: 'Won')],
+          tabs: const [Tab(text: 'مشارك بها'), Tab(text: 'فائز بها')],
         ),
       ),
       body: TabBarView(
@@ -278,8 +280,8 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
             error: _participatedError,
             onRefresh: _fetchParticipated,
             emptyIcon: Icons.how_to_vote_rounded,
-            emptyTitle: 'No Participated Auctions',
-            emptySubtitle: 'Auctions you bid on will appear here.',
+            emptyTitle: 'لا توجد مزادات مشارك بها',
+            emptySubtitle: 'المزادات التي شاركت بها ستظهر هنا.',
             cardBuilder:
                 (auction) => _ParticipatedAuctionCard(auction: auction),
           ),
@@ -289,8 +291,8 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
             error: _wonError,
             onRefresh: _fetchWon,
             emptyIcon: Icons.emoji_events_rounded,
-            emptyTitle: 'No Won Auctions',
-            emptySubtitle: 'Your winning auctions will show up here.',
+            emptyTitle: 'لا توجد مزادات فائزة',
+            emptySubtitle: 'مزاداتك الفائزة ستظهر هنا.',
             cardBuilder:
                 (auction) => _WonAuctionCard(
                   auction: auction,
@@ -299,6 +301,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
           ),
         ],
       ),
+    )
     );
   }
 
@@ -356,7 +359,7 @@ String? _resolveImageUrl(dynamic auction) {
 }
 
 String _resolveTitle(dynamic auction) {
-  return auction['title'] ?? auction['Title'] ?? auction['name'] ?? 'Auction';
+  return auction['title'] ?? auction['Title'] ?? auction['name'] ?? 'مزاد';
 }
 
 Widget _imagePlaceholder({double size = 48}) {
@@ -403,7 +406,12 @@ class _ParticipatedAuctionCard extends StatelessWidget {
               height: 100,
               child:
                   displayUrl != null
-                      ? Image.network(displayUrl, fit: BoxFit.cover)
+                      ? Image.network(
+                        displayUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder:
+                            (_, __, ___) => _imagePlaceholder(size: 32),
+                      )
                       : _imagePlaceholder(size: 32),
             ),
           ),
@@ -422,11 +430,11 @@ class _ParticipatedAuctionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Current Bid',
+                    'المزايدة الحالية',
                     style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                   ),
                   Text(
-                    'EGP ${currentBid.toStringAsFixed(0)}',
+                    '${currentBid.toStringAsFixed(0)} جنيه',
                     style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       color: AppColors.primary,
@@ -477,7 +485,11 @@ class _WonAuctionCard extends StatelessWidget {
               height: 140,
               child:
                   displayUrl != null
-                      ? Image.network(displayUrl, fit: BoxFit.cover)
+                      ? Image.network(
+                        displayUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _imagePlaceholder(),
+                      )
                       : _imagePlaceholder(),
             ),
           ),
@@ -497,7 +509,7 @@ class _WonAuctionCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'EGP ${winningPrice.toStringAsFixed(0)}',
+                      '${winningPrice.toStringAsFixed(0)} جنيه',
                       style: const TextStyle(
                         fontWeight: FontWeight.w800,
                         color: AppColors.primary,
@@ -511,7 +523,7 @@ class _WonAuctionCard extends StatelessWidget {
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('Checkout'),
+                  child: const Text('دفع'),
                 ),
               ],
             ),
@@ -553,14 +565,15 @@ class _EmptyState extends StatelessWidget {
           Text(
             subtitle,
             style: TextStyle(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white70
-                  : Colors.grey.shade600,
+              color:
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white70
+                      : Colors.grey.shade600,
               fontSize: 12,
             ),
           ),
           const SizedBox(height: 20),
-          OutlinedButton(onPressed: onRefresh, child: const Text('Refresh')),
+          OutlinedButton(onPressed: onRefresh, child: const Text('تحديث')),
         ],
       ),
     );
@@ -580,7 +593,7 @@ class _ErrorState extends StatelessWidget {
         children: [
           const Icon(Icons.error_outline, size: 50, color: Colors.redAccent),
           Text(message),
-          TextButton(onPressed: onRetry, child: const Text('Retry')),
+          TextButton(onPressed: onRetry, child: const Text('إعادة المحاولة')),
         ],
       ),
     );

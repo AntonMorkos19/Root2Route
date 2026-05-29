@@ -5,7 +5,6 @@ import 'package:root2route/models/plant_model.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/models/plant_step_model.dart';
 
-
 class PlantDetailsScreen extends StatefulWidget {
   final PlantModel plant;
 
@@ -53,8 +52,10 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final plant = widget.plant;
-    return Scaffold(
-      body: CustomScrollView(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 280,
@@ -87,36 +88,33 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     left: 20,
                     right: 20,
                     bottom: 20,
-                    child: Directionality(
-                      textDirection: TextDirection.rtl,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          plant.name,
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 28.sp,
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(color: Colors.black54, blurRadius: 8),
+                            ],
+                          ),
+                        ),
+                        if (plant.scientificName != null) ...[
+                          const SizedBox(height: 4),
                           Text(
-                            plant.name,
-                            textAlign: TextAlign.right,
+                            plant.scientificName!,
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 28.sp,
-                              fontWeight: FontWeight.bold,
-                              shadows: [
-                                Shadow(color: Colors.black54, blurRadius: 8),
-                              ],
+                              color: Colors.white70,
+                              fontSize: 16.sp,
+                              fontStyle: FontStyle.italic,
                             ),
                           ),
-                          if (plant.scientificName != null) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              plant.scientificName!,
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 16.sp,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ],
                         ],
-                      ),
+                      ],
                     ),
                   ),
                 ],
@@ -138,7 +136,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     _DetailSection(
                       icon: Icons.info_outline,
                       iconColor: const Color(0xFF3498DB),
-                      title: 'description',
+                      title: 'الوصف',
                       content: plant.description!,
                     ),
 
@@ -147,7 +145,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     _DetailSection(
                       icon: Icons.local_hospital_outlined,
                       iconColor: const Color(0xFFE74C3C),
-                      title: '  Medical benefits',
+                      title: 'الفوائد الطبية',
                       content: plant.medicalBenefits!,
                     ),
 
@@ -156,7 +154,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     _DetailSection(
                       icon: Icons.terrain,
                       iconColor: Colors.brown.shade400,
-                      title: 'Ideal soil ',
+                      title: 'التربة المثالية',
                       content: plant.idealSoil!,
                     ),
 
@@ -165,7 +163,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     _DetailSection(
                       icon: Icons.calendar_month_outlined,
                       iconColor: const Color(0xFF2ECC71),
-                      title: 'Planting season  ',
+                      title: 'موسم الزراعة',
                       content: plant.plantingSeason!,
                     ),
 
@@ -177,7 +175,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
 
                   const SizedBox(height: 28),
                   Text(
-                    'Plant Guide Steps',
+                    'خطوات زراعة النبات',
                     style: TextStyle(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
@@ -192,6 +190,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -246,18 +245,17 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
             Text(
               _stepsError!,
               style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 14.sp),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 14.sp,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             TextButton.icon(
               onPressed: _loadPlantSteps,
               icon: const Icon(Icons.refresh, size: 16),
-              label: const Text('Retry'),
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.primary,
-              ),
+              label: const Text('إعادة المحاولة'),
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),
           ],
         ),
@@ -302,10 +300,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.primary,
-                          width: 2,
-                        ),
+                        border: Border.all(color: AppColors.primary, width: 2),
                       ),
                       alignment: Alignment.center,
                       child: Text(
@@ -321,7 +316,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                       Expanded(
                         child: Container(
                           width: 2,
-                           color: AppColors.primary.withValues(alpha: 0.3),
+                          color: AppColors.primary.withValues(alpha: 0.3),
                         ),
                       ),
                   ],
@@ -340,7 +335,10 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                             style: TextStyle(
                               fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).textTheme.titleMedium?.color,
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium?.color,
                             ),
                           ),
                         ),
@@ -349,7 +347,8 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                           step.instruction,
                           style: TextStyle(
                             fontSize: 16.sp,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                             height: 1.4,
                           ),
                         ),
@@ -366,7 +365,6 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
   }
 }
 
-
 // ── Private Widgets ────────────────────────────────────────────────────────────
 
 class _QuickInfoRow extends StatelessWidget {
@@ -381,7 +379,7 @@ class _QuickInfoRow extends StatelessWidget {
       items.add(
         _QuickInfoItem(
           icon: Icons.local_florist,
-          label: 'Season',
+          label: 'الموسم',
           value: plant.plantingSeason!,
           color: AppColors.primary,
         ),
@@ -391,7 +389,7 @@ class _QuickInfoRow extends StatelessWidget {
       items.add(
         _QuickInfoItem(
           icon: Icons.terrain,
-          label: 'Soil',
+          label: 'التربة',
           value: plant.idealSoil!,
           color: Colors.brown.shade400,
         ),
@@ -401,8 +399,8 @@ class _QuickInfoRow extends StatelessWidget {
       items.add(
         _QuickInfoItem(
           icon: Icons.spa_outlined,
-          label: 'Benefits',
-          value: 'Available',
+          label: 'الفوائد',
+          value: 'متاحة',
           color: const Color(0xFFE74C3C),
         ),
       );
@@ -436,7 +434,8 @@ class _QuickInfoRow extends StatelessWidget {
                           item.label,
                           style: TextStyle(
                             fontSize: 12.sp,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -557,11 +556,18 @@ class _EmptyDetails extends StatelessWidget {
         padding: const EdgeInsets.only(top: 40),
         child: Column(
           children: [
-            Icon(Icons.eco_outlined, size: 64, color: Theme.of(context).colorScheme.outline),
+            Icon(
+              Icons.eco_outlined,
+              size: 64,
+              color: Theme.of(context).colorScheme.outline,
+            ),
             const SizedBox(height: 14),
             Text(
-              'No additional details available',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16.sp),
+              'لا تتوفر تفاصيل إضافية',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 16.sp,
+              ),
             ),
           ],
         ),

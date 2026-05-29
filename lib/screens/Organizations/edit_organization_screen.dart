@@ -109,7 +109,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
     if (selectedType == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please select an account type'),
+          content: Text('يرجى تحديد نوع الحساب'),
           backgroundColor: Colors.red,
         ),
       );
@@ -120,7 +120,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
     if (orgName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Company name cannot be empty'),
+          content: Text('لا يمكن أن يكون اسم الشركة فارغًا'),
           backgroundColor: Colors.red,
         ),
       );
@@ -132,8 +132,8 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
-      title: 'Loading',
-      text: 'Updating your organization...',
+      title: 'جاري التحميل',
+      text: 'جاري تحديث شركتك...',
       barrierDismissible: false,
     );
 
@@ -159,9 +159,9 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
-          title: 'Success!',
-          text: 'Organization updated successfully!',
-          confirmBtnText: 'OK',
+          title: 'نجاح!',
+          text: 'تم تحديث الشركة بنجاح!',
+          confirmBtnText: 'موافق',
           onConfirmBtnTap: () {
             Navigator.pop(context);
             Navigator.pop(context, true);
@@ -171,9 +171,9 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
-          title: 'Failure',
-          text: result['message'] ?? 'Failed to update organization',
-          confirmBtnText: 'Try Again',
+          title: 'فشل',
+          text: result['message'] ?? 'فشل تحديث الشركة',
+          confirmBtnText: 'المحاولة مرة أخرى',
         );
       }
     } catch (e) {
@@ -183,9 +183,9 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
-        title: 'Failure',
-        text: 'An unexpected error occurred: $e',
-        confirmBtnText: 'OK',
+        title: 'فشل',
+        text: 'حدث خطأ غير متوقع: $e',
+        confirmBtnText: 'موافق',
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -216,23 +216,36 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       }
     }
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'Edit Organization',
-          style: TextStyle(color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.white, fontWeight: FontWeight.bold),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            'تعديل الشركة',
+            style: TextStyle(
+            color:
+                Theme.of(context).textTheme.titleLarge?.color ?? Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Theme.of(context).iconTheme.color ?? Colors.white),
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Theme.of(context).iconTheme.color ?? Colors.white,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
-            child: Icon(Icons.business_outlined, size: 30, color: Theme.of(context).iconTheme.color ?? Colors.white),
+            child: Icon(
+              Icons.business_outlined,
+              size: 30,
+              color: Theme.of(context).iconTheme.color ?? Colors.white,
+            ),
           ),
         ],
       ),
@@ -263,6 +276,14 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                             backgroundColor:
                                 Theme.of(context).colorScheme.surface,
                             backgroundImage: avatarImage,
+                            onBackgroundImageError:
+                                avatarImage != null
+                                    ? (exception, stackTrace) {
+                                      debugPrint(
+                                        'Error loading logo: $exception',
+                                      );
+                                    }
+                                    : null,
                             child:
                                 avatarImage == null
                                     ? const Icon(
@@ -295,14 +316,17 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
 
                 CustomTextFormField(
                   icon: Icons.business_outlined,
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.white,
                   cursorColor: AppColors.primary,
-                  borderColor: AppColors.primary,
-                  label: 'Company Name',
+                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  label: 'اسم الشركة',
                   controller: nameController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter company name';
+                      return 'يرجى إدخال اسم الشركة';
                     }
                     return null;
                   },
@@ -310,19 +334,23 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.email,
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.white,
                   cursorColor: AppColors.primary,
-                  borderColor: AppColors.primary,
-                  label: 'Email',
+                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  label: 'البريد الإلكتروني',
+                  textDirection: TextDirection.ltr,
                   controller: emailController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter email';
+                      return 'يرجى إدخال البريد الإلكتروني';
                     }
                     if (!RegExp(
                       r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                     ).hasMatch(value)) {
-                      return 'Enter a valid email';
+                      return 'أدخل بريد إلكتروني صحيح';
                     }
                     return null;
                   },
@@ -330,19 +358,23 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.phone_outlined,
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.white,
                   cursorColor: AppColors.primary,
-                  borderColor: AppColors.primary,
-                  label: 'Phone Number',
+                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  label: 'رقم الهاتف',
+                  textDirection: TextDirection.ltr,
                   controller: phoneController,
                   keyboardType: TextInputType.phone,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your phone';
+                      return 'يرجى إدخال رقم الهاتف';
                     }
                     final cleaned = value.replaceAll(RegExp(r'[\s\-]'), '');
                     if (!RegExp(r'^[\+]?[0-9]{10,15}$').hasMatch(cleaned)) {
-                      return 'Enter a valid phone number (e.g., 01234567890 or +201234567890)';
+                      return 'أدخل رقم هاتف صحيح (مثل: 01234567890 أو +201234567890)';
                     }
                     return null;
                   },
@@ -351,25 +383,30 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                 CustomTextFormField(
                   icon: Icons.location_on_outlined,
                   cursorColor: AppColors.primary,
-                  borderColor: AppColors.primary,
-                  label: 'Address',
+                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  label: 'العنوان',
                   controller: addressController,
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.white,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter address';
+                      return 'يرجى إدخال العنوان';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 20),
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: Alignment.centerRight,
                   child: Text(
-                    'Account Type',
+                    'نوع الحساب',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).textTheme.titleMedium?.color ?? Colors.white,
+                      color:
+                          Theme.of(context).textTheme.titleMedium?.color ??
+                          Colors.white,
                     ),
                   ),
                 ),
@@ -378,7 +415,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                   children: [
                     Expanded(
                       child: AccountTypeButton(
-                        text: 'Farmer',
+                        text: 'مزارع',
                         icon: Icons.agriculture_outlined,
                         selected: selectedType == AccountType.farmer,
                         onTap:
@@ -390,7 +427,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                     const SizedBox(width: 11),
                     Expanded(
                       child: AccountTypeButton(
-                        text: 'Restaurant',
+                        text: 'مطعم',
                         icon: Icons.fastfood,
                         selected: selectedType == AccountType.restaurant,
                         onTap:
@@ -402,7 +439,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                     const SizedBox(width: 11),
                     Expanded(
                       child: AccountTypeButton(
-                        text: 'Factory',
+                        text: 'مصنع',
                         icon: Icons.factory_outlined,
                         selected: selectedType == AccountType.factory,
                         onTap:
@@ -414,7 +451,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                     const SizedBox(width: 11),
                     Expanded(
                       child: AccountTypeButton(
-                        text: 'Tradesman',
+                        text: 'تاجر',
                         icon: Icons.storefront_outlined,
                         selected: selectedType == AccountType.tradesman,
                         onTap:
@@ -431,14 +468,17 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                 CustomTextFormField(
                   icon: Icons.description_outlined,
                   cursorColor: AppColors.primary,
-                  borderColor: AppColors.primary,
-                  label: 'Description',
+                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  label: 'الوصف',
                   controller: descriptionController,
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.white,
                   maxLines: 3,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter description';
+                      return 'يرجى إدخال الوصف';
                     }
                     return null;
                   },
@@ -447,7 +487,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                 const SizedBox(height: 30),
 
                 CustomButton(
-                  text: 'Update Company',
+                  text: 'تحديث الشركة',
                   color: AppColors.primary,
                   onPressed: _updateOrganization,
                 ),
@@ -458,6 +498,6 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

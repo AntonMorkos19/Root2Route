@@ -51,7 +51,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
       });
     } else {
       setState(() {
-        _statsError = result['message'] ?? 'Failed to load statistics';
+        _statsError = result['message'] ?? 'فشل تحميل الإحصائيات';
         _statsLoading = false;
       });
     }
@@ -82,10 +82,10 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.warning,
-      title: 'Delete Organization?',
-      text: 'This action cannot be undone.',
-      confirmBtnText: 'Yes, Delete',
-      cancelBtnText: 'Cancel',
+      title: 'حذف الشركة؟',
+      text: 'لا يمكن التراجع عن هذا الإجراء.',
+      confirmBtnText: 'نعم، احذف',
+      cancelBtnText: 'إلغاء',
       confirmBtnColor: Colors.red,
       showCancelBtn: true,
       onConfirmBtnTap: () async {
@@ -94,8 +94,8 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.loading,
-          title: 'Deleting',
-          text: 'Please wait...',
+          title: 'جاري الحذف',
+          text: 'يرجى الانتظار...',
           barrierDismissible: false,
         );
 
@@ -108,9 +108,9 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
             QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
-              title: 'Deleted!',
-              text: 'Organization deleted successfully.',
-              confirmBtnText: 'OK',
+              title: 'تم الحذف!',
+              text: 'تم حذف الشركة بنجاح.',
+              confirmBtnText: 'موافق',
               onConfirmBtnTap: () {
                 Navigator.pop(context); // close alert
                 Navigator.pop(context); // go back to list
@@ -120,9 +120,9 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
             QuickAlert.show(
               context: context,
               type: QuickAlertType.error,
-              title: 'Error',
-              text: result['message'] ?? 'Failed to delete',
-              confirmBtnText: 'OK',
+              title: 'خطأ',
+              text: result['message'] ?? 'فشل الحذف',
+              confirmBtnText: 'موافق',
             );
           }
         }
@@ -139,198 +139,211 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     // Show the ⋮ menu only if this org belongs to the logged-in user.
     final bool isOwner = StorageService().organizationId == org.id;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'Organization Details',
-          style: TextStyle(
-            color:
-                Theme.of(context).textTheme.titleLarge?.color ?? Colors.black,
-            fontWeight: FontWeight.bold,
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            'تفاصيل الشركة',
+            style: TextStyle(
+              color:
+                  Theme.of(context).textTheme.titleLarge?.color ?? Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios,
-            color: Theme.of(context).iconTheme.color ?? Colors.black,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Theme.of(context).iconTheme.color ?? Colors.black,
+            ),
+            onPressed: () => Navigator.pop(context),
           ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions:
-            isOwner
-                ? [
-                  PopupMenuButton<String>(
-                    icon: Icon(
-                      Icons.more_vert,
-                      color: Theme.of(context).iconTheme.color ?? Colors.black,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    onSelected: (value) {
-                      switch (value) {
-                        case 'edit':
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (_) =>
-                                      EditOrganizationScreen(organization: org),
-                            ),
-                          ).then((_) => setState(() {}));
-                          break;
+          actions:
+              isOwner
+                  ? [
+                    PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color:
+                            Theme.of(context).iconTheme.color ?? Colors.black,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      onSelected: (value) {
+                        switch (value) {
+                          case 'edit':
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => EditOrganizationScreen(
+                                      organization: org,
+                                    ),
+                              ),
+                            ).then((_) => setState(() {}));
+                            break;
 
-                        case 'delete':
-                          _deleteOrganization();
-                          break;
-                      }
-                    },
-                    itemBuilder:
-                        (context) => [
-                          const PopupMenuItem(
-                            value: 'edit',
-                            child: ListTile(
-                              leading: Icon(Icons.edit, color: Colors.orange),
-                              title: Text('Edit Organization'),
-                              contentPadding: EdgeInsets.zero,
-                              dense: true,
+                          case 'delete':
+                            _deleteOrganization();
+                            break;
+                        }
+                      },
+                      itemBuilder:
+                          (context) => [
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: ListTile(
+                                leading: Icon(Icons.edit, color: Colors.orange),
+                                title: Text('تعديل الشركة'),
+                                contentPadding: EdgeInsets.zero,
+                                dense: true,
+                              ),
                             ),
-                          ),
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: ListTile(
-                              leading: Icon(Icons.delete, color: Colors.red),
-                              title: Text('Delete Organization'),
-                              contentPadding: EdgeInsets.zero,
-                              dense: true,
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: ListTile(
+                                leading: Icon(Icons.delete, color: Colors.red),
+                                title: Text('حذف الشركة'),
+                                contentPadding: EdgeInsets.zero,
+                                dense: true,
+                              ),
                             ),
-                          ),
-                        ],
-                  ),
-                ]
-                : null,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
+                          ],
                     ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(20),
-                        image:
-                            hasImage
-                                ? DecorationImage(
-                                  image: NetworkImage(imageUrl),
-                                  fit: BoxFit.cover,
-                                  onError: (exception, stackTrace) {
-                                    debugPrint(
-                                      ' Error loading logo: $exception',
-                                    );
-                                  },
+                  ]
+                  : null,
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(20),
+                          image:
+                              hasImage
+                                  ? DecorationImage(
+                                    image: NetworkImage(imageUrl),
+                                    fit: BoxFit.cover,
+                                    onError: (exception, stackTrace) {
+                                      debugPrint(
+                                        ' Error loading logo: $exception',
+                                      );
+                                    },
+                                  )
+                                  : null,
+                        ),
+                        child:
+                            !hasImage
+                                ? Center(
+                                  child: Text(
+                                    org.name.length >= 2
+                                        ? org.name.substring(0, 2).toUpperCase()
+                                        : org.name.toUpperCase(),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 26.sp,
+                                    ),
+                                  ),
                                 )
                                 : null,
                       ),
-                      child:
-                          !hasImage
-                              ? Center(
-                                child: Text(
-                                  org.name.length >= 2
-                                      ? org.name.substring(0, 2).toUpperCase()
-                                      : org.name.toUpperCase(),
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 26.sp,
-                                  ),
-                                ),
-                              )
-                              : null,
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      org.name,
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.bold,
-                        color:
-                            Theme.of(context).textTheme.titleLarge?.color ??
-                            const Color(0xff1a1a1a),
+                      const SizedBox(height: 14),
+                      Text(
+                        org.name,
+                        style: TextStyle(
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.bold,
+                          color:
+                              Theme.of(context).textTheme.titleLarge?.color ??
+                              const Color(0xff1a1a1a),
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          _typeIcon(org.type),
-                          size: 18,
-                          color: Colors.grey.shade600,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          org.typeName,
-                          style: TextStyle(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _typeIcon(org.type),
+                            size: 18,
                             color: Colors.grey.shade600,
-                            fontSize: 16.sp,
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          const SizedBox(width: 6),
+                          Text(
+                            org.typeName,
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 16.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              SectionTitle('Statistics'),
-              const SizedBox(height: 10),
-              StatisticsGrid(),
+                SectionTitle('الإحصائيات'),
+                const SizedBox(height: 10),
+                StatisticsGrid(),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              SectionTitle('Details'),
-              const SizedBox(height: 10),
+                SectionTitle('التفاصيل'),
+                const SizedBox(height: 10),
 
-              if (org.description != null && org.description!.isNotEmpty)
-                InfoCard(
-                  Icons.description_outlined,
-                  'Description',
-                  org.description!,
-                ),
-              if (org.address != null && org.address!.isNotEmpty)
-                InfoCard(Icons.location_on_outlined, 'Address', org.address!),
-              if (org.contactEmail != null && org.contactEmail!.isNotEmpty)
-                InfoCard(Icons.email_outlined, 'Email', org.contactEmail!),
-              if (org.contactPhone != null && org.contactPhone!.isNotEmpty)
-                InfoCard(Icons.phone_outlined, 'Phone', org.contactPhone!),
+                if (org.description != null && org.description!.isNotEmpty)
+                  InfoCard(
+                    Icons.description_outlined,
+                    'الوصف',
+                    org.description!,
+                  ),
+                if (org.address != null && org.address!.isNotEmpty)
+                  InfoCard(Icons.location_on_outlined, 'العنوان', org.address!),
+                if (org.contactEmail != null && org.contactEmail!.isNotEmpty)
+                  InfoCard(
+                    Icons.email_outlined,
+                    'البريد الإلكتروني',
+                    org.contactEmail!,
+                  ),
+                if (org.contactPhone != null && org.contactPhone!.isNotEmpty)
+                  InfoCard(
+                    Icons.phone_outlined,
+                    'رقم الهاتف',
+                    org.contactPhone!,
+                  ),
 
-              const SizedBox(height: 40),
-            ],
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
       ),
@@ -339,7 +352,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
 
   Widget SectionTitle(String title) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: Alignment.centerRight,
       child: Text(
         title,
         style: TextStyle(
@@ -399,7 +412,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
             TextButton.icon(
               onPressed: _loadStatistics,
               icon: const Icon(Icons.refresh, size: 16),
-              label: const Text('Retry'),
+              label: const Text('إعادة المحاولة'),
               style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),
           ],
@@ -418,13 +431,13 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
       children: [
         StatCard(
           Icons.people_outlined,
-          'Members',
+          'الأعضاء',
           stats.totalMembers,
           Colors.blue,
         ),
         StatCard(
           Icons.inventory_2_outlined,
-          'Products',
+          'المنتجات',
           stats.totalProducts,
           Colors.green,
         ),

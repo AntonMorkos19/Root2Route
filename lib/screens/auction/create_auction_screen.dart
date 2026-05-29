@@ -201,7 +201,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
     if (_startDate == null || _endDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please select both start and end dates.'),
+          content: Text('يرجى تحديد تاريخي البدء والانتهاء.'),
           backgroundColor: Colors.red,
         ),
       );
@@ -211,7 +211,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
     if (_endDate!.isBefore(_startDate!)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('End date must be after start date.'),
+          content: Text('يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء.'),
           backgroundColor: Colors.red,
         ),
       );
@@ -221,7 +221,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
     if (_productId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please ensure a product is selected.'),
+          content: Text('يرجى التأكد من اختيار منتج.'),
           backgroundColor: Colors.red,
         ),
       );
@@ -235,15 +235,15 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
-        title: 'Invalid Product',
-        text: 'The selected product is not available for auction.',
+        title: 'منتج غير صالح',
+        text: 'المنتج المحدد غير متاح للمزاد.',
       );
       return;
     }
 
     context.read<AuctionCubit>().createAuction(
       title:
-          _titleCtrl.text.trim().isEmpty ? 'Auction' : _titleCtrl.text.trim(),
+          _titleCtrl.text.trim().isEmpty ? 'مزاد' : _titleCtrl.text.trim(),
       productId: _productId!,
       startingPrice: double.tryParse(_startPriceCtrl.text.trim()) ?? 0.0,
       minimumBidIncrement: double.tryParse(_minBidIncrCtrl.text.trim()) ?? 0.0,
@@ -262,13 +262,15 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Theme.of(context).iconTheme.color),
-        title: Text(
-          'Create Auction',
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          iconTheme: IconThemeData(color: Theme.of(context).iconTheme.color),
+          title: Text(
+            'إنشاء مزاد',
           style: TextStyle(
             color: Theme.of(context).textTheme.titleLarge?.color,
             fontWeight: FontWeight.bold,
@@ -276,8 +278,10 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.help_outline,
-                color: Theme.of(context).iconTheme.color),
+            icon: Icon(
+              Icons.help_outline,
+              color: Theme.of(context).iconTheme.color,
+            ),
             onPressed: () => _showInfoGuide(context),
           ),
         ],
@@ -288,8 +292,8 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
             QuickAlert.show(
               context: context,
               type: QuickAlertType.loading,
-              title: 'Loading',
-              text: 'Creating your auction...',
+              title: 'جاري التحميل',
+              text: 'جاري إنشاء المزاد...',
               barrierDismissible: false,
             );
           } else if (state is AuctionError) {
@@ -297,7 +301,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
             QuickAlert.show(
               context: context,
               type: QuickAlertType.error,
-              title: 'Oops...',
+              title: 'عفواً...',
               text: state.message,
             );
           } else if (state is AuctionSuccess) {
@@ -305,8 +309,8 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
             QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
-              title: 'Success!',
-              text: 'Auction created successfully!',
+              title: 'نجاح!',
+              text: 'تم إنشاء المزاد بنجاح!',
               barrierDismissible: false,
               onConfirmBtnTap: () {
                 Navigator.pop(context); // Pop the QuickAlert
@@ -325,27 +329,27 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildSectionHeader(Icons.title_rounded, 'Auction Title'),
+                _buildSectionHeader(Icons.title_rounded, 'عنوان المزاد'),
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   controller: _titleCtrl,
-                  label: 'Title',
+                  label: 'العنوان',
                   icon: Icons.edit_note_rounded,
                   validator:
                       (val) =>
-                          val == null || val.trim().isEmpty ? 'Required' : null,
-                fillColor: Theme.of(context).colorScheme.surface,
-                color: Theme.of(context).textTheme.bodyMedium?.color,
+                          val == null || val.trim().isEmpty ? 'مطلوب' : null,
+                  fillColor: Theme.of(context).colorScheme.surface,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
                 ),
 
                 const SizedBox(height: 12),
 
                 const SizedBox(height: 12),
-                _buildSectionHeader(Icons.attach_money, 'Pricing'),
+                _buildSectionHeader(Icons.attach_money, 'التسعير'),
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   controller: _startPriceCtrl,
-                  label: 'Starting Price (EGP)',
+                  label: 'السعر المبدئي (جنيه)',
                   icon: Icons.money,
                   validator: _priceValidator,
                   fillColor: Theme.of(context).colorScheme.surface,
@@ -357,7 +361,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   controller: _minBidIncrCtrl,
-                  label: 'Minimum Bid Increment (EGP)',
+                  label: 'الحد الأدنى لزيادة المزايدة (جنيه)',
                   icon: Icons.trending_up,
                   validator: _priceValidator,
                   fillColor: Theme.of(context).colorScheme.surface,
@@ -368,7 +372,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                 ),
                 const SizedBox(height: 12),
                 CustomTextFormField(
-                  label: 'Reserve Price (EGP)',
+                  label: 'السعر الاحتياطي (جنيه)',
                   validator: _priceValidator,
                   icon: Icons.security,
                   fillColor: Theme.of(context).colorScheme.surface,
@@ -380,16 +384,16 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                 ),
 
                 const SizedBox(height: 24),
-                _buildSectionHeader(Icons.calendar_today, 'Schedule'),
+                _buildSectionHeader(Icons.calendar_today, 'الجدول الزمني'),
                 const SizedBox(height: 12),
                 _buildDateTimePicker(
-                  label: 'Start Date & Time',
+                  label: 'تاريخ ووقت البدء',
                   selectedDate: _startDate,
                   onTap: () => _pickDateTime(isStart: true),
                 ),
                 const SizedBox(height: 12),
                 _buildDateTimePicker(
-                  label: 'End Date & Time',
+                  label: 'تاريخ ووقت الانتهاء',
                   selectedDate: _endDate,
                   onTap: () => _pickDateTime(isStart: false),
                 ),
@@ -405,7 +409,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                     elevation: 0,
                   ),
                   child: Text(
-                    'Create Auction',
+                    'إنشاء مزاد',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -419,13 +423,13 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   String? _priceValidator(String? val) {
-    if (val == null || val.trim().isEmpty) return 'Required';
+    if (val == null || val.trim().isEmpty) return 'مطلوب';
     final parsed = double.tryParse(val.trim());
-    if (parsed == null || parsed < 0) return 'Invalid amount';
+    if (parsed == null || parsed < 0) return 'مبلغ غير صالح';
     return null;
   }
 
@@ -470,8 +474,10 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
         ),
         child: Row(
           children: [
-            Icon(Icons.calendar_month,
-                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.calendar_month,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -488,11 +494,12 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                   Text(
                     selectedDate != null
                         ? _formatDateTime(selectedDate)
-                        : 'Select Date & Time',
+                        : 'اختر التاريخ والوقت',
                     style: TextStyle(
-                      color: selectedDate != null
-                          ? Theme.of(context).textTheme.bodyLarge?.color
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                      color:
+                          selectedDate != null
+                              ? Theme.of(context).textTheme.bodyLarge?.color
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 16,
                       fontWeight:
                           selectedDate != null
@@ -529,7 +536,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Auction Terms Explained',
+                'شرح شروط المزاد',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -539,26 +546,26 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
               const SizedBox(height: 20),
               _buildGuideRow(
                 '💰',
-                'Starting Price',
-                'The initial price at which the bidding starts.',
+                'السعر المبدئي',
+                'السعر الأولي الذي تبدأ به المزايدة.',
               ),
               const SizedBox(height: 16),
               _buildGuideRow(
                 '📈',
-                'Minimum Bid Increment',
-                'The smallest amount a buyer can add to the current highest bid (e.g., if set to 10, the next bid must be at least 10 EGP higher).',
+                'الحد الأدنى لزيادة المزايدة',
+                'أصغر مبلغ يمكن للمشتري إضافته إلى أعلى مزايدة حالية (مثلاً: إذا تم تعيينه إلى 10، يجب أن تكون المزايدة التالية أعلى بـ 10 جنيهات على الأقل).',
               ),
               const SizedBox(height: 16),
               _buildGuideRow(
                 '🛡️',
-                'Reserve Price',
-                'A hidden minimum price you are willing to accept. If the final bid at the end of the auction does not reach this amount, the product will not be sold. Leave empty if you don\'t need one.',
+                'السعر الاحتياطي',
+                'حد أدنى مخفي للسعر أنت مستعد لقبوله. إذا لم يصل العرض النهائي في نهاية المزاد إلى هذا المبلغ، فلن يتم بيع المنتج. اتركه فارغاً إذا لم تكن بحاجة إليه.',
               ),
               const SizedBox(height: 16),
               _buildGuideRow(
                 '🗓️',
-                'Schedule',
-                'Set the exact start and end dates/times. Once the end time is reached, the highest bidder wins automatically.',
+                'الجدول الزمني',
+                'حدد تواريخ وأوقات البدء والانتهاء بدقة. بمجرد الوصول إلى وقت الانتهاء، يفوز صاحب أعلى مزايدة تلقائياً.',
               ),
               const SizedBox(height: 32),
               SizedBox(
@@ -574,7 +581,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                     elevation: 0,
                   ),
                   child: Text(
-                    'Got it!',
+                    'فهمت!',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

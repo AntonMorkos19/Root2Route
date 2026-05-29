@@ -16,10 +16,7 @@ class ScanScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ScanCubit(),
-      child: const _ScanView(),
-    );
+    return BlocProvider(create: (_) => ScanCubit(), child: const _ScanView());
   }
 }
 
@@ -28,10 +25,7 @@ class ScanScreen extends StatelessWidget {
 class _ScanView extends StatelessWidget {
   const _ScanView();
 
-  Future<void> _pickAndAnalyze(
-    BuildContext context,
-    ImageSource source,
-  ) async {
+  Future<void> _pickAndAnalyze(BuildContext context, ImageSource source) async {
     final file = await ImagePickerHelper.pickImage(source);
     if (file == null) return;
     if (!context.mounted) return;
@@ -48,12 +42,14 @@ class _ScanView extends StatelessWidget {
           _showErrorSheet(context, state.error);
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          appBar: AppBar(
           elevation: 0,
           toolbarHeight: 70,
           title: Text(
-            'Scan Crop',
+            'فحص المحصول',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
           ),
           centerTitle: true,
@@ -74,7 +70,7 @@ class _ScanView extends StatelessWidget {
                       children: [
                         const SizedBox(height: 20),
                         Text(
-                          'Take a photo of the affected plant to identify the disease.',
+                          'التقط صورة للنبات المصاب للتعرف على المرض.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 18.sp,
@@ -89,12 +85,13 @@ class _ScanView extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: SelectionCard(
-                                  title: 'Camera',
+                                  title: 'الكاميرا',
                                   icon: Icons.camera_alt_rounded,
-                                  onTap: () => _pickAndAnalyze(
-                                    context,
-                                    ImageSource.camera,
-                                  ),
+                                  onTap:
+                                      () => _pickAndAnalyze(
+                                        context,
+                                        ImageSource.camera,
+                                      ),
                                   gradientColors: const [
                                     Color(0xFF66BB6A),
                                     Color(0xFF388E3C),
@@ -104,12 +101,13 @@ class _ScanView extends StatelessWidget {
                               const SizedBox(width: 20),
                               Expanded(
                                 child: SelectionCard(
-                                  title: 'Gallery',
+                                  title: 'المعرض',
                                   icon: Icons.photo_library_rounded,
-                                  onTap: () => _pickAndAnalyze(
-                                    context,
-                                    ImageSource.gallery,
-                                  ),
+                                  onTap:
+                                      () => _pickAndAnalyze(
+                                        context,
+                                        ImageSource.gallery,
+                                      ),
                                   gradientColors: const [
                                     Color(0xFFFFA726),
                                     Color(0xFFF57C00),
@@ -139,7 +137,7 @@ class _ScanView extends StatelessWidget {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            'AI is Analyzing...',
+                            'الذكاء الاصطناعي يحلل...',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20.sp,
@@ -154,18 +152,23 @@ class _ScanView extends StatelessWidget {
             );
           },
         ),
-      ),
-    );
-  }
+      ),),);  }
 
   // ── Result bottom sheet ────────────────────────────────────────────────────
 
-  void _showResultSheet(BuildContext context, PlantAnalysisResponseModel result) {
+  void _showResultSheet(
+    BuildContext context,
+    PlantAnalysisResponseModel result,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _ResultSheet(result: result, scanCubit: context.read<ScanCubit>()),
+      builder:
+          (_) => _ResultSheet(
+            result: result,
+            scanCubit: context.read<ScanCubit>(),
+          ),
     );
   }
 
@@ -174,7 +177,9 @@ class _ScanView extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _ErrorSheet(error: error, scanCubit: context.read<ScanCubit>()),
+      builder:
+          (_) =>
+              _ErrorSheet(error: error, scanCubit: context.read<ScanCubit>()),
     );
   }
 }
@@ -197,7 +202,7 @@ class _TipContainer extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Focus on the affected part of the plant for 98% more accurate results.',
+              'ركز على الجزء المصاب من النبات للحصول على نتائج أدق بنسبة 98%.',
               style: TextStyle(
                 fontSize: 14.sp,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -236,13 +241,32 @@ class _ResultSheet extends StatelessWidget {
     }
   }
 
+  String _arabicSeverity(String? severity) {
+    switch ((severity ?? '').toLowerCase()) {
+      case 'high':
+      case 'critical':
+      case 'severe':
+        return 'عالية';
+      case 'medium':
+      case 'moderate':
+        return 'متوسطة';
+      case 'low':
+      case 'mild':
+        return 'منخفضة';
+      default:
+        return 'غير محددة';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final surface = theme.colorScheme.surface;
     final isDark = theme.brightness == Brightness.dark;
 
-    return Container(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
       padding: EdgeInsets.fromLTRB(
         24,
@@ -289,7 +313,7 @@ class _ResultSheet extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Analysis Result',
+                  'نتيجة التحليل',
                   style: TextStyle(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.w900,
@@ -304,8 +328,8 @@ class _ResultSheet extends StatelessWidget {
           // ── Disease name ──────────────────────────────────────
           _InfoRow(
             icon: Icons.local_florist_rounded,
-            label: 'Disease Detected',
-            value: result.diseaseName ?? 'Unknown',
+            label: 'المرض المكتشف',
+            value: result.diseaseName ?? 'غير معروف',
             valueColor: AppColors.primary,
           ),
           const SizedBox(height: 12),
@@ -314,7 +338,7 @@ class _ResultSheet extends StatelessWidget {
           if (result.confidenceScore != null) ...[
             _InfoRow(
               icon: Icons.percent_rounded,
-              label: 'Confidence',
+              label: 'الثقة',
               value: result.confidencePercent,
             ),
             const SizedBox(height: 12),
@@ -324,8 +348,8 @@ class _ResultSheet extends StatelessWidget {
           if (result.severity != null) ...[
             _InfoRow(
               icon: Icons.warning_amber_rounded,
-              label: 'Severity',
-              value: result.severity!,
+              label: 'الخطورة',
+              value: _arabicSeverity(result.severity),
               valueColor: _severityColor(result.severity),
             ),
             const SizedBox(height: 12),
@@ -351,7 +375,7 @@ class _ResultSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Recommendation',
+                        'التوصية',
                         style: TextStyle(
                           fontSize: 12.sp,
                           color: theme.colorScheme.onSurfaceVariant,
@@ -382,7 +406,7 @@ class _ResultSheet extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton.icon(
               icon: const Icon(Icons.camera_alt_rounded),
-              label: const Text('Scan Again'),
+              label: const Text('فحص مرة أخرى'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -398,6 +422,7 @@ class _ResultSheet extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -415,7 +440,9 @@ class _ErrorSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
       padding: EdgeInsets.fromLTRB(
         24,
@@ -442,7 +469,7 @@ class _ErrorSheet extends StatelessWidget {
           const Icon(Icons.error_outline, color: Colors.redAccent, size: 52),
           const SizedBox(height: 12),
           Text(
-            'Analysis Failed',
+            'فشل التحليل',
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.bold,
@@ -463,7 +490,7 @@ class _ErrorSheet extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton.icon(
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Try Again'),
+              label: const Text('حاول مرة أخرى'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -479,6 +506,7 @@ class _ErrorSheet extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

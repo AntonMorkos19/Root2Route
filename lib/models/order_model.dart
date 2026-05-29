@@ -186,17 +186,17 @@ class OrderModel {
   String get statusText {
     switch (status) {
       case 0:
-        return 'Pending';
+        return 'قيد الانتظار';
       case 1:
-        return 'Confirmed';
+        return 'مؤكد';
       case 2:
-        return 'Shipped';
+        return 'مشحون';
       case 3:
-        return 'Delivered';
+        return 'تم التوصيل';
       case 4:
-        return 'Cancelled';
+        return 'ملغى';
       default:
-        return 'Unknown';
+        return 'غير معروف';
     }
   }
 }

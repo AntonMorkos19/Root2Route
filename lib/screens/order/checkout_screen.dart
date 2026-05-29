@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/services/order_service.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/services/cart_service.dart';
@@ -12,7 +13,7 @@ import 'package:root2route/features/shipments/ui/addresses_screen.dart';
 import 'package:root2route/features/shipments/cubit/shipment_address_cubit.dart';
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
 import 'package:root2route/models/shipment_address_model.dart';
-import 'package:root2route/screens/farmer/farmer_home_screen.dart';
+import 'package:root2route/screens/order/my_orders_screen.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -93,7 +94,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'No Saved Addresses',
+                        'لا توجد عناوين محفوظة',
                         style: TextStyle(
                           fontSize: 20.sp,
                           fontWeight: FontWeight.bold,
@@ -112,13 +113,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         child: Text(
-                          'Add New Address',
+                          'إضافة عنوان جديد',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14.sp,
@@ -145,7 +149,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         vertical: 8,
                       ),
                       child: Text(
-                        'Select Delivery Address',
+                        'اختر عنوان التوصيل',
                         style: TextStyle(
                           fontSize: 20.sp,
                           fontWeight: FontWeight.bold,
@@ -167,7 +171,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             title: Text(
                               address.fullName.isNotEmpty
                                   ? address.fullName
-                                  : 'Address ${index + 1}',
+                                  : 'عنوان ${index + 1}',
                             ),
                             subtitle: Text(
                               '${address.city}, ${address.street}\nPhone: ${address.phone}',
@@ -195,8 +199,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.warning,
-        title: 'Empty Cart',
-        text: 'Your cart is empty. Please add items before checking out.',
+        title: 'سلة فارغة',
+        text: 'سلتك فارغة. يرجى إضافة عناصر قبل الدفع.',
       );
       return;
     }
@@ -206,9 +210,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
-        title: 'Auth Error',
-        text: 'You must be logged in to create an order.',
-        confirmBtnText: 'Login',
+        title: 'خطأ مصادقة',
+        text: 'يجب تسجيل الدخول لإنشاء طلب.',
+        confirmBtnText: 'تسجيل الدخول',
         onConfirmBtnTap: () {
           Navigator.pop(context);
           Navigator.pushNamed(context, LoginScreen.id);
@@ -240,8 +244,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.loading,
-        title: 'Creating Order...',
-        text: 'Please wait',
+        title: 'جاري إنشاء الطلب...',
+        text: 'يرجى الانتظار',
         barrierDismissible: false,
       );
 
@@ -252,21 +256,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       if (!mounted) return;
 
-      bool isActuallySuccess = result['success'] == true ||
-          (result['message']?.toString().toLowerCase().contains('success') ?? false);
+      bool isActuallySuccess =
+          result['success'] == true ||
+          (result['message']?.toString().toLowerCase().contains('success') ??
+              false);
 
       if (isActuallySuccess) {
         context.read<CartCubit>().clearCart();
         QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
-          title: 'Success!',
-          text: 'Your order has been created successfully.',
+          title: 'تم الطلب بنجاح!',
+          text:
+              'تم تأكيد طلبك بنجاح. يمكنك متابعة منتجاتنا من الشاشة الرئيسية.',
           onConfirmBtnTap: () {
+            Navigator.of(context, rootNavigator: true).pop();
+
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => const FarmerHomeScreen()),
-              (route) => false,
+              MaterialPageRoute(builder: (_) => const GuestHomeScreen()),
+              (route) => route.isFirst,
             );
           },
         );
@@ -274,10 +283,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
-          title: 'Checkout Failed',
-          text:
-              result['message'] ??
-              'An error occurred while creating the order.',
+          title: 'فشل الدفع',
+          text: result['message'] ?? 'حدث خطأ أثناء إنشاء الطلب.',
         );
       }
     }
@@ -313,140 +320,174 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Checkout',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'الدفع',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
+          ),
+          backgroundColor: AppColors.primary,
+          elevation: 0,
         ),
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardTheme.color,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.local_shipping, color: Color(0xFF2ECC71)),
-                          SizedBox(width: 8),
-                          Text(
-                            'Shipping Details',
-                            style: TextStyle(
-                              fontSize: 22.sp,
-                              fontWeight: FontWeight.w800,
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 24.0,
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardTheme.color,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.local_shipping,
+                              color: Color(0xFF2ECC71),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      CustomTextFormField(
-                        icon: Icons.person,
-                        label: 'Receiver Name',
-                        controller: _receiverNameController,
-                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
-                        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
-                        validator:
-                            (value) =>
-                                value == null || value.trim().isEmpty
-                                    ? 'Please enter receiver name'
-                                    : null,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextFormField(
-                        icon: Icons.phone,
-                        label: 'Receiver Phone',
-                        controller: _receiverPhoneController,
-                        keyboardType: TextInputType.phone,
-                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
-                        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
-                        validator:
-                            (value) =>
-                                value == null || value.trim().isEmpty
-                                    ? 'Please enter receiver phone'
-                                    : null,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextFormField(
-                        icon: Icons.location_city,
-                        label: 'City',
-                        controller: _shippingCityController,
-                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
-                        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
-                        validator:
-                            (value) =>
-                                value == null || value.trim().isEmpty
-                                    ? 'Please enter city'
-                                    : null,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextFormField(
-                        icon: Icons.streetview,
-                        label: 'Street',
-                        controller: _shippingStreetController,
-                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
-                        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
-                        validator:
-                            (value) =>
-                                value == null || value.trim().isEmpty
-                                    ? 'Please enter street'
-                                    : null,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextFormField(
-                        icon: Icons.home,
-                        label: 'Building Number (Optional)',
-                        controller: _buildingNumberController,
-                        keyboardType: TextInputType.number,
-                        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
-                        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
-                        validator: (value) => null,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: _submitOrder,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                            SizedBox(width: 8),
+                            Text(
+                              'تفاصيل الشحن',
+                              style: TextStyle(
+                                fontSize: 22.sp,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        CustomTextFormField(
+                          icon: Icons.person,
+                          label: 'اسم المستلم',
+                          controller: _receiverNameController,
+                          color:
+                              Theme.of(context).textTheme.bodyMedium?.color ??
+                              Colors.black87,
+                          fillColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF2A2A2A)
+                                  : Colors.transparent,
+                          validator:
+                              (value) =>
+                                  value == null || value.trim().isEmpty
+                                      ? 'يرجى إدخال اسم المستلم'
+                                      : null,
+                        ),
+                        const SizedBox(height: 20),
+                        CustomTextFormField(
+                          icon: Icons.phone,
+                          label: 'رقم هاتف المستلم',
+                          controller: _receiverPhoneController,
+                          keyboardType: TextInputType.phone,
+                          color:
+                              Theme.of(context).textTheme.bodyMedium?.color ??
+                              Colors.black87,
+                          fillColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF2A2A2A)
+                                  : Colors.transparent,
+                          validator:
+                              (value) =>
+                                  value == null || value.trim().isEmpty
+                                      ? 'يرجى إدخال رقم هاتف المستلم'
+                                      : null,
+                        ),
+                        const SizedBox(height: 20),
+                        CustomTextFormField(
+                          icon: Icons.location_city,
+                          label: 'المدينة',
+                          controller: _shippingCityController,
+                          color:
+                              Theme.of(context).textTheme.bodyMedium?.color ??
+                              Colors.black87,
+                          fillColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF2A2A2A)
+                                  : Colors.transparent,
+                          validator:
+                              (value) =>
+                                  value == null || value.trim().isEmpty
+                                      ? 'يرجى إدخال المدينة'
+                                      : null,
+                        ),
+                        const SizedBox(height: 20),
+                        CustomTextFormField(
+                          icon: Icons.streetview,
+                          label: 'الشارع',
+                          controller: _shippingStreetController,
+                          color:
+                              Theme.of(context).textTheme.bodyMedium?.color ??
+                              Colors.black87,
+                          fillColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF2A2A2A)
+                                  : Colors.transparent,
+                          validator:
+                              (value) =>
+                                  value == null || value.trim().isEmpty
+                                      ? 'يرجى إدخال الشارع'
+                                      : null,
+                        ),
+                        const SizedBox(height: 20),
+                        CustomTextFormField(
+                          icon: Icons.home,
+                          label: 'رقم المبنى (اختياري)',
+                          controller: _buildingNumberController,
+                          keyboardType: TextInputType.number,
+                          color:
+                              Theme.of(context).textTheme.bodyMedium?.color ??
+                              Colors.black87,
+                          fillColor:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF2A2A2A)
+                                  : Colors.transparent,
+                          validator: (value) => null,
+                        ),
+                      ],
                     ),
-                    elevation: 5,
                   ),
-                  child: Text(
-                    'Confirm Order',
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  const SizedBox(height: 32),
+                  ElevatedButton(
+                    onPressed: _submitOrder,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 5,
+                    ),
+                    child: Text(
+                      'تأكيد الطلب',
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

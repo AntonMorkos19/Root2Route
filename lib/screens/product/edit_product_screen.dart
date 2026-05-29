@@ -117,9 +117,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.warning,
-        title: 'Selling Method Required',
+        title: 'طريقة البيع مطلوبة',
         text:
-            'Please enable at least one selling method\n(Direct Sale or Auction).',
+            'يرجى تفعيل طريقة بيع واحدة على الأقل\n(بيع مباشر أو مزاد).',
       );
       return;
     }
@@ -127,8 +127,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
-      title: 'Updating...',
-      text: 'Saving product updates on the server.',
+      title: 'جاري التحديث...',
+      text: 'جاري حفظ تحديثات المنتج على الخادم.',
       barrierDismissible: false,
     );
 
@@ -159,11 +159,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
         productType: _productType,
       );
 
-       navigator.pop();
+      navigator.pop();
 
       if (!mounted) return;
 
-       final successValue = result['success'];
+      final successValue = result['success'];
       final isSuccess =
           successValue == true ||
           successValue.toString().toLowerCase() == 'true';
@@ -172,8 +172,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
         await QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
-          title: 'Updated!',
-          text: 'Product successfully updated.',
+          title: 'تم التحديث!',
+          text: 'تم تحديث المنتج بنجاح.',
           showConfirmBtn: false,
           autoCloseDuration: const Duration(seconds: 2),
         );
@@ -183,8 +183,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
-          title: 'Update Failed',
-          text: result['message'] ?? 'An error occurred while updating.',
+          title: 'فشل التحديث',
+          text: result['message'] ?? 'حدث خطأ أثناء التحديث.',
         );
       }
     } catch (e) {
@@ -196,7 +196,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
-        title: 'Unexpected Error',
+        title: 'خطأ غير متوقع',
         text: e.toString(),
       );
     }
@@ -204,10 +204,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Edit Product',
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'تعديل المنتج',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
         ),
         backgroundColor: Colors.transparent,
@@ -233,7 +235,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        "Image updating is not currently supported for this action.",
+                        "تحديث الصور غير مدعوم حالياً في هذا الإجراء.",
                         style: TextStyle(
                           color: Colors.amber.shade900,
                           fontSize: 14.sp,
@@ -253,7 +255,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           ),
         ),
       ),
-    );
+   ) );
   }
 
   Widget _buildFormCard() {
@@ -273,52 +275,52 @@ class _EditProductScreenState extends State<EditProductScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Label('Product Name'),
-          const SizedBox(height: 8),
+
           CustomTextFormField(
             icon: Icons.grass_outlined,
             validator:
-                (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
-            label: 'Product Name',
-            color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+                (v) => (v == null || v.trim().isEmpty) ? 'مطلوب' : null,
+            label: 'اسم المنتج',
+            color:
+                Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
             controller: _nameController,
           ),
           const SizedBox(height: 18),
 
-          _Label('Stock Quantity'),
-          const SizedBox(height: 8),
+
           _buildField(
             controller: _quantityController,
-            hint: 'Amount (Stock)',
+            hint: 'الكمية (المخزون)',
             icon: Icons.scale_outlined,
             keyboardType: TextInputType.number,
             validator:
-                (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                (v) => (v == null || v.trim().isEmpty) ? 'مطلوب' : null,
           ),
           const SizedBox(height: 18),
 
-          _Label('Expiry Date (Optional)'),
+          _Label('تاريخ الصلاحية (اختياري)'),
           const SizedBox(height: 8),
           _DatePickerWidget(),
           const SizedBox(height: 18),
 
-          _Label('Barcode (Optional)'),
-          const SizedBox(height: 8),
+
           CustomTextFormField(
-            color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+            color:
+                Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
             icon: Icons.qr_code_scanner,
-            label: 'e.g. 123456789012',
+            label: 'الباركود (مثال: 1234567890)',
             controller: _barcodeController,
+            textDirection: TextDirection.ltr,
             keyboardType: TextInputType.text,
           ),
           const SizedBox(height: 18),
 
-          _Label('Description (Optional)'),
-          const SizedBox(height: 8),
+
           CustomTextFormField(
-            color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+            color:
+                Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
             icon: Icons.description_outlined,
-            label: 'Describe your product...',
+            label: 'صف منتجك...',
             controller: _descriptionController,
             maxLines: 3,
           ),
@@ -345,18 +347,20 @@ class _EditProductScreenState extends State<EditProductScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Selling Options',
+            'خيارات البيع',
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w700,
-              color: Theme.of(context).textTheme.titleSmall?.color ?? Colors.white70,
+              color:
+                  Theme.of(context).textTheme.titleSmall?.color ??
+                  Colors.white70,
             ),
           ),
           const SizedBox(height: 16),
           _buildOptionToggle(
             icon: Icons.sell_outlined,
-            title: 'Direct Sale',
-            subtitle: 'Set a fixed price for buyers',
+            title: 'بيع مباشر',
+            subtitle: 'حدد سعراً ثابتاً للمشترين',
             value: _directSale,
             onChanged: (v) => setState(() => _directSale = v),
           ),
@@ -364,13 +368,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
             const SizedBox(height: 12),
             _buildField(
               controller: _directPriceController,
-              hint: 'Direct sale price (EGP)',
+              hint: 'سعر البيع المباشر (جنيه)',
               icon: Icons.attach_money_rounded,
+              textDirection: TextDirection.ltr,
               keyboardType: TextInputType.number,
               validator:
                   (v) =>
                       (_directSale && (v == null || v.trim().isEmpty))
-                          ? 'Required'
+                          ? 'مطلوب'
                           : null,
             ),
           ],
@@ -380,8 +385,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
           ),
           _buildOptionToggle(
             icon: Icons.gavel_rounded,
-            title: 'Auction',
-            subtitle: 'Let buyers bid on your product',
+            title: 'مزاد',
+            subtitle: 'دع المشترين يزايدون على منتجك',
             value: _forAuction,
             onChanged: (v) => setState(() => _forAuction = v),
           ),
@@ -389,13 +394,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
             const SizedBox(height: 12),
             _buildField(
               controller: _auctionPriceController,
-              hint: 'Starting bid price (EGP)',
+              hint: 'سعر بدء المزاد (جنيه)',
               icon: Icons.price_change_outlined,
+              textDirection: TextDirection.ltr,
               keyboardType: TextInputType.number,
               validator:
                   (v) =>
                       (_forAuction && (v == null || v.trim().isEmpty))
-                          ? 'Required'
+                          ? 'مطلوب'
                           : null,
             ),
           ],
@@ -417,7 +423,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             ),
           ),
           child: Text(
-            'Cancel',
+            'إلغاء',
             style: TextStyle(
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w600,
@@ -431,7 +437,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             onPressed: _submit,
             icon: const Icon(Icons.update_rounded, size: 20),
             label: Text(
-              'Update Product',
+              'تحديث المنتج',
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp),
             ),
             style: ElevatedButton.styleFrom(
@@ -464,23 +470,32 @@ class _EditProductScreenState extends State<EditProductScreen> {
     required String hint,
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
+    TextDirection? textDirection,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
+      textDirection: textDirection,
       validator: validator,
-      style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87, fontSize: 16.sp),
+      textAlign: textDirection == TextDirection.ltr ? TextAlign.left : TextAlign.start,
+      style: TextStyle(
+        color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+        fontSize: 16.sp,
+      ),
       decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15.sp),
-        prefixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
+        labelText: hint,
+        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 15.sp),
+        suffixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
         ),
         filled: true,
-        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.grey.shade100,
+        fillColor:
+            Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF2A2A2A)
+                : Colors.grey.shade100,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.grey.shade200),
@@ -500,7 +515,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   Widget _DatePickerWidget() {
     final label =
         _expiryDate == null
-            ? 'Select expiry date'
+            ? 'اختر تاريخ الصلاحية'
             : '${_expiryDate!.day.toString().padLeft(2, '0')} / ${_expiryDate!.month.toString().padLeft(2, '0')} / ${_expiryDate!.year}';
 
     return InkWell(
@@ -509,7 +524,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.grey.shade100,
+          color:
+              Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF2A2A2A)
+                  : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: Colors.grey.shade200),
         ),
@@ -526,7 +544,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
               style: TextStyle(
                 fontSize: 16.sp,
                 color:
-                    _expiryDate == null ? Colors.grey.shade400 : Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+                    _expiryDate == null
+                        ? Colors.grey.shade400
+                        : Theme.of(context).textTheme.bodyMedium?.color ??
+                            Colors.black87,
               ),
             ),
             const Spacer(),
@@ -579,7 +600,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 16.sp,
-                  color: Theme.of(context).textTheme.titleSmall?.color ?? Colors.white70,
+                  color:
+                      Theme.of(context).textTheme.titleSmall?.color ??
+                      Colors.white70,
                 ),
               ),
               const SizedBox(height: 2),

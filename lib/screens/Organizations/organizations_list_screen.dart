@@ -25,22 +25,24 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
 
   void _loadData() {
     setState(() {
-       _future = _api.getOrganizations();
+      _future = _api.getOrganizations();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'All Organizations',
-          style: TextStyle(
-            color: Theme.of(context).textTheme.titleLarge?.color,
-            fontWeight: FontWeight.bold,
-            fontSize: 20.sp,
-          ),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text(
+            'كل الشركات',
+            style: TextStyle(
+              color: Theme.of(context).textTheme.titleLarge?.color,
+              fontWeight: FontWeight.bold,
+              fontSize: 20.sp,
+            ),
         ),
         leading: IconButton(
           icon: Icon(
@@ -68,7 +70,7 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
             final result = snapshot.data;
             if (result == null || result['success'] != true) {
               return _buildErrorState(
-                result?['message'] ?? 'Failed to load organizations',
+                result?['message'] ?? 'فشل تحميل الشركات',
               );
             }
 
@@ -105,7 +107,7 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
           },
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildEmptyState() {
@@ -120,7 +122,7 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No Organizations Yet',
+            'لا توجد شركات بعد',
             style: TextStyle(
               fontSize: 20.sp,
               fontWeight: FontWeight.w600,
@@ -146,7 +148,7 @@ class _OrganizationsListScreenState extends State<OrganizationsListScreen> {
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
-          TextButton(onPressed: _loadData, child: const Text('Try Again')),
+          TextButton(onPressed: _loadData, child: const Text('المحاولة مرة أخرى')),
         ],
       ),
     );

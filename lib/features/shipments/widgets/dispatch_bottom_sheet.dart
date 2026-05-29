@@ -105,12 +105,12 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   Icons.local_shipping_outlined,
-                  color: Colors.green.shade700,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 24,
                 ),
               ),
@@ -123,14 +123,14 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
                     style: TextStyle(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.w900,
-                      color: Colors.black87,
+                      color: Theme.of(context).textTheme.titleLarge?.color,
                     ),
                   ),
                   Text(
                     'Enter shipping details',
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: Colors.grey.shade600,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -149,36 +149,51 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
                   controller: _carrierCtrl,
                   icon: Icons.directions_car_outlined,
                   label: 'Carrier Name',
-                  color: Colors.black87,
-                  borderColor: AppColors.primary,
-                  cursorColor: AppColors.primary,
-                  validator:
-                      (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Required' : null,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                  fillColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF2A2A2A)
+                      : Colors.transparent,
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Carrier name is required' : null,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
                 // Tracking number
                 CustomTextFormField(
                   controller: _trackingCtrl,
                   icon: Icons.qr_code_scanner_outlined,
                   label: 'Tracking Number (Optional)',
-                  color: Colors.black87,
-                  borderColor: AppColors.primary,
-                  cursorColor: AppColors.primary,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                  fillColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF2A2A2A)
+                      : Colors.transparent,
                   keyboardType: TextInputType.text,
+                  validator: (v) {
+                    if (v != null && v.isNotEmpty && v.trim().isEmpty) {
+                      return 'Tracking number cannot be only spaces';
+                    }
+                    return null;
+                  },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
                 // Contact phone
                 CustomTextFormField(
                   controller: _phoneCtrl,
                   icon: Icons.phone_outlined,
                   label: "Driver's Phone (Optional)",
-                  color: Colors.black87,
-                  borderColor: AppColors.primary,
-                  cursorColor: AppColors.primary,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                  fillColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF2A2A2A)
+                      : Colors.transparent,
                   keyboardType: TextInputType.phone,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return null;
+                    if (!RegExp(r'^[0-9]{7,15}$').hasMatch(v.trim())) {
+                      return 'Enter a valid phone number (7-15 digits)';
+                    }
+                    return null;
+                  },
                 ),
               ],
             ),
@@ -200,7 +215,7 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade600,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -217,7 +232,12 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 16.sp),
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.grey.shade400
+                      : Colors.grey.shade600,
+                  fontSize: 16.sp,
+                ),
               ),
             ),
           ),

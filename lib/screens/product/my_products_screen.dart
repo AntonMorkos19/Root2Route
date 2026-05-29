@@ -60,7 +60,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
       if (!mounted) return;
       setState(() {
         _errorMessage =
-            'No organization found. Please create one to manage products.';
+            'لم يتم العثور على شركة. يرجى إنشاء واحدة لإدارة المنتجات.';
         _isLoading = false;
       });
       return;
@@ -77,13 +77,13 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
         });
       } else {
         setState(() {
-          _errorMessage = 'Invalid data format from server.';
+          _errorMessage = 'تنسيق بيانات غير صالح من الخادم.';
           _isLoading = false;
         });
       }
     } else {
       setState(() {
-        _errorMessage = res['message'] ?? 'Failed to load products';
+        _errorMessage = res['message'] ?? 'فشل تحميل المنتجات';
         _isLoading = false;
       });
     }
@@ -93,11 +93,11 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
     final confirm = await QuickAlert.show(
       context: context,
       type: QuickAlertType.confirm,
-      title: 'Delete Product?',
+      title: 'حذف المنتج؟',
       text:
-          'Are you sure you want to delete this product? This action cannot be undone.',
-      confirmBtnText: 'Delete',
-      cancelBtnText: 'Cancel',
+          'هل أنت متأكد من رغبتك في حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.',
+      confirmBtnText: 'حذف',
+      cancelBtnText: 'إلغاء',
       confirmBtnColor: Colors.red,
       onConfirmBtnTap: () {
         Navigator.of(context, rootNavigator: true).pop(true);
@@ -111,8 +111,8 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.loading,
-        title: 'Deleting...',
-        text: 'Removing product from your inventory.',
+        title: 'جاري الحذف...',
+        text: 'جاري إزالة المنتج من مخزونك.',
         barrierDismissible: false,
       );
 
@@ -130,8 +130,8 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
           await QuickAlert.show(
             context: context,
             type: QuickAlertType.success,
-            title: 'Deleted',
-            text: 'Product deleted successfully.',
+            title: 'تم الحذف',
+            text: 'تم حذف المنتج بنجاح.',
           );
           if (!mounted) return;
           _fetchProducts();
@@ -139,8 +139,8 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
           QuickAlert.show(
             context: context,
             type: QuickAlertType.error,
-            title: 'Delete Failed',
-            text: res['message'] ?? 'Failed to delete product.',
+            title: 'فشل الحذف',
+            text: res['message'] ?? 'فشل في حذف المنتج.',
           );
         }
       } catch (e) {
@@ -153,7 +153,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
-          title: 'Error',
+          title: 'خطأ',
           text: e.toString(),
         );
       }
@@ -162,7 +162,10 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: _buildBody());
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(body: _buildBody()),
+    );
   }
 
   Widget _buildBody() {
@@ -176,7 +179,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
               Icon(Icons.lock_outline, size: 80, color: Colors.grey.shade400),
               const SizedBox(height: 16),
               Text(
-                'Please log in and create an organization to view this page.',
+                'يرجى تسجيل الدخول وإنشاء شركة لعرض هذه الصفحة.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18.sp,
@@ -195,7 +198,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                   backgroundColor: AppColors.primary,
                 ),
                 child: const Text(
-                  'Login',
+                  'تسجيل الدخول',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -219,7 +222,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                       (_) => Scaffold(
                         appBar: AppBar(
                           title: const Text(
-                            'My Auctions',
+                            'مزاداتي',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           backgroundColor: Colors.transparent,
@@ -269,7 +272,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Manage My Auctions',
+                          'إدارة مزاداتي',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -277,7 +280,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                           ),
                         ),
                         Text(
-                          'View upcoming, active & ended auctions',
+                          'عرض المزادات القادمة والنشطة والمنتهية',
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 14.sp,
@@ -326,7 +329,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
               ElevatedButton.icon(
                 onPressed: _fetchProducts,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: const Text('إعادة المحاولة'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -350,7 +353,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No products found.',
+              'لا توجد منتجات.',
               style: TextStyle(
                 fontSize: 20.sp,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -359,7 +362,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Add your first product to get started.',
+              'أضف منتجك الأول للبدء.',
               style: TextStyle(
                 fontSize: 16.sp,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -394,7 +397,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
     if (product is! Map) return const SizedBox();
 
     final id = product['id'] ?? product['Id'] ?? '';
-    final name = product['name'] ?? product['Name'] ?? 'Unknown';
+    final name = product['name'] ?? product['Name'] ?? 'غير معروف';
 
     final isAvailableForDirectSale =
         product['isAvailableForDirectSale'] == true ||
@@ -428,8 +431,8 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
         unitRaw is String ? unitRaw : _getWeightUnitString(unitRaw);
     final stockText =
         unitString.isNotEmpty
-            ? '$stockQuantity $unitString Available'
-            : '$stockQuantity Available';
+            ? 'متاح $stockQuantity $unitString'
+            : 'متاح $stockQuantity';
 
     // Safely extract first image URL
     final imagesList = product['images'] ?? product['Images'];
@@ -516,7 +519,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                         child: Text(
-                          'Auction Only',
+                          'مزاد فقط',
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.bold,
@@ -584,7 +587,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                           ),
                           SizedBox(height: 4.h),
                           Text(
-                            'Edit',
+                            'تعديل',
                             style: TextStyle(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
@@ -622,7 +625,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                           ),
                           SizedBox(height: 4.h),
                           Text(
-                            'Auction',
+                            'مزاد',
                             style: TextStyle(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
@@ -651,7 +654,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                           ),
                           SizedBox(height: 4.h),
                           Text(
-                            'Delete',
+                            'حذف',
                             style: TextStyle(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
@@ -691,11 +694,11 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
     }
     switch (idx) {
       case 0:
-        return 'Kg';
+        return 'كجم';
       case 1:
-        return 'pkg';
+        return 'عبوة';
       case 2:
-        return 'Liter';
+        return 'لتر';
       default:
         return '';
     }

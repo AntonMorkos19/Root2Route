@@ -36,11 +36,13 @@ class AddOrganizationCard extends StatelessWidget {
             Builder(
               builder: (context) {
                 final isDark = Theme.of(context).brightness == Brightness.dark;
-                final primaryColor = isDark ? Colors.white : const Color(0xff0F4C5C);
-                final circleColor = isDark 
-                    ? Colors.white.withOpacity(0.15) 
-                    : const Color(0xff0F4C5C).withOpacity(0.1);
-                
+                final primaryColor =
+                    isDark ? Colors.white : const Color(0xff0F4C5C);
+                final circleColor =
+                    isDark
+                        ? Colors.white.withOpacity(0.15)
+                        : const Color(0xff0F4C5C).withOpacity(0.1);
+
                 return Container(
                   width: 65,
                   height: 65,
@@ -48,11 +50,7 @@ class AddOrganizationCard extends StatelessWidget {
                     color: circleColor,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.add_rounded,
-                    color: primaryColor,
-                    size: 32,
-                  ),
+                  child: Icon(Icons.add_rounded, color: primaryColor, size: 32),
                 );
               },
             ),
@@ -64,17 +62,22 @@ class AddOrganizationCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Add New Organization',
+                    'إضافة شركة جديدة',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18.sp,
-                      color: Theme.of(context).textTheme.titleMedium?.color ?? const Color(0xff2D3748),
+                      color:
+                          Theme.of(context).textTheme.titleMedium?.color ??
+                          const Color(0xff2D3748),
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Create a new workspace',
-                    style: TextStyle(color: Colors.grey.shade500, fontSize: 14.sp),
+                    'إنشاء مساحة عمل جديدة',
+                    style: TextStyle(
+                      color: Colors.grey.shade500,
+                      fontSize: 14.sp,
+                    ),
                   ),
                 ],
               ),

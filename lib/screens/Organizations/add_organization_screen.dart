@@ -86,7 +86,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
     if (selectedType == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please select an account type'),
+          content: Text('يرجى تحديد نوع الحساب'),
           backgroundColor: Colors.red,
         ),
       );
@@ -94,19 +94,19 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
     }
 
     setState(() => _isLoading = true);
-     QuickAlert.show(
+    QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
-      title: 'Loading',
-      text: 'Creating your organization...',
+      title: 'جاري التحميل',
+      text: 'جاري إنشاء شركتك...',
       barrierDismissible: false,
     );
 
     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
-      title: 'Loading',
-      text: 'Creating your organization...',
+      title: 'جاري التحميل',
+      text: 'جاري إنشاء شركتك...',
       barrierDismissible: false,
     );
 
@@ -140,9 +140,9 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
-          title: 'Success!',
-          text: 'Organization created successfully!',
-          confirmBtnText: 'Continue',
+          title: 'نجاح!',
+          text: 'تم إنشاء الشركة بنجاح!',
+          confirmBtnText: 'متابعة',
           onConfirmBtnTap: () {
             Navigator.pop(context);
             Navigator.pushReplacement(
@@ -157,9 +157,9 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
-          title: ' Failure',
-          text: result['message'] ?? 'Failed to create organization',
-          confirmBtnText: 'Try Again',
+          title: ' فشل',
+          text: result['message'] ?? 'فشل إنشاء الشركة',
+          confirmBtnText: 'المحاولة مرة أخرى',
         );
       }
     } catch (e) {
@@ -167,9 +167,9 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
-        title: 'Failure',
-        text: 'An unexpected error occurred: $e',
-        confirmBtnText: 'OK',
+        title: 'فشل',
+        text: 'حدث خطأ غير متوقع: $e',
+        confirmBtnText: 'موافق',
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -178,13 +178,15 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'Create Organization',
-          style: TextStyle(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            'إنشاء شركة',
+            style: TextStyle(
             color: Theme.of(context).textTheme.titleLarge?.color,
           ),
         ),
@@ -271,14 +273,17 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                 const SizedBox(height: 20),
                 CustomTextFormField(
                   icon: Icons.business_outlined,
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.white,
                   cursorColor: AppColors.primary,
-                  borderColor: AppColors.primary,
-                  label: 'Company Name',
+                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  label: 'اسم الشركة',
                   controller: nameController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter company name';
+                      return 'يرجى إدخال اسم الشركة';
                     }
                     return null;
                   },
@@ -286,14 +291,18 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.email,
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.white,
                   cursorColor: AppColors.primary,
-                  borderColor: AppColors.primary,
-                  label: 'Email',
+                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  label: 'البريد الإلكتروني',
+                  textDirection: TextDirection.ltr,
                   controller: emailController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter email';
+                      return 'يرجى إدخال البريد الإلكتروني';
                     }
                     return null;
                   },
@@ -301,19 +310,23 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.phone_outlined,
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.white,
                   cursorColor: AppColors.primary,
-                  borderColor: AppColors.primary,
-                  label: 'Phone Number',
+                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  label: 'رقم الهاتف',
+                  textDirection: TextDirection.ltr,
                   controller: phoneController,
                   keyboardType: TextInputType.phone,
 
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your phone';
+                      return 'يرجى إدخال رقم الهاتف';
                     }
                     if (!RegExp(r'^[0-9]{7,15}$').hasMatch(value)) {
-                      return 'Enter a valid phone number';
+                      return 'أدخل رقم هاتف صحيح';
                     }
                     return null;
                   },
@@ -322,14 +335,17 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                 CustomTextFormField(
                   icon: Icons.location_on_outlined,
                   cursorColor: AppColors.primary,
-                  borderColor: AppColors.primary,
-                  label: 'Address',
+                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  label: 'العنوان',
                   controller: addressController,
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.white,
 
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter address';
+                      return 'يرجى إدخال العنوان';
                     }
                     return null;
                   },
@@ -337,9 +353,9 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                 const SizedBox(height: 20),
 
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: Alignment.centerRight,
                   child: Text(
-                    'Account Type',
+                    'نوع الحساب',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: Theme.of(context).textTheme.titleSmall?.color,
@@ -353,7 +369,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                   children: [
                     Expanded(
                       child: AccountTypeButton(
-                        text: 'Farmer',
+                        text: 'مزارع',
                         icon: Icons.agriculture_outlined,
                         selected: selectedType == AccountType.farmer,
                         onTap:
@@ -365,7 +381,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                     const SizedBox(width: 11),
                     Expanded(
                       child: AccountTypeButton(
-                        text: 'Restaurant',
+                        text: 'مطعم',
                         icon: Icons.fastfood,
 
                         selected: selectedType == AccountType.restaurant,
@@ -378,7 +394,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                     const SizedBox(width: 11),
                     Expanded(
                       child: AccountTypeButton(
-                        text: 'factory',
+                        text: 'مصنع',
 
                         icon: Icons.factory_outlined,
                         selected: selectedType == AccountType.factory,
@@ -391,7 +407,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                     const SizedBox(width: 11),
                     Expanded(
                       child: AccountTypeButton(
-                        text: 'Tradesman',
+                        text: 'تاجر',
                         icon: Icons.storefront_outlined,
 
                         selected: selectedType == AccountType.tradesman,
@@ -410,15 +426,18 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                 CustomTextFormField(
                   icon: Icons.description_outlined,
                   cursorColor: AppColors.primary,
-                  borderColor: AppColors.primary,
-                  label: 'Description',
+                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
+                  label: 'الوصف',
                   controller: descriptionController,
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.white,
 
                   maxLines: 3,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter description';
+                      return 'يرجى إدخال الوصف';
                     }
                     return null;
                   },
@@ -428,7 +447,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
 
                 CustomButton(
                   color: AppColors.primary,
-                  text: 'Create Company',
+                  text: 'إنشاء الشركة',
                   onPressed: () {
                     _createOrganization();
                   },
@@ -438,6 +457,6 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

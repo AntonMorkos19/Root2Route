@@ -42,9 +42,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat'),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('الدردشة'),
         actions: [
           IconButton(
             icon: const Icon(Icons.close),
@@ -52,8 +54,8 @@ class _ChatScreenState extends State<ChatScreen> {
               context.read<ChatMessagesCubit>().closeRoom(widget.roomId);
               Navigator.pop(context);
             },
-            tooltip: 'Close Room',
-          )
+            tooltip: 'إغلاق الغرفة',
+          ),
         ],
       ),
       body: SafeArea(
@@ -65,11 +67,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   if (state is ChatMessagesLoading) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (state is ChatMessagesError) {
-                    return Center(child: Text('Error: ${state.message}'));
+                    return Center(child: Text('خطأ: ${state.message}'));
                   } else if (state is ChatMessagesLoaded) {
                     final messages = state.messages;
                     if (messages.isEmpty) {
-                      return const Center(child: Text('No messages yet.'));
+                      return const Center(child: Text('لا توجد رسائل حتى الآن.'));
                     }
 
                     return ListView.builder(
@@ -87,14 +89,15 @@ class _ChatScreenState extends State<ChatScreen> {
                         }
 
                         final msgIndex = state.isSending ? index - 1 : index;
-                        final message = messages[messages.length - 1 - msgIndex];
+                        final message =
+                            messages[messages.length - 1 - msgIndex];
                         final isMe = message.senderId == _currentUserId;
 
                         return _buildMessageBubble(message, isMe, context);
                       },
                     );
                   }
-                  return const Center(child: Text('Initializing...'));
+                  return const Center(child: Text('جاري التهيئة...'));
                 },
               ),
             ),
@@ -102,10 +105,15 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 
-  Widget _buildMessageBubble(ChatMessageModel message, bool isMe, BuildContext context) {
+  Widget _buildMessageBubble(
+    ChatMessageModel message,
+    bool isMe,
+    BuildContext context,
+  ) {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -139,7 +147,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Offer Status: ${message.offerStatus.toUpperCase()}',
+                      'حالة العرض: ${message.offerStatus.toUpperCase()}',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14.sp,
@@ -147,7 +155,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    if (!isMe && (message.offerStatus == 'pending' || message.offerStatus == '')) ...[
+                    if (!isMe &&
+                        (message.offerStatus == 'pending' ||
+                            message.offerStatus == '')) ...[
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -159,9 +169,12 @@ class _ChatScreenState extends State<ChatScreen> {
                               minimumSize: const Size(80, 36),
                             ),
                             onPressed: () {
-                              context.read<ChatMessagesCubit>().acceptOffer(widget.roomId, message.id);
+                              context.read<ChatMessagesCubit>().acceptOffer(
+                                widget.roomId,
+                                message.id,
+                              );
                             },
-                            child: const Text('Accept'),
+                            child: const Text('قبول'),
                           ),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -170,17 +183,20 @@ class _ChatScreenState extends State<ChatScreen> {
                               minimumSize: const Size(80, 36),
                             ),
                             onPressed: () {
-                              context.read<ChatMessagesCubit>().rejectOffer(widget.roomId, message.id);
+                              context.read<ChatMessagesCubit>().rejectOffer(
+                                widget.roomId,
+                                message.id,
+                              );
                             },
-                            child: const Text('Reject'),
+                            child: const Text('رفض'),
                           ),
                         ],
                       ),
-                    ]
+                    ],
                   ],
                 ),
               ),
-            ]
+            ],
           ],
         ),
       ),
@@ -207,14 +223,17 @@ class _ChatScreenState extends State<ChatScreen> {
             child: TextField(
               controller: _messageController,
               decoration: InputDecoration(
-                hintText: 'Type a message...',
+                hintText: 'اكتب رسالة...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
                 fillColor: Colors.grey[200],
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
               ),
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _sendMessage(),

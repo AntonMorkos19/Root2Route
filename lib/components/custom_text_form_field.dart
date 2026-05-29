@@ -12,8 +12,11 @@ class CustomTextFormField extends StatefulWidget {
   final bool isPassword;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
+  final Color? labelColor;
+  final Color? iconColor;
   final bool? isReadOnly;
   final int? maxLines;
+  final TextDirection? textDirection;
 
   const CustomTextFormField({
     super.key,
@@ -23,12 +26,15 @@ class CustomTextFormField extends StatefulWidget {
     this.isPassword = false,
     this.keyboardType,
     this.validator,
+    this.labelColor,
+    this.iconColor,
     this.isReadOnly = false,
     this.maxLines,
     this.color,
     this.borderColor,
     this.cursorColor,
     this.fillColor,
+    this.textDirection,
   });
 
   @override
@@ -40,9 +46,24 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: widget.controller,
-      style: TextStyle(color: widget.color ?? Colors.white),
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+    final onSurfaceVariant = theme.colorScheme.onSurfaceVariant;
+    final outlineColor = theme.colorScheme.outline;
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: TextFormField(
+        textAlign: widget.textDirection == TextDirection.ltr ? TextAlign.left : TextAlign.start,
+        textDirection: widget.textDirection,
+        controller: widget.controller,
+        style: TextStyle(
+        color:
+            widget.color ??
+            (theme.brightness == Brightness.dark
+                ? Colors.white
+                : Colors.black87),
+      ),
       obscureText: widget.isPassword ? obscureText : false,
       cursorColor: widget.cursorColor ?? AppColors.primary,
       readOnly: widget.isReadOnly ?? false,
@@ -50,17 +71,21 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       keyboardType: widget.keyboardType,
       validator: widget.validator,
       decoration: InputDecoration(
-        fillColor: widget.fillColor ?? Colors.transparent,
+        fillColor: widget.fillColor ?? Colors.white.withOpacity(0.001),
         filled: true,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 16,
+        ),
         labelText: widget.label,
         labelStyle: WidgetStateTextStyle.resolveWith((states) {
           if (states.contains(WidgetState.error)) {
             return const TextStyle(color: AppColors.colorError);
           }
           if (states.contains(WidgetState.focused)) {
-            return TextStyle(color: AppColors.primary);
+            return const TextStyle(color: AppColors.primary);
           }
-          return TextStyle(color: AppColors.textOnSecondary);
+          return TextStyle(color: widget.labelColor ?? onSurfaceVariant);
         }),
         floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
           if (states.contains(WidgetState.error)) {
@@ -69,24 +94,24 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           if (states.contains(WidgetState.focused)) {
             return TextStyle(color: widget.borderColor ?? AppColors.primary);
           }
-          return TextStyle(color: AppColors.textOnSecondary);
+          return TextStyle(color: widget.labelColor ?? onSurfaceVariant);
         }),
-        prefixIcon: Icon(widget.icon),
-        prefixIconColor: WidgetStateColor.resolveWith((states) {
+        suffixIcon: Icon(widget.icon),
+        suffixIconColor: WidgetStateColor.resolveWith((states) {
           if (states.contains(WidgetState.error)) {
             return AppColors.colorError;
           }
           if (states.contains(WidgetState.focused)) {
             return widget.borderColor ?? AppColors.primary;
           }
-          return AppColors.iconSecondary;
+          return widget.iconColor ?? onSurfaceVariant;
         }),
-        suffixIcon:
+        prefixIcon:
             widget.isPassword
                 ? IconButton(
                   icon: Icon(
                     obscureText ? Icons.visibility_off : Icons.visibility,
-                    color: AppColors.iconSecondary,
+                    color: widget.iconColor ?? onSurfaceVariant,
                   ),
                   onPressed: () {
                     setState(() {
@@ -95,16 +120,18 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                   },
                 )
                 : null,
+        errorMaxLines: 3,
+        errorStyle: const TextStyle(color: AppColors.colorError),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.Secondary),
+          borderSide: BorderSide(
+            color: widget.borderColor ?? Colors.white.withValues(alpha: 0.4),
+            width: 1,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: widget.borderColor ?? AppColors.primary,
-            width: 2,
-          ),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -115,6 +142,6 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           borderSide: const BorderSide(color: AppColors.colorError, width: 2),
         ),
       ),
-    );
+    ));
   }
 }

@@ -64,8 +64,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     QuickAlert.show(
       context: ctx,
       type: QuickAlertType.loading,
-      title: 'Updating...',
-      text: 'Please wait',
+      title: 'جاري التحديث...',
+      text: 'الرجاء الانتظار',
     );
 
     final result = await _orderService.changeOrderStatus(
@@ -80,8 +80,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       QuickAlert.show(
         context: ctx,
         type: QuickAlertType.success,
-        title: 'Success',
-        text: result['message'] ?? 'Status updated successfully',
+        title: 'نجاح',
+        text: result['message'] ?? 'تم تحديث الحالة بنجاح',
         onConfirmBtnTap: () {
           Navigator.of(ctx, rootNavigator: true).pop();
           _myOrdersCubit.fetchMyOrders();
@@ -94,8 +94,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       QuickAlert.show(
         context: ctx,
         type: QuickAlertType.error,
-        title: 'Error',
-        text: result['message'] ?? 'Failed to update status',
+        title: 'خطأ',
+        text: result['message'] ?? 'فشل تحديث الحالة',
       );
     }
   }
@@ -121,12 +121,15 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   @override
   Widget build(BuildContext context) {
     if (widget.isGuestMode) {
-      return Scaffold(
-        body: _MyOrdersTab(
-          cubit: _myOrdersCubit,
-          onUpdateStatus:
-              (orderId, status) => _updateOrderStatus(context, orderId, status),
-          onOrderTap: (orderId) => _onOrderCardTap(context, orderId, false),
+      return Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          body: _MyOrdersTab(
+            cubit: _myOrdersCubit,
+            onUpdateStatus:
+                (orderId, status) => _updateOrderStatus(context, orderId, status),
+            onOrderTap: (orderId) => _onOrderCardTap(context, orderId, false),
+          ),
         ),
       );
     }
@@ -139,15 +142,15 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             QuickAlert.show(
               context: context,
               type: QuickAlertType.loading,
-              title: 'Sending...',
-              text: 'Please wait',
+              title: 'جاري الإرسال...',
+              text: 'الرجاء الانتظار',
             );
           } else if (state is ShipmentActionSuccess) {
             Navigator.of(context, rootNavigator: true).pop();
             QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
-              title: 'Success',
+              title: 'نجاح',
               text: state.message,
               onConfirmBtnTap: () {
                 Navigator.of(context, rootNavigator: true).pop();
@@ -166,26 +169,26 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             QuickAlert.show(
               context: context,
               type: QuickAlertType.error,
-              title: 'Error',
+              title: 'خطأ',
               text: state.message,
             );
           }
         },
         child: DefaultTabController(
           length: 2,
-          child: Scaffold(
-            appBar: AppBar(
-              title: const Text(
-                'Orders',
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Scaffold(
+              appBar: AppBar(
+                title: const Text(
+                  'الطلبات',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
               backgroundColor: AppColors.primary,
-              iconTheme: const IconThemeData(
-                color: Colors.white,
-              ),
+              iconTheme: const IconThemeData(color: Colors.white),
               elevation: 0,
               automaticallyImplyLeading: false,
               bottom: TabBar(
@@ -201,8 +204,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
                 indicatorColor: Colors.white,
                 tabs: const [
-                  Tab(text: 'My Orders'),
-                  Tab(text: 'Received Orders'),
+                  Tab(text: 'طلباتي'),
+                  Tab(text: 'الطلبات المستلمة'),
                 ],
               ),
             ),
@@ -227,6 +230,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
               ],
             ),
+          ),
           ),
         ),
       ),
@@ -297,7 +301,7 @@ class _MyOrdersTabState extends State<_MyOrdersTab>
                   ElevatedButton.icon(
                     onPressed: () => widget.cubit.fetchMyOrders(),
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
+                    label: const Text('إعادة المحاولة'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                     ),
@@ -333,8 +337,8 @@ class _MyOrdersTabState extends State<_MyOrdersTab>
                     filteredOrders.isEmpty
                         ? _EmptyState(
                           icon: Icons.receipt_long_outlined,
-                          title: 'No orders found',
-                          subtitle: 'Your placed orders will appear here',
+                          title: 'لم يتم العثور على طلبات',
+                          subtitle: 'ستظهر طلباتك هنا',
                         )
                         : ListView.separated(
                           padding: EdgeInsets.all(16.w),
@@ -397,7 +401,7 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
             ),
             const SizedBox(height: 16),
             Text(
-              'No Organization',
+              'لا توجد مؤسسة',
               style: TextStyle(
                 fontSize: 20.sp,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -405,7 +409,7 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
             ),
             const SizedBox(height: 8),
             Text(
-              'You need a store to receive orders',
+              'تحتاج إلى متجر لاستقبال الطلبات',
               style: TextStyle(
                 fontSize: 16.sp,
                 color: Theme.of(context).colorScheme.outline,
@@ -430,7 +434,7 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
           QuickAlert.show(
             context: context,
             type: QuickAlertType.error,
-            title: 'Error',
+            title: 'خطأ',
             text: state.message,
           );
         }
@@ -467,7 +471,7 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
                           widget.organizationId!,
                         ),
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
+                    label: const Text('إعادة المحاولة'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                     ),
@@ -505,8 +509,8 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
                     filteredOrders.isEmpty
                         ? _EmptyState(
                           icon: Icons.inbox_outlined,
-                          title: 'No received orders found',
-                          subtitle: 'Customer orders will appear here',
+                          title: 'لم يتم العثور على طلبات مستلمة',
+                          subtitle: 'طلبات العملاء ستظهر هنا',
                         )
                         : ListView.separated(
                           padding: EdgeInsets.all(16.w),
@@ -541,31 +545,32 @@ class _FilterChips extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Row(
         children: [
-          _chip(context, 'All'),
+          _chip(context, 'All', 'الكل'),
           SizedBox(width: 8.w),
-          _chip(context, 'Active'),
+          _chip(context, 'Active', 'نشطة'),
           SizedBox(width: 8.w),
-          _chip(context, 'History'),
+          _chip(context, 'History', 'السجل'),
         ],
       ),
     );
   }
 
-  Widget _chip(BuildContext context, String label) {
-    final isSelected = currentFilter == label;
+  Widget _chip(BuildContext context, String value, String displayLabel) {
+    final isSelected = currentFilter == value;
     return ChoiceChip(
-      label: Text(label),
+      label: Text(displayLabel),
       selected: isSelected,
       onSelected: (selected) {
-        if (selected) onChanged(label);
+        if (selected) onChanged(value);
       },
       selectedColor: AppColors.primary.withValues(alpha: 0.2),
       labelStyle: TextStyle(
         fontSize: 14.sp,
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        color: isSelected
-            ? AppColors.primary
-            : Theme.of(context).colorScheme.onSurfaceVariant,
+        color:
+            isSelected
+                ? AppColors.primary
+                : Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
   }
@@ -640,7 +645,7 @@ class _OrderCard extends StatelessWidget {
       case 1:
         return Colors.blue;
       case 2:
-        return Colors.indigo;
+        return Colors.teal;
       case 3:
         return Colors.green;
       case 4:
@@ -715,7 +720,7 @@ class _OrderCard extends StatelessWidget {
                   child: Text(
                     order.items.isNotEmpty
                         ? order.items.first.productName
-                        : 'Unknown',
+                        : 'غير معروف',
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
@@ -769,8 +774,8 @@ class _OrderCard extends StatelessWidget {
                     SizedBox(width: 6.w),
                     Text(
                       order.items.isNotEmpty
-                          ? 'Quantity: ${order.items.first.quantityWithUnit}'
-                          : '${order.items.length} item${order.items.length != 1 ? 's' : ''}',
+                          ? 'الكمية: ${order.items.first.quantityWithUnit}'
+                          : '${order.items.length} عنصر',
                       style: TextStyle(
                         fontSize: 14.sp,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -795,7 +800,7 @@ class _OrderCard extends StatelessWidget {
               children: [
                 if (order.items.isNotEmpty)
                   Text(
-                    '${order.items.length} item${order.items.length != 1 ? 's' : ''}',
+                    '${order.items.length} عنصر',
                     style: TextStyle(
                       fontSize: 12.sp,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -837,7 +842,7 @@ class _OrderCard extends StatelessWidget {
               onPressed: () => onUpdateStatus(order.id, 3),
               icon: const Icon(Icons.check_circle_outline, color: Colors.white),
               label: Text(
-                'Confirm Receipt',
+                'تأكيد الاستلام',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14.sp,
@@ -866,8 +871,8 @@ class _OrderCard extends StatelessWidget {
                   QuickAlert.show(
                     context: context,
                     type: QuickAlertType.warning,
-                    title: 'Oops',
-                    text: 'No products found in this order to review.',
+                    title: 'عذرًا',
+                    text: 'لم يتم العثور على منتجات في هذا الطلب لتقييمها.',
                   );
                   return;
                 }
@@ -886,7 +891,7 @@ class _OrderCard extends StatelessWidget {
                 color: AppColors.primary,
               ),
               label: Text(
-                'Rate & Review',
+                'تقييم ومراجعة',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14.sp,
@@ -915,7 +920,7 @@ class _OrderCard extends StatelessWidget {
                   onPressed: () => onUpdateStatus(order.id, 1),
                   icon: const Icon(Icons.check, color: Colors.white, size: 18),
                   label: Text(
-                    'Accept',
+                    'قبول',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -937,7 +942,7 @@ class _OrderCard extends StatelessWidget {
                   onPressed: () => onUpdateStatus(order.id, 4),
                   icon: const Icon(Icons.close, color: Colors.white, size: 18),
                   label: Text(
-                    'Reject',
+                    'رفض',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -971,7 +976,7 @@ class _OrderCard extends StatelessWidget {
                   ),
               icon: const Icon(Icons.local_shipping, color: Colors.white),
               label: Text(
-                'Mark as Shipped',
+                'تحديد كمشحون',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14.sp,

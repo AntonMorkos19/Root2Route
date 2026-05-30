@@ -107,25 +107,39 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFDDE2DB)),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFDDE2DB)),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _primary, width: 2),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: _primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _error),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.red, width: 1),
         ),
-        hintStyle: const TextStyle(color: Color(0xFFA0A8A0), fontSize: 14),
-        labelStyle: const TextStyle(color: Color(0xFF42493E), fontSize: 14),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+        ),
+        hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+        labelStyle: WidgetStateTextStyle.resolveWith((states) {
+          if (states.contains(WidgetState.error)) return const TextStyle(color: Colors.red, fontSize: 14);
+          if (states.contains(WidgetState.focused)) return const TextStyle(color: _primary, fontSize: 14);
+          return const TextStyle(color: Color(0xFF42493E), fontSize: 14);
+        }),
+        floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+          if (states.contains(WidgetState.error)) return const TextStyle(color: Colors.red, fontSize: 14);
+          if (states.contains(WidgetState.focused)) return const TextStyle(color: _primary, fontSize: 14);
+          return const TextStyle(color: Color(0xFF42493E), fontSize: 14);
+        }),
+        suffixIconColor: Colors.grey.shade500,
       ),
 
       // ── Elevated Button ────────────────────────────────────────────────────

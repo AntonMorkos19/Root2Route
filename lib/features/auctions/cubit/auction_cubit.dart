@@ -97,6 +97,17 @@ class AuctionCubit extends Cubit<AuctionState> {
             if (orgId.isNotEmpty) {
               await StorageService().saveOrganizationId(orgId);
               await StorageService().saveHasOrganization(true);
+
+              final orgType = orgs.first['type'] ?? orgs.first['Type'];
+              if (orgType != null) {
+                int typeVal;
+                if (orgType is int) {
+                  typeVal = orgType;
+                } else {
+                  typeVal = int.tryParse(orgType.toString()) ?? 0;
+                }
+                await StorageService().saveOrganizationType(typeVal);
+              }
             }
           }
         }

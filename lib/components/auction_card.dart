@@ -137,7 +137,7 @@ class _AuctionCardState extends State<AuctionCard> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Starting: EGP ${auction.startingPrice.toStringAsFixed(2)}',
+                            'السعر المبدئي: ${auction.startingPrice.toStringAsFixed(2)} جنيه',
                             style: TextStyle(
                               fontSize: 14.sp,
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -168,13 +168,13 @@ class _AuctionCardState extends State<AuctionCard> {
                     children: [
                       _buildInfoItem(
                         Icons.gavel_rounded,
-                        '${auction.bidsCount} bids',
+                        '${auction.bidsCount} مزايدات',
                       ),
                       _buildInfoItem(
                         Icons.trending_up_rounded,
                         auction.currentHighestBid != null
-                            ? 'EGP ${auction.currentHighestBid!.toStringAsFixed(2)}'
-                            : 'No bids yet',
+                            ? '${auction.currentHighestBid!.toStringAsFixed(2)} جنيه'
+                            : 'لا توجد مزايدات',
                       ),
                       _buildInfoItem(
                         Icons.attach_money_rounded,
@@ -244,18 +244,18 @@ class _AuctionCardState extends State<AuctionCard> {
       case 'active':
         bgColor = const Color(0xFF22C55E).withValues(alpha: 0.12);
         textColor = const Color(0xFF16A34A);
-        label = 'Active';
+        label = 'نشط';
         break;
       case 'ended':
         bgColor = Theme.of(context).colorScheme.surfaceContainerHighest;
         textColor = Theme.of(context).colorScheme.onSurfaceVariant;
-        label = 'Ended';
+        label = 'منتهي';
         break;
       case 'upcoming':
       default:
         bgColor = const Color(0xFFFBBF24).withValues(alpha: 0.15);
         textColor = const Color(0xFFD97706);
-        label = 'Upcoming';
+        label = 'قادم';
         break;
     }
 
@@ -314,8 +314,8 @@ class _AuctionCardState extends State<AuctionCard> {
             const SizedBox(width: 8),
             Text(
               auction.winnerName != null
-                  ? 'Winner: ${auction.winnerName}'
-                  : 'Auction ended',
+                  ? 'الفائز: ${auction.winnerName}'
+                  : 'انتهى المزاد',
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
@@ -328,7 +328,7 @@ class _AuctionCardState extends State<AuctionCard> {
     }
 
     final targetDate = auction.isUpcoming ? auction.startDate : auction.endDate;
-    final label = auction.isUpcoming ? 'Starts in: ' : 'Ends in: ';
+    final label = auction.isUpcoming ? 'يبدأ خلال: ' : 'ينتهي خلال: ';
     final color =
         auction.isUpcoming ? const Color(0xFFD97706) : const Color(0xFF16A34A);
 
@@ -378,7 +378,7 @@ class _AuctionCardState extends State<AuctionCard> {
                         size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(width: 6),
                     Text(
-                      'Your Auction',
+                      'مزادك',
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.bold,
@@ -393,7 +393,7 @@ class _AuctionCardState extends State<AuctionCard> {
             Expanded(
               child: _ActionButton(
                 icon: Icons.gavel_rounded,
-                label: 'Bid Now',
+                label: 'زايد الآن',
                 color: AppColors.primary,
                 onTap: widget.onBid,
               ),
@@ -405,7 +405,7 @@ class _AuctionCardState extends State<AuctionCard> {
         Expanded(
           child: _ActionButton(
             icon: Icons.bar_chart_rounded,
-            label: 'Bids',
+            label: 'المزايدات',
             color: widget.onBid != null ? Colors.blue.shade600 : AppColors.primary,
             onTap: widget.onViewBids,
           ),
@@ -417,7 +417,7 @@ class _AuctionCardState extends State<AuctionCard> {
           Expanded(
             child: _ActionButton(
               icon: Icons.edit_outlined,
-              label: 'Update',
+              label: 'تحديث',
               color: Colors.blue.shade600,
               onTap: widget.onEdit,
             ),
@@ -430,7 +430,7 @@ class _AuctionCardState extends State<AuctionCard> {
           Expanded(
             child: _ActionButton(
               icon: Icons.cancel_outlined,
-              label: 'Cancel',
+              label: 'إلغاء',
               color: Colors.red.shade600,
               onTap: widget.onCancel,
             ),
@@ -441,7 +441,7 @@ class _AuctionCardState extends State<AuctionCard> {
           Expanded(
             child: _ActionButton(
               icon: Icons.emoji_events_rounded,
-              label: 'Result',
+              label: 'النتيجة',
               color: const Color(0xFFD97706),
               onTap: widget.onViewResult ?? widget.onViewBids,
             ),

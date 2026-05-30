@@ -14,7 +14,6 @@ import 'package:root2route/screens/chat/chat_details_screen.dart';
 import 'package:root2route/features/chat/cubit/chat_messages_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_state.dart';
-import 'package:root2route/components/custom_button.dart';
 
 class DetailsProductScreen extends StatefulWidget {
   final String productId;
@@ -84,7 +83,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
       case 3:
         return 'كيماويات';
       default:
-        return 'محصول';
+        return '';
     }
   }
 
@@ -110,82 +109,89 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
       child: Scaffold(
         extendBodyBehindAppBar: true,
         backgroundColor: const Color(0xFFF4F6F9),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leadingWidth: 70,
-        leading: Padding(
-          padding: const EdgeInsets.only(top: 10, left: 16),
-          child: CircleAvatar(
-            backgroundColor: Colors.black26,
-            child: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
-                color: Colors.white,
-                size: 20,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leadingWidth: 70,
+          leading: Padding(
+            padding: const EdgeInsets.only(top: 10, right: 16),
+            child: CircleAvatar(
+              backgroundColor: Colors.black26,
+              child: IconButton(
+                padding: const EdgeInsets.only(
+                  right: 2,
+                ), // slightly adjust chevron alignment
+                icon: Icon(
+                  Icons.arrow_back_ios_rounded, // ده هيبص يمين في العربي
+                  color: Colors.white,
+                  size: 16,
+                ),
+                onPressed: () => Navigator.pop(context),
               ),
-              onPressed: () => Navigator.pop(context),
             ),
           ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(top: 10, right: 16),
-            child: BlocBuilder<CartCubit, CartState>(
-              builder: (context, state) {
-                final cartCount = state.cartItems.length;
-                return Stack(
-                  alignment: Alignment.topRight,
-                  clipBehavior: Clip.none,
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.black26,
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.shopping_cart,
-                          color: Colors.white,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(top: 10, left: 16),
+              child: BlocBuilder<CartCubit, CartState>(
+                builder: (context, state) {
+                  final cartCount = state.cartItems.length;
+                  return Stack(
+                    alignment: Alignment.topRight,
+                    clipBehavior: Clip.none,
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.black26,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.shopping_cart,
+                            color: Colors.white,
+                          ),
+                          onPressed:
+                              () => Navigator.pushNamed(context, CartScreen.id),
                         ),
-                        onPressed:
-                            () => Navigator.pushNamed(context, CartScreen.id),
                       ),
-                    ),
-                    if (cartCount > 0)
-                      Positioned(
-                        right: -2,
-                        top: -2,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 1.5),
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 18,
-                            minHeight: 18,
-                          ),
-                          child: Center(
-                            child: Text(
-                              "$cartCount",
-                              style: TextStyle(
+                      if (cartCount > 0)
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                              border: Border.all(
                                 color: Colors.white,
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.bold,
+                                width: 1.5,
+                              ),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            child: Center(
+                              child: Text(
+                                "$cartCount",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
-                );
-              },
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+        body: _buildBody(),
+        bottomNavigationBar: _productData != null ? _buildBottomBar() : null,
       ),
-      body: _buildBody(),
-      bottomNavigationBar: _productData != null ? _buildBottomBar() : null,
-    ));
+    );
   }
 
   Widget _buildBody() {
@@ -258,9 +264,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
               : double.tryParse(priceRaw.toString()) ?? 0.0;
     }
     final String description =
-        data['description'] ??
-        data['Description'] ??
-        'لا يوجد وصف متاح.';
+        data['description'] ?? data['Description'] ?? 'لا يوجد وصف متاح.';
     final dynamic stockRaw =
         data['stockQuantity'] ?? data['StockQuantity'] ?? 0;
     final int quantity =
@@ -268,11 +272,32 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
             ? stockRaw.toInt()
             : int.tryParse(stockRaw.toString()) ?? 0;
     final dynamic typeRaw = data['productType'] ?? data['ProductType'];
-    final String typeStr =
-        typeRaw is String ? typeRaw : _getProductTypeString(typeRaw);
+    String typeStr = '';
+    if (typeRaw is String) {
+      final Map<String, String> _typeMap = {
+        'RawCrop': 'محصول',
+        'Processed': 'مصنع',
+        'Tool': 'أداة',
+        'Chemical': 'كيماويات',
+      };
+      typeStr = _typeMap[typeRaw] ?? typeRaw;
+    } else {
+      typeStr = _getProductTypeString(typeRaw);
+    }
+
     final dynamic unitRaw = data['weightUnit'] ?? data['WeightUnit'];
-    final String unitStr =
-        unitRaw is String ? unitRaw : _getWeightUnitString(unitRaw);
+    String unitStr = '';
+    if (unitRaw is String) {
+      final Map<String, String> _unitMap = {
+        'Kg': 'كجم',
+        'Kilogram': 'كجم',
+        'Liter': 'لتر',
+        'pkg': 'عبوة',
+      };
+      unitStr = _unitMap[unitRaw] ?? unitRaw;
+    } else {
+      unitStr = _getWeightUnitString(unitRaw);
+    }
 
     // Extract image list
     final images = data['images'] ?? data['Images'];
@@ -390,7 +415,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '${price.toStringAsFixed(0)} EGP',
+                            '${price.toStringAsFixed(0)} جنيه',
                             style: TextStyle(
                               fontSize: 24.sp,
                               fontWeight: FontWeight.w900,
@@ -633,15 +658,15 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                                 roomName:
                                     _productData?['sellerName'] ??
                                     _productData?['organizationName'] ??
-                                    'Seller',
+                                    'بائع',
                               ),
                             ),
                       ),
                     );
                   }
                 } catch (e, stackTrace) {
-                  debugPrint("🔥 EXACT ERROR: $e");
-                  debugPrint("🔥 STACK TRACE: $stackTrace");
+                  debugPrint(" EXACT ERROR: $e");
+                  debugPrint(" STACK TRACE: $stackTrace");
                   if (context.mounted) {
                     Navigator.pop(context);
                     QuickAlert.show(
@@ -757,7 +782,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
     int stockQuantity,
   ) {
     final String name =
-        productData['name'] ?? productData['Name'] ?? 'Unknown Product';
+        productData['name'] ?? productData['Name'] ?? 'منتج غير معروف';
     final dynamic priceRaw =
         productData['directSalePrice'] ?? productData['DirectSalePrice'] ?? 0;
     final double unitPrice =
@@ -808,7 +833,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                 );
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('$qty × $name added to cart!'),
+                    content: Text('تمت إضافة $qty × $name إلى السلة!'),
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -904,7 +929,7 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Select Quantity',
+                'اختر الكمية',
                 style: TextStyle(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w800,
@@ -922,7 +947,7 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
                   foregroundColor: Theme.of(context).colorScheme.primary,
                 ),
                 child: const Text(
-                  'Buy All',
+                  'شراء الكل',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -1055,7 +1080,7 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'of ${widget.maxQty} available',
+                      'من أصل ${widget.maxQty} متاح',
                       style: TextStyle(
                         fontSize: 11.sp,
                         color: Colors.grey.shade500,
@@ -1119,7 +1144,7 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total Price',
+                  'السعر الإجمالي',
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
@@ -1127,7 +1152,7 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
                   ),
                 ),
                 Text(
-                  'EGP ${total.toStringAsFixed(2)}',
+                  '${total.toStringAsFixed(2)} جنيه',
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w900,
@@ -1155,7 +1180,7 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
                 size: 18,
               ),
               label: Text(
-                'Confirm Purchase',
+                'تأكيد الشراء',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 15.sp,

@@ -40,9 +40,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-         BlocProvider<ThemeCubit>.value(value: themeCubit),
+        BlocProvider<ThemeCubit>.value(value: themeCubit),
         BlocProvider<AuctionCubit>(create: (_) => AuctionCubit()),
-        BlocProvider<NotificationCubit>(create: (_) => NotificationCubit()..fetchNotifications()),
+        BlocProvider<NotificationCubit>(
+          create: (_) => NotificationCubit()..fetchNotifications(),
+        ),
         BlocProvider<CartCubit>(create: (_) => CartCubit()),
       ],
       child: ScreenUtilInit(
@@ -59,26 +61,27 @@ class MyApp extends StatelessWidget {
                 darkTheme: AppTheme.darkTheme,
                 themeMode: themeState.themeMode,
                 initialRoute: SplashScreen.id,
-            routes: {
-              SplashScreen.id: (_) => const SplashScreen(),
-              IntroScreen.id: (_) => const IntroScreen(),
-              LoginScreen.id: (_) => const LoginScreen(),
-              RegisterScreen.id: (_) => const RegisterScreen(),
-              ForgotPasswordScreen.id: (_) => const ForgotPasswordScreen(),
-              CreateNewPassword.id: (_) => const CreateNewPassword(),
-              GuestHomeScreen.id: (_) => const GuestHomeScreen(),
-              CreateAuctionScreen.id: (_) => const CreateAuctionScreen(),
-              UpdateAuctionScreen.id: (context) {
-                final auction =
-                    ModalRoute.of(context)!.settings.arguments as AuctionModel;
-                return UpdateAuctionScreen(auction: auction);
-              },
-              BidHistoryScreen.id: (_) => const BidHistoryScreen(),
-              AuctionDetailsScreen.id: (_) => const AuctionDetailsScreen(),
-              BuyerAuctionsScreen.id: (_) => const BuyerAuctionsScreen(),
-              CheckoutScreen.id: (_) => const CheckoutScreen(),
-              CartScreen.id: (_) => const CartScreen(),
-            },
+                routes: {
+                  SplashScreen.id: (_) => const SplashScreen(),
+                  IntroScreen.id: (_) => const IntroScreen(),
+                  LoginScreen.id: (_) => const LoginScreen(),
+                  RegisterScreen.id: (_) => const RegisterScreen(),
+                  ForgotPasswordScreen.id: (_) => const ForgotPasswordScreen(),
+                  CreateNewPassword.id: (_) => const CreateNewPassword(),
+                  GuestHomeScreen.id: (_) => const GuestHomeScreen(),
+                  CreateAuctionScreen.id: (_) => const CreateAuctionScreen(),
+                  UpdateAuctionScreen.id: (context) {
+                    final auction =
+                        ModalRoute.of(context)!.settings.arguments
+                            as AuctionModel;
+                    return UpdateAuctionScreen(auction: auction);
+                  },
+                  BidHistoryScreen.id: (_) => const BidHistoryScreen(),
+                  AuctionDetailsScreen.id: (_) => const AuctionDetailsScreen(),
+                  BuyerAuctionsScreen.id: (_) => const BuyerAuctionsScreen(),
+                  CheckoutScreen.id: (_) => const CheckoutScreen(),
+                  CartScreen.id: (_) => const CartScreen(),
+                },
               );
             },
           );

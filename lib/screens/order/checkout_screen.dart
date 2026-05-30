@@ -4,16 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
-import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/services/order_service.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/services/cart_service.dart';
-import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/features/shipments/ui/addresses_screen.dart';
 import 'package:root2route/features/shipments/cubit/shipment_address_cubit.dart';
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
 import 'package:root2route/models/shipment_address_model.dart';
-import 'package:root2route/screens/order/my_orders_screen.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -57,137 +54,142 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return BlocProvider(
-          create: (context) => ShipmentAddressCubit()..fetchAddresses(),
-          child: BlocBuilder<ShipmentAddressCubit, ShipmentState>(
-            builder: (context, state) {
-              if (state is ShipmentLoading) {
-                return const SizedBox(
-                  height: 200,
-                  child: Center(
-                    child: CircularProgressIndicator(color: Color(0xFF2ECC71)),
-                  ),
-                );
-              }
-
-              if (state is ShipmentError) {
-                return SizedBox(
-                  height: 200,
-                  child: Center(
-                    child: Text(
-                      state.message,
-                      style: const TextStyle(color: Colors.red),
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: BlocProvider(
+            create: (context) => ShipmentAddressCubit()..fetchAddresses(),
+            child: BlocBuilder<ShipmentAddressCubit, ShipmentState>(
+              builder: (context, state) {
+                if (state is ShipmentLoading) {
+                  return const SizedBox(
+                    height: 200,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF2ECC71),
+                      ),
                     ),
-                  ),
-                );
-              }
+                  );
+                }
 
-              final addresses =
-                  state is ShipmentAddressesLoaded
-                      ? state.addresses
-                      : <ShipmentAddressModel>[];
+                if (state is ShipmentError) {
+                  return SizedBox(
+                    height: 200,
+                    child: Center(
+                      child: Text(
+                        state.message,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  );
+                }
 
-              if (addresses.isEmpty) {
+                final addresses =
+                    state is ShipmentAddressesLoaded
+                        ? state.addresses
+                        : <ShipmentAddressModel>[];
+
+                if (addresses.isEmpty) {
+                  return Container(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'لا توجد عناوين محفوظة',
+                          style: TextStyle(
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AddressesScreen(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 16,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            'إضافة عنوان جديد',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
                 return Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'لا توجد عناوين محفوظة',
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const AddressesScreen(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
                         ),
                         child: Text(
-                          'إضافة عنوان جديد',
+                          'اختر عنوان التوصيل',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14.sp,
+                            fontSize: 20.sp,
                             fontWeight: FontWeight.bold,
                           ),
+                        ),
+                      ),
+                      const Divider(),
+                      Flexible(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: addresses.length,
+                          itemBuilder: (context, index) {
+                            final address = addresses[index];
+                            return ListTile(
+                              leading: const Icon(
+                                Icons.location_on,
+                                color: Color(0xFF2ECC71),
+                              ),
+                              title: Text(
+                                address.fullName.isNotEmpty
+                                    ? address.fullName
+                                    : 'عنوان ${index + 1}',
+                              ),
+                              subtitle: Text(
+                                '${address.city}, ${address.street}\nالهاتف: ${address.phone}',
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                onAddressSelected(address);
+                              },
+                            );
+                          },
                         ),
                       ),
                     ],
                   ),
                 );
-              }
-
-              return Container(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Text(
-                        'اختر عنوان التوصيل',
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const Divider(),
-                    Flexible(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: addresses.length,
-                        itemBuilder: (context, index) {
-                          final address = addresses[index];
-                          return ListTile(
-                            leading: const Icon(
-                              Icons.location_on,
-                              color: Color(0xFF2ECC71),
-                            ),
-                            title: Text(
-                              address.fullName.isNotEmpty
-                                  ? address.fullName
-                                  : 'عنوان ${index + 1}',
-                            ),
-                            subtitle: Text(
-                              '${address.city}, ${address.street}\nPhone: ${address.phone}',
-                            ),
-                            onTap: () {
-                              Navigator.pop(context);
-                              onAddressSelected(address);
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
+              },
+            ),
           ),
         );
       },
@@ -206,20 +208,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
 
     final buyerId = StorageService().userId;
-    if (buyerId == null || buyerId.isEmpty) {
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'خطأ مصادقة',
-        text: 'يجب تسجيل الدخول لإنشاء طلب.',
-        confirmBtnText: 'تسجيل الدخول',
-        onConfirmBtnTap: () {
-          Navigator.pop(context);
-          Navigator.pushNamed(context, LoginScreen.id);
-        },
-      );
-      return;
-    }
 
     Future<void> executeApiCall() async {
       final itemsPayload =
@@ -270,13 +258,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           text:
               'تم تأكيد طلبك بنجاح. يمكنك متابعة منتجاتنا من الشاشة الرئيسية.',
           onConfirmBtnTap: () {
+            // 1. السطر ده بيقفل الـ QuickAlert نفسه
             Navigator.of(context, rootNavigator: true).pop();
 
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const GuestHomeScreen()),
-              (route) => route.isFirst,
-            );
+            // 2. السطر السحري ده بيقفل أي شاشات (دفع، عناوين، سلة) ويرجعك للناف بار الرئيسي
+            Navigator.of(context).popUntil((route) => route.isFirst);
           },
         );
       } else {
@@ -294,7 +280,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         _shippingStreetController.text.trim().isNotEmpty) {
       if (_receiverNameController.text.trim().isEmpty) {
         _receiverNameController.text =
-            StorageService().userFullName ?? 'Unknown';
+            StorageService().userFullName ?? 'غير معروف';
       }
       if (!_formKey.currentState!.validate()) return;
       await executeApiCall();
@@ -309,7 +295,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         _buildingNumberController.text = selectedAddress.buildingNumber;
         if (_receiverNameController.text.trim().isEmpty) {
           _receiverNameController.text =
-              StorageService().userFullName ?? 'Unknown';
+              StorageService().userFullName ?? 'غير معروف';
         }
       });
 

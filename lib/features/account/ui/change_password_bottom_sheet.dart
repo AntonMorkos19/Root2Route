@@ -48,7 +48,7 @@ class _ChangePasswordBottomSheetState extends State<ChangePasswordBottomSheet> {
     if (_newPasswordCtrl.text != _confirmPasswordCtrl.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('New password and confirm password do not match.'),
+          content: Text('كلمة المرور الجديدة وتأكيد كلمة المرور غير متطابقتين.'),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -66,27 +66,29 @@ class _ChangePasswordBottomSheetState extends State<ChangePasswordBottomSheet> {
     final theme = Theme.of(context);
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return BlocProvider.value(
-      value: widget.accountCubit,
-      child: BlocConsumer<AccountCubit, AccountState>(
-        listener: (context, state) {
-          if (state is ChangePasswordSuccess) {
-            Navigator.pop(context); // close bottom sheet
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Password updated successfully.'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          } else if (state is ChangePasswordFailure) {
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.error,
-              title: 'Error',
-              text: state.error,
-            );
-          }
-        },
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: BlocProvider.value(
+        value: widget.accountCubit,
+        child: BlocConsumer<AccountCubit, AccountState>(
+          listener: (context, state) {
+            if (state is ChangePasswordSuccess) {
+              Navigator.pop(context); // close bottom sheet
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('تم تحديث كلمة المرور بنجاح.'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            } else if (state is ChangePasswordFailure) {
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.error,
+                title: 'خطأ',
+                text: state.error,
+              );
+            }
+          },
         builder: (context, state) {
           final isLoading = state is ChangePasswordLoading;
 
@@ -117,7 +119,7 @@ class _ChangePasswordBottomSheetState extends State<ChangePasswordBottomSheet> {
                     const SizedBox(height: 24),
                     
                     Text(
-                      'Change Password',
+                      'تغيير كلمة المرور',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -129,7 +131,7 @@ class _ChangePasswordBottomSheetState extends State<ChangePasswordBottomSheet> {
 
                     _buildPasswordField(
                       controller: _oldPasswordCtrl,
-                      label: 'Old Password',
+                      label: 'كلمة المرور القديمة',
                       obscureText: _obscureOld,
                       onToggleObscure: () => setState(() => _obscureOld = !_obscureOld),
                     ),
@@ -137,7 +139,7 @@ class _ChangePasswordBottomSheetState extends State<ChangePasswordBottomSheet> {
 
                     _buildPasswordField(
                       controller: _newPasswordCtrl,
-                      label: 'New Password',
+                      label: 'كلمة المرور الجديدة',
                       obscureText: _obscureNew,
                       onToggleObscure: () => setState(() => _obscureNew = !_obscureNew),
                     ),
@@ -145,7 +147,7 @@ class _ChangePasswordBottomSheetState extends State<ChangePasswordBottomSheet> {
 
                     _buildPasswordField(
                       controller: _confirmPasswordCtrl,
-                      label: 'Confirm New Password',
+                      label: 'تأكيد كلمة المرور الجديدة',
                       obscureText: _obscureConfirm,
                       onToggleObscure: () => setState(() => _obscureConfirm = !_obscureConfirm),
                     ),
@@ -155,7 +157,7 @@ class _ChangePasswordBottomSheetState extends State<ChangePasswordBottomSheet> {
                       const Center(child: CircularProgressIndicator(color: AppColors.primary))
                     else
                       CustomButton(
-                        text: 'Update Password',
+                        text: 'تحديث كلمة المرور',
                         onPressed: _submit,
                         color: AppColors.primary,
                       ),
@@ -166,7 +168,7 @@ class _ChangePasswordBottomSheetState extends State<ChangePasswordBottomSheet> {
           );
         },
       ),
-    );
+    ));
   }
 
   Widget _buildPasswordField({
@@ -178,7 +180,7 @@ class _ChangePasswordBottomSheetState extends State<ChangePasswordBottomSheet> {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
-      validator: (val) => val == null || val.isEmpty ? 'This field is required' : null,
+      validator: (val) => val == null || val.isEmpty ? 'هذا الحقل مطلوب' : null,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(

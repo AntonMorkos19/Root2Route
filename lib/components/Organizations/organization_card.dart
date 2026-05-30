@@ -6,11 +6,13 @@ import 'package:root2route/screens/Organizations/organization_details_screen.dar
 class OrganizationCard extends StatelessWidget {
   final OrganizationModel organization;
   final VoidCallback? onDeleted;
+  final bool isMyOrganization;
 
   const OrganizationCard({
     super.key,
     required this.organization,
     this.onDeleted,
+    this.isMyOrganization = false,
   });
 
    String _getFullImageUrl() {
@@ -32,8 +34,10 @@ class OrganizationCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                OrganizationDetailsScreen(organization: organization),
+            builder: (context) => OrganizationDetailsScreen(
+              organization: organization,
+              isMyOrganization: isMyOrganization,
+            ),
           ),
         ).then((_) {
           if (onDeleted != null) onDeleted!();

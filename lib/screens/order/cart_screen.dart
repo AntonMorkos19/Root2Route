@@ -32,11 +32,16 @@ class _CartScreenState extends State<CartScreen> {
             appBar: AppBar(
               title: Text(
                 'عربة التسوق',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20.sp,
+                  color: Colors.white,
+                ),
+              ),
+              backgroundColor: AppColors.primary,
+              iconTheme: const IconThemeData(color: Colors.white),
+              elevation: 0,
             ),
-            backgroundColor: AppColors.primary,
-            elevation: 0,
-          ),
           body:
               items.isEmpty
                   ? Center(

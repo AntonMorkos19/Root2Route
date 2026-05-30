@@ -38,12 +38,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final ImagePicker _picker = ImagePicker();
 
   final Map<String, int> _categoryMap = {
-    'RawCrop': 0,
-    'Processed': 1,
-    'Tool': 2,
-    'Chemical': 3,
+    'محصول': 0,
+    'مصنع': 1,
+    'أداة': 2,
+    'كيماويات': 3,
   };
-  final List<String> _units = ['Kg', 'Liter', 'pkg'];
+  final List<String> _units = ['كجم', 'لتر', 'عبوة'];
 
   final _api = ApiService();
 
@@ -252,9 +252,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
               children: [
 
                 CustomTextFormField(
-                  color:
-                      Theme.of(context).textTheme.bodyMedium?.color ??
-                      Colors.black87,
                   icon: Icons.grass_outlined,
                   validator:
                       (v) =>
@@ -303,15 +300,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   ],
                 ),
                 const SizedBox(height: 18),
-                _Label('تاريخ الصلاحية (اختياري)'),
-                const SizedBox(height: 8),
                 _DatePickerWidget(),
                 const SizedBox(height: 18),
 
                 CustomTextFormField(
-                  color:
-                      Theme.of(context).textTheme.bodyMedium?.color ??
-                      Colors.black87,
                   icon: Icons.qr_code_scanner,
                   label: 'الباركود (مثال: 1234567890)',
                   controller: _barcodeController,
@@ -321,9 +313,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 const SizedBox(height: 18),
 
                 CustomTextFormField(
-                  color:
-                      Theme.of(context).textTheme.bodyMedium?.color ??
-                      Colors.black87,
                   icon: Icons.description_outlined,
                   label: 'صف منتجك...',
                   controller: _descriptionController,
@@ -595,17 +584,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
       decoration: InputDecoration(
         labelText: hint,
-        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 15.sp),
-        suffixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
-        filled: true,
-        fillColor:
-            Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF2A2A2A)
-                : const Color(0xFFF8F9FB),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
+        suffixIcon: Icon(icon),
       ),
     );
   }
@@ -634,49 +613,49 @@ class _AddProductScreenState extends State<AddProductScreen> {
       validator: validator,
       decoration: InputDecoration(
         labelText: hint,
-        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 15.sp),
-        suffixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
-        filled: true,
-        fillColor:
-            Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF2A2A2A)
-                : const Color(0xFFF8F9FB),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
+        suffixIcon: Icon(icon),
       ),
     );
   }
 
   Widget _DatePickerWidget() {
+    final label =
+        _expiryDate == null
+            ? ''
+            : '${_expiryDate!.day.toString().padLeft(2, '0')} / ${_expiryDate!.month.toString().padLeft(2, '0')} / ${_expiryDate!.year}';
+
     return InkWell(
       onTap: _pickDate,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color:
-              Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF2A2A2A)
-                  : const Color(0xFFF8F9FB),
-          borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(10),
+      child: InputDecorator(
+        isEmpty: _expiryDate == null,
+        decoration: InputDecoration(
+          labelText: 'تاريخ الصلاحية (اختياري)',
+          hintText: 'اختر تاريخ الصلاحية',
+          suffixIcon: _expiryDate != null
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () => setState(() => _expiryDate = null),
+                      child: Icon(Icons.close_rounded, size: 18, color: Colors.grey.shade400),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.calendar_month_outlined),
+                    const SizedBox(width: 8),
+                  ],
+                )
+              : const Icon(Icons.calendar_month_outlined),
         ),
-        child: Row(
-          children: [
-            const Icon(Icons.calendar_month, size: 20, color: Colors.grey),
-            const SizedBox(width: 12),
-            Text(
-              _expiryDate == null
-                  ? 'اختر التاريخ'
-                  : _expiryDate!.toLocal().toString().split(' ')[0],
-              style: TextStyle(
-                color:
-                    Theme.of(context).textTheme.bodyMedium?.color ??
-                    Colors.black87,
+        child: _expiryDate == null
+            ? const Text('')
+            : Text(
+                label,
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+                ),
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

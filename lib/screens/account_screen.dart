@@ -354,41 +354,18 @@ class _AccountScreenViewState extends State<_AccountScreenView> {
                               onTap: () {
                                 final accountCubit =
                                     context.read<AccountCubit>();
-                                showDialog(
+                                QuickAlert.show(
                                   context: context,
-                                  builder: (dialogContext) {
-                                    return AlertDialog(
-                                      title: const Text('حذف الحساب'),
-                                      content: const Text(
-                                        'هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.',
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(dialogContext),
-                                          child: const Text(
-                                            'إلغاء',
-                                            style: TextStyle(
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(dialogContext);
-                                            accountCubit.deleteAccount();
-                                          },
-                                          child: const Text(
-                                            'حذف',
-                                            style: TextStyle(
-                                              color: Colors.red,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
+                                  type: QuickAlertType.warning,
+                                  title: 'حذف الحساب',
+                                  text: 'هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.',
+                                  confirmBtnText: 'حذف',
+                                  cancelBtnText: 'إلغاء',
+                                  showCancelBtn: true,
+                                  confirmBtnColor: Colors.red,
+                                  onConfirmBtnTap: () {
+                                    Navigator.pop(context);
+                                    accountCubit.deleteAccount();
                                   },
                                 );
                               },

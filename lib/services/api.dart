@@ -313,6 +313,18 @@ class ApiService {
               await StorageService().saveOrganizationId(orgId);
               debugPrint('[Login] Saved organizationId: $orgId');
             }
+
+            final orgType = firstOrg['type'] ?? firstOrg['Type'];
+            if (orgType != null) {
+              int typeVal;
+              if (orgType is int) {
+                typeVal = orgType;
+              } else {
+                typeVal = int.tryParse(orgType.toString()) ?? 0;
+              }
+              await StorageService().saveOrganizationType(typeVal);
+              debugPrint('[Login] Saved organizationType: $typeVal');
+            }
           }
           return true;
         }
@@ -1568,7 +1580,7 @@ class ApiService {
     }
   }
 
-  // 1. Fetch Bid History
+  // 1. Fetch Bid History (raw map)
   Future<Map<String, dynamic>> getAuctionBids(String auctionId) async {
     try {
       final token = StorageService().token;
@@ -1607,59 +1619,99 @@ class ApiService {
     }
   }
 
+  // 1b. Fetch Bid History as typed BidModel list
+  Future<List<BidModel>> getAuctionBidsAsBidModels(String auctionId) async {
+    try {
+      final response = await _dio.get('/auctions/$auctionId/bids');
+      return _parseList(response.data).map((json) => BidModel.fromJson(json)).toList()
+        ..sort((a, b) => b.amount.compareTo(a.amount));
+    } on DioException catch (e) {
+      throw AuctionException(_extractApiError(e));
+    } catch (e) {
+      throw AuctionException('Failed to fetch bids: $e');
+    }
+  }
+
+
   // 2. Place Bid
+  // POST /auctions/{auctionId}/bid  body: { "amount": <double> }
   Future<Map<String, dynamic>> placeBid({
     required String auctionId,
     required double amount,
   }) async {
     try {
       final token = StorageService().token;
+
+      // ── Explicitly parse to double to guarantee a JSON number, not a string ──
+      final double bidAmount = amount; // already a double from the controller parse
+
+      debugPrint('[💰 BID] Sending to /auctions/$auctionId/bid  amount=$bidAmount');
+
       final response = await _dio.post(
         '/auctions/$auctionId/bid',
-        data: {"amount": amount},
+        data: {"amount": bidAmount},
         options: Options(
           headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+          // Let Dio pass ALL responses through so we can inspect the body
+          validateStatus: (status) => status != null && status < 600,
+          contentType: 'application/json',
         ),
       );
 
-      final respBody = response.data;
+      final int statusCode = response.statusCode ?? 0;
+      final dynamic respBody = response.data;
+
+      debugPrint('[💰 BID] Response status: $statusCode');
+      debugPrint('[💰 BID] Response body: $respBody');
+
       if (respBody is Map) {
-        final isSuccess =
-            respBody['succeeded'] == true || respBody['success'] == true;
+        final bool isSuccess =
+            (statusCode >= 200 && statusCode < 300) ||
+            respBody['succeeded'] == true ||
+            respBody['success'] == true;
+
+        final String message = isSuccess
+            ? (respBody['message']?.toString() ?? 'تم تقديم المزايدة بنجاح!')
+            : (respBody['message']?.toString() ??
+               respBody['title']?.toString() ??
+               respBody['error']?.toString() ??
+               'فشل تقديم المزايدة.');
+
         return {
           'success': isSuccess,
           'data': respBody['data'],
-          'message':
-              isSuccess
-                  ? 'Bid placed successfully!'
-                  : (respBody['message'] ?? 'Failed to place bid.'),
+          'message': message,
+          'statusCode': statusCode,
         };
       }
+
+      // Non-map response — treat 200..299 as success
+      final bool ok = statusCode >= 200 && statusCode < 300;
       return {
-        'success': response.statusCode == 200,
+        'success': ok,
         'data': null,
-        'message': 'Bid placed successfully!',
+        'message': ok ? 'تم تقديم المزايدة بنجاح!' : 'فشل تقديم المزايدة.',
+        'statusCode': statusCode,
       };
     } on DioException catch (e) {
+      // Should rarely reach here since validateStatus covers most codes,
+      // but keep as a safety net (e.g., connection timeouts).
+      debugPrint('[🔥 BID DioException] status: ${e.response?.statusCode}');
+      debugPrint('[🔥 BID DioException] body: ${e.response?.data}');
+
       final errBody = e.response?.data;
+      String message;
       if (errBody is Map) {
-        final isBackendWeirdSuccess =
-            errBody['succeeded'] == true || errBody['success'] == true;
-        if (isBackendWeirdSuccess) {
-          return {
-            'success': true,
-            'data': errBody['data'],
-            'message': 'Bid placed successfully!',
-          };
-        }
-        return {
-          'success': false,
-          'data': null,
-          'message': errBody['message'] ?? _extractApiError(e),
-        };
+        message = errBody['message']?.toString() ??
+            errBody['title']?.toString() ??
+            errBody['error']?.toString() ??
+            _extractApiError(e);
+      } else {
+        message = _extractApiError(e);
       }
-      return {'success': false, 'data': null, 'message': _extractApiError(e)};
+      return {'success': false, 'data': null, 'message': message};
     } catch (e) {
+      debugPrint('[🔥 BID unexpected] $e');
       return {
         'success': false,
         'data': null,

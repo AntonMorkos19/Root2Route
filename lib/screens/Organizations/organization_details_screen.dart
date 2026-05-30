@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 import 'package:root2route/models/organization_model.dart';
 import 'package:root2route/screens/Organizations/edit_organization_screen.dart';
+import 'package:root2route/screens/guest/guest_home_screen.dart';
+import 'package:root2route/screens/farmer/farmer_home_screen.dart';
+import 'package:root2route/screens/restaurant/restaurant_home_screen.dart';
+import 'package:root2route/screens/factory/factory_home_screen.dart';
+import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
 
 class OrganizationDetailsScreen extends StatefulWidget {
   final OrganizationModel organization;
+  final bool isMyOrganization;
 
-  const OrganizationDetailsScreen({super.key, required this.organization});
+  const OrganizationDetailsScreen({
+    super.key,
+    required this.organization,
+    this.isMyOrganization = false,
+  });
 
   @override
   State<OrganizationDetailsScreen> createState() =>
@@ -101,33 +113,103 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
 
         final result = await _api.deleteOrganization(widget.organization.id);
 
-        if (mounted) Navigator.pop(context);
+        if (mounted) Navigator.pop(context); // close loading
 
-        if (mounted) {
-          if (result['success'] == true) {
+        if (!mounted) return;
+
+        if (result['success'] == true) {
+          // Fetch remaining organizations
+          final orgsResult = await _api.getMyOrganizations();
+          final List remainingOrgs =
+              (orgsResult['success'] == true) ? (orgsResult['data'] ?? []) : [];
+
+          if (remainingOrgs.isEmpty) {
+            // ── LAST ORG DELETED → go to Guest ──
+            await StorageService().clearActiveOrganization();
+
+            // Clear cart state if available
+            try {
+              if (mounted) {
+                context.read<CartCubit>().clearCart();
+              }
+            } catch (_) {
+              // CartCubit may not be in the tree — safe to ignore
+            }
+
+            if (!mounted) return;
             QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
               title: 'تم الحذف!',
-              text: 'تم حذف الشركة بنجاح.',
+              text: 'تم حذف الشركة. سيتم نقلك لوضع الضيف.',
               confirmBtnText: 'موافق',
+              confirmBtnColor: AppColors.primary,
               onConfirmBtnTap: () {
-                Navigator.pop(context); // close alert
-                Navigator.pop(context); // go back to list
+                Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (_) => const GuestHomeScreen(),
+                  ),
+                  (route) => false,
+                );
               },
             );
           } else {
+            // ── OTHER ORGS EXIST → switch to the first one ──
+            final firstOrg = remainingOrgs.first;
+            final newOrgId =
+                firstOrg['id']?.toString() ??
+                firstOrg['organizationId']?.toString() ??
+                '';
+            final newOrgType = firstOrg['type'] ?? 0;
+
+            await StorageService().saveOrganizationId(newOrgId);
+            await StorageService().saveOrganizationType(newOrgType is int ? newOrgType : 0);
+            await StorageService().saveHasOrganization(true);
+
+            if (!mounted) return;
             QuickAlert.show(
               context: context,
-              type: QuickAlertType.error,
-              title: 'خطأ',
-              text: result['message'] ?? 'فشل الحذف',
+              type: QuickAlertType.success,
+              title: 'تم الحذف!',
+              text: 'تم حذف الشركة. سيتم تفعيل شركتك الأخرى.',
               confirmBtnText: 'موافق',
+              confirmBtnColor: AppColors.primary,
+              onConfirmBtnTap: () {
+                // Navigate to the correct home screen for the fallback org type
+                final Widget homeScreen = _getHomeScreenForType(newOrgType is int ? newOrgType : 0);
+                Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => homeScreen),
+                  (route) => false,
+                );
+              },
             );
           }
+        } else {
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: 'خطأ',
+            text: result['message'] ?? 'فشل الحذف',
+            confirmBtnText: 'موافق',
+          );
         }
       },
     );
+  }
+
+  Widget _getHomeScreenForType(int type) {
+    switch (type) {
+      case 0:
+        return const FarmerHomeScreen();
+      case 1:
+        return const RestaurantHomeScreen();
+      case 2:
+        return const FactoryHomeScreen();
+      case 3:
+        return const TradesmanHomeScreen();
+      default:
+        return const FarmerHomeScreen();
+    }
   }
 
   @override
@@ -137,7 +219,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     final bool hasImage = imageUrl.isNotEmpty;
 
     // Show the ⋮ menu only if this org belongs to the logged-in user.
-    final bool isOwner = StorageService().organizationId == org.id;
+    final bool isOwner = widget.isMyOrganization || StorageService().organizationId == org.id;
 
     return Directionality(
       textDirection: TextDirection.rtl,

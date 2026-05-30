@@ -86,6 +86,7 @@ class OrderModel {
   final String? carrier;
   final String? trackingNumber;
   final String? driverPhone;
+  final bool isReviewed;
 
   OrderModel({
     required this.id,
@@ -107,6 +108,7 @@ class OrderModel {
     this.carrier,
     this.trackingNumber,
     this.driverPhone,
+    this.isReviewed = false,
   });
 
   static int _parseStatus(dynamic raw) {
@@ -179,6 +181,7 @@ class OrderModel {
       carrier: (json['carrier'] ?? json['Carrier'] ?? json['carrierName'] ?? json['CarrierName'])?.toString(),
       trackingNumber: (json['trackingNumber'] ?? json['TrackingNumber'])?.toString(),
       driverPhone: (json['driverPhone'] ?? json['DriverPhone'])?.toString(),
+      isReviewed: json['isReviewed'] == true || json['IsReviewed'] == true,
     );
   }
 

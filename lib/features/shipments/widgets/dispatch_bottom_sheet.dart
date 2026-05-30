@@ -75,174 +75,181 @@ class _DispatchBottomSheetState extends State<_DispatchBottomSheet> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12),
-      padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Handle bar ──────────────────────────────────────
-          Center(
-            child: Container(
-              width: 48,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12),
+        padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Handle bar ──────────────────────────────────────
+            Center(
+              child: Container(
+                width: 48,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-          // ── Header ─────────────────────────────────────────
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.local_shipping_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Dispatch Shipment 📦',
-                    style: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w900,
-                      color: Theme.of(context).textTheme.titleLarge?.color,
-                    ),
-                  ),
-                  Text(
-                    'Enter shipping details',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          // ── Form ────────────────────────────────────────────
-          Form(
-            key: _formKey,
-            child: Column(
+            // ── Header ─────────────────────────────────────────
+            Row(
               children: [
-                // Carrier name
-                CustomTextFormField(
-                  controller: _carrierCtrl,
-                  icon: Icons.directions_car_outlined,
-                  label: 'Carrier Name',
-                  color: Theme.of(context).textTheme.bodyMedium?.color,
-                  fillColor: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xFF2A2A2A)
-                      : Colors.transparent,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Carrier name is required' : null,
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.local_shipping_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 24,
+                  ),
                 ),
-                const SizedBox(height: 20),
-
-                // Tracking number
-                CustomTextFormField(
-                  controller: _trackingCtrl,
-                  icon: Icons.qr_code_scanner_outlined,
-                  label: 'Tracking Number (Optional)',
-                  color: Theme.of(context).textTheme.bodyMedium?.color,
-                  fillColor: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xFF2A2A2A)
-                      : Colors.transparent,
-                  keyboardType: TextInputType.text,
-                  validator: (v) {
-                    if (v != null && v.isNotEmpty && v.trim().isEmpty) {
-                      return 'Tracking number cannot be only spaces';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                // Contact phone
-                CustomTextFormField(
-                  controller: _phoneCtrl,
-                  icon: Icons.phone_outlined,
-                  label: "Driver's Phone (Optional)",
-                  color: Theme.of(context).textTheme.bodyMedium?.color,
-                  fillColor: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xFF2A2A2A)
-                      : Colors.transparent,
-                  keyboardType: TextInputType.phone,
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) return null;
-                    if (!RegExp(r'^[0-9]{7,15}$').hasMatch(v.trim())) {
-                      return 'Enter a valid phone number (7-15 digits)';
-                    }
-                    return null;
-                  },
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'شحن الطلب 📦',
+                      style: TextStyle(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.w900,
+                        color: Theme.of(context).textTheme.titleLarge?.color,
+                      ),
+                    ),
+                    Text(
+                      'أدخل بيانات الشحن',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 28),
+            const SizedBox(height: 24),
 
-          // ── Submit button ────────────────────────────────────
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _submit,
-              icon: Text('📦', style: TextStyle(fontSize: 20.sp)),
-              label: Text(
-                'Confirm Dispatch',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+            // ── Form ────────────────────────────────────────────
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  // Carrier name
+                  CustomTextFormField(
+                    controller: _carrierCtrl,
+                    icon: Icons.directions_car_outlined,
+                    label: 'اسم شركة الشحن',
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                    fillColor: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFF2A2A2A)
+                        : Colors.transparent,
+                    validator: (v) =>
+                        (v == null || v.trim().isEmpty) ? 'اسم شركة الشحن مطلوب' : null,
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Tracking number
+                  CustomTextFormField(
+                    controller: _trackingCtrl,
+                    icon: Icons.qr_code_scanner_outlined,
+                    label: 'رقم التتبع',
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                    fillColor: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFF2A2A2A)
+                        : Colors.transparent,
+                    keyboardType: TextInputType.text,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'رقم التتبع مطلوب';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Contact phone
+                  CustomTextFormField(
+                    controller: _phoneCtrl,
+                    icon: Icons.phone_outlined,
+                    label: 'رقم هاتف المندوب',
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                    fillColor: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFF2A2A2A)
+                        : Colors.transparent,
+                    keyboardType: TextInputType.phone,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'رقم هاتف المندوب مطلوب';
+                      }
+                      // Allow both Western digits (0-9) and Eastern Arabic digits (٠-٩)
+                      if (!RegExp(r'^[0-9\u0660-\u0669]{7,15}$').hasMatch(v.trim())) {
+                        return 'أدخل رقم هاتف صحيح (7-15 رقماً)';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            ),
+            const SizedBox(height: 28),
+
+            // ── Submit button ────────────────────────────────────
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _submit,
+                icon: Text('📦', style: TextStyle(fontSize: 20.sp)),
+                label: Text(
+                  'تأكيد الشحن',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // ── Cancel button ────────────────────────────────────
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.grey.shade400
-                      : Colors.grey.shade600,
-                  fontSize: 16.sp,
+            // ── Cancel button ────────────────────────────────────
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'إلغاء',
+                  style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade400
+                        : Colors.grey.shade600,
+                    fontSize: 16.sp,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    );
+    ));
   }
 }

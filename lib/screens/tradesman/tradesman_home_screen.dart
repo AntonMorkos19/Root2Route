@@ -5,11 +5,13 @@ import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/floating_nav_bar.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
- import 'package:root2route/screens/Organizations/add_organization_screen.dart';
 import 'package:root2route/screens/market_screen.dart';
-import 'package:root2route/screens/product/my_products_screen.dart';
+import 'package:root2route/screens/order/my_orders_screen.dart';
+ import 'package:root2route/services/api.dart';
 
 class TradesmanHomeScreen extends StatefulWidget {
+  static const String id = '/tradesmanHome';
+
   const TradesmanHomeScreen({super.key});
 
   @override
@@ -17,42 +19,34 @@ class TradesmanHomeScreen extends StatefulWidget {
 }
 
 class _TradesmanHomeScreenState extends State<TradesmanHomeScreen> {
-  int index = 0;
+  int index = 4;
+  String? myOrganizationId;
 
-  final screens = const [MarketScreen(), ProfileScreen()];
+  List<Widget> get screens => [
+    const ProfileScreen(),
+    const MyOrdersScreen(),
+    MarketScreen(organizationId: myOrganizationId),
+  ];
 
-  Widget? funFab() {
-    switch (index) {
-      case 0:
-        return FloatingActionButton(
-          backgroundColor: AppColors.primary,
-          shape: const CircleBorder(),
-          child: const Icon(Icons.add, color: AppColors.iconPrimary),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const MyProductsScreen(organizationId: ''),
-              ),
-            );
-          },
-        );
+  @override
+  void initState() {
+    super.initState();
+    _fetchMyOrganizationId();
+  }
 
-      case 1:
-        return FloatingActionButton(
-          backgroundColor: AppColors.primary,
-          shape: const CircleBorder(),
-          child: const Icon(Icons.add, color: AppColors.iconPrimary),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => AddOrganizationScreen()),
-            );
-          },
-        );
-
-      default:
-        return null;
+  Future<void> _fetchMyOrganizationId() async {
+    try {
+      final result = await ApiService().getMyOrganizations();
+      if (result['success'] == true && result['data'].isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            myOrganizationId =
+                result['data'][0]['id'] ?? result['data'][0]['organizationId'];
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching org id: $e");
     }
   }
 
@@ -83,15 +77,14 @@ class _TradesmanHomeScreenState extends State<TradesmanHomeScreen> {
       child: Scaffold(
         extendBody: true,
         backgroundColor: AppColors.backgroundColor,
-        floatingActionButton: funFab(),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         body: screens[index],
         bottomNavigationBar: FloatingGNavBar(
           selectedIndex: index,
           onTabChange: (i) => setState(() => index = i),
           tabs: const [
-            GButton(icon: Icons.shopping_bag_outlined, text: 'السوق'),
             GButton(icon: Icons.person_outline, text: 'الحساب'),
+            GButton(icon: Icons.receipt_long_outlined, text: 'الطلبات'),
+            GButton(icon: Icons.shopping_bag_outlined, text: 'السوق'),
           ],
         ),
       ),

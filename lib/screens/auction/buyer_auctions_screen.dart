@@ -101,108 +101,65 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
   }
 
   Future<void> _handleCheckout(String auctionId, String title) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder:
-          (ctx) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.shopping_cart_checkout_rounded,
-                    color: AppColors.primary,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'تأكيد الدفع',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-                ),
-              ],
-            ),
-            content: Text(
-              'هل أنت متأكد أنك تريد الدفع لـ "$title"؟',
-              style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(
-                  'إلغاء',
-                  style: TextStyle(color: Colors.grey.shade600),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text('دفع'),
-              ),
-            ],
-          ),
-    );
-
-    if (confirmed != true || !mounted) return;
-
     QuickAlert.show(
       context: context,
-      type: QuickAlertType.loading,
-      title: 'جاري المعالجة',
-      text: 'جاري إكمال الدفع...',
-      barrierDismissible: false,
-    );
+      type: QuickAlertType.info,
+      title: 'تأكيد الدفع',
+      text: 'هل أنت متأكد أنك تريد الدفع لـ "$title"؟',
+      showCancelBtn: true,
+      cancelBtnText: 'إلغاء',
+      confirmBtnText: 'دفع',
+      confirmBtnColor: AppColors.primary,
+      onConfirmBtnTap: () async {
+        Navigator.pop(context); // Close confirmation dialog
 
-    try {
-      final res = await _api.checkoutAuction(auctionId);
-      if (!mounted) return;
-      Navigator.pop(context);
+        if (!mounted) return;
 
-      if (res['success'] == true) {
-        await QuickAlert.show(
-          context: context,
-          type: QuickAlertType.success,
-          title: 'اكتمل الدفع!',
-          text: res['message'] ?? 'تم تقديم طلبك بنجاح.',
-          confirmBtnText: 'رائع',
-          confirmBtnColor: AppColors.primary,
-        );
-        _fetchWon();
-      } else {
         QuickAlert.show(
           context: context,
-          type: QuickAlertType.error,
-          title: 'فشل الدفع',
-          text: res['message'] ?? 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
-          confirmBtnText: 'موافق',
+          type: QuickAlertType.loading,
+          title: 'جاري المعالجة',
+          text: 'جاري إكمال الدفع...',
+          barrierDismissible: false,
         );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      Navigator.pop(context);
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'خطأ',
-        text: 'حدث خطأ غير متوقع: $e',
-        confirmBtnText: 'موافق',
-      );
-    }
+
+        try {
+          final res = await _api.checkoutAuction(auctionId);
+          if (!mounted) return;
+          Navigator.pop(context); // Close loading dialog
+
+          if (res['success'] == true) {
+            await QuickAlert.show(
+              context: context,
+              type: QuickAlertType.success,
+              title: 'اكتمل الدفع!',
+              text: res['message'] ?? 'تم تقديم طلبك بنجاح.',
+              confirmBtnText: 'رائع',
+              confirmBtnColor: AppColors.primary,
+            );
+            _fetchWon();
+          } else {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              title: 'فشل الدفع',
+              text: res['message'] ?? 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
+              confirmBtnText: 'موافق',
+            );
+          }
+        } catch (e) {
+          if (!mounted) return;
+          Navigator.pop(context); // Close loading dialog on error
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: 'خطأ',
+            text: 'حدث خطأ غير متوقع: $e',
+            confirmBtnText: 'موافق',
+          );
+        }
+      },
+    );
   }
 
   @override

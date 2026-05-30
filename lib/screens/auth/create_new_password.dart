@@ -7,6 +7,7 @@ import 'package:root2route/components/custom_auth/auth_header.dart';
 import 'package:root2route/components/custom_button.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
+import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/services/api.dart';
 
@@ -75,11 +76,46 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                             key: formKey,
                             child: Column(
                               children: [
-                                CustomTextFormField(
+                                Theme(
+                                  data: Theme.of(context).copyWith(
+                                    textTheme: Theme.of(context).textTheme.copyWith(
+                                      titleMedium: const TextStyle(color: Colors.white), 
+                                    ),
+                                    inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+                                      filled: true,
+                                      fillColor: Colors.white.withOpacity(0.15),
+                                      hintStyle: const TextStyle(color: Colors.white70),
+                                      labelStyle: const TextStyle(color: Colors.white70),
+                                      iconColor: Colors.white70,
+                                      prefixIconColor: Colors.white70,
+                                      suffixIconColor: Colors.white70,
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(color: Colors.white54, width: 1),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                                      ),
+                                      floatingLabelStyle: WidgetStateTextStyle.resolveWith((Set<WidgetState> states) {
+                                        if (states.contains(WidgetState.error)) {
+                                          return const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold);
+                                        }
+                                        if (states.contains(WidgetState.focused)) {
+                                          return const TextStyle(color: Colors.green, fontWeight: FontWeight.bold);
+                                        }
+                                        return const TextStyle(color: Colors.white70);
+                                      }),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      CustomTextFormField(
                                   icon: Icons.lock_outline,
                                   label: 'كلمة المرور الجديدة',
                                   controller: passwordController,
                                   isPassword: true,
+                                  textDirection: TextDirection.ltr,
                                   color: Colors.white,
                                   labelColor: Colors.white70,
                                   iconColor: Colors.white70,
@@ -114,6 +150,9 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                                     }
                                     return null;
                                   },
+                                ),
+                                    ],
+                                  ),
                                 ),
                                 const SizedBox(height: 16),
 

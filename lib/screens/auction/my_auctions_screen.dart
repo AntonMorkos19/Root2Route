@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
@@ -41,63 +42,19 @@ class _MyAuctionsScreenState extends State<MyAuctionsScreen>
   }
 
   void _showCancelDialog(AuctionModel auction) {
-    showDialog(
+    QuickAlert.show(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    Icons.cancel_outlined,
-                    color: Colors.red.shade600,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'إلغاء المزاد',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-              ],
-            ),
-            content: const Text(
-              'هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.',
-              style: TextStyle(fontSize: 15, color: Colors.black54),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: Text(
-                  'إلغاء',
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  context.read<AuctionCubit>().cancelAuction(auction.id);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.shade600,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text('تأكيد'),
-              ),
-            ],
-          ),
+      type: QuickAlertType.warning,
+      title: 'إلغاء المزاد',
+      text: 'هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.',
+      confirmBtnText: 'تأكيد',
+      cancelBtnText: 'إلغاء',
+      showCancelBtn: true,
+      confirmBtnColor: Colors.red.shade600,
+      onConfirmBtnTap: () {
+        Navigator.pop(context);
+        context.read<AuctionCubit>().cancelAuction(auction.id);
+      },
     );
   }
 

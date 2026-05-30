@@ -56,18 +56,18 @@ class ReviewService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return {
           "success": true,
-          "message": "Review submitted successfully!",
+          "message": "تم إرسال التقييم بنجاح!",
         };
       } else if (response.statusCode == 500) {
         return {
           "success": false,
-          "message": "Server is having trouble. Please try with a different order.",
+          "message": "خطأ في الخادم. يرجى المحاولة لاحقاً.",
         };
       } else {
         final respBody = response.data;
-        String errorMsg = "Unknown error";
+        String errorMsg = "حدث خطأ غير متوقع، يرجى المحاولة لاحقاً.";
         if (respBody is Map) {
-          errorMsg = respBody['message']?.toString() ?? "Unknown error";
+          errorMsg = respBody['message']?.toString() ?? errorMsg;
         }
         return {
           "success": false,
@@ -111,7 +111,7 @@ class ReviewService {
     } catch (e) {
       return {
         "success": false,
-        "message": "Network error",
+        "message": "حدث خطأ في تحميل التقييمات.",
       };
     }
   }

@@ -18,6 +18,7 @@ class StorageService {
   
   static const String _keyRefreshToken = 'refresh_token';
   static const String _keyOrganizationId = 'organization_id';
+  static const String _keyOrganizationType = 'organization_type';
 
   late SharedPreferences _prefs;
 
@@ -63,6 +64,11 @@ class StorageService {
     await _prefs.setBool(_keyHasOrganization, value);
   }
 
+  // ✅ Save organization type
+  Future<void> saveOrganizationType(int type) async {
+    await _prefs.setInt(_keyOrganizationType, type);
+  }
+
   // ✅ Save is first time status
   Future<void> saveIsFirstTime(bool value) async {
     await _prefs.setBool(_keyIsFirstTime, value);
@@ -86,6 +92,7 @@ class StorageService {
   String? get tokenExpiry => _prefs.getString(_keyTokenExpiry);
   String? get refreshToken => _prefs.getString(_keyRefreshToken);
   String? get organizationId => _prefs.getString(_keyOrganizationId);
+  int? get organizationType => _prefs.getInt(_keyOrganizationType);
 
   // ✅ Read verification status
   bool get isVerified => _prefs.getBool(_keyIsVerified) ?? false;
@@ -100,6 +107,13 @@ class StorageService {
   String? get currentUserOrgId => organizationId;
   String? get currentUserId => userId;
 
+  /// Clears the active organization data (used when the last org is deleted).
+  Future<void> clearActiveOrganization() async {
+    await _prefs.remove(_keyOrganizationId);
+    await _prefs.remove(_keyOrganizationType);
+    await _prefs.setBool(_keyHasOrganization, false);
+  }
+
   Future<void> logout() async {
     await _prefs.remove(_keyToken);
     await _prefs.remove(_keyUserId);
@@ -111,6 +125,7 @@ class StorageService {
     await _prefs.remove(_keyHasOrganization);
     await _prefs.remove(_keyRefreshToken);
     await _prefs.remove(_keyOrganizationId);
+    await _prefs.remove(_keyOrganizationType);
     await _prefs.remove(_keyIsExplicitGuest);
   }
 

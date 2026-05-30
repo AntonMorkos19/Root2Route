@@ -8,6 +8,7 @@ import 'package:root2route/components/custom_auth/auth_header.dart';
 import 'package:root2route/components/custom_button.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
+import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/auth/forgot_password_screen.dart';
 import 'package:root2route/screens/auth/otp_verification_screen.dart';
 import 'package:root2route/screens/auth/register_screen.dart';
@@ -15,6 +16,9 @@ import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/screens/farmer/farmer_home_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/screens/factory/factory_home_screen.dart';
+import 'package:root2route/screens/restaurant/restaurant_home_screen.dart';
+import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = '/loginScreen';
@@ -135,48 +139,110 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                   const SizedBox(height: 16),
 
-                                  CustomTextFormField(
-                                    icon: Icons.email_outlined,
-                                    label: "البريد الإلكتروني",
-                                    controller: emailController,
-                                    keyboardType: TextInputType.emailAddress,
-                                    color: Colors.white,
-                                    labelColor: Colors.white70,
-                                    iconColor: Colors.white70,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "برجاء إدخال البريد الإلكتروني";
-                                      }
-                                      if (!RegExp(
-                                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                                      ).hasMatch(value)) {
-                                        return "بريد إلكتروني غير صحيح";
-                                      }
-                                      return null;
-                                    },
-                                  ),
+                                  Theme(
+                                    data: Theme.of(context).copyWith(
+                                      textTheme: Theme.of(
+                                        context,
+                                      ).textTheme.copyWith(
+                                        titleMedium: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      inputDecorationTheme: Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.copyWith(
+                                        filled: true,
+                                        fillColor: Colors.white.withOpacity(
+                                          0.15,
+                                        ),
+                                        hintStyle: const TextStyle(
+                                          color: Colors.white70,
+                                        ),
+                                        labelStyle: const TextStyle(
+                                          color: Colors.white70,
+                                        ),
+                                        iconColor: Colors.white70,
+                                        prefixIconColor: Colors.white70,
+                                        suffixIconColor: Colors.white70,
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Colors.white54,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: AppColors.primary,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        floatingLabelStyle: WidgetStateTextStyle.resolveWith((Set<WidgetState> states) {
+                                          if (states.contains(WidgetState.error)) {
+                                            return const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold);
+                                          }
+                                          if (states.contains(WidgetState.focused)) {
+                                            return const TextStyle(color: Colors.green, fontWeight: FontWeight.bold);
+                                          }
+                                          return const TextStyle(color: Colors.white70);
+                                        }),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        CustomTextFormField(
+                                          icon: Icons.email_outlined,
+                                          label: "البريد الإلكتروني",
+                                          controller: emailController,
+                                          keyboardType:
+                                              TextInputType.emailAddress,
+                                          color: Colors.white,
+                                          labelColor: Colors.white70,
+                                          iconColor: Colors.white70,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return "برجاء إدخال البريد الإلكتروني";
+                                            }
+                                            if (!RegExp(
+                                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                            ).hasMatch(value)) {
+                                              return "بريد إلكتروني غير صحيح";
+                                            }
+                                            return null;
+                                          },
+                                        ),
 
-                                  const SizedBox(height: 14),
+                                        const SizedBox(height: 14),
 
-                                  CustomTextFormField(
-                                    icon: Icons.lock_outline,
-                                    label: "كلمة المرور",
-                                    controller: passwordController,
-                                    isPassword: true,
-                                    color: Colors.white,
-                                    labelColor: Colors.white70,
-                                    iconColor: Colors.white70,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "برجاء إدخال كلمة المرور";
-                                      }
-                                      if (!RegExp(
-                                        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$',
-                                      ).hasMatch(value)) {
-                                        return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف كبير وصغير ورقم';
-                                      }
-                                      return null;
-                                    },
+                                        CustomTextFormField(
+                                          icon: Icons.lock_outline,
+                                          label: "كلمة المرور",
+                                          controller: passwordController,
+                                          isPassword: true,
+                                          color: Colors.white,
+                                          labelColor: Colors.white70,
+                                          iconColor: Colors.white70,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return "برجاء إدخال كلمة المرور";
+                                            }
+                                            if (!RegExp(
+                                              r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$',
+                                            ).hasMatch(value)) {
+                                              return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف كبير وصغير ورقم';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
 
                                   const SizedBox(height: 10),
@@ -231,15 +297,37 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                           final hasOrganization =
                                               StorageService().hasOrganization;
+                                          final orgType =
+                                              StorageService().organizationType;
 
                                           if (context.mounted) {
                                             if (hasOrganization) {
+                                              Widget targetScreen =
+                                                  const FarmerHomeScreen();
+                                              if (orgType != null) {
+                                                switch (orgType) {
+                                                  case 0:
+                                                    targetScreen =
+                                                        const FarmerHomeScreen();
+                                                    break;
+                                                  case 1:
+                                                    targetScreen =
+                                                        const RestaurantHomeScreen();
+                                                    break;
+                                                  case 2:
+                                                    targetScreen =
+                                                        const FactoryHomeScreen();
+                                                    break;
+                                                  case 3:
+                                                    targetScreen =
+                                                        const TradesmanHomeScreen();
+                                                    break;
+                                                }
+                                              }
                                               Navigator.pushReplacement(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder:
-                                                      (_) =>
-                                                          const FarmerHomeScreen(),
+                                                  builder: (_) => targetScreen,
                                                 ),
                                               );
                                             } else {

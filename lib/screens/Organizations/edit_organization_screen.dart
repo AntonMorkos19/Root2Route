@@ -316,12 +316,6 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
 
                 CustomTextFormField(
                   icon: Icons.business_outlined,
-                  color:
-                      Theme.of(context).textTheme.bodyMedium?.color ??
-                      Colors.white,
-                  cursorColor: AppColors.primary,
-                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
-                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
                   label: 'اسم الشركة',
                   controller: nameController,
                   validator: (value) {
@@ -334,12 +328,6 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.email,
-                  color:
-                      Theme.of(context).textTheme.bodyMedium?.color ??
-                      Colors.white,
-                  cursorColor: AppColors.primary,
-                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
-                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
                   label: 'البريد الإلكتروني',
                   textDirection: TextDirection.ltr,
                   controller: emailController,
@@ -358,12 +346,6 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.phone_outlined,
-                  color:
-                      Theme.of(context).textTheme.bodyMedium?.color ??
-                      Colors.white,
-                  cursorColor: AppColors.primary,
-                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
-                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
                   label: 'رقم الهاتف',
                   textDirection: TextDirection.ltr,
                   controller: phoneController,
@@ -382,14 +364,8 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.location_on_outlined,
-                  cursorColor: AppColors.primary,
-                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
-                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
                   label: 'العنوان',
                   controller: addressController,
-                  color:
-                      Theme.of(context).textTheme.bodyMedium?.color ??
-                      Colors.white,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'يرجى إدخال العنوان';
@@ -467,14 +443,8 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
 
                 CustomTextFormField(
                   icon: Icons.description_outlined,
-                  cursorColor: AppColors.primary,
-                  borderColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
-                  fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF2A2A2A) : Colors.transparent,
                   label: 'الوصف',
                   controller: descriptionController,
-                  color:
-                      Theme.of(context).textTheme.bodyMedium?.color ??
-                      Colors.white,
                   maxLines: 3,
                   validator: (value) {
                     if (value == null || value.isEmpty) {

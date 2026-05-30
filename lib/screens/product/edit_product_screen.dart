@@ -118,8 +118,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         context: context,
         type: QuickAlertType.warning,
         title: 'طريقة البيع مطلوبة',
-        text:
-            'يرجى تفعيل طريقة بيع واحدة على الأقل\n(بيع مباشر أو مزاد).',
+        text: 'يرجى تفعيل طريقة بيع واحدة على الأقل\n(بيع مباشر أو مزاد).',
       );
       return;
     }
@@ -210,52 +209,53 @@ class _EditProductScreenState extends State<EditProductScreen> {
         appBar: AppBar(
           title: Text(
             'تعديل المنتج',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.amber.shade200),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline, color: Colors.amber.shade800),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        "تحديث الصور غير مدعوم حالياً في هذا الإجراء.",
-                        style: TextStyle(
-                          color: Colors.amber.shade900,
-                          fontSize: 14.sp,
+        body: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.amber.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.amber.shade800),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          "تحديث الصور غير مدعوم حالياً في هذا الإجراء.",
+                          style: TextStyle(
+                            color: Colors.amber.shade900,
+                            fontSize: 14.sp,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              _buildFormCard(),
-              const SizedBox(height: 20),
-              _buildSellingOptionsCard(),
-              const SizedBox(height: 28),
-              _buildActionButtons(),
-              const SizedBox(height: 32),
-            ],
+                _buildFormCard(),
+                const SizedBox(height: 20),
+                _buildSellingOptionsCard(),
+                const SizedBox(height: 28),
+                _buildActionButtons(),
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
         ),
       ),
-   ) );
+    );
   }
 
   Widget _buildFormCard() {
@@ -275,38 +275,27 @@ class _EditProductScreenState extends State<EditProductScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           CustomTextFormField(
             icon: Icons.grass_outlined,
-            validator:
-                (v) => (v == null || v.trim().isEmpty) ? 'مطلوب' : null,
+            validator: (v) => (v == null || v.trim().isEmpty) ? 'مطلوب' : null,
             label: 'اسم المنتج',
-            color:
-                Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
             controller: _nameController,
           ),
           const SizedBox(height: 18),
-
 
           _buildField(
             controller: _quantityController,
             hint: 'الكمية (المخزون)',
             icon: Icons.scale_outlined,
             keyboardType: TextInputType.number,
-            validator:
-                (v) => (v == null || v.trim().isEmpty) ? 'مطلوب' : null,
+            validator: (v) => (v == null || v.trim().isEmpty) ? 'مطلوب' : null,
           ),
           const SizedBox(height: 18),
 
-          _Label('تاريخ الصلاحية (اختياري)'),
-          const SizedBox(height: 8),
           _DatePickerWidget(),
           const SizedBox(height: 18),
 
-
           CustomTextFormField(
-            color:
-                Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
             icon: Icons.qr_code_scanner,
             label: 'الباركود (مثال: 1234567890)',
             controller: _barcodeController,
@@ -315,10 +304,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           ),
           const SizedBox(height: 18),
 
-
           CustomTextFormField(
-            color:
-                Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
             icon: Icons.description_outlined,
             label: 'صف منتجك...',
             controller: _descriptionController,
@@ -478,90 +464,62 @@ class _EditProductScreenState extends State<EditProductScreen> {
       keyboardType: keyboardType,
       textDirection: textDirection,
       validator: validator,
-      textAlign: textDirection == TextDirection.ltr ? TextAlign.left : TextAlign.start,
+      textAlign:
+          textDirection == TextDirection.ltr ? TextAlign.left : TextAlign.start,
       style: TextStyle(
         color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
         fontSize: 16.sp,
       ),
-      decoration: InputDecoration(
-        labelText: hint,
-        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 15.sp),
-        suffixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
-        filled: true,
-        fillColor:
-            Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF2A2A2A)
-                : Colors.grey.shade100,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade200),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade200),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
-        ),
-      ),
+      decoration: InputDecoration(labelText: hint, suffixIcon: Icon(icon)),
     );
   }
 
   Widget _DatePickerWidget() {
     final label =
         _expiryDate == null
-            ? 'اختر تاريخ الصلاحية'
+            ? ''
             : '${_expiryDate!.day.toString().padLeft(2, '0')} / ${_expiryDate!.month.toString().padLeft(2, '0')} / ${_expiryDate!.year}';
 
     return InkWell(
       onTap: _pickDate,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        decoration: BoxDecoration(
-          color:
-              Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF2A2A2A)
-                  : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.grey.shade200),
+      borderRadius: BorderRadius.circular(10),
+      child: InputDecorator(
+        isEmpty: _expiryDate == null,
+        decoration: InputDecoration(
+          labelText: 'تاريخ الصلاحية (اختياري)',
+          hintText: 'اختر تاريخ الصلاحية',
+          suffixIcon:
+              _expiryDate != null
+                  ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: () => setState(() => _expiryDate = null),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 18,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.calendar_month_outlined),
+                      const SizedBox(width: 8),
+                    ],
+                  )
+                  : const Icon(Icons.calendar_month_outlined),
         ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.calendar_month_outlined,
-              size: 20,
-              color: Colors.grey.shade500,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16.sp,
-                color:
-                    _expiryDate == null
-                        ? Colors.grey.shade400
-                        : Theme.of(context).textTheme.bodyMedium?.color ??
-                            Colors.black87,
-              ),
-            ),
-            const Spacer(),
-            if (_expiryDate != null)
-              GestureDetector(
-                onTap: () => setState(() => _expiryDate = null),
-                child: Icon(
-                  Icons.close_rounded,
-                  size: 18,
-                  color: Colors.grey.shade400,
+        child:
+            _expiryDate == null
+                ? const Text('')
+                : Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color:
+                        Theme.of(context).textTheme.bodyMedium?.color ??
+                        Colors.black87,
+                  ),
                 ),
-              ),
-          ],
-        ),
       ),
     );
   }

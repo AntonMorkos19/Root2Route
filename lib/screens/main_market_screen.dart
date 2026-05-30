@@ -9,11 +9,13 @@ import 'package:root2route/services/storage_service.dart';
 class MainMarketTab extends StatefulWidget {
   final String? organizationId;
   final bool isGuestMode;
+  final bool canSell;
 
   const MainMarketTab({
     super.key,
     this.organizationId,
     this.isGuestMode = false,
+    this.canSell = true,
   });
 
   @override
@@ -74,40 +76,41 @@ class _MainMarketTabState extends State<MainMarketTab> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-      floatingActionButton:
-          widget.isGuestMode
-              ? null
-              : Padding(
-                padding: const EdgeInsets.only(bottom: 90.0),
-                child: FloatingActionButton(
-                  heroTag: "add_product_fab",
-                  backgroundColor: AppColors.primary,
-                  shape: const CircleBorder(),
-                  child: const Icon(Icons.add, color: AppColors.iconPrimary),
-                  onPressed: () {
-                    if (widget.organizationId != null &&
-                        widget.organizationId!.isNotEmpty) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => AddProductScreen(
-                                organizationId: widget.organizationId!,
-                              ),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            "جاري تحميل بيانات الشركة، يرجى الانتظار...",
+        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+        floatingActionButton:
+            (widget.isGuestMode || !widget.canSell)
+                ? null
+                : Padding(
+                  padding: const EdgeInsets.only(bottom: 90.0),
+                  child: FloatingActionButton(
+                    heroTag: "add_product_fab",
+                    backgroundColor: AppColors.primary,
+                    shape: const CircleBorder(),
+                    child: const Icon(Icons.add, color: AppColors.iconPrimary),
+                    onPressed: () {
+                      if (widget.organizationId != null &&
+                          widget.organizationId!.isNotEmpty) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => AddProductScreen(
+                                  organizationId: widget.organizationId!,
+                                ),
                           ),
-                        ),
-                      );
-                    }
-                  },
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "جاري تحميل بيانات الشركة، يرجى الانتظار...",
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
                 ),
-              ),
         body: _buildBody(),
       ),
     );
@@ -220,7 +223,13 @@ class _MainMarketTabState extends State<MainMarketTab> {
     String unitName = '';
     if (unitRaw != null) {
       if (unitRaw is String) {
-        unitName = unitRaw;
+        final Map<String, String> _unitMap = {
+          'Kg': 'كجم',
+          'Kilogram': 'كجم',
+          'Liter': 'لتر',
+          'pkg': 'عبوة',
+        };
+        unitName = _unitMap[unitRaw] ?? unitRaw;
       } else {
         final idx = int.tryParse(unitRaw.toString()) ?? 0;
         switch (idx) {
@@ -241,7 +250,13 @@ class _MainMarketTabState extends State<MainMarketTab> {
     String typeStr = 'محصول';
     if (typeRaw != null) {
       if (typeRaw is String) {
-        typeStr = typeRaw;
+        final Map<String, String> _typeMap = {
+          'RawCrop': 'محصول',
+          'Processed': 'مصنع',
+          'Tool': 'أداة',
+          'Chemical': 'كيماويات',
+        };
+        typeStr = _typeMap[typeRaw] ?? typeRaw;
       } else {
         final idx = int.tryParse(typeRaw.toString()) ?? 0;
         switch (idx) {
@@ -460,7 +475,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${formatPrice(displayPrice)} EGP',
+                      '${formatPrice(displayPrice)} جنيه',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16.sp,

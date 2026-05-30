@@ -71,76 +71,20 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       keyboardType: widget.keyboardType,
       validator: widget.validator,
       decoration: InputDecoration(
-        fillColor: widget.fillColor ?? Colors.white.withOpacity(0.001),
-        filled: true,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 16,
-        ),
         labelText: widget.label,
-        labelStyle: WidgetStateTextStyle.resolveWith((states) {
-          if (states.contains(WidgetState.error)) {
-            return const TextStyle(color: AppColors.colorError);
-          }
-          if (states.contains(WidgetState.focused)) {
-            return const TextStyle(color: AppColors.primary);
-          }
-          return TextStyle(color: widget.labelColor ?? onSurfaceVariant);
-        }),
-        floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
-          if (states.contains(WidgetState.error)) {
-            return const TextStyle(color: AppColors.colorError);
-          }
-          if (states.contains(WidgetState.focused)) {
-            return TextStyle(color: widget.borderColor ?? AppColors.primary);
-          }
-          return TextStyle(color: widget.labelColor ?? onSurfaceVariant);
-        }),
-        suffixIcon: Icon(widget.icon),
-        suffixIconColor: WidgetStateColor.resolveWith((states) {
-          if (states.contains(WidgetState.error)) {
-            return AppColors.colorError;
-          }
-          if (states.contains(WidgetState.focused)) {
-            return widget.borderColor ?? AppColors.primary;
-          }
-          return widget.iconColor ?? onSurfaceVariant;
-        }),
-        prefixIcon:
-            widget.isPassword
-                ? IconButton(
-                  icon: Icon(
-                    obscureText ? Icons.visibility_off : Icons.visibility,
-                    color: widget.iconColor ?? onSurfaceVariant,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      obscureText = !obscureText;
-                    });
-                  },
-                )
-                : null,
-        errorMaxLines: 3,
-        errorStyle: const TextStyle(color: AppColors.colorError),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: widget.borderColor ?? Colors.white.withValues(alpha: 0.4),
-            width: 1,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.colorError),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.colorError, width: 2),
-        ),
+        prefixIcon: Icon(widget.icon),
+        suffixIcon: widget.isPassword
+            ? IconButton(
+                icon: Icon(
+                  obscureText ? Icons.visibility_off : Icons.visibility,
+                ),
+                onPressed: () {
+                  setState(() {
+                    obscureText = !obscureText;
+                  });
+                },
+              )
+            : null,
       ),
     ));
   }

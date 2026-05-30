@@ -67,17 +67,17 @@ class MyOrdersCubit extends Cubit<OrderState> {
         } else {
           _emitSafe(
             OrderError(
-              respBody['message']?.toString() ?? 'Failed to load orders',
+              respBody['message']?.toString() ?? 'فشل في تحميل الطلبات',
             ),
           );
         }
       } else {
-        _emitSafe(const OrderError('Unexpected response format'));
+        _emitSafe(const OrderError('تنسيق استجابة غير متوقع'));
       }
     } on DioException catch (e) {
       _emitSafe(OrderError(_extractError(e)));
     } catch (e) {
-      _emitSafe(OrderError('Unexpected error: $e'));
+      _emitSafe(OrderError('خطأ غير متوقع: $e'));
     }
   }
 
@@ -100,6 +100,6 @@ class MyOrdersCubit extends Cubit<OrderState> {
     if (data is Map && data['message'] != null) {
       return data['message'].toString();
     }
-    return e.message ?? 'Network error';
+    return e.message ?? 'خطأ في الشبكة';
   }
 }

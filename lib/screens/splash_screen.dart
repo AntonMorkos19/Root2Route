@@ -5,6 +5,9 @@ import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/screens/farmer/farmer_home_screen.dart';
 import 'package:root2route/screens/intro_screen.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/screens/factory/factory_home_screen.dart';
+import 'package:root2route/screens/restaurant/restaurant_home_screen.dart';
+import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   static const String id = '/splashScreen';
@@ -88,11 +91,30 @@ class _SplashScreenState extends State<SplashScreen>
     }
 
     final hasOrganization = StorageService().hasOrganization;
+    final orgType = StorageService().organizationType;
 
     if (hasOrganization) {
+      Widget targetScreen = const FarmerHomeScreen();
+      if (orgType != null) {
+        switch (orgType) {
+          case 0:
+            targetScreen = const FarmerHomeScreen();
+            break;
+          case 1:
+            targetScreen = const RestaurantHomeScreen();
+            break;
+          case 2:
+            targetScreen = const FactoryHomeScreen();
+            break;
+          case 3:
+            targetScreen = const TradesmanHomeScreen();
+            break;
+        }
+      }
+
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const FarmerHomeScreen()),
+        MaterialPageRoute(builder: (_) => targetScreen),
         (route) => false,
       );
     } else {

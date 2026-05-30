@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/core/theme/app_colors.dart';
@@ -71,24 +72,18 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
 
   void _showNegotiationDialog() {
     final chatCubit = context.read<ChatMessagesCubit>();
-    showDialog(
-      context: context,
-      builder:
-          (dialogContext) => NegotiationDialog(
-            onSend: (price, quantity) {
-              final String offerContent =
-                  'Offer: $quantity item${quantity != 1 ? 's' : ''} for ${price.toStringAsFixed(2)} EGP';
-              chatCubit.sendMessage(
-                widget.roomId,
-                offerContent,
-                type: 3,
-                proposedPrice: price,
-                proposedQuantity: quantity,
-              );
-              _scrollToBottom();
-            },
-          ),
-    );
+    showNegotiationDialog(context, (price, quantity) {
+      final String offerContent =
+          'Offer: $quantity item${quantity != 1 ? 's' : ''} for ${price.toStringAsFixed(2)} EGP';
+      chatCubit.sendMessage(
+        widget.roomId,
+        offerContent,
+        type: 3,
+        proposedPrice: price,
+        proposedQuantity: quantity,
+      );
+      _scrollToBottom();
+    });
   }
 
   @override
@@ -245,33 +240,23 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   }
 
   Future<void> _confirmCloseRoom() async {
-    final confirmed = await showDialog<bool>(
+    QuickAlert.show(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text('End Conversation?'),
-            content: const Text(
-              'This will close the chat. Neither party will be able to send new messages.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text(
-                  'End Chat',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ],
-          ),
+      type: QuickAlertType.warning,
+      title: 'End Conversation?',
+      text: 'This will close the chat. Neither party will be able to send new messages.',
+      showCancelBtn: true,
+      cancelBtnText: 'Cancel',
+      confirmBtnText: 'End Chat',
+      confirmBtnColor: Colors.red,
+      onConfirmBtnTap: () async {
+        Navigator.pop(context); // Close dialog
+        if (mounted) {
+          await context.read<ChatMessagesCubit>().closeRoom(widget.roomId);
+          if (mounted) setState(() => _isClosed = true);
+        }
+      },
     );
-    if (confirmed == true && mounted) {
-      await context.read<ChatMessagesCubit>().closeRoom(widget.roomId);
-      if (mounted) setState(() => _isClosed = true);
-    }
   }
 
   void _showDeleteDialog(String messageId) {

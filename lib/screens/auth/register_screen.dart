@@ -129,122 +129,189 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 16),
-                                  CustomTextFormField(
-                                    icon: Icons.person_outline,
-                                    label: 'الاسم الكامل',
-                                    controller: nameController,
-                                    color: Colors.white,
-                                    labelColor: Colors.white70,
-                                    iconColor: Colors.white70,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'برجاء إدخال الاسم';
-                                      }
-                                      if (!RegExp(
-                                        r'^[a-zA-Z\u0600-\u06FF\s]+$',
-                                      ).hasMatch(value)) {
-                                        return 'الاسم يجب أن يحتوي على حروف فقط';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  const SizedBox(height: 12),
-                                  CustomTextFormField(
-                                    icon: Icons.phone_outlined,
-                                    label: 'رقم الهاتف',
-                                    controller: phoneController,
-                                    color: Colors.white,
-                                    labelColor: Colors.white70,
-                                    iconColor: Colors.white70,
-                                    keyboardType: TextInputType.phone,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'برجاء إدخال رقم الهاتف';
-                                      }
-                                      if (!RegExp(
-                                        r'^[0-9]{7,15}$',
-                                      ).hasMatch(value)) {
-                                        return 'أدخل رقم هاتف صحيح';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  const SizedBox(height: 12),
-                                  CustomTextFormField(
-                                    icon: Icons.location_on_outlined,
-                                    label: 'العنوان',
-                                    controller: addressController,
-                                    color: Colors.white,
-                                    labelColor: Colors.white70,
-                                    iconColor: Colors.white70,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'برجاء إدخال عنوانك';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  const SizedBox(height: 12),
-                                  CustomTextFormField(
-                                    icon: Icons.email_outlined,
-                                    label: 'البريد الإلكتروني',
-                                    controller: emailController,
-                                    color: Colors.white,
-                                    labelColor: Colors.white70,
-                                    iconColor: Colors.white70,
-                                    keyboardType: TextInputType.emailAddress,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'برجاء إدخال البريد الإلكتروني';
-                                      }
-                                      if (!RegExp(
-                                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                                      ).hasMatch(value)) {
-                                        return 'بريد إلكتروني غير صحيح';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  const SizedBox(height: 12),
-                                  CustomTextFormField(
-                                    icon: Icons.lock_outline,
-                                    label: 'كلمة المرور',
-                                    controller: passwordController,
-                                    color: Colors.white,
-                                    labelColor: Colors.white70,
-                                    iconColor: Colors.white70,
-                                    isPassword: true,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "برجاء إدخال كلمة المرور";
-                                      }
-                                      if (!RegExp(
-                                        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$',
-                                      ).hasMatch(value)) {
-                                        return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف كبير وصغير ورقم';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  const SizedBox(height: 12),
-                                  CustomTextFormField(
-                                    icon: Icons.lock_outline,
-                                    label: 'تأكيد كلمة المرور',
-                                    controller: confirmPasswordController,
-                                    color: Colors.white,
-                                    labelColor: Colors.white70,
-                                    iconColor: Colors.white70,
-                                    isPassword: true,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "برجاء تأكيد كلمة المرور";
-                                      }
-                                      if (passwordController.text !=
-                                          confirmPasswordController.text) {
-                                        return 'كلمتا المرور غير متطابقتين';
-                                      }
-                                      return null;
-                                    },
+                                  Theme(
+                                    data: Theme.of(context).copyWith(
+                                      textTheme: Theme.of(
+                                        context,
+                                      ).textTheme.copyWith(
+                                        titleMedium: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      inputDecorationTheme: Theme.of(
+                                        context,
+                                      ).inputDecorationTheme.copyWith(
+                                        filled: true,
+                                        fillColor: Colors.white.withOpacity(
+                                          0.15,
+                                        ),
+                                        hintStyle: const TextStyle(
+                                          color: Colors.white70,
+                                        ),
+                                        labelStyle: const TextStyle(
+                                          color: Colors.white70,
+                                        ),
+                                        iconColor: Colors.white70,
+                                        prefixIconColor: Colors.white70,
+                                        suffixIconColor: Colors.white70,
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Colors.white54,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: AppColors.primary,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        floatingLabelStyle: WidgetStateTextStyle.resolveWith((Set<WidgetState> states) {
+                                          if (states.contains(WidgetState.error)) {
+                                            return const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold);
+                                          }
+                                          if (states.contains(WidgetState.focused)) {
+                                            return const TextStyle(color: Colors.green, fontWeight: FontWeight.bold);
+                                          }
+                                          return const TextStyle(color: Colors.white70);
+                                        }),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        CustomTextFormField(
+                                          icon: Icons.person_outline,
+                                          label: 'الاسم الكامل',
+                                          controller: nameController,
+                                          color: Colors.white,
+                                          labelColor: Colors.white70,
+                                          iconColor: Colors.white70,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'برجاء إدخال الاسم';
+                                            }
+                                            if (!RegExp(
+                                              r'^[a-zA-Z\u0600-\u06FF\s]+$',
+                                            ).hasMatch(value)) {
+                                              return 'الاسم يجب أن يحتوي على حروف فقط';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                        CustomTextFormField(
+                                          icon: Icons.phone_outlined,
+                                          label: 'رقم الهاتف',
+                                          controller: phoneController,
+                                          color: Colors.white,
+                                          labelColor: Colors.white70,
+                                          iconColor: Colors.white70,
+                                          keyboardType: TextInputType.phone,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'برجاء إدخال رقم الهاتف';
+                                            }
+                                            if (!RegExp(
+                                              r'^[0-9]{7,15}$',
+                                            ).hasMatch(value)) {
+                                              return 'أدخل رقم هاتف صحيح';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                        CustomTextFormField(
+                                          icon: Icons.location_on_outlined,
+                                          label: 'العنوان',
+                                          controller: addressController,
+                                          color: Colors.white,
+                                          labelColor: Colors.white70,
+                                          iconColor: Colors.white70,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'برجاء إدخال عنوانك';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                        CustomTextFormField(
+                                          icon: Icons.email_outlined,
+                                          label: 'البريد الإلكتروني',
+                                          controller: emailController,
+                                          color: Colors.white,
+                                          labelColor: Colors.white70,
+                                          iconColor: Colors.white70,
+                                          keyboardType:
+                                              TextInputType.emailAddress,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'برجاء إدخال البريد الإلكتروني';
+                                            }
+                                            if (!RegExp(
+                                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                            ).hasMatch(value)) {
+                                              return 'بريد إلكتروني غير صحيح';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                        CustomTextFormField(
+                                          icon: Icons.lock_outline,
+                                          label: 'كلمة المرور',
+                                          controller: passwordController,
+                                          color: Colors.white,
+                                          labelColor: Colors.white70,
+                                          iconColor: Colors.white70,
+                                          isPassword: true,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return "برجاء إدخال كلمة المرور";
+                                            }
+                                            if (!RegExp(
+                                              r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$',
+                                            ).hasMatch(value)) {
+                                              return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف كبير وصغير ورقم';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                        CustomTextFormField(
+                                          icon: Icons.lock_outline,
+                                          label: 'تأكيد كلمة المرور',
+                                          controller: confirmPasswordController,
+                                          color: Colors.white,
+                                          labelColor: Colors.white70,
+                                          iconColor: Colors.white70,
+                                          isPassword: true,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return "برجاء تأكيد كلمة المرور";
+                                            }
+                                            if (passwordController.text !=
+                                                confirmPasswordController
+                                                    .text) {
+                                              return 'كلمتا المرور غير متطابقتين';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                   const SizedBox(height: 16),
                                   CustomButton(

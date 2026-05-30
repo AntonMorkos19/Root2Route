@@ -427,8 +427,18 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
     final stockQuantity =
         product['stockQuantity'] ?? product['StockQuantity'] ?? 0;
     final dynamic unitRaw = product['weightUnit'] ?? product['WeightUnit'];
-    final unitString =
-        unitRaw is String ? unitRaw : _getWeightUnitString(unitRaw);
+    String unitString = '';
+    if (unitRaw is String) {
+      final Map<String, String> _unitMap = {
+        'Kg': 'كجم',
+        'Kilogram': 'كجم',
+        'Liter': 'لتر',
+        'pkg': 'عبوة',
+      };
+      unitString = _unitMap[unitRaw] ?? unitRaw;
+    } else {
+      unitString = _getWeightUnitString(unitRaw);
+    }
     final stockText =
         unitString.isNotEmpty
             ? 'متاح $stockQuantity $unitString'
@@ -463,19 +473,47 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
         children: [
           // Image Area
           Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
-              child:
-                  displayUrl != null && displayUrl.isNotEmpty
-                      ? Image.network(
-                        displayUrl,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _buildPlaceholder(),
-                      )
-                      : _buildPlaceholder(),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
+                  child:
+                      displayUrl != null && displayUrl.isNotEmpty
+                          ? Image.network(
+                            displayUrl,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => _buildPlaceholder(),
+                          )
+                          : _buildPlaceholder(),
+                ),
+                if (showAuctionOnlyBadge)
+                  Positioned(
+                    top: 8.h,
+                    left: 8.w,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Text(
+                        'مزاد فقط',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           // Info Area
@@ -501,32 +539,13 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
-                      'EGP ${displayPrice.toStringAsFixed(2)}',
+                      '${displayPrice.toStringAsFixed(2)} جنيه',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16.sp,
                         color: AppColors.primary,
                       ),
                     ),
-                    if (showAuctionOnlyBadge)
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 6.w,
-                          vertical: 2.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.shade100,
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: Text(
-                          'مزاد فقط',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepOrange,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
                 SizedBox(height: 4.h),

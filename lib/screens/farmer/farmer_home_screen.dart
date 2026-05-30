@@ -21,7 +21,7 @@ class FarmerHomeScreen extends StatefulWidget {
 }
 
 class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
-  int index = 0;
+  int index = 4;
   String? myOrganizationId;
   List<Widget> get screens => [
     const ProfileScreen(),

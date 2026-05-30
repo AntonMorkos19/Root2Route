@@ -153,54 +153,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 15),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      leading: const Icon(Icons.star_rate, color: Colors.amber),
-                      title: const Text(
-                        'تقييمات العملاء',
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                if (StorageService().hasOrganization) ...[
+                  const SizedBox(height: 15),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
                       ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        final orgId = StorageService().organizationId;
-                        if (orgId == null || orgId.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'لم يتم العثور على مؤسسة نشطة لعرض التقييمات.',
+                      child: ListTile(
+                        leading: const Icon(Icons.star_rate, color: Colors.amber),
+                        title: const Text(
+                          'تقييمات العملاء',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () {
+                          final orgId = StorageService().organizationId;
+                          if (orgId == null || orgId.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'لم يتم العثور على مؤسسة نشطة لعرض التقييمات.',
+                                ),
+                                backgroundColor: Colors.orange,
                               ),
-                              backgroundColor: Colors.orange,
+                            );
+                            return;
+                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => OrganizationReviewsScreen(
+                                    organizationId: orgId,
+                                  ),
                             ),
                           );
-                          return;
-                        }
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => OrganizationReviewsScreen(
-                                  organizationId: orgId,
-                                ),
-                          ),
-                        );
-                      },
+                        },
+                      ),
                     ),
                   ),
-                ),
+                ],
                 const SizedBox(height: 25),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -263,6 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ...organizations.map(
                           (org) => OrganizationCard(
                             organization: org,
+                            isMyOrganization: true,
                             onDeleted: () => _loadOrgs(),
                           ),
                         ),

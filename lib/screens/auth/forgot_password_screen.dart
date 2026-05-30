@@ -7,6 +7,7 @@ import 'package:root2route/components/custom_auth/auth_header.dart';
 import 'package:root2route/components/custom_button.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
+import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/auth/otp_verification_screen.dart';
 import 'package:root2route/services/api.dart';
 
@@ -67,32 +68,82 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                CustomTextFormField(
-                                  icon: Icons.email_outlined,
-                                  label: 'البريد الإلكتروني',
-                                  controller: emailController,
-                                  keyboardType: TextInputType.emailAddress,
-                                  color: Colors.white,
-                                  labelColor: Colors.white70,
-                                  iconColor: Colors.white70,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'برجاء إدخال البريد الإلكتروني';
-                                    }
-                                    if (!RegExp(
-                                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                                    ).hasMatch(value)) {
-                                      return 'بريد إلكتروني غير صحيح';
-                                    }
-                                    return null;
-                                  },
+                                Theme(
+                                  data: Theme.of(context).copyWith(
+                                    textTheme: Theme.of(
+                                      context,
+                                    ).textTheme.copyWith(
+                                      titleMedium: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    inputDecorationTheme: Theme.of(
+                                      context,
+                                    ).inputDecorationTheme.copyWith(
+                                      filled: true,
+                                      fillColor: Colors.white.withOpacity(0.15),
+                                      hintStyle: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                      labelStyle: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                      iconColor: Colors.white70,
+                                      prefixIconColor: Colors.white70,
+                                      suffixIconColor: Colors.white70,
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(
+                                          color: Colors.white54,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(
+                                          color: AppColors.primary,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                      floatingLabelStyle: WidgetStateTextStyle.resolveWith((Set<WidgetState> states) {
+                                        if (states.contains(WidgetState.error)) {
+                                          return const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold);
+                                        }
+                                        if (states.contains(WidgetState.focused)) {
+                                          return const TextStyle(color: Colors.green, fontWeight: FontWeight.bold);
+                                        }
+                                        return const TextStyle(color: Colors.white70);
+                                      }),
+                                    ),
+                                  ),
+                                  child: CustomTextFormField(
+                                    icon: Icons.email_outlined,
+                                    label: 'البريد الإلكتروني',
+                                    controller: emailController,
+                                    keyboardType: TextInputType.emailAddress,
+                                    color: Colors.white,
+                                    labelColor: Colors.white70,
+                                    iconColor: Colors.white70,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'برجاء إدخال البريد الإلكتروني';
+                                      }
+                                      if (!RegExp(
+                                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                      ).hasMatch(value)) {
+                                        return 'بريد إلكتروني غير صحيح';
+                                      }
+                                      return null;
+                                    },
+                                  ),
                                 ),
                                 const SizedBox(height: 25),
 
                                 CustomButton(
                                   text: 'إرسال كود التحقق',
                                   onPressed: () async {
-                                    if (!formKey.currentState!.validate()) return;
+                                    if (!formKey.currentState!.validate())
+                                      return;
                                     QuickAlert.show(
                                       context: context,
                                       type: QuickAlertType.loading,
@@ -133,7 +184,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                                         context,
                                                       ) => OtpVerificationScreen(
                                                         email:
-                                                            emailController.text,
+                                                            emailController
+                                                                .text,
                                                         type:
                                                             OtpType
                                                                 .passwordRecovery, // ✅ Telling it that this is password recovery

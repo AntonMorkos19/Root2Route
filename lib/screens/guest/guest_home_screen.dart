@@ -4,7 +4,8 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/floating_nav_bar.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
- import 'package:root2route/screens/guest/guest_products_tab.dart';
+import 'package:root2route/screens/market_screen.dart';
+import 'package:root2route/screens/order/my_orders_screen.dart';
 
 class GuestHomeScreen extends StatefulWidget {
   static const String id = '/guesthomescreen';
@@ -16,9 +17,13 @@ class GuestHomeScreen extends StatefulWidget {
 }
 
 class _GuestHomeScreenState extends State<GuestHomeScreen> {
-  int index = 0;
+  int index = 2; // Default to Market tab
 
-  final List<Widget> _screens = const [GuestProductsTab(), ProfileScreen()];
+  final List<Widget> _screens = const [
+    ProfileScreen(),
+    MyOrdersScreen(canSell: false),
+    MarketScreen(canSell: false),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +56,9 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
           selectedIndex: index,
           onTabChange: (i) => setState(() => index = i),
           tabs: const [
+            GButton(icon: Icons.person_outline, text: 'الحساب'),
+            GButton(icon: Icons.receipt_long_outlined, text: 'طلباتي'),
             GButton(icon: Icons.eco_outlined, text: 'المنتجات'),
-            GButton(icon: Icons.person_outline, text: 'بروفيل'),
           ],
         ),
       ),

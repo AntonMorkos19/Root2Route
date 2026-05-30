@@ -16,8 +16,9 @@ import 'package:root2route/features/cart/cubit/cart_state.dart';
 
 class MarketScreen extends StatefulWidget {
   final String? organizationId;
+  final bool canSell;
 
-  const MarketScreen({super.key, this.organizationId});
+  const MarketScreen({super.key, this.organizationId, this.canSell = true});
 
   @override
   State<MarketScreen> createState() => _MarketScreenState();
@@ -26,7 +27,7 @@ class MarketScreen extends StatefulWidget {
 class _MarketScreenState extends State<MarketScreen> {
   @override
   Widget build(BuildContext context) {
-    const int tabLength = 3;
+    final int tabLength = widget.canSell ? 3 : 2;
 
     return DefaultTabController(
       length: tabLength,
@@ -105,18 +106,23 @@ class _MarketScreenState extends State<MarketScreen> {
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
-              tabs: const [
-                Tab(text: 'السوق', icon: Icon(Icons.storefront)),
-                Tab(text: 'المزادات', icon: Icon(Icons.gavel)),
-                Tab(text: 'متجري', icon: Icon(Icons.inventory_2_outlined)),
+              tabs: [
+                const Tab(text: 'السوق', icon: Icon(Icons.storefront)),
+                const Tab(text: 'المزادات', icon: Icon(Icons.gavel)),
+                if (widget.canSell)
+                  const Tab(text: 'متجري', icon: Icon(Icons.inventory_2_outlined)),
               ],
             ),
           ),
           body: TabBarView(
             children: [
-              MainMarketTab(organizationId: widget.organizationId),
+              MainMarketTab(
+                organizationId: widget.organizationId,
+                canSell: widget.canSell,
+              ),
               const AuctionsScreen(),
-              MyProductsScreen(organizationId: widget.organizationId ?? ''),
+              if (widget.canSell)
+                MyProductsScreen(organizationId: widget.organizationId ?? ''),
             ],
           ),
         ),
@@ -124,3 +130,4 @@ class _MarketScreenState extends State<MarketScreen> {
     );
   }
 }
+

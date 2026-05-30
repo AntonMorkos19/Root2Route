@@ -17,8 +17,9 @@ import 'package:root2route/features/reviews/ui/add_review_dialog.dart';
 
 class MyOrdersScreen extends StatefulWidget {
   final bool isGuestMode;
+  final bool canSell;
 
-  const MyOrdersScreen({super.key, this.isGuestMode = false});
+  const MyOrdersScreen({super.key, this.isGuestMode = false, this.canSell = true});
 
   @override
   State<MyOrdersScreen> createState() => _MyOrdersScreenState();
@@ -42,6 +43,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     _dispatchCubit = DispatchCubit();
 
     if (!widget.isGuestMode &&
+        widget.canSell &&
         _organizationId != null &&
         _organizationId!.isNotEmpty) {
       _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
@@ -81,7 +83,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         context: ctx,
         type: QuickAlertType.success,
         title: 'نجاح',
-        text: result['message'] ?? 'تم تحديث الحالة بنجاح',
+        text: _getArabicStatusMessage(newStatus),
+        confirmBtnText: 'حسناً',
+        confirmBtnColor: AppColors.primary,
         onConfirmBtnTap: () {
           Navigator.of(ctx, rootNavigator: true).pop();
           _myOrdersCubit.fetchMyOrders();
@@ -96,7 +100,25 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         type: QuickAlertType.error,
         title: 'خطأ',
         text: result['message'] ?? 'فشل تحديث الحالة',
+        confirmBtnText: 'حسناً',
+        confirmBtnColor: AppColors.primary,
       );
+    }
+  }
+
+  /// Converts a new order status int to a friendly Arabic confirmation message.
+  String _getArabicStatusMessage(int newStatus) {
+    switch (newStatus) {
+      case 1:
+        return 'تم قبول الطلب بنجاح.';
+      case 2:
+        return 'تم تحديث حالة الطلب إلى مشحون بنجاح.';
+      case 3:
+        return 'تم تأكيد استلام الطلب بنجاح.';
+      case 4:
+        return 'تم إلغاء الطلب بنجاح.';
+      default:
+        return 'تم تحديث حالة الطلب بنجاح.';
     }
   }
 
@@ -124,6 +146,35 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       return Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
+          body: _MyOrdersTab(
+            cubit: _myOrdersCubit,
+            onUpdateStatus:
+                (orderId, status) => _updateOrderStatus(context, orderId, status),
+            onOrderTap: (orderId) => _onOrderCardTap(context, orderId, false),
+          ),
+        ),
+      );
+    }
+
+    // Buyer-only mode: no received orders tab
+    if (!widget.canSell) {
+      return Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text(
+              'طلباتي',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            centerTitle: true,
+            backgroundColor: AppColors.primary,
+            iconTheme: const IconThemeData(color: Colors.white),
+            elevation: 0,
+            automaticallyImplyLeading: false,
+          ),
           body: _MyOrdersTab(
             cubit: _myOrdersCubit,
             onUpdateStatus:
@@ -809,7 +860,7 @@ class _OrderCard extends StatelessWidget {
                 else
                   const SizedBox(),
                 Text(
-                  '$formattedTotal EGP',
+                  '$formattedTotal جنيه',
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
@@ -862,44 +913,51 @@ class _OrderCard extends StatelessWidget {
       }
       // Buyer: rate & review when delivered
       if (order.status == 3) {
+        final bool alreadyReviewed = order.isReviewed;
         buttons.add(
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () {
-                if (order.items.isEmpty) {
-                  QuickAlert.show(
-                    context: context,
-                    type: QuickAlertType.warning,
-                    title: 'عذرًا',
-                    text: 'لم يتم العثور على منتجات في هذا الطلب لتقييمها.',
-                  );
-                  return;
-                }
-                showDialog(
-                  context: context,
-                  builder:
-                      (context) => AddReviewDialog(
-                        targetOrganizationId: order.organizationId,
-                        orderId: order.id,
-                        productId: order.items.first.productId,
-                      ),
-                );
-              },
-              icon: const Icon(
-                Icons.star_outline_rounded,
-                color: AppColors.primary,
+              onPressed: alreadyReviewed
+                  ? null
+                  : () {
+                      if (order.items.isEmpty) {
+                        QuickAlert.show(
+                          context: context,
+                          type: QuickAlertType.warning,
+                          title: 'عذرًا',
+                          text: 'لم يتم العثور على منتجات في هذا الطلب لتقييمها.',
+                          confirmBtnText: 'حسناً',
+                        );
+                        return;
+                      }
+                      showDialog(
+                        context: context,
+                        builder:
+                            (context) => AddReviewDialog(
+                              targetOrganizationId: order.organizationId,
+                              orderId: order.id,
+                              productId: order.items.first.productId,
+                            ),
+                      );
+                    },
+              icon: Icon(
+                alreadyReviewed ? Icons.check_circle_rounded : Icons.star_outline_rounded,
+                color: alreadyReviewed ? Colors.grey : AppColors.primary,
               ),
               label: Text(
-                'تقييم ومراجعة',
+                alreadyReviewed ? 'تم التقييم' : 'تقييم ومراجعة',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14.sp,
-                  color: AppColors.primary,
+                  color: alreadyReviewed ? Colors.grey : AppColors.primary,
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.primary),
+                side: BorderSide(
+                  color: alreadyReviewed ? Colors.grey.shade300 : AppColors.primary,
+                ),
+                backgroundColor: alreadyReviewed ? Colors.grey.shade100 : null,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

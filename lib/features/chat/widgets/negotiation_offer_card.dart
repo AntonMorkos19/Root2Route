@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/core/utils/price_formatter.dart';
 
 class NegotiationOfferCard extends StatelessWidget {
   final double? price;
@@ -67,7 +68,7 @@ class NegotiationOfferCard extends StatelessWidget {
           const SizedBox(height: 8),
           if (price != null)
             Text(
-              'السعر: ${price!.toStringAsFixed(2)} جنيه',
+              'السعر: ${PriceFormatter.format(price)} جنيه',
               style: TextStyle(
                 color: Colors.black87,
                 fontSize: 16.sp,

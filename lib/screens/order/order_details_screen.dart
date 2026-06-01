@@ -12,7 +12,8 @@ import 'package:root2route/features/shipments/widgets/dispatch_bottom_sheet.dart
 import 'package:root2route/models/order_model.dart';
 import 'package:root2route/services/order_service.dart';
 import 'package:root2route/features/reviews/ui/add_review_dialog.dart';
-
+import 'package:root2route/core/utils/price_formatter.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 class OrderDetailsScreen extends StatefulWidget {
   final String orderId;
 
@@ -99,11 +100,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       type: QuickAlertType.confirm,
       title: 'إلغاء الطلب؟',
       text: 'هل أنت متأكد أنك تريد إلغاء هذا الطلب؟',
+      barrierDismissible: false,
       confirmBtnText: 'نعم، إلغاء',
       cancelBtnText: 'لا',
       confirmBtnColor: Colors.red,
       onConfirmBtnTap: () async {
-        Navigator.pop(context);
+        Navigator.of(context, rootNavigator: true).pop();
 
         QuickAlert.show(
           context: context,
@@ -122,25 +124,20 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             (result['message']?.toString().contains('Cancelled') ?? false);
 
         if (cancelled) {
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.success,
-            title: result['success'] == true ? 'تم الإلغاء' : 'ملاحظة',
-            text:
-                result['success'] == true
-                    ? 'تم إلغاء طلبك بنجاح.'
-                    : 'هذا الطلب ملغى بالفعل.',
-            onConfirmBtnTap: () {
-              Navigator.pop(context);
-              _detailsCubit.fetchOrderDetails(widget.orderId);
-            },
+          CustomSnackBar.showSuccess(
+            context,
+            result['success'] == true
+                ? 'تم إلغاء طلبك بنجاح.'
+                : 'هذا الطلب ملغى بالفعل.',
           );
+          _detailsCubit.fetchOrderDetails(widget.orderId);
         } else {
           QuickAlert.show(
             context: context,
             type: QuickAlertType.error,
             title: 'فشل الإلغاء',
             text: result['message'] ?? 'لا يمكن إلغاء الطلب.',
+            barrierDismissible: false,
           );
         }
       },
@@ -171,16 +168,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 );
               } else if (state is ShipmentActionSuccess) {
                 Navigator.of(context, rootNavigator: true).pop();
-                QuickAlert.show(
-                  context: context,
-                  type: QuickAlertType.success,
-                  title: 'تم الإرسال',
-                  text: state.message,
-                  onConfirmBtnTap: () {
-                    Navigator.of(context, rootNavigator: true).pop();
-                    _detailsCubit.fetchOrderDetails(widget.orderId);
-                  },
-                );
+                CustomSnackBar.showSuccess(context, state.message);
+                _detailsCubit.fetchOrderDetails(widget.orderId);
               } else if (state is ShipmentError) {
                 Navigator.of(context, rootNavigator: true).pop();
                 QuickAlert.show(
@@ -188,6 +177,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   type: QuickAlertType.error,
                   title: 'خطأ',
                   text: state.message,
+                  barrierDismissible: false,
                 );
               }
             },
@@ -205,16 +195,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 );
               } else if (state is ShipmentActionSuccess) {
                 Navigator.of(context, rootNavigator: true).pop();
-                QuickAlert.show(
-                  context: context,
-                  type: QuickAlertType.success,
-                  title: 'تم الاستلام',
-                  text: state.message,
-                  onConfirmBtnTap: () {
-                    Navigator.of(context, rootNavigator: true).pop();
-                    _detailsCubit.fetchOrderDetails(widget.orderId);
-                  },
-                );
+                CustomSnackBar.showSuccess(context, state.message);
+                _detailsCubit.fetchOrderDetails(widget.orderId);
               } else if (state is ShipmentError) {
                 Navigator.of(context, rootNavigator: true).pop();
                 QuickAlert.show(
@@ -222,6 +204,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   type: QuickAlertType.error,
                   title: 'خطأ',
                   text: state.message,
+                  barrierDismissible: false,
                 );
               }
             },
@@ -490,7 +473,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     ),
                   ),
                   Text(
-                    '${order.totalAmount.toStringAsFixed(0)} EGP',
+                    '${PriceFormatter.format(order.totalAmount)} EGP',
                     style: TextStyle(
                       fontSize: 24.sp,
                       fontWeight: FontWeight.w900,
@@ -692,22 +675,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             Navigator.of(context, rootNavigator: true).pop(); // dismiss loading
 
             if (result['success'] == true) {
-              QuickAlert.show(
-                context: context,
-                type: QuickAlertType.success,
-                title: 'تم الاستلام',
-                text: 'تم استلام الطلب بنجاح!',
-                onConfirmBtnTap: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                  _detailsCubit.fetchOrderDetails(widget.orderId);
-                },
-              );
+              CustomSnackBar.showSuccess(context, 'تم استلام الطلب بنجاح!');
+              _detailsCubit.fetchOrderDetails(widget.orderId);
             } else {
               QuickAlert.show(
                 context: context,
                 type: QuickAlertType.error,
                 title: 'خطأ',
                 text: result['message'] ?? 'فشل تأكيد الاستلام.',
+                barrierDismissible: false,
               );
             }
           },

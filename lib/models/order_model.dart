@@ -40,18 +40,26 @@ class OrderItemModel {
       if (idx != null) {
         switch (idx) {
           case 0:
-            parsedUnitName = 'Kg';
+            parsedUnitName = 'كجم';
             break;
           case 1:
-            parsedUnitName = 'pkg';
+            parsedUnitName = 'عبوة';
             break;
           case 2:
-            parsedUnitName = 'Liter';
+            parsedUnitName = 'لتر';
             break;
           default:
             parsedUnitName = '';
         }
       }
+    }
+
+    if (parsedUnitName.toLowerCase() == 'kg' || parsedUnitName.toLowerCase() == 'kilogram') {
+      parsedUnitName = 'كجم';
+    } else if (parsedUnitName.toLowerCase() == 'liter') {
+      parsedUnitName = 'لتر';
+    } else if (parsedUnitName.toLowerCase() == 'pkg' || parsedUnitName.toLowerCase() == 'package') {
+      parsedUnitName = 'عبوة';
     }
 
     return OrderItemModel(

@@ -6,6 +6,7 @@ import 'countdown_timer_widget.dart';
 
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/core/utils/price_formatter.dart';
 
 /// A premium auction card for the seller dashboard.
 class AuctionCard extends StatefulWidget {
@@ -137,7 +138,7 @@ class _AuctionCardState extends State<AuctionCard> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'السعر المبدئي: ${auction.startingPrice.toStringAsFixed(2)} جنيه',
+                            'السعر المبدئي: ${PriceFormatter.format(auction.startingPrice)} جنيه',
                             style: TextStyle(
                               fontSize: 14.sp,
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -173,12 +174,12 @@ class _AuctionCardState extends State<AuctionCard> {
                       _buildInfoItem(
                         Icons.trending_up_rounded,
                         auction.currentHighestBid != null
-                            ? '${auction.currentHighestBid!.toStringAsFixed(2)} جنيه'
+                            ? '${PriceFormatter.format(auction.currentHighestBid!)} جنيه'
                             : 'لا توجد مزايدات',
                       ),
                       _buildInfoItem(
                         Icons.attach_money_rounded,
-                        '+${auction.minimumBidIncrement.toStringAsFixed(2)}',
+                        '+${PriceFormatter.format(auction.minimumBidIncrement)}',
                       ),
                     ],
                   ),

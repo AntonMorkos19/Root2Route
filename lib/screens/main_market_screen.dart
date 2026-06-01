@@ -5,6 +5,7 @@ import 'package:root2route/services/api.dart';
 import 'package:root2route/screens/product/details_product_screen.dart';
 import 'package:root2route/screens/product/add_product_screen.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/core/utils/price_formatter.dart';
 
 class MainMarketTab extends StatefulWidget {
   final String? organizationId;
@@ -228,6 +229,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
           'Kilogram': 'كجم',
           'Liter': 'لتر',
           'pkg': 'عبوة',
+          'Package': 'عبوة',
         };
         unitName = _unitMap[unitRaw] ?? unitRaw;
       } else {
@@ -314,20 +316,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
       displayPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
     }
 
-    String formatPrice(double price) {
-      final String str = price.toStringAsFixed(0);
-      if (str.length <= 3) return str;
-      final StringBuffer sb = StringBuffer();
-      int count = 0;
-      for (int i = str.length - 1; i >= 0; i--) {
-        sb.write(str[i]);
-        count++;
-        if (count % 3 == 0 && i != 0) {
-          sb.write(',');
-        }
-      }
-      return sb.toString().split('').reversed.join();
-    }
+
 
     String? imageUrl;
     final images = product['images'] ?? product['Images'];
@@ -475,7 +464,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${formatPrice(displayPrice)} جنيه',
+                      '${PriceFormatter.format(displayPrice)} جنيه',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16.sp,

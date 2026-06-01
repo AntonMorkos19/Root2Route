@@ -15,6 +15,7 @@ import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
 import 'package:root2route/screens/restaurant/restaurant_home_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class AddOrganizationScreen extends StatefulWidget {
   const AddOrganizationScreen({super.key});
@@ -102,14 +103,6 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       barrierDismissible: false,
     );
 
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.loading,
-      title: 'جاري التحميل',
-      text: 'جاري إنشاء شركتك...',
-      barrierDismissible: false,
-    );
-
     try {
       final result = await _api.createOrganization(
         name: nameController.text.trim(),
@@ -126,33 +119,24 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       if (!mounted) return;
 
       if (result['success']) {
-        await StorageService().saveHasOrganization(true);
-        await StorageService().saveOrganizationType(_getOrganizationTypeValue(selectedType!));
-
         final orgId =
             result['data']?['id'] ??
             result['data']?['organizationId'] ??
             result['data']?['OrganizationId'] ??
             '';
-        if (orgId.toString().isNotEmpty) {
-          await StorageService().saveOrganizationId(orgId.toString());
-        }
 
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.success,
-          title: 'نجاح!',
-          text: 'تم إنشاء الشركة بنجاح!',
-          confirmBtnText: 'متابعة',
-          onConfirmBtnTap: () {
-            Navigator.pop(context);
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => _getTargetScreen(selectedType!),
-              ),
-            );
-          },
+        // Atomically persist the new active org
+        await StorageService().saveOrganizationDetails(
+          orgId: orgId.toString(),
+          orgType: _getOrganizationTypeValue(selectedType!),
+        );
+
+        CustomSnackBar.showSuccess(context, 'تم إنشاء الشركة بنجاح!');
+        // pushAndRemoveUntil so the new home screen is the new root
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => _getTargetScreen(selectedType!)),
+          (route) => false,
         );
       } else {
         QuickAlert.show(
@@ -160,6 +144,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
           type: QuickAlertType.error,
           title: ' فشل',
           text: result['message'] ?? 'فشل إنشاء الشركة',
+          barrierDismissible: false,
           confirmBtnText: 'المحاولة مرة أخرى',
         );
       }
@@ -170,6 +155,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
         type: QuickAlertType.error,
         title: 'فشل',
         text: 'حدث خطأ غير متوقع: $e',
+        barrierDismissible: false,
         confirmBtnText: 'موافق',
       );
     } finally {

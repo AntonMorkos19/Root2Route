@@ -6,6 +6,7 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/shipments/cubit/shipment_address_cubit.dart';
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
 import 'package:root2route/models/shipment_address_model.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class AddressesScreen extends StatefulWidget {
   const AddressesScreen({super.key});
@@ -442,12 +443,7 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
       listener: (context, state) {
         if (state is ShipmentActionSuccess) {
           Navigator.of(context).pop(); // close bottom sheet
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.success,
-            title: 'نجاح',
-            text: state.message,
-          );
+          CustomSnackBar.showSuccess(context, state.message);
         } else if (state is ShipmentError) {
           setState(() => _isSubmitting = false);
           QuickAlert.show(
@@ -455,6 +451,7 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
             type: QuickAlertType.error,
             title: 'خطأ',
             text: state.message,
+            barrierDismissible: false,
           );
         }
       },

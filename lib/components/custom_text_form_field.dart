@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 
 class CustomTextFormField extends StatefulWidget {
@@ -51,41 +52,50 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
     final onSurfaceVariant = theme.colorScheme.onSurfaceVariant;
     final outlineColor = theme.colorScheme.outline;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: TextFormField(
-        textAlign: widget.textDirection == TextDirection.ltr ? TextAlign.left : TextAlign.start,
-        textDirection: widget.textDirection,
+    final bool isLTR = widget.keyboardType == TextInputType.emailAddress ||
+        widget.keyboardType == TextInputType.phone ||
+        widget.keyboardType == TextInputType.number ||
+        widget.keyboardType == TextInputType.visiblePassword ||
+        widget.isPassword == true;
+
+    return TextFormField(
+      textAlign: TextAlign.right,
+      textDirection: isLTR ? TextDirection.ltr : TextDirection.rtl,
         controller: widget.controller,
         style: TextStyle(
-        color:
-            widget.color ??
-            (theme.brightness == Brightness.dark
-                ? Colors.white
-                : Colors.black87),
-      ),
-      obscureText: widget.isPassword ? obscureText : false,
-      cursorColor: widget.cursorColor ?? AppColors.primary,
-      readOnly: widget.isReadOnly ?? false,
-      maxLines: widget.maxLines ?? 1,
+          color:
+              widget.color ??
+              (theme.brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black87),
+        ),
+        obscureText: widget.isPassword ? obscureText : false,
+        cursorColor: widget.cursorColor ?? AppColors.primary,
+        readOnly: widget.isReadOnly ?? false,
+        maxLines: widget.maxLines ?? 1,
       keyboardType: widget.keyboardType,
       validator: widget.validator,
+      inputFormatters: (widget.keyboardType == TextInputType.number || widget.keyboardType == TextInputType.phone)
+          ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9\+\-\s]'))]
+          : null,
       decoration: InputDecoration(
-        labelText: widget.label,
-        prefixIcon: Icon(widget.icon),
-        suffixIcon: widget.isPassword
-            ? IconButton(
-                icon: Icon(
-                  obscureText ? Icons.visibility_off : Icons.visibility,
-                ),
-                onPressed: () {
-                  setState(() {
-                    obscureText = !obscureText;
-                  });
-                },
-              )
-            : null,
-      ),
-    ));
+          labelText: widget.label,
+          prefixIcon: Icon(widget.icon),
+          suffixIcon:
+              widget.isPassword
+                  ? IconButton(
+                    icon: Icon(
+                      obscureText ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        obscureText = !obscureText;
+                      });
+                    },
+                  )
+                  : null,
+        ),
+      );
+    
   }
 }

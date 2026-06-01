@@ -3,7 +3,7 @@ import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/services/api.dart';
-
+import 'package:root2route/core/utils/price_formatter.dart';
 class BuyerAuctionsScreen extends StatefulWidget {
   static const String id = '/BuyerAuctionsScreen';
 
@@ -391,7 +391,7 @@ class _ParticipatedAuctionCard extends StatelessWidget {
                     style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                   ),
                   Text(
-                    '${currentBid.toStringAsFixed(0)} جنيه',
+                    '${PriceFormatter.format(currentBid)} جنيه',
                     style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       color: AppColors.primary,
@@ -466,7 +466,7 @@ class _WonAuctionCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${winningPrice.toStringAsFixed(0)} جنيه',
+                      '${PriceFormatter.format(winningPrice)} جنيه',
                       style: const TextStyle(
                         fontWeight: FontWeight.w800,
                         color: AppColors.primary,

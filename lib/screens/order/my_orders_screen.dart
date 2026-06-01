@@ -5,7 +5,7 @@ import 'package:quickalert/quickalert.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/orders/cubit/my_orders_cubit.dart';
 import 'package:root2route/features/orders/cubit/order_state.dart';
-import 'package:root2route/features/orders/cubit/received_orders_cubit.dart';
+import 'package:root2route/core/utils/price_formatter.dart';import 'package:root2route/features/orders/cubit/received_orders_cubit.dart';
 import 'package:root2route/features/shipments/cubit/dispatch_cubit.dart';
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
 import 'package:root2route/models/order_model.dart';
@@ -14,6 +14,7 @@ import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/screens/order/order_details_screen.dart';
 import 'package:root2route/features/shipments/widgets/dispatch_bottom_sheet.dart';
 import 'package:root2route/features/reviews/ui/add_review_dialog.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class MyOrdersScreen extends StatefulWidget {
   final bool isGuestMode;
@@ -68,6 +69,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       type: QuickAlertType.loading,
       title: 'جاري التحديث...',
       text: 'الرجاء الانتظار',
+      barrierDismissible: false,
     );
 
     final result = await _orderService.changeOrderStatus(
@@ -79,27 +81,18 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     Navigator.of(ctx, rootNavigator: true).pop();
 
     if (result['success'] == true) {
-      QuickAlert.show(
-        context: ctx,
-        type: QuickAlertType.success,
-        title: 'نجاح',
-        text: _getArabicStatusMessage(newStatus),
-        confirmBtnText: 'حسناً',
-        confirmBtnColor: AppColors.primary,
-        onConfirmBtnTap: () {
-          Navigator.of(ctx, rootNavigator: true).pop();
-          _myOrdersCubit.fetchMyOrders();
-          if (_organizationId != null && _organizationId!.isNotEmpty) {
-            _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
-          }
-        },
-      );
+      CustomSnackBar.showSuccess(ctx, _getArabicStatusMessage(newStatus));
+      _myOrdersCubit.fetchMyOrders();
+      if (_organizationId != null && _organizationId!.isNotEmpty) {
+        _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
+      }
     } else {
       QuickAlert.show(
         context: ctx,
         type: QuickAlertType.error,
         title: 'خطأ',
         text: result['message'] ?? 'فشل تحديث الحالة',
+        barrierDismissible: false,
         confirmBtnText: 'حسناً',
         confirmBtnColor: AppColors.primary,
       );
@@ -195,26 +188,18 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               type: QuickAlertType.loading,
               title: 'جاري الإرسال...',
               text: 'الرجاء الانتظار',
+              barrierDismissible: false,
             );
           } else if (state is ShipmentActionSuccess) {
             Navigator.of(context, rootNavigator: true).pop();
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.success,
-              title: 'نجاح',
-              text: state.message,
-              onConfirmBtnTap: () {
-                Navigator.of(context, rootNavigator: true).pop();
-
-                if (_organizationId != null) {
-                  _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
-                } else {
-                  debugPrint(
-                    "Warning: _organizationId is null. Cannot refresh orders automatically.",
-                  );
-                }
-              },
-            );
+            CustomSnackBar.showSuccess(context, state.message);
+            if (_organizationId != null) {
+              _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
+            } else {
+              debugPrint(
+                "Warning: _organizationId is null. Cannot refresh orders automatically.",
+              );
+            }
           } else if (state is ShipmentError) {
             Navigator.of(context, rootNavigator: true).pop();
             QuickAlert.show(
@@ -222,6 +207,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               type: QuickAlertType.error,
               title: 'خطأ',
               text: state.message,
+              barrierDismissible: false,
             );
           }
         },
@@ -487,6 +473,7 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
             type: QuickAlertType.error,
             title: 'خطأ',
             text: state.message,
+            barrierDismissible: false,
           );
         }
       },
@@ -737,8 +724,7 @@ class _OrderCard extends StatelessWidget {
             ? order.totalAmount
             : order.items.fold(0.0, (sum, item) => sum + item.totalPrice);
 
-    final String formattedTotal = finalTotal
-        .toStringAsFixed(0)
+    final String formattedTotal = PriceFormatter.format(finalTotal)
         .replaceAllMapped(
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (m) => '${m[1]},',
@@ -927,6 +913,7 @@ class _OrderCard extends StatelessWidget {
                           type: QuickAlertType.warning,
                           title: 'عذرًا',
                           text: 'لم يتم العثور على منتجات في هذا الطلب لتقييمها.',
+                          barrierDismissible: false,
                           confirmBtnText: 'حسناً',
                         );
                         return;

@@ -5,6 +5,7 @@ import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class EditProductScreen extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -119,6 +120,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         type: QuickAlertType.warning,
         title: 'طريقة البيع مطلوبة',
         text: 'يرجى تفعيل طريقة بيع واحدة على الأقل\n(بيع مباشر أو مزاد).',
+        barrierDismissible: false,
       );
       return;
     }
@@ -168,14 +170,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           successValue.toString().toLowerCase() == 'true';
 
       if (isSuccess) {
-        await QuickAlert.show(
-          context: context,
-          type: QuickAlertType.success,
-          title: 'تم التحديث!',
-          text: 'تم تحديث المنتج بنجاح.',
-          showConfirmBtn: false,
-          autoCloseDuration: const Duration(seconds: 2),
-        );
+        CustomSnackBar.showSuccess(context, 'تم تحديث المنتج بنجاح.');
         if (!mounted) return;
         Navigator.pop(context, true); // Return to previous page successfully
       } else {
@@ -184,6 +179,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           type: QuickAlertType.error,
           title: 'فشل التحديث',
           text: result['message'] ?? 'حدث خطأ أثناء التحديث.',
+          barrierDismissible: false,
         );
       }
     } catch (e) {
@@ -197,6 +193,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         type: QuickAlertType.error,
         title: 'خطأ غير متوقع',
         text: e.toString(),
+        barrierDismissible: false,
       );
     }
   }

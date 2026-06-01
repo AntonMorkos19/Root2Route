@@ -14,7 +14,7 @@ import 'package:root2route/screens/chat/chat_details_screen.dart';
 import 'package:root2route/features/chat/cubit/chat_messages_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_state.dart';
-
+import 'package:root2route/core/utils/price_formatter.dart';
 class DetailsProductScreen extends StatefulWidget {
   final String productId;
 
@@ -293,6 +293,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
         'Kilogram': 'كجم',
         'Liter': 'لتر',
         'pkg': 'عبوة',
+        'Package': 'عبوة',
       };
       unitStr = _unitMap[unitRaw] ?? unitRaw;
     } else {
@@ -415,7 +416,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '${price.toStringAsFixed(0)} جنيه',
+                            '${PriceFormatter.format(price)} جنيه',
                             style: TextStyle(
                               fontSize: 24.sp,
                               fontWeight: FontWeight.w900,
@@ -1152,7 +1153,7 @@ class _QuantitySelectorSheetState extends State<_QuantitySelectorSheet> {
                   ),
                 ),
                 Text(
-                  '${total.toStringAsFixed(2)} جنيه',
+                  '${PriceFormatter.format(total)} جنيه',
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w900,

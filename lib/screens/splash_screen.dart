@@ -4,6 +4,7 @@ import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/screens/farmer/farmer_home_screen.dart';
 import 'package:root2route/screens/intro_screen.dart';
+import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/screens/factory/factory_home_screen.dart';
 import 'package:root2route/screens/restaurant/restaurant_home_screen.dart';
@@ -67,27 +68,38 @@ class _SplashScreenState extends State<SplashScreen>
 
     if (!isLoggedIn || !isTokenValid) {
       if (isLoggedIn && !isTokenValid) {
-        await StorageService().logout();
-      }
-
-      if (!mounted) return;
-
-      final isExplicitGuest = StorageService().isExplicitGuest;
-
-      if (isExplicitGuest) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const GuestHomeScreen()),
-          (route) => false,
-        );
+        debugPrint('Access Token expired. Attempting silent refresh...');
+        bool refreshed = await ApiService().refreshAuthToken();
+        
+        if (!refreshed) {
+          await StorageService().logout();
+          if (!mounted) return;
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+          );
+          return;
+        }
       } else {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-          (route) => false,
-        );
+        if (!mounted) return;
+        final isExplicitGuest = StorageService().isExplicitGuest;
+
+        if (isExplicitGuest) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const GuestHomeScreen()),
+            (route) => false,
+          );
+        } else {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+          );
+        }
+        return;
       }
-      return;
     }
 
     final hasOrganization = StorageService().hasOrganization;

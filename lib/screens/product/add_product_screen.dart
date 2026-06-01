@@ -7,6 +7,7 @@ import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class AddProductScreen extends StatefulWidget {
   final String organizationId;
@@ -90,6 +91,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         title: 'طريقة البيع مطلوبة',
         text:
             'يرجى تفعيل طريقة بيع واحدة على الأقل\n(بيع مباشر أو مزاد).',
+        barrierDismissible: false,
       );
       return;
     }
@@ -129,21 +131,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       if (!mounted) return;
       Navigator.pop(context);
       if (result['success'] == true) {
-        await QuickAlert.show(
-          context: context,
-          type: QuickAlertType.success,
-          title: 'نجاح',
-          text: 'تم نشر المنتج بنجاح',
-          confirmBtnText: 'حسناً',
-          confirmBtnColor: AppColors.primary,
-          onConfirmBtnTap: () {
-            Navigator.pop(context); // Close alert
-            Navigator.pop(
-              context,
-              true,
-            ); // Return to previous screen with data refresh
-          },
-        );
+        CustomSnackBar.showSuccess(context, 'تم نشر المنتج بنجاح');
+        Navigator.pop(context, true); // Return to previous screen
       } else {
         // In case of failure (actual error)
         QuickAlert.show(
@@ -152,6 +141,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           title: 'فشل',
           text: result['message'] ?? 'فشل نشر المنتج',
           confirmBtnText: 'حاول مرة أخرى',
+          barrierDismissible: false,
         );
       }
     } catch (e) {
@@ -162,6 +152,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         type: QuickAlertType.error,
         title: 'خطأ غير متوقع',
         text: 'حدث خطأ ما، يرجى المحاولة مرة أخرى لاحقاً.',
+        barrierDismissible: false,
       );
     }
   }
@@ -173,6 +164,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       title: 'فشل',
       text: message.length > 100 ? '${message.substring(0, 100)}...' : message,
       confirmBtnText: 'حاول مرة أخرى',
+      barrierDismissible: false,
     );
   }
 

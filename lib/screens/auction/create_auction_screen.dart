@@ -8,6 +8,7 @@ import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/core/utils/price_formatter.dart';
 
 class CreateAuctionScreen extends StatefulWidget {
   static const String id = '/createAuctionScreen';
@@ -74,7 +75,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                   0;
               final price = double.tryParse(rawPrice.toString()) ?? 0.0;
               if (price > 0 && _startPriceCtrl.text.isEmpty) {
-                _startPriceCtrl.text = price.toStringAsFixed(0);
+                _startPriceCtrl.text = PriceFormatter.format(price);
               }
             } catch (_) {}
           }

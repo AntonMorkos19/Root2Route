@@ -657,6 +657,36 @@ class ApiService {
   String? getUserId() => StorageService().userId;
   bool isLoggedIn() => StorageService().isLoggedIn;
 
+  Future<bool> refreshAuthToken() async {
+    final String? accToken = StorageService().token;
+    final String? refToken = StorageService().refreshToken;
+    final String? orgId = StorageService().organizationId;
+
+    if (accToken == null || refToken == null) return false;
+
+    try {
+      final response = await _dio.post('/refresh-token', data: {
+        "accessToken": accToken,
+        "refreshToken": refToken,
+        "organizationId": orgId ?? "",
+      });
+
+      if (response.statusCode == 200 && response.data != null) {
+        final newAccess = response.data['accessToken'] ?? accToken;
+        final newRefresh = response.data['refreshToken'] ?? refToken;
+
+        await StorageService().saveTokens(
+          accessToken: newAccess,
+          refreshToken: newRefresh,
+        );
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Silent token refresh failed: $e');
+    }
+    return false;
+  }
+
   Future<void> logout() async {
     await StorageService().logout();
     print("User logged out and token cleared.");

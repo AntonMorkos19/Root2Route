@@ -4,7 +4,7 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
 import 'package:root2route/models/auction_model.dart';
-
+import 'package:root2route/core/utils/price_formatter.dart';
 /// Screen 5 — Bid History
 /// GET /api/v1/auctions/{auctionId}/bids
 /// Receives [AuctionModel] via ModalRoute.settings.arguments.
@@ -271,7 +271,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
                   ),
                 ),
                 Text(
-                  '${highestBid.amount.toStringAsFixed(2)} جنيه',
+                  '${PriceFormatter.format(highestBid.amount)} جنيه',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -355,7 +355,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              '${bid.amount.toStringAsFixed(2)} جنيه',
+              '${PriceFormatter.format(bid.amount)} جنيه',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,

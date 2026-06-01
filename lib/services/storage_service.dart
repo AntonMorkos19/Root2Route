@@ -64,6 +64,17 @@ class StorageService {
     await _prefs.setBool(_keyHasOrganization, value);
   }
 
+  /// Atomically saves all active-organization fields in one call.
+  /// Call this when creating a new org OR switching between orgs.
+  Future<void> saveOrganizationDetails({
+    required String orgId,
+    required int orgType,
+  }) async {
+    await _prefs.setString(_keyOrganizationId, orgId);
+    await _prefs.setInt(_keyOrganizationType, orgType);
+    await _prefs.setBool(_keyHasOrganization, true);
+  }
+
   // ✅ Save organization type
   Future<void> saveOrganizationType(int type) async {
     await _prefs.setInt(_keyOrganizationType, type);

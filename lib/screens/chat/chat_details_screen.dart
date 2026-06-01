@@ -9,7 +9,7 @@ import 'package:root2route/models/chat_message_model.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/features/chat/widgets/negotiation_offer_card.dart';
 import 'package:root2route/features/chat/widgets/negotiation_dialog.dart';
-
+import 'package:root2route/core/utils/price_formatter.dart';
 class ChatDetailsScreen extends StatefulWidget {
   final String roomId;
   final String roomName;
@@ -74,7 +74,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     final chatCubit = context.read<ChatMessagesCubit>();
     showNegotiationDialog(context, (price, quantity) {
       final String offerContent =
-          'Offer: $quantity item${quantity != 1 ? 's' : ''} for ${price.toStringAsFixed(2)} EGP';
+          'عرض: $quantity عنصر مقابل ${PriceFormatter.format(price)} جنيه';
       chatCubit.sendMessage(
         widget.roomId,
         offerContent,
@@ -111,15 +111,31 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                       content: Text(state.message),
                       backgroundColor: Colors.red.shade400,
                       behavior: SnackBarBehavior.floating,
+                      margin: const EdgeInsets.only(bottom: 90, left: 16, right: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                   );
                 }
                 if (state is ChatMessagesActionError) {
+                  String displayMsg = state.message;
+                  if (displayMsg.contains('Insufficient product stock') && displayMsg.contains('available for negotiation')) {
+                    final match = RegExp(r'Only (\d+) available').firstMatch(displayMsg);
+                    final availableStock = match != null ? match.group(1) : '';
+                    displayMsg = 'الكمية غير كافية. المتاح للتفاوض هو $availableStock فقط.';
+                  } else if (displayMsg.contains('Insufficient product stock')) {
+                    displayMsg = 'الكمية غير كافية.';
+                  }
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: Colors.orange.shade600,
+                      content: Text(
+                        displayMsg,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      backgroundColor: Colors.orange.shade800,
                       behavior: SnackBarBehavior.floating,
+                      margin: const EdgeInsets.only(bottom: 90, left: 16, right: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                   );
                 }
@@ -245,6 +261,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       type: QuickAlertType.warning,
       title: 'End Conversation?',
       text: 'This will close the chat. Neither party will be able to send new messages.',
+      barrierDismissible: false,
       showCancelBtn: true,
       cancelBtnText: 'Cancel',
       confirmBtnText: 'End Chat',
@@ -583,7 +600,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
               child: TextField(
                 controller: _messageController,
                 decoration: const InputDecoration(
-                  hintText: "Type a message...",
+                  hintText: "اكتب رسالة...",
                 ),
                 onSubmitted: (_) => _sendMessage(),
               ),

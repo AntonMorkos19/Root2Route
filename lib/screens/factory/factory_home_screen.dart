@@ -7,7 +7,7 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
 import 'package:root2route/screens/market_screen.dart';
 import 'package:root2route/screens/order/my_orders_screen.dart';
-import 'package:root2route/services/api.dart';
+import 'package:root2route/services/storage_service.dart';
 
 class FactoryHomeScreen extends StatefulWidget {
   static const String id = '/factoryHome';
@@ -19,7 +19,7 @@ class FactoryHomeScreen extends StatefulWidget {
 }
 
 class _FactoryHomeScreenState extends State<FactoryHomeScreen> {
-  int index = 2;
+  int index = 0;
   String? myOrganizationId;
 
   List<Widget> get screens => [
@@ -31,23 +31,7 @@ class _FactoryHomeScreenState extends State<FactoryHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchMyOrganizationId();
-  }
-
-  Future<void> _fetchMyOrganizationId() async {
-    try {
-      final result = await ApiService().getMyOrganizations();
-      if (result['success'] == true && result['data'].isNotEmpty) {
-        if (mounted) {
-          setState(() {
-            myOrganizationId =
-                result['data'][0]['id'] ?? result['data'][0]['organizationId'];
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint("Error fetching org id: $e");
-    }
+    myOrganizationId = StorageService().organizationId;
   }
 
   @override
@@ -61,6 +45,7 @@ class _FactoryHomeScreenState extends State<FactoryHomeScreen> {
           type: QuickAlertType.warning,
           title: 'تأكيد الخروج',
           text: 'هل تريد إغلاق التطبيق بالفعل؟',
+          barrierDismissible: false,
           confirmBtnText: 'خروج',
           cancelBtnText: 'إلغاء',
           showCancelBtn: true,

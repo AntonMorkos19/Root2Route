@@ -15,6 +15,7 @@ import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/screens/auth/create_new_password.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 enum OtpType { emailVerification, passwordRecovery }
 
@@ -93,37 +94,27 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         if (result['success'] == true) {
           final hasToken = result['hasToken'] ?? false;
 
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.success,
-            title: "تم بنجاح",
-            text:
-                hasToken
-                    ? "تم تفعيل البريد الإلكتروني وتسجيل الدخول بنجاح!"
-                    : "تم تفعيل البريد الإلكتروني بنجاح! برجاء تسجيل الدخول.",
-            confirmBtnColor: green,
-            confirmBtnText: "موافق",
-            onConfirmBtnTap: () async {
-              Navigator.pop(context); // close alert
-
-              if (hasToken) {
-                if (mounted) {
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    GuestHomeScreen.id,
-                    (route) => false,
-                  );
-                }
-              } else {
-                // Return to login screen
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  LoginScreen.id,
-                  (route) => false,
-                );
-              }
-            },
+          CustomSnackBar.showSuccess(
+            context,
+            hasToken
+                ? "تم تفعيل البريد الإلكتروني وتسجيل الدخول بنجاح!"
+                : "تم تفعيل البريد الإلكتروني بنجاح! برجاء تسجيل الدخول.",
           );
+          if (hasToken) {
+            if (mounted) {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                GuestHomeScreen.id,
+                (route) => false,
+              );
+            }
+          } else {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              LoginScreen.id,
+              (route) => false,
+            );
+          }
         } else {
           _showError(result['message'] ?? "فشلت عملية التحقق");
         }
@@ -158,6 +149,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       type: QuickAlertType.error,
       title: "فشلت العملية",
       text: message,
+      barrierDismissible: false,
       confirmBtnText: "موافق",
     );
   }

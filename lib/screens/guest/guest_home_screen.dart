@@ -17,7 +17,7 @@ class GuestHomeScreen extends StatefulWidget {
 }
 
 class _GuestHomeScreenState extends State<GuestHomeScreen> {
-  int index = 2; // Default to Market tab
+  int index = 0; // Default to Profile tab
 
   final List<Widget> _screens = const [
     ProfileScreen(),
@@ -36,6 +36,7 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
           type: QuickAlertType.warning,
           title: 'تأكيد الخروج',
           text: 'هل تريد إغلاق التطبيق بالفعل؟',
+          barrierDismissible: false,
           confirmBtnText: 'خروج',
           cancelBtnText: 'إلغاء',
           showCancelBtn: true,

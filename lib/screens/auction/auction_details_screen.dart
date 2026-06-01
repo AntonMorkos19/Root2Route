@@ -15,6 +15,7 @@ import 'package:root2route/screens/chat/chat_details_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/chat_service.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/core/utils/price_formatter.dart';
 
 class AuctionDetailsScreen extends StatefulWidget {
   static const String id = '/auctionDetailsScreen';
@@ -357,7 +358,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
   // Helpers
   // ──────────────────────────────────────────────────────────────
 
-  String _fmt(double v) => v.toStringAsFixed(0);
+  String _fmt(double v) => PriceFormatter.format(v);
 
   String _translateStatus(String status) {
     switch (status.toLowerCase()) {

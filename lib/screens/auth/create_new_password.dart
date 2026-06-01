@@ -10,6 +10,7 @@ import 'package:root2route/core/responsive/app_sizes.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class CreateNewPassword extends StatefulWidget {
   static const String id = '/re-enter-passwordScreen';
@@ -180,36 +181,29 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                                       if (mounted) Navigator.pop(context);
 
                                       if (mounted) {
-                                        QuickAlert.show(
-                                          context: context,
-                                          type: QuickAlertType.success,
-                                          title: 'تم بنجاح!',
-                                          text:
-                                              'تم إعادة تعيين كلمة المرور بنجاح.',
-                                          confirmBtnText: 'تسجيل الدخول',
-                                          barrierDismissible: false,
-                                          onConfirmBtnTap: () {
-                                            Navigator.pop(context);
-                                            Navigator.pushNamedAndRemoveUntil(
-                                              context,
-                                              LoginScreen.id,
-                                              (route) => false,
-                                            );
-                                          },
+                                        CustomSnackBar.showSuccess(
+                                          context,
+                                          'تم إعادة تعيين كلمة المرور بنجاح.',
+                                        );
+                                        Navigator.pushNamedAndRemoveUntil(
+                                          context,
+                                          LoginScreen.id,
+                                          (route) => false,
                                         );
                                       }
                                     } catch (e) {
                                       if (mounted) {
                                         Navigator.pop(context);
-                                        QuickAlert.show(
-                                          context: context,
-                                          type: QuickAlertType.error,
-                                          title: 'فشلت العملية',
-                                          text: e.toString().replaceAll(
-                                            'Exception: ',
-                                            '',
-                                          ),
-                                        );
+                                          QuickAlert.show(
+                                            context: context,
+                                            type: QuickAlertType.error,
+                                            title: 'فشلت العملية',
+                                            text: e.toString().replaceAll(
+                                              'Exception: ',
+                                              '',
+                                            ),
+                                            barrierDismissible: false,
+                                          );
                                       }
                                     }
                                   },

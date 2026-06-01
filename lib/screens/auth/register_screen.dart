@@ -12,6 +12,7 @@ import 'package:root2route/models/user_model.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/screens/auth/otp_verification_screen.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const String id = '/registerScreen';
@@ -346,16 +347,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             Navigator.pop(context);
                                           }
 
-                                          QuickAlert.show(
-                                            context: context,
-                                            type: QuickAlertType.success,
-                                            text:
-                                                'تم إنشاء الحساب بنجاح! برجاء تفعيل بريدك الإلكتروني للمتابعة.',
-                                            showConfirmBtn: false,
+                                          CustomSnackBar.showSuccess(
+                                            context,
+                                            'تم إنشاء الحساب بنجاح! برجاء تفعيل بريدك الإلكتروني للمتابعة.',
                                           );
 
                                           Future.delayed(
-                                            const Duration(seconds: 3),
+                                            const Duration(seconds: 2),
                                             () {
                                               if (context.mounted) {
                                                 Navigator.push(
@@ -389,6 +387,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                               'Exception: ',
                                               '',
                                             ),
+                                            barrierDismissible: false,
                                           );
                                         }
                                       }

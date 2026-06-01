@@ -14,6 +14,7 @@ import 'package:root2route/screens/factory/factory_home_screen.dart';
 import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class OrganizationDetailsScreen extends StatefulWidget {
   final OrganizationModel organization;
@@ -91,17 +92,18 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
   }
 
   Future<void> _deleteOrganization() async {
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.warning,
-      title: 'حذف الشركة؟',
-      text: 'لا يمكن التراجع عن هذا الإجراء.',
-      confirmBtnText: 'نعم، احذف',
-      cancelBtnText: 'إلغاء',
-      confirmBtnColor: Colors.red,
-      showCancelBtn: true,
-      onConfirmBtnTap: () async {
-        Navigator.pop(context);
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: 'حذف الشركة؟',
+        text: 'لا يمكن التراجع عن هذا الإجراء.',
+        barrierDismissible: false,
+        confirmBtnText: 'نعم، احذف',
+        cancelBtnText: 'إلغاء',
+        confirmBtnColor: Colors.red,
+        showCancelBtn: true,
+        onConfirmBtnTap: () async {
+          Navigator.of(context, rootNavigator: true).pop();
 
         QuickAlert.show(
           context: context,
@@ -137,21 +139,12 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
             }
 
             if (!mounted) return;
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.success,
-              title: 'تم الحذف!',
-              text: 'تم حذف الشركة. سيتم نقلك لوضع الضيف.',
-              confirmBtnText: 'موافق',
-              confirmBtnColor: AppColors.primary,
-              onConfirmBtnTap: () {
-                Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (_) => const GuestHomeScreen(),
-                  ),
-                  (route) => false,
-                );
-              },
+            CustomSnackBar.showSuccess(context, 'تم حذف الشركة. سيتم نقلك لوضع الضيف.');
+            Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => const GuestHomeScreen(),
+              ),
+              (route) => false,
             );
           } else {
             // ── OTHER ORGS EXIST → switch to the first one ──
@@ -167,21 +160,12 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
             await StorageService().saveHasOrganization(true);
 
             if (!mounted) return;
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.success,
-              title: 'تم الحذف!',
-              text: 'تم حذف الشركة. سيتم تفعيل شركتك الأخرى.',
-              confirmBtnText: 'موافق',
-              confirmBtnColor: AppColors.primary,
-              onConfirmBtnTap: () {
-                // Navigate to the correct home screen for the fallback org type
-                final Widget homeScreen = _getHomeScreenForType(newOrgType is int ? newOrgType : 0);
-                Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => homeScreen),
-                  (route) => false,
-                );
-              },
+            CustomSnackBar.showSuccess(context, 'تم حذف الشركة. سيتم تفعيل شركتك الأخرى.');
+            // Navigate to the correct home screen for the fallback org type
+            final Widget homeScreen = _getHomeScreenForType(newOrgType is int ? newOrgType : 0);
+            Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => homeScreen),
+              (route) => false,
             );
           }
         } else {
@@ -190,6 +174,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
             type: QuickAlertType.error,
             title: 'خطأ',
             text: result['message'] ?? 'فشل الحذف',
+            barrierDismissible: false,
             confirmBtnText: 'موافق',
           );
         }

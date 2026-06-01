@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:root2route/components/Organizations/organization_card.dart';
-import 'package:root2route/components/Organizations/add_organization_card.dart';
 import 'package:root2route/core/theme/app_colors.dart';
-import 'package:root2route/models/organization_model.dart';
 import 'package:root2route/screens/Organizations/organizations_list_screen.dart';
 import 'package:root2route/screens/account_screen.dart';
 import 'package:root2route/features/shipments/ui/addresses_screen.dart';
-import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/features/reviews/ui/organization_reviews_screen.dart';
+import 'package:root2route/features/organizations/widgets/switch_organization_sheet.dart';
+import 'package:root2route/screens/Organizations/manage_organizations_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,20 +16,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final ApiService _api = ApiService();
-  Future<Map<String, dynamic>>? _orgsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadOrgs();
-  }
-
-  void _loadOrgs() {
-    setState(() {
-      _orgsFuture = _api.getMyOrganizations();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,8 +136,76 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 15),
+                // ── Manage Organizations ──────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.business_center_outlined,
+                        color: AppColors.primary,
+                      ),
+                      title: const Text(
+                        'إدارة الشركات',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ManageOrganizationsScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
                 if (StorageService().hasOrganization) ...[
                   const SizedBox(height: 15),
+                  // ── Switch Organization ───────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.swap_horiz_rounded,
+                          color: AppColors.primary,
+                        ),
+                        title: const Text(
+                          'تبديل الشركة',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () => showSwitchOrganizationSheet(context),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  // ── Customer reviews ─────────────────────────────────
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Container(
@@ -203,76 +254,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 25),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    children: [
-                      Text(
-                        'شركاتي',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18.sp,
-                          color:
-                              Theme.of(context).textTheme.titleLarge?.color ??
-                              const Color(0xff2D3748),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                FutureBuilder<Map<String, dynamic>>(
-                  future: _orgsFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Padding(
-                        padding: EdgeInsets.all(32),
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.primary,
-                            strokeWidth: 2,
-                          ),
-                        ),
-                      );
-                    }
-
-                    if (snapshot.hasError) {
-                      return Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          'خطأ في تحميل الشركات',
-                          style: TextStyle(color: Colors.red.shade300),
-                        ),
-                      );
-                    }
-
-                    final result = snapshot.data;
-                    final List dataList = result?['data'] ?? [];
-
-                    final organizations =
-                        dataList
-                            .map(
-                              (json) => OrganizationModel.fromJson(
-                                json as Map<String, dynamic>,
-                              ),
-                            )
-                            .toList();
-
-                    return Column(
-                      children: [
-                        const AddOrganizationCard(),
-                        ...organizations.map(
-                          (org) => OrganizationCard(
-                            organization: org,
-                            isMyOrganization: true,
-                            onDeleted: () => _loadOrgs(),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
                 const SizedBox(height: 30),
               ],
             ),

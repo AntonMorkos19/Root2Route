@@ -12,6 +12,7 @@ import 'package:root2route/features/shipments/cubit/shipment_address_cubit.dart'
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
 import 'package:root2route/models/shipment_address_model.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class CheckoutScreen extends StatefulWidget {
   static const String id = '/checkoutScreen';
@@ -203,6 +204,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         type: QuickAlertType.warning,
         title: 'سلة فارغة',
         text: 'سلتك فارغة. يرجى إضافة عناصر قبل الدفع.',
+        barrierDismissible: false,
       );
       return;
     }
@@ -251,26 +253,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       if (isActuallySuccess) {
         context.read<CartCubit>().clearCart();
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.success,
-          title: 'تم الطلب بنجاح!',
-          text:
-              'تم تأكيد طلبك بنجاح. يمكنك متابعة منتجاتنا من الشاشة الرئيسية.',
-          onConfirmBtnTap: () {
-            // 1. السطر ده بيقفل الـ QuickAlert نفسه
-            Navigator.of(context, rootNavigator: true).pop();
-
-            // 2. السطر السحري ده بيقفل أي شاشات (دفع، عناوين، سلة) ويرجعك للناف بار الرئيسي
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
+        CustomSnackBar.showSuccess(
+          context,
+          'تم تأكيد طلبك بنجاح. يمكنك متابعة منتجاتنا من الشاشة الرئيسية.',
         );
+        // السطر السحري ده بيقفل أي شاشات (دفع، عناوين، سلة) ويرجعك للناف بار الرئيسي
+        Navigator.of(context).popUntil((route) => route.isFirst);
       } else {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
           title: 'فشل الدفع',
           text: result['message'] ?? 'حدث خطأ أثناء إنشاء الطلب.',
+          barrierDismissible: false,
         );
       }
     }
@@ -312,9 +307,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         appBar: AppBar(
           title: Text(
             'الدفع',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20.sp,
+            ),
           ),
           backgroundColor: AppColors.primary,
+          iconTheme: const IconThemeData(color: Colors.white),
           elevation: 0,
         ),
         body: Center(

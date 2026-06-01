@@ -9,7 +9,7 @@ import 'package:root2route/screens/farmer/plants_screen.dart';
 import 'package:root2route/screens/market_screen.dart';
 import 'package:root2route/screens/farmer/scan_screen.dart';
 import 'package:root2route/screens/order/my_orders_screen.dart';
-import 'package:root2route/services/api.dart';
+import 'package:root2route/services/storage_service.dart';
 
 class FarmerHomeScreen extends StatefulWidget {
   static const String id = '/farmerHomeScreen';
@@ -21,7 +21,7 @@ class FarmerHomeScreen extends StatefulWidget {
 }
 
 class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
-  int index = 4;
+  int index = 0;
   String? myOrganizationId;
   List<Widget> get screens => [
     const ProfileScreen(),
@@ -34,23 +34,7 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchMyOrganizationId();
-  }
-
-  Future<void> _fetchMyOrganizationId() async {
-    try {
-      final result = await ApiService().getMyOrganizations();
-      if (result['success'] == true && result['data'].isNotEmpty) {
-        if (mounted) {
-          setState(() {
-            myOrganizationId =
-                result['data'][0]['id'] ?? result['data'][0]['organizationId'];
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint("Error fetching org id: $e");
-    }
+    myOrganizationId = StorageService().organizationId;
   }
 
   @override
@@ -64,6 +48,7 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
           type: QuickAlertType.warning,
           title: 'تأكيد الخروج',
           text: 'هل تريد إغلاق التطبيق بالفعل؟',
+          barrierDismissible: false,
           confirmBtnText: 'خروج',
           cancelBtnText: 'إلغاء',
           showCancelBtn: true,

@@ -11,6 +11,7 @@ import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/organization_model.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class EditOrganizationScreen extends StatefulWidget {
   final OrganizationModel organization;
@@ -156,23 +157,15 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       if (mounted) Navigator.pop(context);
 
       if (result['success'] == true) {
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.success,
-          title: 'نجاح!',
-          text: 'تم تحديث الشركة بنجاح!',
-          confirmBtnText: 'موافق',
-          onConfirmBtnTap: () {
-            Navigator.pop(context);
-            Navigator.pop(context, true);
-          },
-        );
+        CustomSnackBar.showSuccess(context, 'تم تحديث الشركة بنجاح!');
+        Navigator.pop(context, true);
       } else {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
           title: 'فشل',
           text: result['message'] ?? 'فشل تحديث الشركة',
+          barrierDismissible: false,
           confirmBtnText: 'المحاولة مرة أخرى',
         );
       }
@@ -185,6 +178,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
         type: QuickAlertType.error,
         title: 'فشل',
         text: 'حدث خطأ غير متوقع: $e',
+        barrierDismissible: false,
         confirmBtnText: 'موافق',
       );
     } finally {

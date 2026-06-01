@@ -9,7 +9,8 @@ import 'package:root2route/services/api.dart';
 import 'package:root2route/screens/auction/create_auction_screen.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
-
+import 'package:root2route/core/utils/price_formatter.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 class MyProductsScreen extends StatefulWidget {
   final String organizationId;
 
@@ -96,6 +97,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
       title: 'حذف المنتج؟',
       text:
           'هل أنت متأكد من رغبتك في حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.',
+      barrierDismissible: false,
       confirmBtnText: 'حذف',
       cancelBtnText: 'إلغاء',
       confirmBtnColor: Colors.red,
@@ -127,12 +129,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
         if (!mounted) return;
 
         if (res['success'] == true) {
-          await QuickAlert.show(
-            context: context,
-            type: QuickAlertType.success,
-            title: 'تم الحذف',
-            text: 'تم حذف المنتج بنجاح.',
-          );
+          CustomSnackBar.showSuccess(context, 'تم حذف المنتج بنجاح.');
           if (!mounted) return;
           _fetchProducts();
         } else {
@@ -141,6 +138,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
             type: QuickAlertType.error,
             title: 'فشل الحذف',
             text: res['message'] ?? 'فشل في حذف المنتج.',
+            barrierDismissible: false,
           );
         }
       } catch (e) {
@@ -155,6 +153,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
           type: QuickAlertType.error,
           title: 'خطأ',
           text: e.toString(),
+          barrierDismissible: false,
         );
       }
     }
@@ -434,6 +433,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
         'Kilogram': 'كجم',
         'Liter': 'لتر',
         'pkg': 'عبوة',
+        'Package': 'عبوة',
       };
       unitString = _unitMap[unitRaw] ?? unitRaw;
     } else {
@@ -539,7 +539,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
-                      '${displayPrice.toStringAsFixed(2)} جنيه',
+                      '${PriceFormatter.format(displayPrice)} جنيه',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16.sp,

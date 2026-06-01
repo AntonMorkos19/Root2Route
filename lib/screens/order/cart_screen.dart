@@ -6,7 +6,7 @@ import 'package:root2route/screens/order/checkout_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_state.dart';
-
+import 'package:root2route/core/utils/price_formatter.dart';
 class CartScreen extends StatefulWidget {
   static const String id = '/cartScreen';
 
@@ -152,7 +152,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${price.toStringAsFixed(0)} جنيه',
+                  '${PriceFormatter.format(price)} جنيه',
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
@@ -200,7 +200,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 Text(
-                  '${total.toStringAsFixed(0)} جنيه',
+                  '${PriceFormatter.format(total)} جنيه',
                   style: TextStyle(
                     fontSize: 24.sp,
                     fontWeight: FontWeight.w900,

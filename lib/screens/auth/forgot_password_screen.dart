@@ -10,6 +10,7 @@ import 'package:root2route/core/responsive/app_sizes.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/auth/otp_verification_screen.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   static const String id = '/ForgotPasswordScreen';
@@ -160,21 +161,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                                       if (result['success']) {
                                         if (mounted) {
-                                          QuickAlert.show(
-                                            context: context,
-                                            type: QuickAlertType.success,
-                                            title: 'تم بنجاح!',
-                                            text:
-                                                "تم إرسال كود التحقق إلى بريدك الإلكتروني",
-                                            showConfirmBtn: false,
+                                          CustomSnackBar.showSuccess(
+                                            context,
+                                            "تم إرسال كود التحقق إلى بريدك الإلكتروني",
                                           );
                                         }
 
                                         Future.delayed(
-                                          const Duration(seconds: 3),
+                                          const Duration(seconds: 2),
                                           () {
                                             if (mounted) {
-                                              Navigator.pop(context);
 
                                               Navigator.push(
                                                 context,
@@ -202,6 +198,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                             type: QuickAlertType.error,
                                             title: 'عذراً...',
                                             text: result['message'],
+                                            barrierDismissible: false,
                                             confirmBtnText: 'المحاولة مرة أخرى',
                                           );
                                         }
@@ -209,13 +206,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                     } catch (e) {
                                       if (mounted) {
                                         Navigator.pop(context);
-                                        QuickAlert.show(
-                                          context: context,
-                                          type: QuickAlertType.error,
-                                          title: 'فشلت العملية',
-                                          text:
-                                              'حدث خطأ ما. برجاء التحقق من الاتصال بالشبكة.',
-                                        );
+                                          QuickAlert.show(
+                                            context: context,
+                                            type: QuickAlertType.error,
+                                            title: 'فشلت العملية',
+                                            text:
+                                                'حدث خطأ ما. برجاء التحقق من الاتصال بالشبكة.',
+                                            barrierDismissible: false,
+                                          );
                                       }
                                     }
                                   },

@@ -406,30 +406,21 @@ class ApiService {
         return {"success": false, "message": "Organization ID is missing!"};
 
       String formattedPhone = _formatPhoneNumber(contactPhone);
-      final formData = FormData();
-
-      formData.fields.addAll([
-        MapEntry('OrganizationId', organizationId),
-        MapEntry('OwnerId', ownerId),
-        MapEntry('Name', name),
-        MapEntry('Description', description),
-        MapEntry('Address', address),
-        MapEntry('ContactEmail', contactEmail),
-        MapEntry('ContactPhone', formattedPhone),
-        MapEntry('Type', type.toString()),
-      ]);
-
-      if (logo != null) {
-        formData.files.add(
-          MapEntry(
-            'Logo',
-            await MultipartFile.fromFile(
-              logo.path,
-              filename: 'logo_${DateTime.now().millisecondsSinceEpoch}.png',
-            ),
+      final formData = FormData.fromMap({
+        'OrganizationId': organizationId,
+        'OwnerId': ownerId,
+        'Name': name,
+        'Description': description,
+        'Address': address,
+        'ContactEmail': contactEmail,
+        'ContactPhone': formattedPhone,
+        'Type': type.toString(),
+        if (logo != null)
+          'Logo': await MultipartFile.fromFile(
+            logo.path,
+            filename: 'logo_${DateTime.now().millisecondsSinceEpoch}.png',
           ),
-        );
-      }
+      });
 
       final response = await _dio.put('/organizations', data: formData);
 

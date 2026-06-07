@@ -9,15 +9,16 @@ import 'package:root2route/screens/order/my_orders_screen.dart';
 
 class GuestHomeScreen extends StatefulWidget {
   static const String id = '/guesthomescreen';
+  final int initialIndex;
 
-  const GuestHomeScreen({super.key});
+  const GuestHomeScreen({super.key, this.initialIndex = 2}); // 2 = Market
 
   @override
   State<GuestHomeScreen> createState() => _GuestHomeScreenState();
 }
 
 class _GuestHomeScreenState extends State<GuestHomeScreen> {
-  int index = 0; // Default to Profile tab
+  late int index;
 
   final List<Widget> _screens = const [
     ProfileScreen(),
@@ -26,7 +27,19 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    index = widget.initialIndex;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Ensure index is safe for the current organization's tab count
+    int safeIndex = index;
+    if (safeIndex >= _screens.length) {
+      safeIndex = 0; // Fallback to Home (Index 0) if the previous index no longer exists
+    }
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, dynamic result) async {
@@ -52,9 +65,9 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
       },
       child: Scaffold(
         extendBody: true,
-        body: _screens[index],
+        body: _screens[safeIndex],
         bottomNavigationBar: FloatingGNavBar(
-          selectedIndex: index,
+          selectedIndex: safeIndex,
           onTabChange: (i) => setState(() => index = i),
           tabs: const [
             GButton(icon: Icons.person_outline, text: 'الحساب'),

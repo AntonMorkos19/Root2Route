@@ -41,6 +41,11 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -343,13 +348,6 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
                     : Theme.of(context).textTheme.titleSmall?.color,
           ),
         ),
-        subtitle: Text(
-          _fmtTs(bid.timestamp),
-          style: TextStyle(
-            fontSize: 11,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -387,25 +385,5 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
         ),
       ),
     );
-  }
-
-  String _fmtTs(DateTime dt) {
-    const m = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final h = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
-    final ap = dt.hour >= 12 ? 'PM' : 'AM';
-    return '${m[dt.month - 1]} ${dt.day}, ${dt.year} · $h:${dt.minute.toString().padLeft(2, '0')} $ap';
   }
 }

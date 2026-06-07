@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
+import 'package:root2route/screens/auction/auction_details_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
 class BuyerAuctionsScreen extends StatefulWidget {
@@ -303,12 +306,22 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
 // ─── الدوال المساعدة والـ Cards (زي ما هي) ──────────────────────────────────────────
 
 String? _resolveImageUrl(dynamic auction) {
-  final images =
-      auction['images'] ?? auction['Images'] ?? auction['productImages'];
-  String? imageUrl;
-  if (images is List && images.isNotEmpty) {
-    imageUrl = images.first?.toString();
+  // 1. Check top-level image fields first (fastest path)
+  String? imageUrl =
+      auction['productImage']?.toString() ??
+      auction['ProductImage']?.toString() ??
+      auction['productImageUrl']?.toString() ??
+      auction['ProductImageUrl']?.toString();
+
+  // 2. Fall back to images array
+  if (imageUrl == null || imageUrl.isEmpty) {
+    final images =
+        auction['images'] ?? auction['Images'] ?? auction['productImages'];
+    if (images is List && images.isNotEmpty) {
+      imageUrl = images.first?.toString();
+    }
   }
+
   if (imageUrl != null && imageUrl.startsWith('/')) {
     return 'https://root2route.runasp.net$imageUrl';
   }
@@ -336,8 +349,21 @@ class _ParticipatedAuctionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final title = _resolveTitle(auction);
     final displayUrl = _resolveImageUrl(auction);
-    final rawBid = auction['currentBid'] ?? 0;
+    final auctionId = (auction['id'] ?? auction['Id'] ?? auction['auctionId'] ?? '').toString();
+
+    // Robust multi-key lookup — covers all known API response shapes
+    final rawBid =
+        auction['currentHighestBid'] ??
+        auction['CurrentHighestBid'] ??
+        auction['highestBid'] ??
+        auction['HighestBid'] ??
+        auction['currentBid'] ??
+        auction['CurrentBid'] ??
+        0;
     final currentBid = double.tryParse(rawBid.toString()) ?? 0.0;
+
+    // Debug: print raw auction keys to console so you can verify the API response
+    debugPrint('[BuyerAuctions] auction keys: ${(auction as Map).keys.toList()}  | currentHighestBid=${auction['currentHighestBid']}');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -352,56 +378,83 @@ class _ParticipatedAuctionCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.horizontal(
-              left: Radius.circular(20),
-            ),
-            child: SizedBox(
-              width: 100,
-              height: 100,
-              child:
-                  displayUrl != null
-                      ? Image.network(
-                        displayUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder:
-                            (_, __, ___) => _imagePlaceholder(size: 32),
-                      )
-                      : _imagePlaceholder(size: 32),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+      clipBehavior: Clip.antiAlias,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: auctionId.isEmpty
+              ? null
+              : () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider(
+                        create: (_) => AuctionCubit(),
+                        child: AuctionDetailsScreen(auctionId: auctionId),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'المزايدة الحالية',
-                    style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-                  ),
-                  Text(
-                    '${PriceFormatter.format(currentBid)} جنيه',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
+                  );
+                },
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(20),
+                ),
+                child: SizedBox(
+                  width: 100,
+                  height: 100,
+                  child:
+                      displayUrl != null && displayUrl.isNotEmpty
+                          ? Image.network(
+                            displayUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (_, __, ___) => _imagePlaceholder(size: 32),
+                          )
+                          : _imagePlaceholder(size: 32),
+                ),
               ),
-            ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'أعلى مزايدة حالياً',
+                        style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                      ),
+                      Text(
+                        currentBid > 0
+                            ? '${PriceFormatter.format(currentBid)} جنيه'
+                            : 'لا توجد مزايدات بعد',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          color: currentBid > 0 ? AppColors.primary : Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(left: 12),
+                child: Icon(Icons.chevron_right_rounded, color: AppColors.primary),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

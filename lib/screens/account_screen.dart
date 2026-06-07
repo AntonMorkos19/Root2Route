@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:root2route/core/utils/app_alerts.dart';
 import 'package:root2route/components/custom_button.dart';
 import 'package:root2route/components/theme_toggle_button.dart';
 import 'package:root2route/core/responsive/app_sizes.dart';
@@ -354,16 +355,14 @@ class _AccountScreenViewState extends State<_AccountScreenView> {
                               onTap: () {
                                 final accountCubit =
                                     context.read<AccountCubit>();
-                                QuickAlert.show(
+                                AppAlerts.showConfirm(
+                                  'هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.',
                                   context: context,
-                                  type: QuickAlertType.warning,
                                   title: 'حذف الحساب',
-                                  text: 'هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.',
                                   confirmBtnText: 'حذف',
                                   cancelBtnText: 'إلغاء',
-                                  showCancelBtn: true,
                                   confirmBtnColor: Colors.red,
-                                  onConfirmBtnTap: () {
+                                  onConfirm: () {
                                     Navigator.pop(context);
                                     accountCubit.deleteAccount();
                                   },

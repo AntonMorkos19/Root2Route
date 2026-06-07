@@ -70,7 +70,7 @@ class _SplashScreenState extends State<SplashScreen>
       if (isLoggedIn && !isTokenValid) {
         debugPrint('Access Token expired. Attempting silent refresh...');
         bool refreshed = await ApiService().refreshAuthToken();
-        
+
         if (!refreshed) {
           await StorageService().logout();
           if (!mounted) return;
@@ -201,7 +201,7 @@ class _SplashScreenState extends State<SplashScreen>
                 const SizedBox(height: 8),
 
                 Text(
-                  "Manage  • Connect  •  Grow",
+                  "أدِر • سَوِّق • استثمر •",
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.85),
                     fontSize: 18.sp,

@@ -60,3 +60,22 @@ class BidHistoryLoaded extends AuctionState {
 
   const BidHistoryLoaded({required this.bids, required this.auction});
 }
+
+// ─── Concurrency & Real-time states ──────────────────────
+
+/// Emitted when a bid fails due to optimistic concurrency (another user
+/// bid at the exact same moment). The UI should show a friendly SnackBar
+/// instead of a generic error screen. The SignalR `ReceiveNewBid` event
+/// will simultaneously update the displayed price.
+class AuctionBidConcurrencyConflict extends AuctionState {
+  final String message;
+  const AuctionBidConcurrencyConflict(this.message);
+}
+
+/// Emitted when a real-time bid update arrives via SignalR.
+/// The UI can use this to update the displayed price without a full reload.
+class AuctionLiveBidReceived extends AuctionState {
+  final double newAmount;
+  final String bidderId;
+  const AuctionLiveBidReceived({required this.newAmount, required this.bidderId});
+}

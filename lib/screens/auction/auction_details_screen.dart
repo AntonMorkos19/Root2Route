@@ -37,18 +37,10 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
   List<BidModel> _bidsList = [];
   final TextEditingController _bidController = TextEditingController();
 
-  /// Local bidding loading flag — avoids replacing the whole screen UI.
-  bool _isBidding = false;
-
-  /// Cached auction model — kept visible during bid submission.
   AuctionModel? _lastAuction;
 
   Map<String, dynamic>? _productData;
   bool _isLoadingProduct = false;
-
-  // ──────────────────────────────────────────────────────────────
-  // Lifecycle
-  // ──────────────────────────────────────────────────────────────
 
   @override
   void didChangeDependencies() {
@@ -146,7 +138,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     return 'حدث خطأ أثناء إرسال المزايدة. يرجى المحاولة مرة أخرى.';
   }
 
-  void _submitBid(AuctionModel auction) async {
+  void _submitBid(AuctionModel auction) {
     final double currentHighest = auction.currentHighestBid ?? auction.startingPrice;
     final double minRequired = currentHighest + auction.minimumBidIncrement;
 
@@ -166,67 +158,8 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
       return;
     }
 
-    debugPrint('[🎯 SUBMIT BID] auctionId=$_auctionId  amount=$entered  (type: double)');
-
-    setState(() => _isBidding = true);
-
-    try {
-      final result = await _api.placeBid(auctionId: _auctionId, amount: entered);
-
-      debugPrint('[🎯 SUBMIT BID] result: $result');
-
-      if (!mounted) return;
-
-      if (result['success'] == true) {
-        _bidController.clear();
-        Navigator.of(context).pop(); // close bottom sheet
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 8),
-                Text('تم تقديم المزايدة بنجاح! 🎉', style: TextStyle(color: Colors.white)),
-              ],
-            ),
-            backgroundColor: AppColors.primary,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
-        // Refresh auction + bids
-        context.read<AuctionCubit>().fetchAuctionDetails(_auctionId);
-        _fetchBids(_auctionId);
-      } else {
-        // Show the REAL backend message directly, fall back to Arabic generic only if empty
-        final String rawMsg = result['message']?.toString() ?? '';
-        final String displayMsg = rawMsg.isNotEmpty ? rawMsg : 'حدث خطأ أثناء إرسال المزايدة. يرجى المحاولة مرة أخرى.';
-
-        debugPrint('[🎯 SUBMIT BID] FAILED — backend msg: $rawMsg  statusCode: ${result['statusCode']}');
-
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.error,
-          title: 'فشل إرسال المزايدة',
-          text: displayMsg,
-          confirmBtnText: 'حسناً',
-          confirmBtnColor: Colors.redAccent,
-        );
-      }
-    } catch (e) {
-      debugPrint('[🔥 SUBMIT BID] unexpected exception: $e');
-      if (!mounted) return;
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'خطأ في الاتصال',
-        text: 'تعذّر الاتصال بالشبكة، يرجى التحقق من الاتصال والمحاولة مجدداً.',
-        confirmBtnText: 'حسناً',
-        confirmBtnColor: Colors.redAccent,
-      );
-    } finally {
-      if (mounted) setState(() => _isBidding = false);
-    }
+    debugPrint('[🎯 SUBMIT BID via Cubit] auctionId=$_auctionId  amount=$entered');
+    context.read<AuctionCubit>().placeBid(auctionId: _auctionId, amount: entered);
   }
 
 
@@ -235,20 +168,25 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     final double currentHighest = auction.currentHighestBid ?? auction.startingPrice;
     final double minRequired = currentHighest + auction.minimumBidIncrement;
 
+    final cubit = context.read<AuctionCubit>();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: StatefulBuilder(
-          builder: (sheetCtx, setSheetState) {
-            return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              padding: EdgeInsets.fromLTRB(
-                24, 24, 24,
-                24 + MediaQuery.of(sheetCtx).viewInsets.bottom,
-              ),
+      builder: (_) => BlocProvider.value(
+        value: cubit,
+        child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: BlocBuilder<AuctionCubit, AuctionState>(
+            builder: (sheetCtx, state) {
+              final bool isBidding = state is BidLoading;
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                padding: EdgeInsets.fromLTRB(
+                  24, 24, 24,
+                  24 + MediaQuery.of(sheetCtx).viewInsets.bottom,
+                ),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -287,7 +225,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                   TextField(
                     controller: _bidController,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    enabled: !_isBidding,
+                    enabled: !isBidding,
                     textAlign: TextAlign.right,
                     decoration: InputDecoration(
                       hintText: 'مثال: ${_fmt(minRequired)}',
@@ -305,14 +243,14 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isBidding ? null : () => _submitBid(auction),
+                      onPressed: isBidding ? null : () => _submitBid(auction),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: _isBidding
+                      child: isBidding
                           ? const SizedBox(
                               height: 22,
                               width: 22,
@@ -351,13 +289,11 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           },
         ),
       ),
+    ),
     );
   }
 
-  // ──────────────────────────────────────────────────────────────
-  // Helpers
-  // ──────────────────────────────────────────────────────────────
-
+ 
   String _fmt(double v) => PriceFormatter.format(v);
 
   String _translateStatus(String status) {
@@ -403,6 +339,45 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
             if (state is AuctionSuccess<AuctionModel>) {
               if (_productData == null && !_isLoadingProduct) {
                 _fetchProductData(state.data.productId);
+              }
+            }
+            if (state is BidPlaced) {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context); // Close bottom sheet
+              }
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.success,
+                title: 'نجاح',
+                text: 'تمت المزايدة بنجاح!',
+                confirmBtnText: 'حسناً',
+              );
+              if (_auctionId.isNotEmpty) {
+                context.read<AuctionCubit>().fetchAuctionDetails(_auctionId);
+                _fetchBids(_auctionId);
+              }
+            }
+            if (state is AuctionBidConcurrencyConflict) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('مستخدم آخر قام بالمزايدة! السعر تغير. حاول مرة أخرى.', style: TextStyle(color: Colors.white)),
+                  backgroundColor: Colors.orange,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
+            if (state is AuctionLiveBidReceived) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('تم المزايدة بمبلغ ${_fmt(state.newAmount)} ج.م', style: const TextStyle(color: Colors.white)),
+                  backgroundColor: Colors.blue,
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+              if (_auctionId.isNotEmpty) {
+                context.read<AuctionCubit>().fetchAuctionDetails(_auctionId);
+                _fetchBids(_auctionId);
               }
             }
             if (state is AuctionError && _lastAuction != null) {
@@ -509,7 +484,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
         currentOrgId != null &&
         currentOrgId.isNotEmpty &&
         pOrgId != null &&
-        currentOrgId == pOrgId;
+        currentOrgId.toLowerCase() == pOrgId.toLowerCase();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -649,22 +624,14 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: _isBidding
-                  ? null
-                  : () {
-                      if (isGuest) {
-                        Navigator.pushNamed(context, LoginScreen.id);
-                        return;
-                      }
-                      _showBidBottomSheet(auction);
-                    },
-              icon: _isBidding
-                  ? const SizedBox(
-                      height: 18,
-                      width: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(Icons.gavel_rounded, color: Colors.white, size: 20),
+              onPressed: () {
+                if (isGuest) {
+                  Navigator.pushNamed(context, LoginScreen.id);
+                  return;
+                }
+                _showBidBottomSheet(auction);
+              },
+              icon: const Icon(Icons.gavel_rounded, color: Colors.white, size: 20),
               label: Text(
                 isGuest ? 'سجّل الدخول للمزايدة' : 'أضف مزايدتك',
                 style: const TextStyle(
@@ -968,10 +935,6 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
               bid.bidderName,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
             ),
-            subtitle: Text(
-              _formatTimestamp(bid.timestamp),
-              style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade500),
-            ),
             trailing: Text(
               '${_fmt(bid.amount)} ج.م',
               style: TextStyle(
@@ -984,15 +947,6 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
         },
       ),
     );
-  }
-
-  String _formatTimestamp(DateTime dt) {
-    final now = DateTime.now();
-    final diff = now.difference(dt);
-    if (diff.inMinutes < 1) return 'الآن';
-    if (diff.inMinutes < 60) return 'منذ ${diff.inMinutes} د';
-    if (diff.inHours < 24) return 'منذ ${diff.inHours} س';
-    return 'منذ ${diff.inDays} يوم';
   }
 }
 

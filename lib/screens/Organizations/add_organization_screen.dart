@@ -16,6 +16,7 @@ import 'package:root2route/screens/restaurant/restaurant_home_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/core/utils/snackbar_helper.dart';
+import 'package:root2route/core/utils/app_validators.dart';
 
 class AddOrganizationScreen extends StatefulWidget {
   const AddOrganizationScreen({super.key});
@@ -262,12 +263,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                   icon: Icons.business_outlined,
                   label: 'اسم الشركة',
                   controller: nameController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'يرجى إدخال اسم الشركة';
-                    }
-                    return null;
-                  },
+                  validator: (val) => AppValidators.validateRequired(val, 'اسم الشركة'),
                 ),
                 const SizedBox(height: 12),
                 CustomTextFormField(
@@ -275,12 +271,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                   label: 'البريد الإلكتروني',
                   textDirection: TextDirection.ltr,
                   controller: emailController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'يرجى إدخال البريد الإلكتروني';
-                    }
-                    return null;
-                  },
+                  validator: AppValidators.validateEmail,
                 ),
                 const SizedBox(height: 12),
                 CustomTextFormField(
@@ -289,29 +280,14 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                   textDirection: TextDirection.ltr,
                   controller: phoneController,
                   keyboardType: TextInputType.phone,
-
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'يرجى إدخال رقم الهاتف';
-                    }
-                    if (!RegExp(r'^[0-9]{7,15}$').hasMatch(value)) {
-                      return 'أدخل رقم هاتف صحيح';
-                    }
-                    return null;
-                  },
+                  validator: AppValidators.validatePhone,
                 ),
                 const SizedBox(height: 12),
                 CustomTextFormField(
                   icon: Icons.location_on_outlined,
                   label: 'العنوان',
                   controller: addressController,
-
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'يرجى إدخال العنوان';
-                    }
-                    return null;
-                  },
+                  validator: (val) => AppValidators.validateRequired(val, 'العنوان'),
                 ),
                 const SizedBox(height: 20),
 
@@ -390,14 +366,8 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                   icon: Icons.description_outlined,
                   label: 'الوصف',
                   controller: descriptionController,
-
                   maxLines: 3,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'يرجى إدخال الوصف';
-                    }
-                    return null;
-                  },
+                  validator: (val) => AppValidators.validateRequired(val, 'الوصف'),
                 ),
 
                 const SizedBox(height: 30),

@@ -55,18 +55,18 @@ Color _colorForType(int type) {
   }
 }
 
-Widget _homeScreenForType(int type) {
+Widget _homeScreenForType(int type, {Key? key}) {
   switch (type) {
     case 0:
-      return const FarmerHomeScreen();
+      return FarmerHomeScreen(key: key);
     case 1:
-      return const RestaurantHomeScreen();
+      return RestaurantHomeScreen(key: key);
     case 2:
-      return const FactoryHomeScreen();
+      return FactoryHomeScreen(key: key);
     case 3:
-      return const TradesmanHomeScreen();
+      return TradesmanHomeScreen(key: key);
     default:
-      return const FarmerHomeScreen();
+      return FarmerHomeScreen(key: key);
   }
 }
 
@@ -126,7 +126,7 @@ class _SwitchOrganizationSheetState extends State<_SwitchOrganizationSheet> {
 
     if (widget.parentContext.mounted) {
       Navigator.of(widget.parentContext).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => _homeScreenForType(org.type)),
+        MaterialPageRoute(builder: (_) => _homeScreenForType(org.type, key: UniqueKey())),
         (route) => false,
       );
     }

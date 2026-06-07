@@ -11,15 +11,16 @@ import 'package:root2route/services/storage_service.dart';
 
 class RestaurantHomeScreen extends StatefulWidget {
   static const String id = '/restaurantHome';
+  final int initialIndex;
 
-  const RestaurantHomeScreen({super.key});
+  const RestaurantHomeScreen({super.key, this.initialIndex = 2}); // 2 = Market
 
   @override
   State<RestaurantHomeScreen> createState() => _RestaurantHomeScreenState();
 }
 
 class _RestaurantHomeScreenState extends State<RestaurantHomeScreen> {
-  int index = 0;
+  late int index;
   String? myOrganizationId;
 
   List<Widget> get screens => [
@@ -31,11 +32,18 @@ class _RestaurantHomeScreenState extends State<RestaurantHomeScreen> {
   @override
   void initState() {
     super.initState();
+    index = widget.initialIndex;
     myOrganizationId = StorageService().organizationId;
   }
 
   @override
   Widget build(BuildContext context) {
+    // Ensure index is safe for the current organization's tab count
+    int safeIndex = index;
+    if (safeIndex >= screens.length) {
+      safeIndex = 0; // Fallback to Home (Index 0) if the previous index no longer exists
+    }
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, dynamic result) async {
@@ -64,9 +72,9 @@ class _RestaurantHomeScreenState extends State<RestaurantHomeScreen> {
         backgroundColor: AppColors.backgroundColor,
         // المطعم مش بيبيع فـ مفيش أي FloatingActionButton هنا
         floatingActionButton: null,
-        body: screens[index],
+        body: screens[safeIndex],
         bottomNavigationBar: FloatingGNavBar(
-          selectedIndex: index,
+          selectedIndex: safeIndex,
           onTabChange: (i) => setState(() => index = i),
           tabs: const [
             GButton(icon: Icons.person_outline, text: 'الحساب'),

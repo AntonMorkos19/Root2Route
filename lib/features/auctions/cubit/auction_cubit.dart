@@ -1,16 +1,23 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
 import 'package:root2route/models/auction_model.dart';
 import 'package:root2route/services/api.dart';
+import 'package:root2route/services/auction_hub_service.dart';
 import 'package:root2route/services/storage_service.dart';
 
 /// Cubit handling all seller-side auction operations.
 class AuctionCubit extends Cubit<AuctionState> {
   final ApiService _service;
+  final AuctionHubService _hubService;
 
-  AuctionCubit({ApiService? service})
+  StreamSubscription<LiveBidUpdate>? _bidSubscription;
+
+  AuctionCubit({ApiService? service, AuctionHubService? hubService})
       : _service = service ?? ApiService(),
+        _hubService = hubService ?? AuctionHubService(),
         super(const AuctionInitial());
 
   // ──────────────────────────────────────────────────────
@@ -32,6 +39,58 @@ class AuctionCubit extends Cubit<AuctionState> {
     final ended = auctions.where((a) => a.isEnded).toList();
 
     _emitSafe(AuctionDashboardLoaded(upcoming, active, ended));
+  }
+
+  // ──────────────────────────────────────────────────────
+  // SIGNALR HUB MANAGEMENT
+  // ──────────────────────────────────────────────────────
+
+  /// Connects to the Auction SignalR hub and starts listening for bid updates.
+  ///
+  /// Call this once when entering a live auction context (e.g., auction details).
+  Future<void> connectToHub() async {
+    final token = StorageService().token;
+    if (token == null || token.isEmpty) {
+      debugPrint('[AuctionCubit] No token available — skipping hub connection.');
+      return;
+    }
+
+    try {
+      await _hubService.connect(token);
+
+      // Subscribe to the real-time bid stream
+      _bidSubscription?.cancel();
+      _bidSubscription = _hubService.onNewBid.listen((update) {
+        _emitSafe(AuctionLiveBidReceived(
+          newAmount: update.newAmount,
+          bidderId: update.bidderId,
+        ));
+      });
+    } catch (e) {
+      debugPrint('[AuctionCubit] Hub connection failed: $e');
+    }
+  }
+
+  /// Joins the SignalR group for a specific auction.
+  Future<void> joinAuctionGroup(String auctionId) async {
+    await _hubService.joinAuctionGroup(auctionId);
+  }
+
+  /// Leaves the SignalR group for a specific auction.
+  Future<void> leaveAuctionGroup(String auctionId) async {
+    await _hubService.leaveAuctionGroup(auctionId);
+  }
+
+  /// Fetches the live auction state directly from the hub (no HTTP call).
+  Future<Map<String, dynamic>?> getAuctionState(String auctionId) async {
+    return _hubService.getAuctionState(auctionId);
+  }
+
+  /// Disconnects from the hub. Call when leaving the auction context.
+  Future<void> disconnectFromHub() async {
+    _bidSubscription?.cancel();
+    _bidSubscription = null;
+    await _hubService.disconnect();
   }
 
   // ──────────────────────────────────────────────────────
@@ -206,7 +265,7 @@ class AuctionCubit extends Cubit<AuctionState> {
   }
 
   // ──────────────────────────────────────────────────────
-  // PLACE BID
+  // PLACE BID (with Concurrency Conflict Handling)
   // ──────────────────────────────────────────────────────
   /// Submits a bid for [auctionId] with the given [amount].
   ///
@@ -214,7 +273,9 @@ class AuctionCubit extends Cubit<AuctionState> {
   ///  1. [BidLoading]  – disables the submit button in the UI.
   ///  2. [BidPlaced]   – on success; the UI clears the field & shows a SnackBar.
   ///     The cubit then automatically re-fetches details + bid history.
-  ///  3. [AuctionError] – on failure; carries a user-facing message.
+  ///  3. [AuctionBidConcurrencyConflict] – on optimistic concurrency error;
+  ///     the UI shows a friendly SnackBar while SignalR updates the price.
+  ///  4. [AuctionError] – on any other failure; carries a user-facing message.
   Future<void> placeBid({
     required String auctionId,
     required double amount,
@@ -231,25 +292,65 @@ class AuctionCubit extends Cubit<AuctionState> {
         // Re-fetch details and bids so the UI refreshes immediately.
         await fetchAuctionDetails(auctionId);
       } else {
-        _emitSafe(AuctionError(result['message'] ?? 'Failed to place bid.'));
+        final message = result['message'] ?? 'Failed to place bid.';
+        // Check for the specific concurrency error from the backend
+        if (_isConcurrencyError(message)) {
+          _emitSafe(AuctionBidConcurrencyConflict(message));
+        } else if (_isOwnAuctionError(message)) {
+          _emitSafe(const AuctionError('لا يمكنك المزايدة على مزاد تابع لشركتك.'));
+        } else {
+          _emitSafe(AuctionError(message));
+        }
       }
     } on DioException catch (e) {
-      final msg =
-          (e.response?.data is Map)
-              ? (e.response!.data['message'] ?? _extractApiError(e))
-              : _extractApiError(e);
-      _emitSafe(AuctionError(msg));
+      final msg = _extractDioMessage(e);
+      // Check if this is the concurrency conflict from the backend
+      if (_isConcurrencyError(msg)) {
+        _emitSafe(AuctionBidConcurrencyConflict(msg));
+      } else if (_isOwnAuctionError(msg)) {
+        _emitSafe(const AuctionError('لا يمكنك المزايدة على مزاد تابع لشركتك.'));
+      } else {
+        _emitSafe(AuctionError(msg));
+      }
     } catch (e) {
       _emitSafe(AuctionError(e.toString()));
     }
   }
 
-  /// Helper to call [_service]'s error extractor (kept private, forwarded here).
-  String _extractApiError(DioException e) {
+  /// Returns `true` if [message] matches the backend's optimistic concurrency error.
+  bool _isConcurrencyError(String message) {
+    return message.toLowerCase().contains('high bidding volume') ||
+        message.toLowerCase().contains('bid could not be processed');
+  }
+
+  /// Returns `true` if [message] matches the backend's own auction error.
+  bool _isOwnAuctionError(String message) {
+    return message.toLowerCase().contains("cannot bid on your own") ||
+        message.toLowerCase().contains("own organization");
+  }
+
+  /// Extracts a user-facing message from a [DioException], checking both
+  /// the `message` field and the nested `errors` map.
+  String _extractDioMessage(DioException e) {
     if (e.response == null) return 'No Internet Connection';
     final d = e.response?.data;
     if (d is Map) {
-      return d['message'] ?? d['msg'] ?? d['error'] ?? d['title'] ?? 'Server error';
+      // Check the top-level message first
+      final msg = d['message'] ?? d['msg'] ?? d['error'] ?? d['title'];
+      if (msg != null) return msg.toString();
+
+      // Check nested errors map (ASP.NET validation style)
+      if (d['errors'] is Map) {
+        final errors = d['errors'] as Map;
+        if (errors.isNotEmpty) {
+          final firstError = errors.values.first;
+          if (firstError is List && firstError.isNotEmpty) {
+            return firstError[0].toString();
+          }
+          return firstError.toString();
+        }
+      }
+      return 'Server error';
     }
     return e.message ?? 'Unexpected error';
   }
@@ -267,5 +368,15 @@ class AuctionCubit extends Cubit<AuctionState> {
     } catch (e) {
       _emitSafe(AuctionError(e.toString()));
     }
+  }
+
+  // ──────────────────────────────────────────────────────
+  // LIFECYCLE
+  // ──────────────────────────────────────────────────────
+  @override
+  Future<void> close() {
+    _bidSubscription?.cancel();
+    _hubService.dispose();
+    return super.close();
   }
 }

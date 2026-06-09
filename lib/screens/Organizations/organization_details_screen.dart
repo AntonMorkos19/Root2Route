@@ -15,6 +15,7 @@ import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/core/utils/snackbar_helper.dart';
+import 'package:root2route/core/utils/image_utils.dart';
 
 class OrganizationDetailsScreen extends StatefulWidget {
   final OrganizationModel organization;
@@ -83,12 +84,6 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
       default:
         return Icons.business;
     }
-  }
-
-  String _getFullImageUrl(String? imagePath) {
-    if (imagePath == null || imagePath.isEmpty) return '';
-    if (imagePath.startsWith('http')) return imagePath;
-    return 'https://root2route.runasp.net$imagePath';
   }
 
   Future<void> _deleteOrganization() async {
@@ -200,7 +195,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final org = widget.organization;
-    final String imageUrl = _getFullImageUrl(org.logoUrl);
+    final String imageUrl = org.logoUrl.fullImageUrl;
     final bool hasImage = imageUrl.isNotEmpty;
 
     // Show the ⋮ menu only if this org belongs to the logged-in user.

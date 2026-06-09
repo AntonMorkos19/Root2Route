@@ -464,6 +464,71 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> getMyInvitations() async {
+    try {
+      final token = StorageService().token;
+      final response = await _dio.get(
+        '/organization-invitations/my',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      final data = response.data;
+      return {
+        "success": data['succeeded'] ?? true,
+        "data": data['data'] ?? [],
+        "message": data['message'] ?? 'Success',
+      };
+    } on DioException catch (e) {
+      return {"success": false, "message": _extractApiError(e)};
+    }
+  }
+
+  Future<Map<String, dynamic>> acceptInvitation(String invitationId) async {
+    try {
+      final token = StorageService().token;
+
+      // الـ Swagger طالب الـ InvitationId والـ token كـ queryParameters
+      // وبما إن الـ Curl كان فيه -d '' ، ده معناه إننا نبعت body فاضي
+      final response = await _dio.post(
+        '/organization-invitations/accept', // تأكد من المسار الكامل هنا
+        queryParameters: {'InvitationId': invitationId, 'token': token},
+        data: {},
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      final responseData = response.data;
+
+      // فحص النتيجة بناءً على الـ API structure
+      if (responseData is Map && responseData['succeeded'] == false) {
+        throw Exception(responseData['message'] ?? 'فشل في قبول الدعوة');
+      }
+
+      return {
+        "success": true,
+        "message": responseData['message'] ?? "تم قبول الدعوة بنجاح",
+        "data": responseData,
+      };
+    } on DioException catch (e) {
+      // استخراج الرسالة من السيرفر لو موجودة، بدل الرسالة العامة
+      String errorMessage = _extractApiError(e);
+      throw Exception(errorMessage);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<Map<String, dynamic>> rejectInvitation(String invitationId) async {
+    try {
+      final token = StorageService().token;
+      final response = await _dio.put(
+        '/organization-invitations/$invitationId/reject',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      return {"success": true, "message": "Invitation rejected successfully"};
+    } on DioException catch (e) {
+      return {"success": false, "message": _extractApiError(e)};
+    }
+  }
+
   Future<Map<String, dynamic>> getOrganizationById(String id) async {
     try {
       final response = await _dio.get('/organizations/$id');
@@ -656,11 +721,14 @@ class ApiService {
     if (accToken == null || refToken == null) return false;
 
     try {
-      final response = await _dio.post('/refresh-token', data: {
-        "accessToken": accToken,
-        "refreshToken": refToken,
-        "organizationId": orgId ?? "",
-      });
+      final response = await _dio.post(
+        '/refresh-token',
+        data: {
+          "accessToken": accToken,
+          "refreshToken": refToken,
+          "organizationId": orgId ?? "",
+        },
+      );
 
       if (response.statusCode == 200 && response.data != null) {
         final newAccess = response.data['accessToken'] ?? accToken;
@@ -689,12 +757,12 @@ class ApiService {
       if (token == null || token.isEmpty) {
         throw Exception('User is not authenticated.');
       }
-      
+
       await _dio.delete(
         '/users/me',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
-      
+
       // Clear local storage after successful deletion
       await StorageService().logout();
       print("User account deleted and local data cleared.");
@@ -711,16 +779,20 @@ class ApiService {
       if (token == null || token.isEmpty) {
         throw Exception('User is not authenticated.');
       }
-      
+
       final response = await _dio.post(
         '/auth/change-password',
         data: request.toJson(),
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
-      
+
       if (response.data != null && response.data is Map) {
-        if (response.data['success'] == false || response.data['isSuccess'] == false || response.data['succeeded'] == false) {
-          throw Exception(response.data['message'] ?? 'Failed to change password.');
+        if (response.data['success'] == false ||
+            response.data['isSuccess'] == false ||
+            response.data['succeeded'] == false) {
+          throw Exception(
+            response.data['message'] ?? 'Failed to change password.',
+          );
         }
       }
     } on DioException catch (e) {
@@ -1644,7 +1716,9 @@ class ApiService {
   Future<List<BidModel>> getAuctionBidsAsBidModels(String auctionId) async {
     try {
       final response = await _dio.get('/auctions/$auctionId/bids');
-      return _parseList(response.data).map((json) => BidModel.fromJson(json)).toList()
+      return _parseList(
+          response.data,
+        ).map((json) => BidModel.fromJson(json)).toList()
         ..sort((a, b) => b.amount.compareTo(a.amount));
     } on DioException catch (e) {
       throw AuctionException(_extractApiError(e));
@@ -1652,7 +1726,6 @@ class ApiService {
       throw AuctionException('Failed to fetch bids: $e');
     }
   }
-
 
   // 2. Place Bid
   // POST /auctions/{auctionId}/bid  body: { "amount": <double> }
@@ -1664,9 +1737,12 @@ class ApiService {
       final token = StorageService().token;
 
       // ── Explicitly parse to double to guarantee a JSON number, not a string ──
-      final double bidAmount = amount; // already a double from the controller parse
+      final double bidAmount =
+          amount; // already a double from the controller parse
 
-      debugPrint('[💰 BID] Sending to /auctions/$auctionId/bid  amount=$bidAmount');
+      debugPrint(
+        '[💰 BID] Sending to /auctions/$auctionId/bid  amount=$bidAmount',
+      );
 
       final response = await _dio.post(
         '/auctions/$auctionId/bid',
@@ -1691,12 +1767,14 @@ class ApiService {
             respBody['succeeded'] == true ||
             respBody['success'] == true;
 
-        final String message = isSuccess
-            ? (respBody['message']?.toString() ?? 'تم تقديم المزايدة بنجاح!')
-            : (respBody['message']?.toString() ??
-               respBody['title']?.toString() ??
-               respBody['error']?.toString() ??
-               'فشل تقديم المزايدة.');
+        final String message =
+            isSuccess
+                ? (respBody['message']?.toString() ??
+                    'تم تقديم المزايدة بنجاح!')
+                : (respBody['message']?.toString() ??
+                    respBody['title']?.toString() ??
+                    respBody['error']?.toString() ??
+                    'فشل تقديم المزايدة.');
 
         return {
           'success': isSuccess,
@@ -1723,7 +1801,8 @@ class ApiService {
       final errBody = e.response?.data;
       String message;
       if (errBody is Map) {
-        message = errBody['message']?.toString() ??
+        message =
+            errBody['message']?.toString() ??
             errBody['title']?.toString() ??
             errBody['error']?.toString() ??
             _extractApiError(e);

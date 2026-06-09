@@ -1,3 +1,5 @@
+import 'package:root2route/core/utils/image_utils.dart';
+
 class PlantModel {
   final String id;
   final String name;
@@ -30,8 +32,7 @@ class PlantModel {
   /// Full image URL prefixed with the base server URL.
   String? get fullImageUrl {
     if (imageUrl == null || imageUrl!.isEmpty) return null;
-    const baseServer = 'https://root2route.runasp.net';
-    return imageUrl!.startsWith('http') ? imageUrl : '$baseServer$imageUrl';
+    return imageUrl!.fullImageUrl;
   }
 
   factory PlantModel.fromJson(Map<String, dynamic> json) {

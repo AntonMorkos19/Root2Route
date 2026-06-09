@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
- import 'package:root2route/models/organization_model.dart';
+import 'package:root2route/models/organization_model.dart';
 import 'package:root2route/screens/Organizations/organization_details_screen.dart';
+import 'package:root2route/core/utils/image_utils.dart';
 
 class OrganizationCard extends StatelessWidget {
   final OrganizationModel organization;
@@ -15,18 +16,9 @@ class OrganizationCard extends StatelessWidget {
     this.isMyOrganization = false,
   });
 
-   String _getFullImageUrl() {
-    final logoUrl = organization.logoUrl;
-    if (logoUrl == null || logoUrl.isEmpty) return '';
-    
-     if (logoUrl.startsWith('http')) return logoUrl;
-    
-      return 'https://root2route.runasp.net$logoUrl';
-  }
-
   @override
   Widget build(BuildContext context) {
-    final String imageUrl = _getFullImageUrl();
+    final String imageUrl = organization.logoUrl.fullImageUrl;
     final bool hasImage = imageUrl.isNotEmpty;
 
     return InkWell(

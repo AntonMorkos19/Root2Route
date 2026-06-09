@@ -15,6 +15,8 @@ import 'package:root2route/screens/chat/chat_details_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/chat_service.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/screens/chat/chat_rooms_screen.dart';
+import 'package:root2route/core/utils/image_utils.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
 
 class AuctionDetailsScreen extends StatefulWidget {
@@ -522,7 +524,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
             if (auction.isActive)
               _buildDisabledOwnerButton(),
           ] else ...[
-            _buildActionButtons(auction, isGuest, pOrgId, currentHighest),
+            _buildActionButtons(auction, isGuest),
           ],
 
           const SizedBox(height: 16),
@@ -550,106 +552,37 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
   Widget _buildActionButtons(
     AuctionModel auction,
     bool isGuest,
-    String? sellerId,
-    double currentHighest,
   ) {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () async {
-              if (isGuest) {
-                Navigator.pushNamed(context, LoginScreen.id);
-                return;
-              }
-              if (sellerId == null || sellerId.isEmpty) return;
+    if (!auction.isActive) {
+      return const SizedBox.shrink();
+    }
 
-              QuickAlert.show(
-                context: context,
-                type: QuickAlertType.loading,
-                title: 'جاري فتح المحادثة...',
-                text: 'يرجى الانتظار',
-                barrierDismissible: false,
-              );
-
-              try {
-                final roomId = await ChatService().startChat(
-                  organizationId: sellerId,
-                  productId: auction.productId,
-                );
-                if (mounted) {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider(
-                        create: (_) => ChatMessagesCubit(ChatService()),
-                        child: ChatDetailsScreen(
-                          roomId: roomId,
-                          roomName: _productData?['sellerName'] ??
-                              _productData?['organizationName'] ??
-                              'البائع',
-                        ),
-                      ),
-                    ),
-                  );
-                }
-              } catch (_) {
-                if (mounted) {
-                  Navigator.pop(context);
-                  QuickAlert.show(
-                    context: context,
-                    type: QuickAlertType.error,
-                    title: 'خطأ',
-                    text: 'فشل الاتصال. يرجى المحاولة مرة أخرى.',
-                    confirmBtnText: 'حسناً',
-                  );
-                }
-              }
-            },
-            icon: const Icon(Icons.chat_bubble_outline, color: AppColors.primary),
-            label: const Text(
-              'تواصل مع البائع',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary),
-            ),
-            style: OutlinedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              side: const BorderSide(color: AppColors.primary, width: 1.5),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          if (isGuest) {
+            Navigator.pushNamed(context, LoginScreen.id);
+            return;
+          }
+          _showBidBottomSheet(auction);
+        },
+        icon: const Icon(Icons.gavel_rounded, color: Colors.white, size: 20),
+        label: Text(
+          isGuest ? 'سجّل الدخول للمزايدة' : 'أضف مزايدتك',
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
-        if (auction.isActive) ...[
-          const SizedBox(width: 12),
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () {
-                if (isGuest) {
-                  Navigator.pushNamed(context, LoginScreen.id);
-                  return;
-                }
-                _showBidBottomSheet(auction);
-              },
-              icon: const Icon(Icons.gavel_rounded, color: Colors.white, size: 20),
-              label: Text(
-                isGuest ? 'سجّل الدخول للمزايدة' : 'أضف مزايدتك',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ),
-        ],
-      ],
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
     );
   }
 
@@ -673,9 +606,6 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
         }
       }
     }
-    final displayUrl = (imageUrl != null && imageUrl.startsWith('/'))
-        ? 'https://root2route.runasp.net$imageUrl'
-        : imageUrl;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -696,9 +626,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           // Product image
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: displayUrl != null && displayUrl.isNotEmpty
+            child: imageUrl != null && imageUrl.isNotEmpty
                 ? Image.network(
-                    displayUrl,
+                    imageUrl.fullImageUrl,
                     height: 200,
                     width: double.infinity,
                     fit: BoxFit.cover,

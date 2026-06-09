@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_state.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
+import 'package:root2route/core/utils/image_utils.dart';
 class CartScreen extends StatefulWidget {
   static const String id = '/cartScreen';
 
@@ -88,11 +89,6 @@ class _CartScreenState extends State<CartScreen> {
     final productId = item['productId'] as String;
     final imageUrl = item['imageUrl'] as String?;
 
-    final displayUrl =
-        (imageUrl != null && imageUrl.startsWith('/'))
-            ? 'https://root2route.runasp.net$imageUrl'
-            : imageUrl;
-
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -118,9 +114,9 @@ class _CartScreenState extends State<CartScreen> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child:
-                  displayUrl != null
+                  imageUrl != null && imageUrl.isNotEmpty
                       ? Image.network(
-                        displayUrl,
+                        imageUrl.fullImageUrl,
                         fit: BoxFit.cover,
                         errorBuilder:
                             (context, error, stackTrace) => const Icon(

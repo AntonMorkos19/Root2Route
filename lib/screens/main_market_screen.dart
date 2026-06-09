@@ -6,6 +6,7 @@ import 'package:root2route/screens/product/details_product_screen.dart';
 import 'package:root2route/screens/product/add_product_screen.dart';
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
+import 'package:root2route/core/utils/image_utils.dart';
 
 class MainMarketTab extends StatefulWidget {
   final String? organizationId;
@@ -324,11 +325,6 @@ class _MainMarketTabState extends State<MainMarketTab> {
       imageUrl = images[0]?.toString();
     }
 
-    final displayUrl =
-        (imageUrl != null && imageUrl.startsWith('/'))
-            ? 'https://root2route.runasp.net$imageUrl'
-            : imageUrl;
-
     return InkWell(
       onTap: () {
         final String? id =
@@ -372,9 +368,9 @@ class _MainMarketTabState extends State<MainMarketTab> {
                       color:
                           Theme.of(context).colorScheme.surfaceContainerHighest,
                       child:
-                          displayUrl != null && displayUrl.isNotEmpty
+                          imageUrl != null && imageUrl.isNotEmpty
                               ? Image.network(
-                                displayUrl,
+                                imageUrl.fullImageUrl,
                                 fit: BoxFit.cover,
                                 errorBuilder:
                                     (ctx, err, stack) => const Icon(

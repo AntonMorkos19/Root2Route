@@ -14,6 +14,8 @@ import 'package:root2route/screens/chat/chat_details_screen.dart';
 import 'package:root2route/features/chat/cubit/chat_messages_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_state.dart';
+import 'package:root2route/screens/chat/chat_rooms_screen.dart';
+import 'package:root2route/core/utils/image_utils.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
 class DetailsProductScreen extends StatefulWidget {
   final String productId;
@@ -332,13 +334,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                             imgUrl = imagesList[index].toString();
                           }
 
-                          final displayUrl =
-                              (imgUrl != null && imgUrl.startsWith('/'))
-                                  ? 'https://root2route.runasp.net$imgUrl'
-                                  : imgUrl;
-
                           return Image.network(
-                            displayUrl ?? '',
+                            imgUrl.fullImageUrl,
                             fit: BoxFit.cover,
                             loadingBuilder: (context, child, loadingProgress) {
                               if (loadingProgress == null) return child;
@@ -658,8 +655,12 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                                 roomId: roomId,
                                 roomName:
                                     _productData?['sellerName'] ??
+                                    _productData?['SellerName'] ??
                                     _productData?['organizationName'] ??
+                                    _productData?['OrganizationName'] ??
                                     'بائع',
+                                roomOrgId: productOrgId,
+                                allowNegotiation: true,
                               ),
                             ),
                       ),

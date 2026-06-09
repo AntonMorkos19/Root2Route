@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/notifications/cubit/notification_cubit.dart';
 import 'package:root2route/features/notifications/cubit/notification_state.dart';
+import 'package:root2route/services/api.dart';
+import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -12,11 +14,62 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
+  final ApiService _api = ApiService();
+  List<dynamic> _invitations = [];
+  bool _isLoadingInvitations = true;
+
   @override
   void initState() {
     super.initState();
-    // Refresh notifications when the screen is opened
     context.read<NotificationCubit>().fetchNotifications();
+    _fetchInvitations();
+  }
+
+  Future<void> _fetchInvitations() async {
+    setState(() => _isLoadingInvitations = true);
+    final result = await _api.getMyInvitations();
+    if (mounted) {
+      setState(() {
+        _invitations = result['success'] ? (result['data'] ?? []) : [];
+        // Optional: filter out already accepted/rejected invites if the API doesn't do it
+        _invitations = _invitations.where((inv) => inv['status'] == 0 || inv['Status'] == 0).toList();
+        _isLoadingInvitations = false;
+      });
+    }
+  }
+
+  Future<void> _handleAccept(String invitationId) async {
+    try {
+      CustomSnackBar.showLoading(context, 'جاري قبول الدعوة...');
+      final result = await _api.acceptInvitation(invitationId);
+      if (mounted) ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      
+      if (result['success']) {
+        if (mounted) CustomSnackBar.showSuccess(context, 'تم قبول الدعوة بنجاح!');
+        _fetchInvitations();
+      } else {
+        if (mounted) CustomSnackBar.showError(context, result['message'] ?? 'فشل قبول الدعوة');
+      }
+    } catch (e) {
+      debugPrint('Error accepting invitation: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        CustomSnackBar.showError(context, e.toString().replaceAll('Exception: ', ''));
+      }
+    }
+  }
+
+  Future<void> _handleReject(String invitationId) async {
+    CustomSnackBar.showLoading(context, 'جاري رفض الدعوة...');
+    final result = await _api.rejectInvitation(invitationId);
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    
+    if (result['success']) {
+      CustomSnackBar.showSuccess(context, 'تم رفض الدعوة');
+      _fetchInvitations();
+    } else {
+      CustomSnackBar.showError(context, result['message'] ?? 'فشل رفض الدعوة');
+    }
   }
 
   @override
@@ -54,10 +107,46 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           color: Theme.of(context).appBarTheme.iconTheme?.color,
         ),
       ),
-      body: BlocBuilder<NotificationCubit, NotificationState>(
-        builder: (context, state) {
-          if (state is NotificationLoading || state is NotificationInitial) {
-            return const Center(child: CircularProgressIndicator());
+      body: Column(
+        children: [
+          if (_isLoadingInvitations)
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (_invitations.isNotEmpty) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              alignment: Alignment.centerRight,
+              child: const Text(
+                'دعوات الانضمام',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _invitations.length,
+              itemBuilder: (context, index) {
+                final invite = _invitations[index];
+                return _buildInvitationCard(invite);
+              },
+            ),
+            const Divider(thickness: 2),
+            Container(
+              padding: const EdgeInsets.all(16),
+              alignment: Alignment.centerRight,
+              child: const Text(
+                'الإشعارات الأخرى',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+          Expanded(
+            child: BlocBuilder<NotificationCubit, NotificationState>(
+              builder: (context, state) {
+                if (state is NotificationLoading || state is NotificationInitial) {
+                  return const Center(child: CircularProgressIndicator());
           } else if (state is NotificationError) {
             return Center(child: Text(state.message));
           } else if (state is NotificationLoaded) {
@@ -152,6 +241,91 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           return const Center(child: Text("حالة غير معروفة"));
         },
       ),
+          ),
+        ],
+      ),
     ));
+  }
+
+  Widget _buildInvitationCard(dynamic invite) {
+    final String orgName = invite['organizationName'] ?? invite['OrganizationName'] ?? 'شركة غير معروفة';
+    final String invId = invite['id']?.toString() ?? invite['Id']?.toString() ?? '';
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                  child: const Icon(Icons.business, color: AppColors.primary),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'دعوة للانضمام',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'قامت $orgName بدعوتك للانضمام.',
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => _handleAccept(invId),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text('قبول'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => _handleReject(invId),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text('رفض'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

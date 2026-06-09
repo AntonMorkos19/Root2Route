@@ -54,7 +54,7 @@ class AuctionModel {
       startDate: _parseDate(json['startDate'] ?? json['StartDate']) ?? DateTime.now(),
       endDate: _parseDate(json['endDate'] ?? json['EndDate']) ?? DateTime.now(),
       status: _normalizeStatus(json['status'] ?? json['Status'] ?? ''),
-      bidsCount: int.tryParse((json['bidsCount'] ?? json['BidsCount'] ?? 0).toString()) ?? 0,
+      bidsCount: _parseBidsCount(json),
       currentHighestBid: _parseNullableDouble(json['currentHighestBid'] ?? json['CurrentHighestBid']),
       winnerId: json['winnerId'] ?? json['WinnerId'],
       winnerName: json['winnerName'] ?? json['WinnerName'],
@@ -152,6 +152,14 @@ class AuctionModel {
     } catch (_) {
       return null;
     }
+  }
+
+  static int _parseBidsCount(Map<String, dynamic> json) {
+    if (json['bidsCount'] != null) return int.tryParse(json['bidsCount'].toString()) ?? 0;
+    if (json['BidsCount'] != null) return int.tryParse(json['BidsCount'].toString()) ?? 0;
+    if (json['bids'] is List) return (json['bids'] as List).length;
+    if (json['Bids'] is List) return (json['Bids'] as List).length;
+    return 0;
   }
 
   // Robust status normalization mapping various API strings to internal states

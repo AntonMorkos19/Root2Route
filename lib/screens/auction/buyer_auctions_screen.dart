@@ -7,6 +7,7 @@ import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
 import 'package:root2route/screens/auction/auction_details_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
+import 'package:root2route/core/utils/image_utils.dart';
 class BuyerAuctionsScreen extends StatefulWidget {
   static const String id = '/BuyerAuctionsScreen';
 
@@ -322,10 +323,7 @@ String? _resolveImageUrl(dynamic auction) {
     }
   }
 
-  if (imageUrl != null && imageUrl.startsWith('/')) {
-    return 'https://root2route.runasp.net$imageUrl';
-  }
-  return imageUrl;
+  return imageUrl.fullImageUrl;
 }
 
 String _resolveTitle(dynamic auction) {

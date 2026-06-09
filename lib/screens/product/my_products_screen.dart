@@ -11,6 +11,7 @@ import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
 import 'package:root2route/core/utils/snackbar_helper.dart';
+import 'package:root2route/core/utils/image_utils.dart';
 class MyProductsScreen extends StatefulWidget {
   final String organizationId;
 
@@ -451,11 +452,6 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
       imageUrl = imagesList.first?.toString();
     }
 
-    final displayUrl =
-        (imageUrl != null && imageUrl.startsWith('/'))
-            ? 'https://root2route.runasp.net$imageUrl'
-            : imageUrl;
-
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -481,9 +477,9 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
                     top: Radius.circular(16),
                   ),
                   child:
-                      displayUrl != null && displayUrl.isNotEmpty
+                      imageUrl != null && imageUrl.isNotEmpty
                           ? Image.network(
-                            displayUrl,
+                            imageUrl.fullImageUrl,
                             width: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => _buildPlaceholder(),

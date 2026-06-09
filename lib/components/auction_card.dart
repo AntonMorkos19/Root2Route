@@ -3,13 +3,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/auction_model.dart';
 import 'countdown_timer_widget.dart';
+import 'package:root2route/screens/auction/auction_details_screen.dart';
 
 import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
+import 'package:root2route/core/utils/image_utils.dart';
 
-/// A premium auction card for the seller dashboard.
-class AuctionCard extends StatefulWidget {
+ class AuctionCard extends StatefulWidget {
   final AuctionModel auction;
   final Map<String, dynamic>? productData; // Pre-fetched product data
   final VoidCallback? onTap;
@@ -108,7 +109,14 @@ class _AuctionCardState extends State<AuctionCard> {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: widget.onTap ?? widget.onViewBids,
+          onTap: widget.onTap ?? () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AuctionDetailsScreen(auctionId: auction.id),
+              ),
+            );
+          },
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -167,10 +175,11 @@ class _AuctionCardState extends State<AuctionCard> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildInfoItem(
-                        Icons.gavel_rounded,
-                        '${auction.bidsCount} مزايدات',
-                      ),
+                      if (auction.bidsCount > 0 || auction.currentHighestBid == null || auction.currentHighestBid! <= auction.startingPrice)
+                        _buildInfoItem(
+                          Icons.gavel_rounded,
+                          '${auction.bidsCount} مزايدات',
+                        ),
                       _buildInfoItem(
                         Icons.trending_up_rounded,
                         auction.currentHighestBid != null
@@ -204,10 +213,6 @@ class _AuctionCardState extends State<AuctionCard> {
 
   Widget _buildProductImage() {
     final imageUrl = _imageUrl;
-    final displayUrl =
-        (imageUrl != null && imageUrl.startsWith('/'))
-            ? 'https://root2route.runasp.net$imageUrl'
-            : imageUrl;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
@@ -216,9 +221,9 @@ class _AuctionCardState extends State<AuctionCard> {
         height: 52,
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         child:
-            displayUrl != null && displayUrl.isNotEmpty
+            imageUrl != null && imageUrl.isNotEmpty
                 ? Image.network(
-                  displayUrl,
+                  imageUrl.fullImageUrl,
                   fit: BoxFit.cover,
                   errorBuilder:
                       (_, __, ___) => Icon(
@@ -362,7 +367,7 @@ class _AuctionCardState extends State<AuctionCard> {
     return Row(
       children: [
         // Bid Now button (for marketplace) or "Your Auction" badge
-        if (widget.onBid != null && (auction.isActive || auction.isUpcoming)) ...[
+        if (auction.isActive || auction.isUpcoming) ...[
           if (_isMyAuction)
             Expanded(
               child: Container(
@@ -396,7 +401,14 @@ class _AuctionCardState extends State<AuctionCard> {
                 icon: Icons.gavel_rounded,
                 label: 'زايد الآن',
                 color: AppColors.primary,
-                onTap: widget.onBid,
+                onTap: widget.onBid ?? () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AuctionDetailsScreen(auctionId: auction.id),
+                    ),
+                  );
+                },
               ),
             ),
           const SizedBox(width: 8),
@@ -407,8 +419,15 @@ class _AuctionCardState extends State<AuctionCard> {
           child: _ActionButton(
             icon: Icons.bar_chart_rounded,
             label: 'المزايدات',
-            color: widget.onBid != null ? Colors.blue.shade600 : AppColors.primary,
-            onTap: widget.onViewBids,
+            color: (auction.isActive || auction.isUpcoming) && !_isMyAuction ? Colors.blue.shade600 : AppColors.primary,
+            onTap: widget.onViewBids ?? () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AuctionDetailsScreen(auctionId: auction.id),
+                ),
+              );
+            },
           ),
         ),
         const SizedBox(width: 8),

@@ -35,9 +35,34 @@ class _ChatScreenState extends State<ChatScreen> {
   void _sendMessage() {
     final text = _messageController.text.trim();
     if (text.isNotEmpty) {
+      if (_containsContactInfo(text)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'عفواً، لا يُسمح بمشاركة أرقام الهواتف أو البريد الإلكتروني حفاظاً على سياسة المنصة.',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Colors.red.shade700,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+        return;
+      }
       context.read<ChatMessagesCubit>().sendMessage(widget.roomId, text);
       _messageController.clear();
     }
+  }
+
+  bool _containsContactInfo(String text) {
+    final emailRegex = RegExp(
+      r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',
+    );
+    final phoneRegex = RegExp(
+      r'(\+20|0)?1[0125][0-9]{8}|\+?\d{10,15}',
+    );
+    return emailRegex.hasMatch(text) || phoneRegex.hasMatch(text);
   }
 
   @override

@@ -15,6 +15,7 @@ class ChatDetailsScreen extends StatefulWidget {
   final String roomName;
   final bool isClosed;
   final String roomOrgId;
+  final bool allowNegotiation;
 
   const ChatDetailsScreen({
     Key? key,
@@ -22,6 +23,7 @@ class ChatDetailsScreen extends StatefulWidget {
     this.roomName = 'Chat',
     this.isClosed = false,
     this.roomOrgId = '',
+    this.allowNegotiation = false,
   }) : super(key: key);
 
   @override
@@ -53,9 +55,39 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   void _sendMessage() {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
+    if (_containsContactInfo(text)) {
+      _showContactInfoError();
+      return;
+    }
     _messageController.clear();
     context.read<ChatMessagesCubit>().sendMessage(widget.roomId, text);
     _scrollToBottom();
+  }
+
+  bool _containsContactInfo(String text) {
+    final emailRegex = RegExp(
+      r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',
+    );
+    final phoneRegex = RegExp(
+      r'(\+20|0)?1[0125][0-9]{8}|\+?\d{10,15}',
+    );
+    return emailRegex.hasMatch(text) || phoneRegex.hasMatch(text);
+  }
+
+  void _showContactInfoError() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'عفواً، لا يُسمح بمشاركة أرقام الهواتف أو البريد الإلكتروني حفاظاً على سياسة المنصة.',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.red.shade700,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(bottom: 90, left: 16, right: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 4),
+      ),
+    );
   }
 
   void _scrollToBottom() {
@@ -75,6 +107,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     showNegotiationDialog(context, (price, quantity) {
       final String offerContent =
           'عرض: $quantity عنصر مقابل ${PriceFormatter.format(price)} جنيه';
+      if (_containsContactInfo(offerContent)) {
+        _showContactInfoError();
+        return;
+      }
       chatCubit.sendMessage(
         widget.roomId,
         offerContent,
@@ -588,7 +624,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
         top: false,
         child: Row(
           children: [
-            if (!isSeller)
+            if (!isSeller && widget.allowNegotiation)
               IconButton(
                 icon: const Icon(Icons.handshake_outlined, color: Colors.blue),
                 onPressed: () {

@@ -12,6 +12,7 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/organization_model.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/core/utils/snackbar_helper.dart';
+import 'package:root2route/core/utils/image_utils.dart';
 
 class EditOrganizationScreen extends StatefulWidget {
   final OrganizationModel organization;
@@ -36,12 +37,6 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
   final ImagePicker _picker = ImagePicker();
   final ApiService _api = ApiService();
   bool _isLoading = false;
-
-  String _getFullImageUrl(String? imagePath) {
-    if (imagePath == null || imagePath.isEmpty) return '';
-    if (imagePath.startsWith('http')) return imagePath;
-    return 'https://root2route.runasp.net$imagePath';
-  }
 
   @override
   void initState() {
@@ -204,7 +199,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       avatarImage = FileImage(_image!);
     } else if (widget.organization.logoUrl != null &&
         widget.organization.logoUrl!.isNotEmpty) {
-      final imageUrl = _getFullImageUrl(widget.organization.logoUrl);
+      final imageUrl = widget.organization.logoUrl.fullImageUrl;
       if (imageUrl.isNotEmpty) {
         avatarImage = NetworkImage(imageUrl);
       }

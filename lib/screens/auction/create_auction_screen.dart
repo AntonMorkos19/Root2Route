@@ -233,7 +233,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
       (p) => (p['id'] ?? p['Id']).toString() == _productId,
     );
     if (!isValidProduct) {
-      QuickAlert.show(
+      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
         context: context,
         type: QuickAlertType.error,
         title: 'منتج غير صالح',
@@ -290,7 +290,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
       body: BlocListener<AuctionCubit, AuctionState>(
         listener: (context, state) {
           if (state is AuctionLoading) {
-            QuickAlert.show(
+            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
               context: context,
               type: QuickAlertType.loading,
               title: 'جاري التحميل',
@@ -299,7 +299,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
             );
           } else if (state is AuctionError) {
             Navigator.pop(context); // Pop the loading alert
-            QuickAlert.show(
+            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
               context: context,
               type: QuickAlertType.error,
               title: 'عفواً...',
@@ -307,7 +307,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
             );
           } else if (state is AuctionSuccess) {
             Navigator.pop(context); // Pop the loading alert
-            QuickAlert.show(
+            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
               context: context,
               type: QuickAlertType.success,
               title: 'نجاح!',

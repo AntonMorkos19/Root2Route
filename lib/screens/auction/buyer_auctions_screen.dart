@@ -119,7 +119,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
 
         if (!mounted) return;
 
-        QuickAlert.show(
+        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
           context: context,
           type: QuickAlertType.loading,
           title: 'جاري المعالجة',
@@ -133,7 +133,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
           Navigator.pop(context); // Close loading dialog
 
           if (res['success'] == true) {
-            await QuickAlert.show(
+            await QuickAlert.show(cancelBtnText: 'إلغاء', 
               context: context,
               type: QuickAlertType.success,
               title: 'اكتمل الدفع!',
@@ -143,7 +143,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
             );
             _fetchWon();
           } else {
-            QuickAlert.show(
+            QuickAlert.show(cancelBtnText: 'إلغاء', 
               context: context,
               type: QuickAlertType.error,
               title: 'فشل الدفع',
@@ -154,7 +154,7 @@ class _BuyerAuctionsScreenState extends State<BuyerAuctionsScreen>
         } catch (e) {
           if (!mounted) return;
           Navigator.pop(context); // Close loading dialog on error
-          QuickAlert.show(
+          QuickAlert.show(cancelBtnText: 'إلغاء', 
             context: context,
             type: QuickAlertType.error,
             title: 'خطأ',

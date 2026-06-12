@@ -1,3 +1,4 @@
+import 'package:quickalert/quickalert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -100,7 +101,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
         onConfirmBtnTap: () async {
           Navigator.of(context, rootNavigator: true).pop();
 
-        QuickAlert.show(
+        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
           context: context,
           type: QuickAlertType.loading,
           title: 'جاري الحذف',
@@ -134,7 +135,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
             }
 
             if (!mounted) return;
-            CustomSnackBar.showSuccess(context, 'تم حذف الشركة. سيتم نقلك لوضع الضيف.');
+            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم حذف الشركة. سيتم نقلك لوضع الضيف.');
             Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
               MaterialPageRoute(
                 builder: (_) => const GuestHomeScreen(),
@@ -155,7 +156,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
             await StorageService().saveHasOrganization(true);
 
             if (!mounted) return;
-            CustomSnackBar.showSuccess(context, 'تم حذف الشركة. سيتم تفعيل شركتك الأخرى.');
+            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم حذف الشركة. سيتم تفعيل شركتك الأخرى.');
             // Navigate to the correct home screen for the fallback org type
             final Widget homeScreen = _getHomeScreenForType(newOrgType is int ? newOrgType : 0);
             Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
@@ -164,7 +165,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
             );
           }
         } else {
-          QuickAlert.show(
+          QuickAlert.show(cancelBtnText: 'إلغاء', 
             context: context,
             type: QuickAlertType.error,
             title: 'خطأ',

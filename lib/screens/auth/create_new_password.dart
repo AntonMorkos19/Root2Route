@@ -1,3 +1,4 @@
+import 'package:quickalert/quickalert.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
@@ -163,7 +164,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                                     if (!formKey.currentState!.validate())
                                       return;
 
-                                    QuickAlert.show(
+                                    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                                       context: context,
                                       type: QuickAlertType.loading,
                                       title: 'برجاء الانتظار',
@@ -181,10 +182,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                                       if (mounted) Navigator.pop(context);
 
                                       if (mounted) {
-                                        CustomSnackBar.showSuccess(
-                                          context,
-                                          'تم إعادة تعيين كلمة المرور بنجاح.',
-                                        );
+                                        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم إعادة تعيين كلمة المرور بنجاح.',);
                                         Navigator.pushNamedAndRemoveUntil(
                                           context,
                                           LoginScreen.id,
@@ -194,7 +192,7 @@ class _CreateNewPasswordState extends State<CreateNewPassword> {
                                     } catch (e) {
                                       if (mounted) {
                                         Navigator.pop(context);
-                                          QuickAlert.show(
+                                          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                                             context: context,
                                             type: QuickAlertType.error,
                                             title: 'فشلت العملية',

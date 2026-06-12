@@ -199,7 +199,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _submitOrder() async {
     if (_cartService.items.isEmpty) {
-      QuickAlert.show(
+      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
         context: context,
         type: QuickAlertType.warning,
         title: 'سلة فارغة',
@@ -231,7 +231,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         "items": itemsPayload,
       };
 
-      QuickAlert.show(
+      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
         context: context,
         type: QuickAlertType.loading,
         title: 'جاري إنشاء الطلب...',
@@ -253,14 +253,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       if (isActuallySuccess) {
         context.read<CartCubit>().clearCart();
-        CustomSnackBar.showSuccess(
-          context,
-          'تم تأكيد طلبك بنجاح. يمكنك متابعة منتجاتنا من الشاشة الرئيسية.',
-        );
+        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم تأكيد طلبك بنجاح. يمكنك متابعة منتجاتنا من الشاشة الرئيسية.',);
         // السطر السحري ده بيقفل أي شاشات (دفع، عناوين، سلة) ويرجعك للناف بار الرئيسي
         Navigator.of(context).popUntil((route) => route.isFirst);
       } else {
-        QuickAlert.show(
+        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
           context: context,
           type: QuickAlertType.error,
           title: 'فشل الدفع',

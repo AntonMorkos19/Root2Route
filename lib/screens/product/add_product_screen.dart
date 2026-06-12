@@ -1,3 +1,4 @@
+import 'package:quickalert/quickalert.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -85,7 +86,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (!_directSale && !_forAuction) {
-      QuickAlert.show(
+      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
         context: context,
         type: QuickAlertType.warning,
         title: 'طريقة البيع مطلوبة',
@@ -97,7 +98,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     }
 
     // Show loading before starting
-    QuickAlert.show(
+    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
       context: context,
       type: QuickAlertType.loading,
       title: 'جاري النشر...',
@@ -131,11 +132,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
       if (!mounted) return;
       Navigator.pop(context);
       if (result['success'] == true) {
-        CustomSnackBar.showSuccess(context, 'تم نشر المنتج بنجاح');
+        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم نشر المنتج بنجاح');
         Navigator.pop(context, true); // Return to previous screen
       } else {
         // In case of failure (actual error)
-        QuickAlert.show(
+        QuickAlert.show(cancelBtnText: 'إلغاء', 
           context: context,
           type: QuickAlertType.error,
           title: 'فشل',
@@ -147,7 +148,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context); // Close loading
-      QuickAlert.show(
+      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
         context: context,
         type: QuickAlertType.error,
         title: 'خطأ غير متوقع',
@@ -158,7 +159,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   void _showErrorAlert(String message) {
-    QuickAlert.show(
+    QuickAlert.show(cancelBtnText: 'إلغاء', 
       context: context,
       type: QuickAlertType.error,
       title: 'فشل',

@@ -1,3 +1,4 @@
+import 'package:quickalert/quickalert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/models/quickalert_type.dart';
@@ -111,7 +112,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
     );
 
     if (confirm == true) {
-      QuickAlert.show(
+      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
         context: context,
         type: QuickAlertType.loading,
         title: 'جاري الحذف...',
@@ -130,11 +131,11 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
         if (!mounted) return;
 
         if (res['success'] == true) {
-          CustomSnackBar.showSuccess(context, 'تم حذف المنتج بنجاح.');
+          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم حذف المنتج بنجاح.');
           if (!mounted) return;
           _fetchProducts();
         } else {
-          QuickAlert.show(
+          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
             context: context,
             type: QuickAlertType.error,
             title: 'فشل الحذف',
@@ -149,7 +150,7 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
         } catch (_) {}
 
         if (!mounted) return;
-        QuickAlert.show(
+        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
           context: context,
           type: QuickAlertType.error,
           title: 'خطأ',

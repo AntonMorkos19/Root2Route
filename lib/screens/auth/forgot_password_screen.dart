@@ -1,3 +1,4 @@
+import 'package:quickalert/quickalert.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
@@ -10,8 +11,7 @@ import 'package:root2route/core/responsive/app_sizes.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/auth/otp_verification_screen.dart';
 import 'package:root2route/services/api.dart';
-import 'package:root2route/core/utils/snackbar_helper.dart';
-
+ 
 class ForgotPasswordScreen extends StatefulWidget {
   static const String id = '/ForgotPasswordScreen';
   const ForgotPasswordScreen({super.key});
@@ -145,7 +145,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   onPressed: () async {
                                     if (!formKey.currentState!.validate())
                                       return;
-                                    QuickAlert.show(
+                                    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                                       context: context,
                                       type: QuickAlertType.loading,
                                       title: 'برجاء الانتظار',
@@ -161,10 +161,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                                       if (result['success']) {
                                         if (mounted) {
-                                          CustomSnackBar.showSuccess(
-                                            context,
-                                            "تم إرسال كود التحقق إلى بريدك الإلكتروني",
-                                          );
+                                          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: "تم إرسال كود التحقق إلى بريدك الإلكتروني",);
                                         }
 
                                         Future.delayed(
@@ -206,7 +203,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                     } catch (e) {
                                       if (mounted) {
                                         Navigator.pop(context);
-                                          QuickAlert.show(
+                                          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                                             context: context,
                                             type: QuickAlertType.error,
                                             title: 'فشلت العملية',

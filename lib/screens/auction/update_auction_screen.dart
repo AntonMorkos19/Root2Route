@@ -281,7 +281,7 @@ class _UpdateAuctionScreenState extends State<UpdateAuctionScreen> {
           if (_isSuccess) return; // ← Ignore any new state after success
 
           if (state is AuctionLoading) {
-            QuickAlert.show(
+            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
               context: context,
               type: QuickAlertType.loading,
               title: 'Loading',
@@ -290,7 +290,7 @@ class _UpdateAuctionScreenState extends State<UpdateAuctionScreen> {
             );
           } else if (state is AuctionError) {
             Navigator.of(context, rootNavigator: true).pop();
-            QuickAlert.show(
+            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
               context: context,
               type: QuickAlertType.error,
               title: 'Oops...',
@@ -299,7 +299,7 @@ class _UpdateAuctionScreenState extends State<UpdateAuctionScreen> {
           } else if (state is AuctionSuccess<AuctionModel>) {
             _isSuccess = true; // ← Set it before any navigator
             Navigator.of(context, rootNavigator: true).pop();
-            QuickAlert.show(
+            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
               context: context,
               type: QuickAlertType.success,
               title: 'Success!',

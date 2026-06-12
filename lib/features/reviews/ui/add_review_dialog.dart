@@ -75,7 +75,7 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
 
   void _submit(BuildContext ctx) {
     if (_selectedRating == 0) {
-      QuickAlert.show(
+      QuickAlert.show(cancelBtnText: 'إلغاء', 
         context: ctx,
         type: QuickAlertType.warning,
         title: 'التقييم مطلوب',
@@ -107,7 +107,7 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
           listener: (context, state) {
             if (state is ReviewSubmitSuccess) {
               Navigator.of(context).pop(); // Close dialog first
-              QuickAlert.show(
+              QuickAlert.show(cancelBtnText: 'إلغاء', 
                 context: context,
                 type: QuickAlertType.success,
                 title: 'شكراً لك!',
@@ -117,7 +117,7 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
               );
             } else if (state is ReviewError) {
               final arabicMsg = getArabicErrorMessage(state.message);
-              QuickAlert.show(
+              QuickAlert.show(cancelBtnText: 'إلغاء', 
                 context: context,
                 type: QuickAlertType.error,
                 title: 'عفواً',

@@ -1,3 +1,4 @@
+import 'package:quickalert/quickalert.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
@@ -347,10 +348,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             Navigator.pop(context);
                                           }
 
-                                          CustomSnackBar.showSuccess(
-                                            context,
-                                            'تم إنشاء الحساب بنجاح! برجاء تفعيل بريدك الإلكتروني للمتابعة.',
-                                          );
+                                          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم إنشاء الحساب بنجاح! برجاء تفعيل بريدك الإلكتروني للمتابعة.',);
 
                                           Future.delayed(
                                             const Duration(seconds: 2),
@@ -380,7 +378,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             Navigator.pop(context);
                                           }
 
-                                          QuickAlert.show(
+                                          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                                             context: context,
                                             type: QuickAlertType.error,
                                             text: e.toString().replaceAll(

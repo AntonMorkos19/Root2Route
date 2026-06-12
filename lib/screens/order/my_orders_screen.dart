@@ -64,7 +64,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     String orderId,
     int newStatus,
   ) async {
-    QuickAlert.show(
+    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
       context: ctx,
       type: QuickAlertType.loading,
       title: 'جاري التحديث...',
@@ -81,13 +81,13 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     Navigator.of(ctx, rootNavigator: true).pop();
 
     if (result['success'] == true) {
-      CustomSnackBar.showSuccess(ctx, _getArabicStatusMessage(newStatus));
+      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: ctx, type: QuickAlertType.success, title: 'نجاح', text: _getArabicStatusMessage(newStatus));
       _myOrdersCubit.fetchMyOrders();
       if (_organizationId != null && _organizationId!.isNotEmpty) {
         _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
       }
     } else {
-      QuickAlert.show(
+      QuickAlert.show(cancelBtnText: 'إلغاء', 
         context: ctx,
         type: QuickAlertType.error,
         title: 'خطأ',
@@ -183,7 +183,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       child: BlocListener<DispatchCubit, ShipmentState>(
         listener: (context, state) {
           if (state is ShipmentLoading) {
-            QuickAlert.show(
+            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
               context: context,
               type: QuickAlertType.loading,
               title: 'جاري الإرسال...',
@@ -192,7 +192,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             );
           } else if (state is ShipmentActionSuccess) {
             Navigator.of(context, rootNavigator: true).pop();
-            CustomSnackBar.showSuccess(context, state.message);
+            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: state.message);
             if (_organizationId != null) {
               _receivedOrdersCubit.fetchReceivedOrders(_organizationId!);
             } else {
@@ -202,7 +202,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             }
           } else if (state is ShipmentError) {
             Navigator.of(context, rootNavigator: true).pop();
-            QuickAlert.show(
+            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
               context: context,
               type: QuickAlertType.error,
               title: 'خطأ',
@@ -468,7 +468,7 @@ class _ReceivedOrdersTabState extends State<_ReceivedOrdersTab>
       listenWhen: (previous, current) => current is OrderError,
       listener: (context, state) {
         if (state is OrderError) {
-          QuickAlert.show(
+          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
             context: context,
             type: QuickAlertType.error,
             title: 'خطأ',

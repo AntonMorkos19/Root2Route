@@ -1,3 +1,4 @@
+import 'package:quickalert/quickalert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/models/quickalert_type.dart';
@@ -115,7 +116,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (!_directSale && !_forAuction) {
-      QuickAlert.show(
+      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
         context: context,
         type: QuickAlertType.warning,
         title: 'طريقة البيع مطلوبة',
@@ -125,7 +126,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
       return;
     }
 
-    QuickAlert.show(
+    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
       context: context,
       type: QuickAlertType.loading,
       title: 'جاري التحديث...',
@@ -170,11 +171,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
           successValue.toString().toLowerCase() == 'true';
 
       if (isSuccess) {
-        CustomSnackBar.showSuccess(context, 'تم تحديث المنتج بنجاح.');
+        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم تحديث المنتج بنجاح.');
         if (!mounted) return;
         Navigator.pop(context, true); // Return to previous page successfully
       } else {
-        QuickAlert.show(
+        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
           context: context,
           type: QuickAlertType.error,
           title: 'فشل التحديث',
@@ -188,7 +189,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
       } catch (_) {}
 
       if (!mounted) return;
-      QuickAlert.show(
+      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
         context: context,
         type: QuickAlertType.error,
         title: 'خطأ غير متوقع',

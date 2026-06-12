@@ -107,7 +107,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       onConfirmBtnTap: () async {
         Navigator.of(context, rootNavigator: true).pop();
 
-        QuickAlert.show(
+        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
           context: context,
           type: QuickAlertType.loading,
           title: 'جاري الإلغاء...',
@@ -124,15 +124,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             (result['message']?.toString().contains('Cancelled') ?? false);
 
         if (cancelled) {
-          CustomSnackBar.showSuccess(
-            context,
-            result['success'] == true
+          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: result['success'] == true
                 ? 'تم إلغاء طلبك بنجاح.'
-                : 'هذا الطلب ملغى بالفعل.',
-          );
+                : 'هذا الطلب ملغى بالفعل.',);
           _detailsCubit.fetchOrderDetails(widget.orderId);
         } else {
-          QuickAlert.show(
+          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
             context: context,
             type: QuickAlertType.error,
             title: 'فشل الإلغاء',
@@ -160,7 +157,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           BlocListener<DispatchCubit, ShipmentState>(
             listener: (context, state) {
               if (state is ShipmentLoading) {
-                QuickAlert.show(
+                QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                   context: context,
                   type: QuickAlertType.loading,
                   title: 'جاري الإرسال...',
@@ -168,11 +165,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 );
               } else if (state is ShipmentActionSuccess) {
                 Navigator.of(context, rootNavigator: true).pop();
-                CustomSnackBar.showSuccess(context, state.message);
+                QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: state.message);
                 _detailsCubit.fetchOrderDetails(widget.orderId);
               } else if (state is ShipmentError) {
                 Navigator.of(context, rootNavigator: true).pop();
-                QuickAlert.show(
+                QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                   context: context,
                   type: QuickAlertType.error,
                   title: 'خطأ',
@@ -187,7 +184,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           BlocListener<ConfirmDeliveryCubit, ShipmentState>(
             listener: (context, state) {
               if (state is ShipmentLoading) {
-                QuickAlert.show(
+                QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                   context: context,
                   type: QuickAlertType.loading,
                   title: 'جاري التأكيد...',
@@ -195,11 +192,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 );
               } else if (state is ShipmentActionSuccess) {
                 Navigator.of(context, rootNavigator: true).pop();
-                CustomSnackBar.showSuccess(context, state.message);
+                QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: state.message);
                 _detailsCubit.fetchOrderDetails(widget.orderId);
               } else if (state is ShipmentError) {
                 Navigator.of(context, rootNavigator: true).pop();
-                QuickAlert.show(
+                QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                   context: context,
                   type: QuickAlertType.error,
                   title: 'خطأ',
@@ -569,9 +566,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               ? InkWell(
                 onTap: () {
                   if (context != null) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text('تم نسخ $value')));
+                    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.info, text: 'تم نسخ $value');
                   }
                 },
                 borderRadius: BorderRadius.circular(4),
@@ -658,7 +653,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       return _bottomBar(
         child: ElevatedButton.icon(
           onPressed: () async {
-            QuickAlert.show(
+            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
               context: context,
               type: QuickAlertType.loading,
               title: 'جاري التأكيد...',
@@ -675,10 +670,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             Navigator.of(context, rootNavigator: true).pop(); // dismiss loading
 
             if (result['success'] == true) {
-              CustomSnackBar.showSuccess(context, 'تم استلام الطلب بنجاح!');
+              QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم استلام الطلب بنجاح!');
               _detailsCubit.fetchOrderDetails(widget.orderId);
             } else {
-              QuickAlert.show(
+              QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                 context: context,
                 type: QuickAlertType.error,
                 title: 'خطأ',

@@ -38,7 +38,7 @@ class AppAlerts {
   }) {
     final ctx = _resolve(context);
     if (ctx == null) return;
-    QuickAlert.show(
+    QuickAlert.show(cancelBtnText: 'إلغاء', 
       context: ctx,
       type: QuickAlertType.success,
       title: title,
@@ -59,7 +59,7 @@ class AppAlerts {
   }) {
     final ctx = _resolve(context);
     if (ctx == null) return;
-    QuickAlert.show(
+    QuickAlert.show(cancelBtnText: 'إلغاء', 
       context: ctx,
       type: QuickAlertType.error,
       title: title,
@@ -80,7 +80,7 @@ class AppAlerts {
   }) {
     final ctx = _resolve(context);
     if (ctx == null) return;
-    QuickAlert.show(
+    QuickAlert.show(cancelBtnText: 'إلغاء', 
       context: ctx,
       type: QuickAlertType.warning,
       title: title,
@@ -129,7 +129,7 @@ class AppAlerts {
   }) {
     final ctx = _resolve(context);
     if (ctx == null) return;
-    QuickAlert.show(
+    QuickAlert.show(cancelBtnText: 'إلغاء', 
       context: ctx,
       type: QuickAlertType.info,
       title: title,
@@ -148,7 +148,7 @@ class AppAlerts {
   }) {
     final ctx = _resolve(context);
     if (ctx == null) return;
-    QuickAlert.show(
+    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
       context: ctx,
       type: QuickAlertType.loading,
       title: 'انتظر',

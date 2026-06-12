@@ -1,3 +1,4 @@
+import 'package:quickalert/quickalert.dart';
 import 'dart:async';
 import 'dart:ui';
 
@@ -94,12 +95,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         if (result['success'] == true) {
           final hasToken = result['hasToken'] ?? false;
 
-          CustomSnackBar.showSuccess(
-            context,
-            hasToken
+          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: hasToken
                 ? "تم تفعيل البريد الإلكتروني وتسجيل الدخول بنجاح!"
-                : "تم تفعيل البريد الإلكتروني بنجاح! برجاء تسجيل الدخول.",
-          );
+                : "تم تفعيل البريد الإلكتروني بنجاح! برجاء تسجيل الدخول.",);
           if (hasToken) {
             if (mounted) {
               Navigator.pushNamedAndRemoveUntil(
@@ -144,7 +142,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   void _showError(String message) {
-    QuickAlert.show(
+    QuickAlert.show(cancelBtnText: 'إلغاء', 
       context: context,
       type: QuickAlertType.error,
       title: "فشلت العملية",

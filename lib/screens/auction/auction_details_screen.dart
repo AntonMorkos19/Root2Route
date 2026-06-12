@@ -149,7 +149,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     final double? entered = double.tryParse(raw);
 
     if (entered == null || entered < minRequired) {
-      QuickAlert.show(
+      QuickAlert.show(cancelBtnText: 'إلغاء', 
         context: context,
         type: QuickAlertType.warning,
         title: 'مبلغ غير كافٍ',
@@ -347,7 +347,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
               if (Navigator.canPop(context)) {
                 Navigator.pop(context); // Close bottom sheet
               }
-              QuickAlert.show(
+              QuickAlert.show(cancelBtnText: 'إلغاء', 
                 context: context,
                 type: QuickAlertType.success,
                 title: 'نجاح',

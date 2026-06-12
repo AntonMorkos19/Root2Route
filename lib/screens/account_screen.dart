@@ -58,7 +58,7 @@ class _AccountScreenViewState extends State<_AccountScreenView> {
         body: BlocListener<AccountCubit, AccountState>(
           listener: (context, state) {
             if (state is DeleteAccountLoading) {
-              QuickAlert.show(
+              QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                 context: context,
                 type: QuickAlertType.loading,
                 title: 'جاري حذف الحساب',
@@ -70,7 +70,7 @@ class _AccountScreenViewState extends State<_AccountScreenView> {
                 context,
                 rootNavigator: true,
               ).pop(); // dismiss loading
-              QuickAlert.show(
+              QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                 context: context,
                 type: QuickAlertType.success,
                 title: 'تم الحذف',
@@ -88,7 +88,7 @@ class _AccountScreenViewState extends State<_AccountScreenView> {
                 context,
                 rootNavigator: true,
               ).pop(); // dismiss loading
-              QuickAlert.show(
+              QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                 context: context,
                 type: QuickAlertType.error,
                 title: 'خطأ',
@@ -378,7 +378,7 @@ class _AccountScreenViewState extends State<_AccountScreenView> {
                         text: 'تسجيل الخروج',
                         color: Colors.redAccent.withValues(alpha: 0.9),
                         onPressed: () {
-                          QuickAlert.show(
+                          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                             context: context,
                             type: QuickAlertType.confirm,
                             title: 'تسجيل الخروج',

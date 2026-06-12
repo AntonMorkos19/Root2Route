@@ -81,7 +81,7 @@ class _ChangePasswordBottomSheetState extends State<ChangePasswordBottomSheet> {
                 ),
               );
             } else if (state is ChangePasswordFailure) {
-              QuickAlert.show(
+              QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                 context: context,
                 type: QuickAlertType.error,
                 title: 'خطأ',

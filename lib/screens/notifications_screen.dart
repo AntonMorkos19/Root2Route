@@ -1,3 +1,4 @@
+import 'package:quickalert/quickalert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/core/theme/app_colors.dart';
@@ -40,35 +41,35 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _handleAccept(String invitationId) async {
     try {
-      CustomSnackBar.showLoading(context, 'جاري قبول الدعوة...');
+      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.loading, title: 'جاري التحميل', text: 'جاري قبول الدعوة...');
       final result = await _api.acceptInvitation(invitationId);
-      if (mounted) ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      if (mounted) // hideCurrentSnackBar removed for QuickAlert
       
       if (result['success']) {
-        if (mounted) CustomSnackBar.showSuccess(context, 'تم قبول الدعوة بنجاح!');
+        if (mounted) QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم قبول الدعوة بنجاح!');
         _fetchInvitations();
       } else {
-        if (mounted) CustomSnackBar.showError(context, result['message'] ?? 'فشل قبول الدعوة');
+        if (mounted) QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.error, title: 'خطأ', text: result['message'] ?? 'فشل قبول الدعوة');
       }
     } catch (e) {
       debugPrint('Error accepting invitation: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        CustomSnackBar.showError(context, e.toString().replaceAll('Exception: ', ''));
+        // hideCurrentSnackBar removed for QuickAlert
+        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.error, title: 'خطأ', text: e.toString().replaceAll('Exception: ', ''));
       }
     }
   }
 
   Future<void> _handleReject(String invitationId) async {
-    CustomSnackBar.showLoading(context, 'جاري رفض الدعوة...');
+    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.loading, title: 'جاري التحميل', text: 'جاري رفض الدعوة...');
     final result = await _api.rejectInvitation(invitationId);
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    // hideCurrentSnackBar removed for QuickAlert
     
     if (result['success']) {
-      CustomSnackBar.showSuccess(context, 'تم رفض الدعوة');
+      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم رفض الدعوة');
       _fetchInvitations();
     } else {
-      CustomSnackBar.showError(context, result['message'] ?? 'فشل رفض الدعوة');
+      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.error, title: 'خطأ', text: result['message'] ?? 'فشل رفض الدعوة');
     }
   }
 

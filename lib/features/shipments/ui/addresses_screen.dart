@@ -443,10 +443,10 @@ class _AddAddressSheetState extends State<_AddAddressSheet> {
       listener: (context, state) {
         if (state is ShipmentActionSuccess) {
           Navigator.of(context).pop(); // close bottom sheet
-          CustomSnackBar.showSuccess(context, state.message);
+          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: state.message);
         } else if (state is ShipmentError) {
           setState(() => _isSubmitting = false);
-          QuickAlert.show(
+          QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
             context: context,
             type: QuickAlertType.error,
             title: 'خطأ',

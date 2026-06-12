@@ -1,67 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
+import 'package:root2route/core/navigator_service.dart';
 
 class CustomSnackBar {
-  static void showSuccess(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-      ),
+  static void showSuccess(BuildContext? context, String message) {
+    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+      context: context ?? NavigatorService.navigatorKey.currentContext!,
+      type: QuickAlertType.success,
+      text: message,
+      title: 'نجاح',
     );
   }
 
-  static void showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-      ),
+  static void showError(BuildContext? context, String message) {
+    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+      context: context ?? NavigatorService.navigatorKey.currentContext!,
+      type: QuickAlertType.error,
+      text: message,
+      title: 'خطأ',
     );
   }
 
-  static void showLoading(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-            ),
-            const SizedBox(width: 16),
-            Text(
-              message,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.blueGrey,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 60), // Will be hidden manually
-      ),
+  static void showLoading(BuildContext? context, String message) {
+    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+      context: context ?? NavigatorService.navigatorKey.currentContext!,
+      type: QuickAlertType.loading,
+      text: message,
+      title: 'جاري التحميل',
+      disableBackBtn: true,
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:quickalert/quickalert.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'dart:typed_data';
@@ -125,7 +126,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
     }
 
     setState(() => _isLoading = true);
-    QuickAlert.show(
+    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
       context: context,
       type: QuickAlertType.loading,
       title: 'جاري التحميل',
@@ -162,7 +163,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
           orgType: _getOrganizationTypeValue(selectedType!),
         );
 
-        CustomSnackBar.showSuccess(context, 'تم إنشاء الشركة بنجاح!');
+        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم إنشاء الشركة بنجاح!');
         // pushAndRemoveUntil so the new home screen is the new root
         Navigator.pushAndRemoveUntil(
           context,
@@ -170,7 +171,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
           (route) => false,
         );
       } else {
-        QuickAlert.show(
+        QuickAlert.show(cancelBtnText: 'إلغاء', 
           context: context,
           type: QuickAlertType.error,
           title: ' فشل',
@@ -181,7 +182,7 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      QuickAlert.show(
+      QuickAlert.show(cancelBtnText: 'إلغاء', 
         context: context,
         type: QuickAlertType.error,
         title: 'فشل',

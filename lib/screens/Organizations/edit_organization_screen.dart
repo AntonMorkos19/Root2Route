@@ -1,3 +1,4 @@
+import 'package:quickalert/quickalert.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -125,7 +126,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
 
     setState(() => _isLoading = true);
 
-    QuickAlert.show(
+    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
       context: context,
       type: QuickAlertType.loading,
       title: 'جاري التحميل',
@@ -152,10 +153,10 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       if (mounted) Navigator.pop(context);
 
       if (result['success'] == true) {
-        CustomSnackBar.showSuccess(context, 'تم تحديث الشركة بنجاح!');
+        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم تحديث الشركة بنجاح!');
         Navigator.pop(context, true);
       } else {
-        QuickAlert.show(
+        QuickAlert.show(cancelBtnText: 'إلغاء', 
           context: context,
           type: QuickAlertType.error,
           title: 'فشل',
@@ -168,7 +169,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       if (mounted) Navigator.pop(context);
       if (!mounted) return;
 
-      QuickAlert.show(
+      QuickAlert.show(cancelBtnText: 'إلغاء', 
         context: context,
         type: QuickAlertType.error,
         title: 'فشل',

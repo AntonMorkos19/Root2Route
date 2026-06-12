@@ -613,7 +613,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
             child: ElevatedButton.icon(
               onPressed: () async {
                 if (isGuest) {
-                  QuickAlert.show(
+                  QuickAlert.show(cancelBtnText: 'إلغاء', 
                     context: context,
                     type: QuickAlertType.info,
                     title: 'تسجيل الدخول مطلوب',
@@ -629,7 +629,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
 
                 if (productOrgId.isEmpty) return;
 
-                QuickAlert.show(
+                QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                   context: context,
                   type: QuickAlertType.loading,
                   title: 'جاري بدء الدردشة...',
@@ -671,7 +671,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   debugPrint(" STACK TRACE: $stackTrace");
                   if (context.mounted) {
                     Navigator.pop(context);
-                    QuickAlert.show(
+                    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                       context: context,
                       type: QuickAlertType.error,
                       title: 'خطأ',
@@ -708,7 +708,7 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
             child: ElevatedButton.icon(
               onPressed: () {
                 if (isGuest) {
-                  QuickAlert.show(
+                  QuickAlert.show(cancelBtnText: 'إلغاء', 
                     context: context,
                     type: QuickAlertType.info,
                     title: 'تسجيل الدخول مطلوب',

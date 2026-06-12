@@ -362,6 +362,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               title: 'البريد غير مفعّل',
                                               text:
                                                   'برجاء تفعيل بريدك الإلكتروني للمتابعة.',
+                                              cancelBtnText: 'إلغاء',
                                               confirmBtnText: 'فعّل الآن',
                                               onConfirmBtnTap: () async {
                                                 Navigator.pop(context);
@@ -403,7 +404,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 } catch (resendError) {
                                                   if (context.mounted) {
                                                     Navigator.pop(context);
-                                                    QuickAlert.show(
+                                                    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                                                       context: context,
                                                       type:
                                                           QuickAlertType.error,
@@ -415,7 +416,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               },
                                             );
                                           } else {
-                                            QuickAlert.show(
+                                            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
                                               context: context,
                                               type: QuickAlertType.error,
                                               text: errorMessage,

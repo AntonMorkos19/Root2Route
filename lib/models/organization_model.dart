@@ -6,6 +6,7 @@ class OrganizationModel {
   final String? contactEmail;
   final String? contactPhone;
   final String? logoUrl;
+  final String? complianceFileUrl;
   final int type;
 
   OrganizationModel({
@@ -16,6 +17,7 @@ class OrganizationModel {
     this.contactEmail,
     this.contactPhone,
     this.logoUrl,
+    this.complianceFileUrl,
     required this.type,
   });
 
@@ -34,6 +36,7 @@ class OrganizationModel {
       contactEmail: json['contactEmail']?.toString() ?? json['ContactEmail']?.toString(),
       contactPhone: json['contactPhone']?.toString() ?? json['ContactPhone']?.toString(),
       logoUrl: json['logoUrl']?.toString() ?? json['LogoUrl']?.toString(),
+      complianceFileUrl: json['complianceFileUrl']?.toString() ?? json['ComplianceFileUrl']?.toString(),
        type: int.tryParse(json['type']?.toString() ?? json['Type']?.toString() ?? '0') ?? 0,
     );
   }
@@ -47,6 +50,7 @@ class OrganizationModel {
       "contactEmail": contactEmail,
       "contactPhone": contactPhone,
       "logoUrl": logoUrl,
+      "complianceFileUrl": complianceFileUrl,
       "type": type,
     };
   }

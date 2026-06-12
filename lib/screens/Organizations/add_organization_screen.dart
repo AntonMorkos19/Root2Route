@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:ui';
 import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
@@ -41,6 +43,11 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
   final ApiService _api = ApiService();
   bool _isLoading = false;
 
+  // Compliance file state
+  File? _complianceFile;
+  String? _complianceFileName;
+  bool _complianceError = false;
+
   Future<void> _pickImage() async {
     if (_isLoading) return;
 
@@ -52,6 +59,23 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       setState(() {
         _image = pickedFile;
         _imageBytes = bytes;
+      });
+    }
+  }
+
+  Future<void> _pickComplianceFile() async {
+    if (_isLoading) return;
+
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg'],
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _complianceFile = File(result.files.single.path!);
+        _complianceFileName = result.files.single.name;
+        _complianceError = false;
       });
     }
   }
@@ -95,6 +119,11 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       return;
     }
 
+    if (_complianceFile == null) {
+      setState(() => _complianceError = true);
+      return;
+    }
+
     setState(() => _isLoading = true);
     QuickAlert.show(
       context: context,
@@ -107,11 +136,12 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
     try {
       final result = await _api.createOrganization(
         name: nameController.text.trim(),
+        type: _getOrganizationTypeValue(selectedType!),
+        complianceFile: _complianceFile!,
         description: descriptionController.text.trim(),
         address: addressController.text.trim(),
         contactEmail: emailController.text.trim(),
         contactPhone: phoneController.text.trim(),
-        type: _getOrganizationTypeValue(selectedType!),
         logo: _image,
       );
 
@@ -369,6 +399,107 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
                   maxLines: 3,
                   validator: (val) => AppValidators.validateRequired(val, 'الوصف'),
                 ),
+
+                const SizedBox(height: 20),
+
+                // ── Compliance File Picker ──────────────────────────
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    'ملف التوثيق *',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).textTheme.titleSmall?.color,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: _pickComplianceFile,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _complianceFile != null
+                          ? AppColors.primary.withOpacity(0.06)
+                          : Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _complianceError
+                            ? Colors.red
+                            : _complianceFile != null
+                                ? AppColors.primary.withOpacity(0.4)
+                                : Colors.grey.shade300,
+                        width: _complianceError ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          _complianceFile != null
+                              ? Icons.check_circle
+                              : Icons.upload_file_outlined,
+                          color: _complianceFile != null
+                              ? AppColors.primary
+                              : Colors.grey.shade500,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            _complianceFileName ?? 'إرفاق ملف التوثيق (PDF, DOC, صورة)',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: _complianceFile != null
+                                  ? Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color
+                                  : Colors.grey.shade500,
+                              fontWeight: _complianceFile != null
+                                  ? FontWeight.w500
+                                  : FontWeight.normal,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (_complianceFile != null)
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _complianceFile = null;
+                                _complianceFileName = null;
+                              });
+                            },
+                            child: Icon(
+                              Icons.close,
+                              size: 20,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (_complianceError)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6, right: 4),
+                    child: Text(
+                      'يجب إرفاق ملف توثيق الشركة',
+                      style: TextStyle(
+                        color: Colors.red.shade700,
+                        fontSize: 12.sp,
+                      ),
+                    ),
+                  ),
+                // ────────────────────────────────────────────────────
 
                 const SizedBox(height: 30),
 

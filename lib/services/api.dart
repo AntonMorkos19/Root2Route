@@ -194,19 +194,20 @@ class ApiService {
       // from firebase_messaging. We import it only for this method.
       final fcmToken = await _getFcmToken();
       if (fcmToken == null || fcmToken.isEmpty) {
-        debugPrint('[FCM] Could not retrieve FCM device token. Skipping upload.');
+        debugPrint(
+          '[FCM] Could not retrieve FCM device token. Skipping upload.',
+        );
         return;
       }
 
-      await _dio.post(
-        '/users/fcm-token',
-        data: {"token": fcmToken},
-      );
+      await _dio.post('/users/fcm-token', data: {"fcmToken": fcmToken});
 
       debugPrint('[FCM] ✅ FCM token sent to backend successfully.');
     } on DioException catch (e) {
       // Non-critical — log and continue. Never throw from here.
-      debugPrint('[FCM] ⚠️ Failed to send FCM token (DioException): ${_extractApiError(e)}');
+      debugPrint(
+        '[FCM] ⚠️ Failed to send FCM token (DioException): ${_extractApiError(e)}',
+      );
     } catch (e) {
       debugPrint('[FCM] ⚠️ Failed to send FCM token (unexpected): $e');
     }
@@ -410,28 +411,36 @@ class ApiService {
 
   Future<Map<String, dynamic>> createOrganization({
     required String name,
-    required String description,
-    required String address,
-    required String contactEmail,
-    required String contactPhone,
     required int type,
+    required File complianceFile,
+    String? description,
+    String? address,
+    String? contactEmail,
+    String? contactPhone,
     XFile? logo,
   }) async {
     try {
       final ownerId = StorageService().userId;
-      if (ownerId == null || ownerId.isEmpty)
+      if (ownerId == null || ownerId.isEmpty) {
         throw Exception("User not logged in");
-
-      String formattedPhone = _formatPhoneNumber(contactPhone);
+      }
 
       final formData = FormData.fromMap({
         'OwnerId': ownerId,
         'Name': name,
-        'Description': description,
-        'Address': address,
-        'ContactEmail': contactEmail,
-        'ContactPhone': formattedPhone,
         'Type': type.toString(),
+        if (description != null && description.isNotEmpty)
+          'Description': description,
+        if (address != null && address.isNotEmpty)
+          'Address': address,
+        if (contactEmail != null && contactEmail.isNotEmpty)
+          'ContactEmail': contactEmail,
+        if (contactPhone != null && contactPhone.isNotEmpty)
+          'ContactPhone': _formatPhoneNumber(contactPhone),
+        'ComplianceFile': await MultipartFile.fromFile(
+          complianceFile.path,
+          filename: complianceFile.path.split(Platform.pathSeparator).last,
+        ),
         if (logo != null)
           'Logo': MultipartFile.fromBytes(
             await logo.readAsBytes(),

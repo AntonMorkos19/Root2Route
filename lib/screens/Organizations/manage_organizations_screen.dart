@@ -204,6 +204,7 @@ class _ManageOrganizationsScreenState extends State<ManageOrganizationsScreen> {
             );
           },
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
         floatingActionButton: FloatingActionButton(
           backgroundColor: AppColors.primary,
           child: const Icon(Icons.add, color: Colors.white),

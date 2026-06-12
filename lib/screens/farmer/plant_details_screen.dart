@@ -332,6 +332,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                           padding: const EdgeInsets.only(top: 4.0),
                           child: Text(
                             step.title,
+                            textAlign: TextAlign.right,
                             style: TextStyle(
                               fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
@@ -345,6 +346,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                         const SizedBox(height: 6),
                         Text(
                           step.instruction,
+                          textAlign: TextAlign.right,
                           style: TextStyle(
                             fontSize: 16.sp,
                             color:
@@ -491,6 +493,7 @@ class _DetailSection extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
@@ -534,7 +537,7 @@ class _DetailSection extends StatelessWidget {
             // Content
             Text(
               content,
-              textAlign: TextAlign.left,
+              textAlign: TextAlign.right,
               style: TextStyle(
                 fontSize: 16.sp,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,

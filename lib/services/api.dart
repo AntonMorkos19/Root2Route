@@ -160,6 +160,9 @@ class ApiService {
         final hasOrganization = await _checkUserHasOrganizations();
         await StorageService().saveHasOrganization(hasOrganization);
 
+        // 🔔 Send FCM token to backend after successful login
+        await sendFcmToken();
+
         print("Login Successfully!");
       } else {
         throw Exception("Invalid login response format");
@@ -169,6 +172,76 @@ class ApiService {
     } catch (e) {
       throw Exception("An unexpected error occurred: $e");
     }
+  }
+
+  /// Sends the device's FCM token to the backend so the server can deliver
+  /// push notifications to this specific device.
+  ///
+  /// - Endpoint : POST /api/v1/users/fcm-token
+  /// - Auth     : Bearer token is injected automatically by the Dio interceptor.
+  /// - Silent   : Errors are caught and logged — they never bubble up to the UI.
+  Future<void> sendFcmToken() async {
+    try {
+      // Require an authenticated session before sending the token.
+      final bearerToken = StorageService().token;
+      if (bearerToken == null || bearerToken.isEmpty) {
+        debugPrint('[FCM] Skipping token upload — user is not logged in.');
+        return;
+      }
+
+      // firebase_messaging is imported in main.dart; we call getToken() via
+      // the static FirebaseMessaging instance here to keep api.dart decoupled
+      // from firebase_messaging. We import it only for this method.
+      final fcmToken = await _getFcmToken();
+      if (fcmToken == null || fcmToken.isEmpty) {
+        debugPrint('[FCM] Could not retrieve FCM device token. Skipping upload.');
+        return;
+      }
+
+      await _dio.post(
+        '/users/fcm-token',
+        data: {"token": fcmToken},
+      );
+
+      debugPrint('[FCM] ✅ FCM token sent to backend successfully.');
+    } on DioException catch (e) {
+      // Non-critical — log and continue. Never throw from here.
+      debugPrint('[FCM] ⚠️ Failed to send FCM token (DioException): ${_extractApiError(e)}');
+    } catch (e) {
+      debugPrint('[FCM] ⚠️ Failed to send FCM token (unexpected): $e');
+    }
+  }
+
+  /// Internal helper that retrieves the current FCM token from Firebase.
+  /// Returns null if Firebase Messaging is unavailable or the token cannot
+  /// be fetched (e.g. no network, permissions denied).
+  Future<String?> _getFcmToken() async {
+    try {
+      // Import kept local to avoid a hard dependency on firebase_messaging
+      // in every file that imports api.dart.
+      final messaging = _firebaseMessagingInstance;
+      return await messaging?.call();
+    } catch (e) {
+      debugPrint('[FCM] _getFcmToken error: $e');
+      return null;
+    }
+  }
+
+  // A late-bound callback so that api.dart does not need to import
+  // firebase_messaging directly. main.dart injects the provider once
+  // Firebase is fully initialised via [setFcmTokenProvider].
+  static Future<String?> Function()? _firebaseMessagingInstance;
+
+  /// Call this once in main.dart (after Firebase.initializeApp) to register
+  /// the FCM token provider. Example:
+  ///
+  /// ```dart
+  /// ApiService.setFcmTokenProvider(
+  ///   () => FirebaseMessaging.instance.getToken(),
+  /// );
+  /// ```
+  static void setFcmTokenProvider(Future<String?> Function() provider) {
+    _firebaseMessagingInstance = provider;
   }
 
   Future<void> resendOTP({required String email}) async {

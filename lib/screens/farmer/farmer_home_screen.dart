@@ -7,7 +7,6 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
 import 'package:root2route/screens/farmer/plants_screen.dart';
 import 'package:root2route/screens/market_screen.dart';
-import 'package:root2route/screens/farmer/scan_screen.dart';
 import 'package:root2route/screens/order/my_orders_screen.dart';
 import 'package:root2route/services/storage_service.dart';
 
@@ -28,7 +27,6 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
     const ProfileScreen(),
     const MyOrdersScreen(),
     MarketScreen(organizationId: myOrganizationId),
-    const ScanScreen(),
     const PlantsScreen(),
   ];
 
@@ -81,7 +79,6 @@ class _FarmerHomeScreenState extends State<FarmerHomeScreen> {
             GButton(icon: Icons.person_outline, text: 'الحساب'),
             GButton(icon: Icons.receipt_long_outlined, text: 'الطلبات'),
             GButton(icon: Icons.shopping_bag_outlined, text: 'السوق'),
-            GButton(icon: Icons.camera_enhance_outlined, text: 'مسح'),
             GButton(icon: Icons.grass_outlined, text: 'نباتاتي'),
           ],
         ),

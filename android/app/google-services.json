@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "954890287596",
+    "project_id": "root2route-e43e0",
+    "storage_bucket": "root2route-e43e0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954890287596:android:6c662c8a431a166db028c9",
+        "android_client_info": {
+          "package_name": "com.example.root2route"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPrnRTHB9HZffuSTB0_-pGFHcDQbK6yjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

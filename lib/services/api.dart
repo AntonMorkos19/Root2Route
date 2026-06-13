@@ -1568,28 +1568,43 @@ class ApiService {
   // Fetch plant-specific details and steps
   Future<Map<String, dynamic>> getPlantDetails(String id) async {
     try {
-      final response = await _dio.get('/plant-guide-steps/by-plant/$id');
-
-      if (response.statusCode == 200 && response.data['succeeded'] == true) {
-        final data = response.data['data'];
-        if (data != null) {
-          final plantDetails = PlantDetailsResponse.fromJson(data);
-          return {
-            'success': true,
-            'data': plantDetails.steps, // Extracted pre-sorted steps array
-          };
+final response = await _dio.get('/plant-guide-step/plant-id/$id');
+      // 1. نتأكد إن الداتا راجعة على هيئة Map (JSON Object)
+      if (response.data is Map<String, dynamic>) {
+        if (response.statusCode == 200 && response.data['succeeded'] == true) {
+          final data = response.data['data'];
+          if (data != null) {
+            final plantDetails = PlantDetailsResponse.fromJson(data);
+            return {
+              'success': true,
+              'data': plantDetails.steps, // Extracted pre-sorted steps array
+            };
+          }
         }
+        return {
+          'success': false,
+          'message': response.data['message'] ?? 'Failed to load details.',
+        };
+      } else {
+        // لو السيرفر رجع نص غريب بدل الـ JSON
+        return {
+          'success': false,
+          'message': 'Invalid response format from server.',
+        };
       }
-      return {
-        'success': false,
-        'message': response.data['message'] ?? 'Failed to load details.',
-      };
     } on DioException catch (e) {
-      return {
-        'success': false,
-        'message':
-            e.response?.data?['message'] ?? e.message ?? 'Network error.',
-      };
+      // 2. معالجة آمنة للإيرور عشان لو السيرفر رجع نص (زي صيانة السيرفر)
+      String errorMessage = 'Network error.';
+
+      if (e.response?.data is Map<String, dynamic>) {
+        // لو الإيرور راجع كـ JSON
+        errorMessage = e.response?.data['message'] ?? e.message ?? errorMessage;
+      } else if (e.response?.data is String) {
+        // لو الإيرور راجع كنص عادي أو HTML
+        errorMessage = e.response?.data;
+      }
+
+      return {'success': false, 'message': errorMessage};
     } catch (e) {
       return {'success': false, 'message': 'An unexpected error occurred.'};
     }

@@ -32,18 +32,26 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
       _stepsError = null;
     });
 
-    final result = await _api.getPlantDetails(widget.plant.id);
+    try {
+      final result = await _api.getPlantDetails(widget.plant.id);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (result['success'] == true) {
+      if (result['success'] == true) {
+        setState(() {
+          _plantSteps = (result['data'] as List?)?.cast<PlantStepModel>() ?? [];
+          _stepsLoading = false;
+        });
+      } else {
+        setState(() {
+          _stepsError = 'empty';
+          _stepsLoading = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _plantSteps = result['data'] as List<PlantStepModel>;
-        _stepsLoading = false;
-      });
-    } else {
-      setState(() {
-        _stepsError = result['message'];
+        _stepsError = 'empty';
         _stepsLoading = false;
       });
     }
@@ -230,40 +238,21 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
       );
     }
 
-    if (_stepsError != null) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.orange, size: 32),
-            const SizedBox(height: 8),
-            Text(
-              _stepsError!,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 14.sp,
-              ),
-              textAlign: TextAlign.center,
+    if (_stepsError != null || _plantSteps.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 20.0),
+          child: Text(
+            'لا توجد خطوات زراعة مسجلة لهذا النبات حالياً.',
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.5,
             ),
-            const SizedBox(height: 8),
-            TextButton.icon(
-              onPressed: _loadPlantSteps,
-              icon: const Icon(Icons.refresh, size: 16),
-              label: const Text('إعادة المحاولة'),
-              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
-            ),
-          ],
+            textAlign: TextAlign.center,
+          ),
         ),
       );
-    }
-
-    if (_plantSteps.isEmpty) {
-      return const SizedBox.shrink();
     }
 
     return Container(

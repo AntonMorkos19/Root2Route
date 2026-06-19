@@ -116,17 +116,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (!_directSale && !_forAuction) {
-      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+      QuickAlert.show(
         context: context,
         type: QuickAlertType.warning,
         title: 'طريقة البيع مطلوبة',
         text: 'يرجى تفعيل طريقة بيع واحدة على الأقل\n(بيع مباشر أو مزاد).',
+        confirmBtnText: 'موافق',
         barrierDismissible: false,
       );
       return;
     }
 
-    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+    QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
       title: 'جاري التحديث...',
@@ -161,6 +162,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         productType: _productType,
       );
 
+      // هنا إحنا بنقفل الـ Loading Alert
       navigator.pop();
 
       if (!mounted) return;
@@ -171,29 +173,42 @@ class _EditProductScreenState extends State<EditProductScreen> {
           successValue.toString().toLowerCase() == 'true';
 
       if (isSuccess) {
-        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم تحديث المنتج بنجاح.');
+        // التعديل هنا: أضفنا await عشان الكود يستنى المستخدم يدوس موافق
+        await QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: 'نجاح',
+          text: 'تم تحديث المنتج بنجاح.',
+          confirmBtnText: 'موافق',
+        );
+
         if (!mounted) return;
-        Navigator.pop(context, true); // Return to previous page successfully
+
+        // دلوقتي الـ pop ده هيقفل الشاشة بتاعت التعديل بشكل سليم
+        Navigator.pop(context, true);
       } else {
-        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+        QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
           title: 'فشل التحديث',
           text: result['message'] ?? 'حدث خطأ أثناء التحديث.',
+          confirmBtnText: 'موافق',
           barrierDismissible: false,
         );
       }
     } catch (e) {
       try {
-        navigator.pop();
+        navigator.pop(); // قفل الـ Loading لو حصل Exception
       } catch (_) {}
 
       if (!mounted) return;
-      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+
+      QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
         title: 'خطأ غير متوقع',
         text: e.toString(),
+        confirmBtnText: 'موافق',
         barrierDismissible: false,
       );
     }

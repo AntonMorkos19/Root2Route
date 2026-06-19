@@ -6,7 +6,6 @@ import 'package:root2route/features/chat/cubit/chat_rooms_cubit.dart';
 import 'package:root2route/features/chat/cubit/chat_rooms_state.dart';
 import 'package:root2route/models/chat_room_model.dart';
 import 'package:root2route/services/chat_service.dart';
-import 'package:root2route/services/storage_service.dart';
 import 'chat_details_screen.dart';
 
 class ChatRoomsScreen extends StatefulWidget {

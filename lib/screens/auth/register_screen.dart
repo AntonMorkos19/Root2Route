@@ -13,8 +13,7 @@ import 'package:root2route/models/user_model.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/screens/auth/otp_verification_screen.dart';
 import 'package:root2route/services/api.dart';
-import 'package:root2route/core/utils/snackbar_helper.dart';
-
+ 
 class RegisterScreen extends StatefulWidget {
   static const String id = '/registerScreen';
   const RegisterScreen({super.key});

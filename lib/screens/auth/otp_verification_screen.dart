@@ -16,8 +16,7 @@ import 'package:root2route/screens/guest/guest_home_screen.dart';
 import 'package:root2route/screens/auth/create_new_password.dart';
 import 'package:root2route/screens/auth/login_screen.dart';
 import 'package:root2route/services/api.dart';
-import 'package:root2route/core/utils/snackbar_helper.dart';
-
+ 
 enum OtpType { emailVerification, passwordRecovery }
 
 class OtpVerificationScreen extends StatefulWidget {

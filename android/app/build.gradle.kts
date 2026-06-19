@@ -16,6 +16,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true // ← الإضافة الأولى تمت هنا
     }
 
     kotlinOptions {
@@ -44,4 +45,9 @@ android {
 
 flutter {
     source = "../.."
+}
+
+// ← الإضافة التانية (البلوك ده بالكامل)
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4") 
 }

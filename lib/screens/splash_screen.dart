@@ -9,6 +9,7 @@ import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/screens/factory/factory_home_screen.dart';
 import 'package:root2route/screens/restaurant/restaurant_home_screen.dart';
 import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 class SplashScreen extends StatefulWidget {
   static const String id = '/splashScreen';
@@ -28,6 +29,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+    FlutterNativeSplash.remove();
 
     _controller = AnimationController(
       vsync: this,

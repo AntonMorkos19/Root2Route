@@ -86,19 +86,22 @@ class _AddProductScreenState extends State<AddProductScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (!_directSale && !_forAuction) {
-      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+      QuickAlert.show(
+        confirmBtnText: 'موافق',
+        cancelBtnText: 'إلغاء',
         context: context,
         type: QuickAlertType.warning,
         title: 'طريقة البيع مطلوبة',
-        text:
-            'يرجى تفعيل طريقة بيع واحدة على الأقل\n(بيع مباشر أو مزاد).',
+        text: 'يرجى تفعيل طريقة بيع واحدة على الأقل\n(بيع مباشر أو مزاد).',
         barrierDismissible: false,
       );
       return;
     }
 
     // Show loading before starting
-    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+    QuickAlert.show(
+      confirmBtnText: 'موافق',
+      cancelBtnText: 'إلغاء',
       context: context,
       type: QuickAlertType.loading,
       title: 'جاري النشر...',
@@ -132,11 +135,21 @@ class _AddProductScreenState extends State<AddProductScreen> {
       if (!mounted) return;
       Navigator.pop(context);
       if (result['success'] == true) {
-        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم نشر المنتج بنجاح');
-        Navigator.pop(context, true); // Return to previous screen
+        await QuickAlert.show(
+          confirmBtnText: 'موافق',
+          cancelBtnText: 'إلغاء',
+          context: context,
+          type: QuickAlertType.success,
+          title: 'نجاح',
+          text: 'تم نشر المنتج بنجاح',
+        );
+        if (mounted) {
+          Navigator.pop(context, true); // Return to previous screen
+        }
       } else {
         // In case of failure (actual error)
-        QuickAlert.show(cancelBtnText: 'إلغاء', 
+        QuickAlert.show(
+          cancelBtnText: 'إلغاء',
           context: context,
           type: QuickAlertType.error,
           title: 'فشل',
@@ -148,7 +161,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context); // Close loading
-      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+      QuickAlert.show(
+        confirmBtnText: 'موافق',
+        cancelBtnText: 'إلغاء',
         context: context,
         type: QuickAlertType.error,
         title: 'خطأ غير متوقع',
@@ -159,7 +174,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   void _showErrorAlert(String message) {
-    QuickAlert.show(cancelBtnText: 'إلغاء', 
+    QuickAlert.show(
+      cancelBtnText: 'إلغاء',
       context: context,
       type: QuickAlertType.error,
       title: 'فشل',
@@ -180,42 +196,42 @@ class _AddProductScreenState extends State<AddProductScreen> {
           centerTitle: true,
           title: Text(
             'إضافة منتج',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w700,
-            fontSize: 20.sp,
+            style: TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.w700,
+              fontSize: 20.sp,
+            ),
           ),
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.black87,
+              size: 20,
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.help_outline, color: Colors.black87),
+              onPressed: () => _showInfoGuide(context),
+            ),
+          ],
         ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Colors.black87,
-            size: 20,
+        body: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: Column(
+              children: [
+                _buildFormCard(),
+                const SizedBox(height: 20),
+                _buildSellingOptionsCard(),
+                const SizedBox(height: 28),
+                _buildActionButtons(),
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline, color: Colors.black87),
-            onPressed: () => _showInfoGuide(context),
-          ),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          child: Column(
-            children: [
-              _buildFormCard(),
-              const SizedBox(height: 20),
-              _buildSellingOptionsCard(),
-              const SizedBox(height: 28),
-              _buildActionButtons(),
-              const SizedBox(height: 32),
-            ],
-          ),
-        ),
         ),
       ),
     );
@@ -243,12 +259,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 CustomTextFormField(
                   icon: Icons.grass_outlined,
                   validator:
-                      (v) =>
-                          (v == null || v.trim().isEmpty) ? 'مطلوب' : null,
+                      (v) => (v == null || v.trim().isEmpty) ? 'مطلوب' : null,
                   label: ' اسم المنتج',
                   controller: _nameController,
                 ),
@@ -570,15 +584,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
       keyboardType: keyboardType,
       textDirection: textDirection,
       validator: validator,
-      textAlign: textDirection == TextDirection.ltr ? TextAlign.left : TextAlign.start,
+      textAlign:
+          textDirection == TextDirection.ltr ? TextAlign.left : TextAlign.start,
       style: TextStyle(
         color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
         fontSize: 16.sp,
       ),
-      decoration: InputDecoration(
-        labelText: hint,
-        suffixIcon: Icon(icon),
-      ),
+      decoration: InputDecoration(labelText: hint, suffixIcon: Icon(icon)),
     );
   }
 
@@ -604,10 +616,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
       onChanged: onChanged,
       validator: validator,
-      decoration: InputDecoration(
-        labelText: hint,
-        suffixIcon: Icon(icon),
-      ),
+      decoration: InputDecoration(labelText: hint, suffixIcon: Icon(icon)),
     );
   }
 
@@ -625,30 +634,38 @@ class _AddProductScreenState extends State<AddProductScreen> {
         decoration: InputDecoration(
           labelText: 'تاريخ الصلاحية (اختياري)',
           hintText: 'اختر تاريخ الصلاحية',
-          suffixIcon: _expiryDate != null
-              ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    GestureDetector(
-                      onTap: () => setState(() => _expiryDate = null),
-                      child: Icon(Icons.close_rounded, size: 18, color: Colors.grey.shade400),
-                    ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.calendar_month_outlined),
-                    const SizedBox(width: 8),
-                  ],
-                )
-              : const Icon(Icons.calendar_month_outlined),
+          suffixIcon:
+              _expiryDate != null
+                  ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: () => setState(() => _expiryDate = null),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 18,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.calendar_month_outlined),
+                      const SizedBox(width: 8),
+                    ],
+                  )
+                  : const Icon(Icons.calendar_month_outlined),
         ),
-        child: _expiryDate == null
-            ? const Text('')
-            : Text(
-                label,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87,
+        child:
+            _expiryDate == null
+                ? const Text('')
+                : Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color:
+                        Theme.of(context).textTheme.bodyMedium?.color ??
+                        Colors.black87,
+                  ),
                 ),
-              ),
       ),
     );
   }

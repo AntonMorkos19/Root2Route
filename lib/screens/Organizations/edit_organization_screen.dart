@@ -2,7 +2,6 @@ import 'package:quickalert/quickalert.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
@@ -11,9 +10,11 @@ import 'package:root2route/components/custom_button.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/models/organization_model.dart';
-import 'package:root2route/services/api.dart';
-import 'package:root2route/core/utils/snackbar_helper.dart';
 import 'package:root2route/core/utils/image_utils.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:root2route/features/organizations/cubit/update_organization_cubit.dart';
+import 'package:root2route/services/api.dart';
+
 
 class EditOrganizationScreen extends StatefulWidget {
   final OrganizationModel organization;
@@ -36,8 +37,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
 
   File? _image;
   final ImagePicker _picker = ImagePicker();
-  final ApiService _api = ApiService();
-  bool _isLoading = false;
+
 
   @override
   void initState() {
@@ -90,7 +90,6 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
   }
 
   Future<void> _pickImage() async {
-    if (_isLoading) return;
 
     final XFile? pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
@@ -100,7 +99,7 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
     }
   }
 
-  Future<void> _updateOrganization() async {
+  void _updateOrganization(BuildContext context) {
     if (!formKey.currentState!.validate()) return;
 
     if (selectedType == null) {
@@ -124,62 +123,18 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       return;
     }
 
-    setState(() => _isLoading = true);
-
-    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
-      context: context,
-      type: QuickAlertType.loading,
-      title: 'جاري التحميل',
-      text: 'جاري تحديث شركتك...',
-      barrierDismissible: false,
-    );
-
     final formattedPhone = _formatPhoneNumber(phoneController.text.trim());
 
-    try {
-      final result = await _api.updateOrganization(
-        organizationId: widget.organization.id,
-        name: orgName,
-        description: descriptionController.text.trim(),
-        address: addressController.text.trim(),
-        contactEmail: emailController.text.trim(),
-        contactPhone: formattedPhone,
-        type: _getOrganizationTypeValue(selectedType!),
-        logo: _image,
-      );
-
-      if (!mounted) return;
-
-      if (mounted) Navigator.pop(context);
-
-      if (result['success'] == true) {
-        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم تحديث الشركة بنجاح!');
-        Navigator.pop(context, true);
-      } else {
-        QuickAlert.show(cancelBtnText: 'إلغاء', 
-          context: context,
-          type: QuickAlertType.error,
-          title: 'فشل',
-          text: result['message'] ?? 'فشل تحديث الشركة',
-          barrierDismissible: false,
-          confirmBtnText: 'المحاولة مرة أخرى',
-        );
-      }
-    } catch (e) {
-      if (mounted) Navigator.pop(context);
-      if (!mounted) return;
-
-      QuickAlert.show(cancelBtnText: 'إلغاء', 
-        context: context,
-        type: QuickAlertType.error,
-        title: 'فشل',
-        text: 'حدث خطأ غير متوقع: $e',
-        barrierDismissible: false,
-        confirmBtnText: 'موافق',
-      );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    context.read<UpdateOrganizationCubit>().updateOrganization(
+      organizationId: widget.organization.id,
+      name: orgName,
+      description: descriptionController.text.trim(),
+      address: addressController.text.trim(),
+      contactEmail: emailController.text.trim(),
+      contactPhone: formattedPhone,
+      type: _getOrganizationTypeValue(selectedType!),
+      logo: _image,
+    );
   }
 
   @override
@@ -206,10 +161,46 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
       }
     }
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+    return BlocProvider(
+      create: (context) => UpdateOrganizationCubit(ApiService()),
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: BlocConsumer<UpdateOrganizationCubit, UpdateOrganizationState>(
+          listener: (context, state) async {
+            if (state is UpdateOrganizationLoading) {
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.loading,
+                title: 'جاري التحميل',
+                text: 'جاري تحديث شركتك...',
+                barrierDismissible: false,
+              );
+            } else if (state is UpdateOrganizationSuccess) {
+              Navigator.pop(context); // Close loading alert
+              await QuickAlert.show(
+                context: context,
+                type: QuickAlertType.success,
+                title: 'نجاح',
+                text: 'تم تحديث الشركة بنجاح!',
+                confirmBtnText: 'موافق',
+              );
+              if (context.mounted) {
+                Navigator.pop(context, true); // Pop the screen
+              }
+            } else if (state is UpdateOrganizationError) {
+              Navigator.pop(context); // Close loading alert
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.error,
+                title: 'فشل',
+                text: state.message,
+                confirmBtnText: 'موافق',
+              );
+            }
+          },
+          builder: (context, state) {
+            return Scaffold(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -449,15 +440,16 @@ class _EditOrganizationScreenState extends State<EditOrganizationScreen> {
                 CustomButton(
                   text: 'تحديث الشركة',
                   color: AppColors.primary,
-                  onPressed: _updateOrganization,
+                  onPressed: () => _updateOrganization(context),
                 ),
 
                 const SizedBox(height: 20),
               ],
             ),
           ),
+          ),
         ),
-      ),
-    ));
+      );}))
+    );
   }
 }

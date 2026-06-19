@@ -15,8 +15,7 @@ import 'package:root2route/screens/factory/factory_home_screen.dart';
 import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
-import 'package:root2route/core/utils/snackbar_helper.dart';
-import 'package:root2route/core/utils/image_utils.dart';
+ import 'package:root2route/core/utils/image_utils.dart';
 
 class OrganizationDetailsScreen extends StatefulWidget {
   final OrganizationModel organization;
@@ -88,20 +87,22 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
   }
 
   Future<void> _deleteOrganization() async {
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.warning,
-        title: 'حذف الشركة؟',
-        text: 'لا يمكن التراجع عن هذا الإجراء.',
-        barrierDismissible: false,
-        confirmBtnText: 'نعم، احذف',
-        cancelBtnText: 'إلغاء',
-        confirmBtnColor: Colors.red,
-        showCancelBtn: true,
-        onConfirmBtnTap: () async {
-          Navigator.of(context, rootNavigator: true).pop();
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.warning,
+      title: 'حذف الشركة؟',
+      text: 'لا يمكن التراجع عن هذا الإجراء.',
+      barrierDismissible: false,
+      confirmBtnText: 'نعم، احذف',
+      cancelBtnText: 'إلغاء',
+      confirmBtnColor: Colors.red,
+      showCancelBtn: true,
+      onConfirmBtnTap: () async {
+        Navigator.of(context, rootNavigator: true).pop();
 
-        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+        QuickAlert.show(
+          confirmBtnText: 'موافق',
+          cancelBtnText: 'إلغاء',
           context: context,
           type: QuickAlertType.loading,
           title: 'جاري الحذف',
@@ -135,11 +136,16 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
             }
 
             if (!mounted) return;
-            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم حذف الشركة. سيتم نقلك لوضع الضيف.');
+            QuickAlert.show(
+              confirmBtnText: 'موافق',
+              cancelBtnText: 'إلغاء',
+              context: context,
+              type: QuickAlertType.success,
+              title: 'نجاح',
+              text: 'تم حذف الشركة. سيتم نقلك لوضع الضيف.',
+            );
             Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (_) => const GuestHomeScreen(),
-              ),
+              MaterialPageRoute(builder: (_) => const GuestHomeScreen()),
               (route) => false,
             );
           } else {
@@ -152,20 +158,32 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
             final newOrgType = firstOrg['type'] ?? 0;
 
             await StorageService().saveOrganizationId(newOrgId);
-            await StorageService().saveOrganizationType(newOrgType is int ? newOrgType : 0);
+            await StorageService().saveOrganizationType(
+              newOrgType is int ? newOrgType : 0,
+            );
             await StorageService().saveHasOrganization(true);
 
             if (!mounted) return;
-            QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم حذف الشركة. سيتم تفعيل شركتك الأخرى.');
+            QuickAlert.show(
+              confirmBtnText: 'موافق',
+              cancelBtnText: 'إلغاء',
+              context: context,
+              type: QuickAlertType.success,
+              title: 'نجاح',
+              text: 'تم حذف الشركة. سيتم تفعيل شركتك الأخرى.',
+            );
             // Navigate to the correct home screen for the fallback org type
-            final Widget homeScreen = _getHomeScreenForType(newOrgType is int ? newOrgType : 0);
+            final Widget homeScreen = _getHomeScreenForType(
+              newOrgType is int ? newOrgType : 0,
+            );
             Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
               MaterialPageRoute(builder: (_) => homeScreen),
               (route) => false,
             );
           }
         } else {
-          QuickAlert.show(cancelBtnText: 'إلغاء', 
+          QuickAlert.show(
+            cancelBtnText: 'إلغاء',
             context: context,
             type: QuickAlertType.error,
             title: 'خطأ',
@@ -200,7 +218,8 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     final bool hasImage = imageUrl.isNotEmpty;
 
     // Show the ⋮ menu only if this org belongs to the logged-in user.
-    final bool isOwner = widget.isMyOrganization || StorageService().organizationId == org.id;
+    final bool isOwner =
+        widget.isMyOrganization || StorageService().organizationId == org.id;
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -402,6 +421,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                     Icons.phone_outlined,
                     'رقم الهاتف',
                     org.contactPhone!,
+                    valueTextDirection: TextDirection.ltr,
                   ),
 
                 const SizedBox(height: 40),
@@ -561,7 +581,7 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
     );
   }
 
-  Widget InfoCard(IconData icon, String label, String value) {
+  Widget InfoCard(IconData icon, String label, String value, {TextDirection? valueTextDirection}) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 10),
@@ -604,6 +624,10 @@ class _OrganizationDetailsScreenState extends State<OrganizationDetailsScreen> {
                 const SizedBox(height: 4),
                 Text(
                   value,
+                  textDirection: valueTextDirection,
+                  textAlign: valueTextDirection == TextDirection.ltr
+                      ? TextAlign.right
+                      : null,
                   style: TextStyle(
                     fontSize: 16.sp,
                     color:

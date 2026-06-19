@@ -431,8 +431,7 @@ class ApiService {
         'Type': type.toString(),
         if (description != null && description.isNotEmpty)
           'Description': description,
-        if (address != null && address.isNotEmpty)
-          'Address': address,
+        if (address != null && address.isNotEmpty) 'Address': address,
         if (contactEmail != null && contactEmail.isNotEmpty)
           'ContactEmail': contactEmail,
         if (contactPhone != null && contactPhone.isNotEmpty)
@@ -470,52 +469,53 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> updateOrganization({
+  Future<Response> updateOrganization({
     required String organizationId,
     required String name,
-    required String description,
-    required String address,
-    required String contactEmail,
-    required String contactPhone,
     required int type,
+    String? description,
+    String? address,
+    String? contactEmail,
+    String? contactPhone,
     File? logo,
   }) async {
-    try {
-      final ownerId = StorageService().userId;
-      if (ownerId == null || ownerId.isEmpty)
-        throw Exception("User not logged in");
-      if (organizationId.isEmpty)
-        return {"success": false, "message": "Organization ID is missing!"};
-
-      String formattedPhone = _formatPhoneNumber(contactPhone);
-      final formData = FormData.fromMap({
-        'OrganizationId': organizationId,
-        'OwnerId': ownerId,
-        'Name': name,
-        'Description': description,
-        'Address': address,
-        'ContactEmail': contactEmail,
-        'ContactPhone': formattedPhone,
-        'Type': type.toString(),
-        if (logo != null)
-          'Logo': await MultipartFile.fromFile(
-            logo.path,
-            filename: 'logo_${DateTime.now().millisecondsSinceEpoch}.png',
-          ),
-      });
-
-      final response = await _dio.put('/organizations', data: formData);
-
-      return {
-        "success": true,
-        "data": response.data,
-        "message": "Organization updated successfully",
-      };
-    } on DioException catch (e) {
-      return {"success": false, "message": _extractApiError(e)};
-    } catch (e) {
-      return {"success": false, "message": "An unexpected error occurred: $e"};
+    final ownerId = StorageService().userId;
+    if (ownerId == null || ownerId.isEmpty) {
+      throw Exception("User not logged in");
     }
+    if (organizationId.isEmpty) {
+      throw Exception("Organization ID is missing!");
+    }
+
+    final formDataMap = <String, dynamic>{
+      'OwnerId': ownerId,
+      'OrganizationId': organizationId,
+      'Name': name,
+      'Type': type.toString(),
+    };
+
+    if (description != null && description.isNotEmpty) {
+      formDataMap['Description'] = description;
+    }
+    if (address != null && address.isNotEmpty) {
+      formDataMap['Address'] = address;
+    }
+    if (contactEmail != null && contactEmail.isNotEmpty) {
+      formDataMap['ContactEmail'] = contactEmail;
+    }
+    if (contactPhone != null && contactPhone.isNotEmpty) {
+      formDataMap['ContactPhone'] = _formatPhoneNumber(contactPhone);
+    }
+    if (logo != null) {
+      formDataMap['Logo'] = await MultipartFile.fromFile(
+        logo.path,
+        filename: 'logo_${DateTime.now().millisecondsSinceEpoch}.png',
+      );
+    }
+
+    final formData = FormData.fromMap(formDataMap);
+
+    return await _dio.put('/organizations/$organizationId', data: formData);
   }
 
   Future<Map<String, dynamic>> getOrganizations() async {
@@ -1568,7 +1568,7 @@ class ApiService {
   // Fetch plant-specific details and steps
   Future<Map<String, dynamic>> getPlantDetails(String id) async {
     try {
-final response = await _dio.get('/plant-guide-step/plant-id/$id');
+      final response = await _dio.get('/plant-guide-step/plant-id/$id');
       // 1. نتأكد إن الداتا راجعة على هيئة Map (JSON Object)
       if (response.data is Map<String, dynamic>) {
         if (response.statusCode == 200 && response.data['succeeded'] == true) {

@@ -7,6 +7,8 @@ import 'package:root2route/services/storage_service.dart';
 import 'package:root2route/features/reviews/ui/organization_reviews_screen.dart';
 import 'package:root2route/features/organizations/widgets/switch_organization_sheet.dart';
 import 'package:root2route/screens/Organizations/manage_organizations_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:quickalert/quickalert.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -249,6 +251,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                             ),
                           );
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  // ── Web Dashboard ────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: ListTile(
+                        leading: const Icon(Icons.language, color: AppColors.primary),
+                        title: const Text(
+                          'لوحة تحكم الشركة (ويب)',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        trailing: const Icon(Icons.open_in_browser, size: 20),
+                        onTap: () async {
+                          final Uri url = Uri.parse('https://root2-route-front.vercel.app/');
+                          try {
+                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                              throw Exception('Could not launch url');
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.error,
+                                title: 'عذرًا',
+                                text: 'حدث خطأ أثناء محاولة فتح الرابط.',
+                                confirmBtnText: 'موافق',
+                              );
+                            }
+                          }
                         },
                       ),
                     ),

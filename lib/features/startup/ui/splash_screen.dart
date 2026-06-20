@@ -134,8 +134,7 @@ class _SplashScreenState extends State<SplashScreen>
         (route) => false,
       );
     } else {
-      // No org, or org is still Pending — stay in guest mode
-      Navigator.pushAndRemoveUntil(
+       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const GuestHomeScreen()),
         (route) => false,

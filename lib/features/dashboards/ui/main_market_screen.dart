@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
@@ -30,44 +31,116 @@ class _MainMarketTabState extends State<MainMarketTab> {
   bool _isLoading = true;
   String? _errorMessage;
 
+  int _pageNumber = 1;
+  final int _pageSize = 20;
+  bool _hasMore = true;
+  bool _isFetchingMore = false;
+  String _searchQuery = '';
+  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+  
+  static const int _approvedStatus = 2; 
   @override
   void initState() {
     super.initState();
-    _fetchProducts();
+    _fetchProducts(isRefresh: true);
+    _scrollController.addListener(_onScroll);
   }
 
-  Future<void> _fetchProducts() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      _fetchProducts();
+    }
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      setState(() {
+        _searchQuery = query;
+      });
+      _fetchProducts(isRefresh: true);
     });
+  }
+
+  Future<void> _fetchProducts({bool isRefresh = false}) async {
+    if (isRefresh) {
+      setState(() {
+        _pageNumber = 1;
+        _hasMore = true;
+        _isLoading = true;
+        _errorMessage = null;
+      });
+    } else {
+      if (_isLoading || _isFetchingMore || !_hasMore) return;
+      setState(() {
+        _isFetchingMore = true;
+      });
+    }
+
     try {
-      final result = await _api.getAllProducts();
+      final result = await _api.getAllProducts(
+        pageNumber: _pageNumber,
+        pageSize: _pageSize,
+        status: _approvedStatus,
+        productType: 1,
+        search: _searchQuery,
+      );
       if (!mounted) return;
 
       if (result['success'] == true) {
         setState(() {
-          final allProducts = result['data'] ?? [];
-          _products =
-              allProducts.where((p) {
-                final isAvailableForDirectSale =
-                    p['isAvailableForDirectSale'] == true ||
-                    p['IsAvailableForDirectSale'] == true;
-                return isAvailableForDirectSale;
-              }).toList();
+          final fetchedProducts = result['data'] ?? [];
+          
+          final filteredProducts = fetchedProducts.where((p) {
+            final isAvailableForDirectSale =
+                p['isAvailableForDirectSale'] == true ||
+                p['IsAvailableForDirectSale'] == true;
+            return isAvailableForDirectSale;
+          }).toList();
+
+          if (_pageNumber == 1) {
+            _products = filteredProducts;
+          } else {
+            _products.addAll(filteredProducts);
+          }
+
+          if (fetchedProducts.length < _pageSize) {
+            _hasMore = false;
+          } else {
+            _pageNumber++;
+          }
+
           _isLoading = false;
+          _isFetchingMore = false;
         });
       } else {
         setState(() {
-          _errorMessage = result['message'] ?? 'فشل في تحميل المنتجات';
+          if (_pageNumber == 1) {
+            _errorMessage = result['message'] ?? 'فشل في تحميل المنتجات';
+          }
           _isLoading = false;
+          _isFetchingMore = false;
         });
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'حدث خطأ غير متوقع: $e';
+        if (_pageNumber == 1) {
+          _errorMessage = 'حدث خطأ غير متوقع: $e';
+        }
         _isLoading = false;
+        _isFetchingMore = false;
       });
     }
   }
@@ -119,6 +192,47 @@ class _MainMarketTabState extends State<MainMarketTab> {
   }
 
   Widget _buildBody() {
+    return Column(
+      children: [
+        _buildSearchBar(),
+        Expanded(
+          child: _buildContent(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: TextField(
+        controller: _searchController,
+        onChanged: _onSearchChanged,
+        decoration: InputDecoration(
+          hintText: 'ابحث عن منتجات...',
+          prefixIcon: const Icon(Icons.search, color: AppColors.primary),
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, color: Colors.grey),
+                  onPressed: () {
+                    _searchController.clear();
+                    _onSearchChanged('');
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: Theme.of(context).cardColor,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.primary),
@@ -148,7 +262,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: _fetchProducts,
+                onPressed: () => _fetchProducts(isRefresh: true),
                 icon: const Icon(Icons.refresh, color: Colors.white),
                 label: const Text(
                   'إعادة المحاولة',
@@ -168,46 +282,78 @@ class _MainMarketTabState extends State<MainMarketTab> {
     }
 
     if (_products.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.inventory_2_outlined,
-              size: 80,
-              color: Theme.of(context).colorScheme.outline,
+      return RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () => _fetchProducts(isRefresh: true),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.6,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.inventory_2_outlined,
+                  size: 80,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'لا توجد منتجات متاحة حالياً',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'لا توجد منتجات متاحة حالياً',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ],
+          ),
         ),
       );
     }
 
     return RefreshIndicator(
       color: AppColors.primary,
-      onRefresh: _fetchProducts,
-      child: GridView.builder(
-        padding: const EdgeInsets.only(
-          left: 16,
-          right: 16,
-          bottom: 100,
-          top: 16,
-        ),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.48,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-        ),
-        itemCount: _products.length,
-        itemBuilder: (context, index) {
-          final product = _products[index];
-          return _buildProductCard(context, product);
-        },
+      onRefresh: () => _fetchProducts(isRefresh: true),
+      child: CustomScrollView(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: 16,
+              top: 8,
+            ),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.48,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final product = _products[index];
+                  return _buildProductCard(context, product);
+                },
+                childCount: _products.length,
+              ),
+            ),
+          ),
+          if (_hasMore)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 100.0),
+                child: Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+              ),
+            )
+          else
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 100),
+            ),
+        ],
       ),
     );
   }

@@ -804,7 +804,7 @@ class ApiService {
 
     try {
       final response = await _dio.post(
-        '/refresh-token',
+        '/auth/refresh-token',
         data: {
           "accessToken": accToken,
           "refreshToken": refToken,

@@ -8,6 +8,7 @@ class OrganizationModel {
   final String? logoUrl;
   final String? complianceFileUrl;
   final int type;
+  final int status;
 
   OrganizationModel({
     required this.id,
@@ -19,6 +20,7 @@ class OrganizationModel {
     this.logoUrl,
     this.complianceFileUrl,
     required this.type,
+    this.status = 1,
   });
 
   factory OrganizationModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class OrganizationModel {
       logoUrl: json['logoUrl']?.toString() ?? json['LogoUrl']?.toString(),
       complianceFileUrl: json['complianceFileUrl']?.toString() ?? json['ComplianceFileUrl']?.toString(),
        type: int.tryParse(json['type']?.toString() ?? json['Type']?.toString() ?? '0') ?? 0,
+       status: int.tryParse(json['organizationStatus']?.toString() ?? json['OrganizationStatus']?.toString() ?? json['status']?.toString() ?? json['Status']?.toString() ?? '1') ?? 1,
     );
   }
 
@@ -52,6 +55,7 @@ class OrganizationModel {
       "logoUrl": logoUrl,
       "complianceFileUrl": complianceFileUrl,
       "type": type,
+      "status": status,
     };
   }
 

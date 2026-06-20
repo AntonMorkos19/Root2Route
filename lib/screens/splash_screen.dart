@@ -106,8 +106,10 @@ class _SplashScreenState extends State<SplashScreen>
 
     final hasOrganization = StorageService().hasOrganization;
     final orgType = StorageService().organizationType;
+    final orgStatus = StorageService().organizationStatus;
 
-    if (hasOrganization) {
+    if (hasOrganization && orgStatus == 1) {
+      // Approved — route to the correct role dashboard
       Widget targetScreen = const FarmerHomeScreen();
       if (orgType != null) {
         switch (orgType) {
@@ -132,6 +134,7 @@ class _SplashScreenState extends State<SplashScreen>
         (route) => false,
       );
     } else {
+      // No org, or org is still Pending — stay in guest mode
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const GuestHomeScreen()),

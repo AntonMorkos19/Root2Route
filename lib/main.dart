@@ -70,7 +70,7 @@ Future<void> setupFCM() async {
 
     // ── Listen for token refreshes ────────────────────────────────────
     messaging.onTokenRefresh.listen((newToken) {
-      debugPrint('[FCM] 🔄 Token refreshed: $newToken');
+      debugPrint('[FCM] Token refreshed: $newToken');
       if (StorageService().isLoggedIn) {
         ApiService().sendFcmToken();
       }

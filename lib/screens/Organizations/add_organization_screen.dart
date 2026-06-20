@@ -18,6 +18,7 @@ import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
 import 'package:root2route/screens/restaurant/restaurant_home_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/screens/guest/guest_home_screen.dart';
  import 'package:root2route/core/utils/app_validators.dart';
 
 class AddOrganizationScreen extends StatefulWidget {
@@ -124,6 +125,12 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       return;
     }
 
+    // ── Snapshot current org state BEFORE the API call ──
+    // This tells us whether the user already has an approved active org.
+    final bool hadActiveOrg =
+        StorageService().hasOrganization &&
+        StorageService().organizationStatus == 1;
+
     setState(() => _isLoading = true);
     QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
       context: context,
@@ -150,25 +157,47 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
       if (!mounted) return;
 
       if (result['success']) {
-        final orgId =
-            result['data']?['id'] ??
-            result['data']?['organizationId'] ??
-            result['data']?['OrganizationId'] ??
-            '';
+        // Only persist the new org as the active one if the user
+        // does NOT already have an approved active organization.
+        // This prevents overwriting the current dashboard's org data.
+        if (!hadActiveOrg) {
+          final orgId =
+              result['data']?['id'] ??
+              result['data']?['organizationId'] ??
+              result['data']?['OrganizationId'] ??
+              '';
 
-        // Atomically persist the new active org
-        await StorageService().saveOrganizationDetails(
-          orgId: orgId.toString(),
-          orgType: _getOrganizationTypeValue(selectedType!),
+          await StorageService().saveOrganizationDetails(
+            orgId: orgId.toString(),
+            orgType: _getOrganizationTypeValue(selectedType!),
+            status: 0, // Pending
+          );
+        }
+
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: 'تم الاستلام',
+          text: 'تم إرسال بيانات شركتك بنجاح وهي الآن تحت المراجعة من قبل الإدارة.',
+          confirmBtnText: 'موافق',
+          barrierDismissible: false,
+          onConfirmBtnTap: () {
+            Navigator.of(context, rootNavigator: true).pop(); // close alert
+
+            if (hadActiveOrg) {
+              // User came from an active dashboard → just pop back to it
+              Navigator.pop(context);
+            } else {
+              // Guest with no active org → send to GuestHomeScreen
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const GuestHomeScreen()),
+                (route) => false,
+              );
+            }
+          },
         );
 
-        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم إنشاء الشركة بنجاح!');
-        // pushAndRemoveUntil so the new home screen is the new root
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => _getTargetScreen(selectedType!)),
-          (route) => false,
-        );
       } else {
         QuickAlert.show(cancelBtnText: 'إلغاء', 
           context: context,

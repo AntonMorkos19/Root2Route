@@ -7,6 +7,7 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/screens/Organizations/ProfileScreen.dart';
 import 'package:root2route/screens/market_screen.dart';
 import 'package:root2route/screens/order/my_orders_screen.dart';
+import 'package:root2route/screens/product/my_products_screen.dart';
 import 'package:root2route/services/storage_service.dart';
 
 class FactoryHomeScreen extends StatefulWidget {
@@ -25,8 +26,8 @@ class _FactoryHomeScreenState extends State<FactoryHomeScreen> {
 
   List<Widget> get screens => [
     const ProfileScreen(),
-    const MyOrdersScreen(canSell: false),
-    MarketScreen(organizationId: myOrganizationId, canSell: false),
+    const MyOrdersScreen(),
+    MarketScreen(organizationId: myOrganizationId),
   ];
 
   @override
@@ -41,7 +42,8 @@ class _FactoryHomeScreenState extends State<FactoryHomeScreen> {
     // Ensure index is safe for the current organization's tab count
     int safeIndex = index;
     if (safeIndex >= screens.length) {
-      safeIndex = 0; // Fallback to Home (Index 0) if the previous index no longer exists
+      safeIndex =
+          0; // Fallback to Home (Index 0) if the previous index no longer exists
     }
 
     return PopScope(

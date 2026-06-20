@@ -19,6 +19,7 @@ class StorageService {
   static const String _keyRefreshToken = 'refresh_token';
   static const String _keyOrganizationId = 'organization_id';
   static const String _keyOrganizationType = 'organization_type';
+  static const String _keyOrganizationStatus = 'organization_status';
 
   late SharedPreferences _prefs;
 
@@ -69,10 +70,17 @@ class StorageService {
   Future<void> saveOrganizationDetails({
     required String orgId,
     required int orgType,
+    int status = 0,
   }) async {
     await _prefs.setString(_keyOrganizationId, orgId);
     await _prefs.setInt(_keyOrganizationType, orgType);
     await _prefs.setBool(_keyHasOrganization, true);
+    await _prefs.setInt(_keyOrganizationStatus, status);
+  }
+
+  // Save organization status (0 = Pending, 1 = Approved)
+  Future<void> saveOrganizationStatus(int status) async {
+    await _prefs.setInt(_keyOrganizationStatus, status);
   }
 
   // ✅ Save organization type
@@ -104,6 +112,8 @@ class StorageService {
   String? get refreshToken => _prefs.getString(_keyRefreshToken);
   String? get organizationId => _prefs.getString(_keyOrganizationId);
   int? get organizationType => _prefs.getInt(_keyOrganizationType);
+  // 0 = Pending, 1 = Approved
+  int get organizationStatus => _prefs.getInt(_keyOrganizationStatus) ?? 1;
 
   // ✅ Read verification status
   bool get isVerified => _prefs.getBool(_keyIsVerified) ?? false;
@@ -122,6 +132,7 @@ class StorageService {
   Future<void> clearActiveOrganization() async {
     await _prefs.remove(_keyOrganizationId);
     await _prefs.remove(_keyOrganizationType);
+    await _prefs.remove(_keyOrganizationStatus);
     await _prefs.setBool(_keyHasOrganization, false);
   }
 
@@ -137,6 +148,7 @@ class StorageService {
     await _prefs.remove(_keyRefreshToken);
     await _prefs.remove(_keyOrganizationId);
     await _prefs.remove(_keyOrganizationType);
+    await _prefs.remove(_keyOrganizationStatus);
     await _prefs.remove(_keyIsExplicitGuest);
   }
 

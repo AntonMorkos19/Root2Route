@@ -10,6 +10,7 @@ import 'package:root2route/screens/restaurant/restaurant_home_screen.dart';
 import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
 import 'package:root2route/services/api.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:quickalert/quickalert.dart';
 
 /// Shows a bottom-sheet listing every organization owned by the user.
 /// The currently-active org is highlighted with a checkmark.
@@ -101,6 +102,7 @@ class _SwitchOrganizationSheetState extends State<_SwitchOrganizationSheet> {
   }
 
   Future<void> _switchTo(OrganizationModel org) async {
+
     if (_isSwitching) return;
     setState(() => _isSwitching = true);
 
@@ -224,7 +226,7 @@ class _SwitchOrganizationSheetState extends State<_SwitchOrganizationSheet> {
                   );
                 }
 
-                final orgs = snapshot.data ?? [];
+                final orgs = (snapshot.data ?? []).where((org) => org.status == 1).toList();
 
                 if (orgs.isEmpty) {
                   return Padding(

@@ -4,9 +4,14 @@ import 'package:root2route/screens/Organizations/organizations_list_screen.dart'
 import 'package:root2route/screens/account_screen.dart';
 import 'package:root2route/features/shipments/ui/addresses_screen.dart';
 import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/services/api.dart';
 import 'package:root2route/features/reviews/ui/organization_reviews_screen.dart';
 import 'package:root2route/features/organizations/widgets/switch_organization_sheet.dart';
 import 'package:root2route/screens/Organizations/manage_organizations_screen.dart';
+import 'package:root2route/screens/farmer/farmer_home_screen.dart';
+import 'package:root2route/screens/restaurant/restaurant_home_screen.dart';
+import 'package:root2route/screens/factory/factory_home_screen.dart';
+import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:quickalert/quickalert.dart';
 
@@ -17,7 +22,176 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserver {
+  bool _isCheckingStatus = true;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkStatusUpdatesSilent();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkStatusUpdatesSilent();
+    }
+  }
+
+  Future<void> _checkStatusUpdatesSilent() async {
+    final currentOrgId = StorageService().organizationId;
+    if (currentOrgId == null || StorageService().organizationStatus == 1) {
+      if (mounted) setState(() => _isCheckingStatus = false);
+      return;
+    }
+
+    if (mounted) setState(() => _isCheckingStatus = true);
+
+    try {
+      final orgsResult = await ApiService().getMyOrganizations();
+      if (!mounted) return;
+
+      if (orgsResult['success'] == true) {
+        final List dataList = orgsResult['data'] ?? [];
+        for (var org in dataList) {
+          if (org is Map) {
+            final orgId = org['id']?.toString() ?? org['organizationId']?.toString() ?? org['OrganizationId']?.toString();
+            if (orgId == currentOrgId) {
+              final status = org['organizationStatus'] ?? org['status'] ?? org['OrganizationStatus'] ?? org['Status'];
+              if (status == 1 || status == '1') {
+                await StorageService().saveOrganizationStatus(1);
+                // Also silently refresh the token so the user gets owner claims
+                await ApiService().refreshAuthToken();
+              }
+              break;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Silent status update failed: $e');
+    } finally {
+      if (mounted) setState(() => _isCheckingStatus = false);
+    }
+  }
+
+  Future<void> _checkApprovalStatus() async {
+    // Show loading
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.loading,
+      title: 'جاري التحقق',
+      text: 'يرجى الانتظار...',
+      barrierDismissible: false,
+      confirmBtnText: 'موافق',
+    );
+
+    try {
+      final orgsResult = await ApiService().getMyOrganizations();
+      
+      if (!mounted) return;
+
+      bool isApproved = false;
+      int? approvedOrgType;
+      String? approvedOrgId;
+
+      if (orgsResult['success'] == true) {
+        final List dataList = orgsResult['data'] ?? [];
+        for (var org in dataList) {
+          if (org is Map) {
+            final status = org['organizationStatus'] ?? org['status'] ?? org['OrganizationStatus'] ?? org['Status'];
+            if (status == 1 || status == '1') {
+              isApproved = true;
+              approvedOrgType = org['type'] ?? org['Type'];
+              approvedOrgId = org['id']?.toString() ?? org['organizationId']?.toString() ?? org['OrganizationId']?.toString();
+              break;
+            }
+          }
+        }
+      }
+
+      if (isApproved && approvedOrgId != null) {
+        // Save its data to local storage
+        await StorageService().saveOrganizationDetails(
+          orgId: approvedOrgId.toString(),
+          orgType: int.tryParse(approvedOrgType?.toString() ?? '0') ?? 0,
+          status: 1,
+        );
+
+        // NOW, call await ApiService().refreshAuthToken()
+        await ApiService().refreshAuthToken();
+
+        if (!mounted) return;
+        Navigator.of(context, rootNavigator: true).pop(); // close loading
+
+        if (!mounted) return;
+
+        // ✅ Approved — route to the correct dashboard
+        final orgType = StorageService().organizationType ?? 0;
+        final targetScreen = _getHomeScreenForType(orgType);
+
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: 'تمت الموافقة!',
+          text: 'جاري تحويلك للوحة تحكم شركتك...',
+          confirmBtnText: 'موافق',
+          barrierDismissible: false,
+          onConfirmBtnTap: () {
+            Navigator.of(context, rootNavigator: true).pop(); // close alert
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => targetScreen),
+              (route) => false,
+            );
+          },
+        );
+      } else {
+        if (!mounted) return;
+        Navigator.of(context, rootNavigator: true).pop(); // close loading
+
+        // ⏳ Still pending
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.info,
+          title: 'قيد المراجعة',
+          text: 'طلبك لا يزال قيد المراجعة. يرجى المحاولة لاحقاً.',
+          confirmBtnText: 'موافق',
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // close loading
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'خطأ',
+        text: 'حدث خطأ أثناء التحقق. يرجى المحاولة لاحقاً.',
+        confirmBtnText: 'موافق',
+      );
+    }
+  }
+
+  Widget _getHomeScreenForType(int type) {
+    switch (type) {
+      case 0:
+        return const FarmerHomeScreen();
+      case 1:
+        return const RestaurantHomeScreen();
+      case 2:
+        return const FactoryHomeScreen();
+      case 3:
+        return const TradesmanHomeScreen();
+      default:
+        return const FarmerHomeScreen();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,42 +313,120 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 15),
-                // ── Manage Organizations ──────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.business_center_outlined,
-                        color: AppColors.primary,
-                      ),
-                      title: const Text(
-                        'إدارة الشركات',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ManageOrganizationsScreen(),
+                // ── Manage Organizations / Pending Banner ──────────────
+                if (StorageService().hasOrganization && StorageService().organizationStatus == 0)
+                  if (_isCheckingStatus)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.primary,
                           ),
-                        );
-                      },
+                        ),
+                      ),
+                    )
+                  else
+                    // Pending review banner — tappable to check approval status
+                    GestureDetector(
+                      onTap: () => _checkApprovalStatus(),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.shade50,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.amber.shade300),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.amber.withOpacity(0.08),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.amber.shade100,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(Icons.hourglass_top_rounded, color: Colors.amber.shade800, size: 24),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'طلب إنشاء الشركة قيد مراجعة الإدارة ⏳',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.amber.shade900,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'اضغط هنا للتحقق من حالة الطلب',
+                                    style: TextStyle(
+                                      color: Colors.amber.shade700,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(Icons.refresh_rounded, color: Colors.amber.shade700, size: 20),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  // Normal manage organizations tile
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.business_center_outlined,
+                          color: AppColors.primary,
+                        ),
+                        title: const Text(
+                          'إدارة الشركات',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ManageOrganizationsScreen(),
+                            ),
+                          ).then((_) => setState(() {}));
+                        },
+                      ),
                     ),
                   ),
-                ),
                 if (StorageService().hasOrganization) ...[
                   const SizedBox(height: 15),
                   // ── Switch Organization ───────────────────────────────

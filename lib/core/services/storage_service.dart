@@ -143,7 +143,7 @@ class StorageService {
     await _prefs.remove(_keyUserFullName);
     await _prefs.remove(_keyIsLoggedIn);
     await _prefs.remove(_keyTokenExpiry);
-    await _prefs.remove(_keyIsVerified); // ✅ Add removal
+    await _prefs.remove(_keyIsVerified);  
     await _prefs.remove(_keyHasOrganization);
     await _prefs.remove(_keyRefreshToken);
     await _prefs.remove(_keyOrganizationId);

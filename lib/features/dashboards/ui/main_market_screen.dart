@@ -39,8 +39,9 @@ class _MainMarketTabState extends State<MainMarketTab> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
-  
-  static const int _approvedStatus = 2; 
+
+  // static const int _approvedStatus = 0; // تم إيقافها مؤقتاً عشان متبوظش الفلتر
+
   @override
   void initState() {
     super.initState();
@@ -57,7 +58,8 @@ class _MainMarketTabState extends State<MainMarketTab> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       _fetchProducts();
     }
   }
@@ -92,8 +94,12 @@ class _MainMarketTabState extends State<MainMarketTab> {
       final result = await _api.getAllProducts(
         pageNumber: _pageNumber,
         pageSize: _pageSize,
-        status: _approvedStatus,
-        productType: 1,
+        // تم إيقاف فلتر الـ status عشان نعرض اللي موجود في الداتابيز
+        // status: _approvedStatus,
+
+        // 🚀 تم إرجاع النوع 0 ليعرض المحاصيل زي تجربة الـ Postman/Swagger
+        productType: 0,
+
         search: _searchQuery,
       );
       if (!mounted) return;
@@ -101,13 +107,14 @@ class _MainMarketTabState extends State<MainMarketTab> {
       if (result['success'] == true) {
         setState(() {
           final fetchedProducts = result['data'] ?? [];
-          
-          final filteredProducts = fetchedProducts.where((p) {
-            final isAvailableForDirectSale =
-                p['isAvailableForDirectSale'] == true ||
-                p['IsAvailableForDirectSale'] == true;
-            return isAvailableForDirectSale;
-          }).toList();
+
+          final filteredProducts =
+              fetchedProducts.where((p) {
+                final isAvailableForDirectSale =
+                    p['isAvailableForDirectSale'] == true ||
+                    p['IsAvailableForDirectSale'] == true;
+                return isAvailableForDirectSale;
+              }).toList();
 
           if (_pageNumber == 1) {
             _products = filteredProducts;
@@ -193,12 +200,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
 
   Widget _buildBody() {
     return Column(
-      children: [
-        _buildSearchBar(),
-        Expanded(
-          child: _buildContent(),
-        ),
-      ],
+      children: [_buildSearchBar(), Expanded(child: _buildContent())],
     );
   }
 
@@ -211,15 +213,16 @@ class _MainMarketTabState extends State<MainMarketTab> {
         decoration: InputDecoration(
           hintText: 'ابحث عن منتجات...',
           prefixIcon: const Icon(Icons.search, color: AppColors.primary),
-          suffixIcon: _searchQuery.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear, color: Colors.grey),
-                  onPressed: () {
-                    _searchController.clear();
-                    _onSearchChanged('');
-                  },
-                )
-              : null,
+          suffixIcon:
+              _searchQuery.isNotEmpty
+                  ? IconButton(
+                    icon: const Icon(Icons.clear, color: Colors.grey),
+                    onPressed: () {
+                      _searchController.clear();
+                      _onSearchChanged('');
+                    },
+                  )
+                  : null,
           filled: true,
           fillColor: Theme.of(context).cardColor,
           contentPadding: const EdgeInsets.symmetric(vertical: 0),
@@ -331,13 +334,10 @@ class _MainMarketTabState extends State<MainMarketTab> {
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final product = _products[index];
-                  return _buildProductCard(context, product);
-                },
-                childCount: _products.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final product = _products[index];
+                return _buildProductCard(context, product);
+              }, childCount: _products.length),
             ),
           ),
           if (_hasMore)
@@ -350,9 +350,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
               ),
             )
           else
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 100),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );
@@ -424,6 +422,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
         }
       }
     }
+
     final String productOrgId =
         product['organizationId']?.toString() ??
         product['OrganizationId']?.toString() ??
@@ -462,8 +461,6 @@ class _MainMarketTabState extends State<MainMarketTab> {
           product['directSalePrice'] ?? product['DirectSalePrice'] ?? 0;
       displayPrice = double.tryParse(rawPrice.toString()) ?? 0.0;
     }
-
-
 
     String? imageUrl;
     final images = product['images'] ?? product['Images'];

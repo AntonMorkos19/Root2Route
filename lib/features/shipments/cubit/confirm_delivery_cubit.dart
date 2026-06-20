@@ -2,19 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/core/constants.dart';
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
-import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/core/services/storage_service.dart';
 
-/// Cubit that updates the status of an existing shipment.
-///
-/// PUT /api/v1/shipments/{id}/status
-///
-/// Expected payload:
-/// ```json
-/// {
-///   "status": 3,   // integer status code
-///   "notes": ""    // optional notes
-/// }
-/// ```
 class ConfirmDeliveryCubit extends Cubit<ShipmentState> {
   late final Dio _dio;
 

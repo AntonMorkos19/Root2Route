@@ -1,0 +1,133 @@
+import 'package:flutter/material.dart';
+import 'package:root2route/core/theme/app_colors.dart';
+import 'package:root2route/features/dashboards/ui/main_market_screen.dart';
+import 'package:root2route/features/products/ui/my_products_screen.dart';
+import 'package:root2route/features/auctions/ui/auctions_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:root2route/features/notifications/cubit/notification_cubit.dart';
+import 'package:root2route/features/notifications/cubit/notification_state.dart';
+import 'package:root2route/features/notifications/ui/notifications_screen.dart';
+import 'package:root2route/features/orders/ui/cart_screen.dart';
+import 'package:root2route/features/chat/ui/chat_rooms_screen.dart';
+import 'package:root2route/features/chat/cubit/chat_rooms_cubit.dart';
+import 'package:root2route/features/chat/data/services/chat_service.dart';
+import 'package:root2route/features/cart/cubit/cart_cubit.dart';
+import 'package:root2route/features/cart/cubit/cart_state.dart';
+
+class MarketScreen extends StatefulWidget {
+  final String? organizationId;
+  final bool canSell;
+
+  const MarketScreen({super.key, this.organizationId, this.canSell = true});
+
+  @override
+  State<MarketScreen> createState() => _MarketScreenState();
+}
+
+class _MarketScreenState extends State<MarketScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final int tabLength = widget.canSell ? 3 : 2;
+
+    return DefaultTabController(
+      length: tabLength,
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          appBar: AppBar(
+            elevation: 1,
+            centerTitle: false,
+            title: const Text(
+              'السوق',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 22),
+            ),
+            actions: [
+              BlocBuilder<CartCubit, CartState>(
+                builder: (context, state) {
+                  final cartCount = state.cartItems.length;
+                  return IconButton(
+                    onPressed:
+                        () => Navigator.pushNamed(context, CartScreen.id),
+                    icon: Badge(
+                      isLabelVisible: cartCount > 0,
+                      label: Text(cartCount.toString()),
+                      backgroundColor: AppColors.primary,
+                      child: const Icon(Icons.shopping_cart_outlined),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.chat_bubble_outline),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => BlocProvider(
+                            create: (_) => ChatRoomsCubit(ChatService()),
+                            child: const ChatRoomsScreen(),
+                          ),
+                    ),
+                  );
+                },
+              ),
+              BlocBuilder<NotificationCubit, NotificationState>(
+                builder: (context, state) {
+                  int unreadCount = 0;
+                  if (state is NotificationLoaded) {
+                    unreadCount = state.unreadCount;
+                  }
+                  return IconButton(
+                    onPressed:
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const NotificationsScreen(),
+                          ),
+                        ),
+                    icon: Badge(
+                      isLabelVisible: unreadCount > 0,
+                      label: Text(unreadCount.toString()),
+                      backgroundColor: Colors.red,
+                      child: const Icon(Icons.notifications_active_outlined),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
+            ],
+            bottom: TabBar(
+              labelColor: AppColors.primary,
+              unselectedLabelColor: Theme.of(context).colorScheme.outline,
+              indicatorColor: AppColors.primary,
+              indicatorWeight: 3,
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+              tabs: [
+                const Tab(text: 'السوق', icon: Icon(Icons.storefront)),
+                const Tab(text: 'المزادات', icon: Icon(Icons.gavel)),
+                if (widget.canSell)
+                  const Tab(text: 'متجري', icon: Icon(Icons.inventory_2_outlined)),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              MainMarketTab(
+                organizationId: widget.organizationId,
+                canSell: widget.canSell,
+              ),
+              const AuctionsScreen(),
+              if (widget.canSell)
+                MyProductsScreen(organizationId: widget.organizationId ?? ''),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+

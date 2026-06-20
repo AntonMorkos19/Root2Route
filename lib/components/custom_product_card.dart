@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
-import 'package:root2route/models/details_product_model.dart';
-import 'package:root2route/screens/product/details_product_screen.dart';
+import 'package:root2route/features/products/data/models/details_product_model.dart';
+import 'package:root2route/features/products/ui/details_product_screen.dart';
 
 class CustomProductCard extends StatelessWidget {
   final DetailsProductModel product;

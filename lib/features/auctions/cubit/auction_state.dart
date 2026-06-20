@@ -1,4 +1,4 @@
-import 'package:root2route/models/auction_model.dart';
+import 'package:root2route/features/auctions/data/models/auction_model.dart';
 
 /// Base state for auction Cubits.
 abstract class AuctionState {

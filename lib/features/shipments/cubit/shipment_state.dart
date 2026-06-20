@@ -1,4 +1,4 @@
-import 'package:root2route/models/shipment_address_model.dart';
+import 'package:root2route/features/shipments/data/models/shipment_address_model.dart';
 
 /// Base state for all shipment-related cubits.
 abstract class ShipmentState {

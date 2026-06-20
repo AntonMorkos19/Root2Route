@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/core/constants.dart';
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
-import 'package:root2route/models/shipment_address_model.dart';
-import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/features/shipments/data/models/shipment_address_model.dart';
+import 'package:root2route/core/services/storage_service.dart';
 
 /// Cubit that manages shipment addresses for the current user.
 class ShipmentAddressCubit extends Cubit<ShipmentState> {

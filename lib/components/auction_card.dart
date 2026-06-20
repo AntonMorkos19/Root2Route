@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
-import 'package:root2route/models/auction_model.dart';
+import 'package:root2route/features/auctions/data/models/auction_model.dart';
 import 'countdown_timer_widget.dart';
-import 'package:root2route/screens/auction/auction_details_screen.dart';
+import 'package:root2route/features/auctions/ui/auction_details_screen.dart';
 
-import 'package:root2route/services/storage_service.dart';
-import 'package:root2route/services/api.dart';
+import 'package:root2route/core/services/storage_service.dart';
+import 'package:root2route/core/services/api.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
 import 'package:root2route/core/utils/image_utils.dart';
 

@@ -1,4 +1,4 @@
-import 'package:root2route/models/chat_room_model.dart';
+import 'package:root2route/features/chat/data/models/chat_room_model.dart';
 
 abstract class ChatRoomsState {}
 

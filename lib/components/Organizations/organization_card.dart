@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:root2route/models/organization_model.dart';
-import 'package:root2route/screens/Organizations/organization_details_screen.dart';
+import 'package:root2route/features/organizations/data/models/organization_model.dart';
+import 'package:root2route/features/organizations/ui/organization_details_screen.dart';
 import 'package:root2route/core/utils/image_utils.dart';
 
 class OrganizationCard extends StatelessWidget {

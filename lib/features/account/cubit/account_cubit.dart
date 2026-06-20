@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/account/cubit/account_state.dart';
 import 'package:root2route/features/account/models/change_password_request_model.dart';
-import 'package:root2route/services/api.dart';
+import 'package:root2route/core/services/api.dart';
 
 class AccountCubit extends Cubit<AccountState> {
   final ApiService _apiService;

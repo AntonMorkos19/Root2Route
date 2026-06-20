@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:root2route/services/chat_service.dart';
-import 'package:root2route/models/chat_message_model.dart';
-import 'package:root2route/services/storage_service.dart';
-import 'package:root2route/services/chat_hub_service.dart';
+import 'package:root2route/features/chat/data/services/chat_service.dart';
+import 'package:root2route/features/chat/data/models/chat_message_model.dart';
+import 'package:root2route/core/services/storage_service.dart';
+import 'package:root2route/features/chat/data/services/chat_hub_service.dart';
 import 'chat_messages_state.dart';
 
 class ChatMessagesCubit extends Cubit<ChatMessagesState> {

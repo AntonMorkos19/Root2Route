@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/core/constants.dart';
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
-import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/core/services/storage_service.dart';
 
 /// Cubit that dispatches a shipment for a confirmed order.
 ///

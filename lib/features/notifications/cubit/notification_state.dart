@@ -1,4 +1,4 @@
-import 'package:root2route/models/notification_model.dart';
+import 'package:root2route/features/notifications/data/models/notification_model.dart';
 
 abstract class NotificationState {}
 

@@ -6,28 +6,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
-import 'package:root2route/services/api.dart';
-import 'package:root2route/services/local_notification_service.dart';
+import 'package:root2route/core/services/api.dart';
+import 'package:root2route/features/notifications/data/services/local_notification_service.dart';
 import 'package:root2route/core/theme/app_theme.dart';
 import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
 import 'package:root2route/features/theme/cubit/theme_cubit.dart';
-import 'package:root2route/models/auction_model.dart';
-import 'package:root2route/screens/auction/create_auction_screen.dart';
-import 'package:root2route/screens/auction/bid_history_screen.dart';
-import 'package:root2route/screens/auction/update_auction_screen.dart';
-import 'package:root2route/screens/auction/buyer_auctions_screen.dart';
-import 'package:root2route/screens/auction/auction_details_screen.dart';
-import 'package:root2route/screens/auth/create_new_password.dart';
-import 'package:root2route/screens/auth/forgot_password_screen.dart';
-import 'package:root2route/screens/auth/register_screen.dart';
-import 'package:root2route/screens/guest/guest_home_screen.dart';
-import 'package:root2route/screens/auth/login_screen.dart';
-import 'package:root2route/screens/splash_screen.dart';
-import 'package:root2route/screens/intro_screen.dart';
-import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/features/auctions/data/models/auction_model.dart';
+import 'package:root2route/features/auctions/ui/create_auction_screen.dart';
+import 'package:root2route/features/auctions/ui/bid_history_screen.dart';
+import 'package:root2route/features/auctions/ui/update_auction_screen.dart';
+import 'package:root2route/features/auctions/ui/buyer_auctions_screen.dart';
+import 'package:root2route/features/auctions/ui/auction_details_screen.dart';
+import 'package:root2route/features/auth/ui/create_new_password.dart';
+import 'package:root2route/features/auth/ui/forgot_password_screen.dart';
+import 'package:root2route/features/auth/ui/register_screen.dart';
+import 'package:root2route/features/dashboards/ui/guest/guest_home_screen.dart';
+import 'package:root2route/features/auth/ui/login_screen.dart';
+import 'package:root2route/features/startup/ui/splash_screen.dart';
+import 'package:root2route/features/startup/ui/intro_screen.dart';
+import 'package:root2route/core/services/storage_service.dart';
 import 'package:root2route/core/navigator_service.dart';
-import 'package:root2route/screens/order/checkout_screen.dart';
-import 'package:root2route/screens/order/cart_screen.dart';
+import 'package:root2route/features/orders/ui/checkout_screen.dart';
+import 'package:root2route/features/orders/ui/cart_screen.dart';
 import 'package:root2route/features/notifications/cubit/notification_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 
@@ -60,31 +60,24 @@ Future<void> setupFCM() async {
     debugPrint('FCM DEVICE TOKEN: $token');
     debugPrint('====================================');
 
-    // 🔔 If the user is already logged in (app re-launch), send the FCM
-    // token to the backend immediately. This covers the case where the
-    // token was refreshed since the last session, or was never uploaded.
-    // The call is fire-and-forget; errors are handled inside sendFcmToken.
-    if (StorageService().isLoggedIn) {
+         if (StorageService().isLoggedIn) {
       ApiService().sendFcmToken();
     }
 
-    // ── Listen for token refreshes ────────────────────────────────────
-    messaging.onTokenRefresh.listen((newToken) {
+     messaging.onTokenRefresh.listen((newToken) {
       debugPrint('[FCM] Token refreshed: $newToken');
       if (StorageService().isLoggedIn) {
         ApiService().sendFcmToken();
       }
     });
 
-    // ── Foreground presentation (iOS) ────────────────────────────────
-    await messaging.setForegroundNotificationPresentationOptions(
+     await messaging.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
     );
 
-    // ── Foreground messages → show local notification ────────────────
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint('[FCM-FG] 🔔 Foreground message received');
       debugPrint('[FCM-FG] Title: ${message.notification?.title}');
       debugPrint('[FCM-FG] Body : ${message.notification?.body}');
@@ -111,22 +104,15 @@ void main() async {
   // تهيئة الفايربيز
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // 🔔 CRITICAL: Register the background handler BEFORE anything else.
-  // This tells FCM which Dart function to call in the background isolate.
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // 🔔 Create notification channel BEFORE any FCM message can arrive.
-  // Without this, Android 8+ silently drops background notifications.
-  await LocalNotificationService().init();
+    await LocalNotificationService().init();
 
-  // 🔔 Register the FCM token provider with ApiService so the service layer
-  // can obtain the device token without importing firebase_messaging directly.
-  ApiService.setFcmTokenProvider(() => FirebaseMessaging.instance.getToken());
+   ApiService.setFcmTokenProvider(() => FirebaseMessaging.instance.getToken());
 
   await StorageService().init();
 
-  // استدعاء دالة الفايربيز (بعد init حتى يكون StorageService جاهزاً)
-  await setupFCM();
+   await setupFCM();
 
   final themeCubit = ThemeCubit();
   await themeCubit.loadTheme();

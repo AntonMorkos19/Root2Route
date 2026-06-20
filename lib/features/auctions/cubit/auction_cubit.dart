@@ -3,10 +3,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
-import 'package:root2route/models/auction_model.dart';
-import 'package:root2route/services/api.dart';
-import 'package:root2route/services/auction_hub_service.dart';
-import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/features/auctions/data/models/auction_model.dart';
+import 'package:root2route/core/services/api.dart';
+import 'package:root2route/features/auctions/data/services/auction_hub_service.dart';
+import 'package:root2route/core/services/storage_service.dart';
 
 /// Cubit handling all seller-side auction operations.
 class AuctionCubit extends Cubit<AuctionState> {

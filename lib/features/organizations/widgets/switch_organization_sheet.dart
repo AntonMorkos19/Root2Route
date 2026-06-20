@@ -3,13 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
-import 'package:root2route/models/organization_model.dart';
-import 'package:root2route/screens/factory/factory_home_screen.dart';
-import 'package:root2route/screens/farmer/farmer_home_screen.dart';
-import 'package:root2route/screens/restaurant/restaurant_home_screen.dart';
-import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
-import 'package:root2route/services/api.dart';
-import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/features/organizations/data/models/organization_model.dart';
+import 'package:root2route/features/dashboards/ui/factory/factory_home_screen.dart';
+import 'package:root2route/features/dashboards/ui/farmer/farmer_home_screen.dart';
+import 'package:root2route/features/dashboards/ui/restaurant/restaurant_home_screen.dart';
+import 'package:root2route/features/dashboards/ui/tradesman/tradesman_home_screen.dart';
+import 'package:root2route/core/services/api.dart';
+import 'package:root2route/core/services/storage_service.dart';
 import 'package:quickalert/quickalert.dart';
 
 /// Shows a bottom-sheet listing every organization owned by the user.

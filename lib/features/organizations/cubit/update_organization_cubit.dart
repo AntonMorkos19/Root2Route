@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:root2route/services/api.dart';
+import 'package:root2route/core/services/api.dart';
 
 abstract class UpdateOrganizationState {}
 

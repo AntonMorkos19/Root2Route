@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/notifications/cubit/notification_state.dart';
-import 'package:root2route/models/notification_model.dart';
-import 'package:root2route/services/notification_service.dart';
+import 'package:root2route/features/notifications/data/models/notification_model.dart';
+import 'package:root2route/features/notifications/data/services/notification_service.dart';
 
 class NotificationCubit extends Cubit<NotificationState> {
   final NotificationService _notificationService = NotificationService();

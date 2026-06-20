@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:root2route/core/constants.dart';
-import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/core/services/storage_service.dart';
 
 class ReviewService {
   late final Dio _dio;

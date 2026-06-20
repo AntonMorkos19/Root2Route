@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:root2route/screens/Organizations/add_organization_screen.dart';
+import 'package:root2route/features/organizations/ui/add_organization_screen.dart';
 
 class AddOrganizationCard extends StatelessWidget {
   const AddOrganizationCard({super.key});

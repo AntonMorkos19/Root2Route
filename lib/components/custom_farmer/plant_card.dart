@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:root2route/core/theme/app_colors.dart';
-import 'package:root2route/models/plant_model.dart';
-import 'package:root2route/screens/farmer/plant_details_screen.dart';
+import 'package:root2route/features/dashboards/data/models/plant_model.dart';
+import 'package:root2route/features/dashboards/ui/farmer/plant_details_screen.dart';
 
 class PlantCard extends StatelessWidget {
   final PlantModel plant;

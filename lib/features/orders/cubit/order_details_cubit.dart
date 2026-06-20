@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/core/constants.dart';
 import 'package:root2route/features/orders/cubit/order_state.dart';
-import 'package:root2route/models/order_model.dart';
-import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/features/orders/data/models/order_model.dart';
+import 'package:root2route/core/services/storage_service.dart';
 
 /// Cubit that fetches the details of a single order by its ID.
 /// Endpoint: GET /api/v1/order/{id}

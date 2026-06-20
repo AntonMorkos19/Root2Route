@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:root2route/features/cart/cubit/cart_state.dart';
-import 'package:root2route/services/cart_service.dart';
+import 'package:root2route/features/cart/data/services/cart_service.dart';
 
 class CartCubit extends Cubit<CartState> {
   final CartService _cartService = CartService();

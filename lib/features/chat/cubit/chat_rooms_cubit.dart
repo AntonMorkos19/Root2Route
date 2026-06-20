@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:root2route/services/chat_service.dart';
+import 'package:root2route/features/chat/data/services/chat_service.dart';
 import 'chat_rooms_state.dart';
 
 class ChatRoomsCubit extends Cubit<ChatRoomsState> {

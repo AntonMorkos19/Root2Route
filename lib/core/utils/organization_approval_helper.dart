@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:root2route/screens/farmer/farmer_home_screen.dart';
-import 'package:root2route/screens/restaurant/restaurant_home_screen.dart';
-import 'package:root2route/screens/factory/factory_home_screen.dart';
-import 'package:root2route/screens/tradesman/tradesman_home_screen.dart';
-import 'package:root2route/services/api.dart';
-import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/features/dashboards/ui/farmer/farmer_home_screen.dart';
+import 'package:root2route/features/dashboards/ui/restaurant/restaurant_home_screen.dart';
+import 'package:root2route/features/dashboards/ui/factory/factory_home_screen.dart';
+import 'package:root2route/features/dashboards/ui/tradesman/tradesman_home_screen.dart';
+import 'package:root2route/core/services/api.dart';
+import 'package:root2route/core/services/storage_service.dart';
 
 /// Utility class for checking organization approval status
 /// and routing users to their correct dashboard.

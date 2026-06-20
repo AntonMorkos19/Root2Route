@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:root2route/core/constants.dart';
 import 'package:root2route/features/scan/models/plant_analysis_response_model.dart';
-import 'package:root2route/services/storage_service.dart';
+import 'package:root2route/core/services/storage_service.dart';
 
 /// Repository that wraps the AI model-analysis endpoint.
 ///

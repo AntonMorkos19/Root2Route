@@ -1,4 +1,4 @@
-import 'package:root2route/models/order_model.dart';
+import 'package:root2route/features/orders/data/models/order_model.dart';
 
 /// Base state for all order-related cubits.
 abstract class OrderState {

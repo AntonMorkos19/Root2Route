@@ -5,7 +5,7 @@ import 'package:quickalert/quickalert.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/shipments/cubit/shipment_address_cubit.dart';
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
-import 'package:root2route/models/shipment_address_model.dart';
+import 'package:root2route/features/shipments/data/models/shipment_address_model.dart';
 import 'package:root2route/core/utils/snackbar_helper.dart';
 
 class AddressesScreen extends StatefulWidget {

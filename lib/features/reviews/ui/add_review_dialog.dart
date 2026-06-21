@@ -7,8 +7,7 @@ import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/reviews/cubit/review_cubit.dart';
 import 'package:root2route/features/reviews/cubit/review_state.dart';
 
-/// Converts a raw error (exception / API message) into a user-friendly Arabic string.
-String getArabicErrorMessage(dynamic error) {
+ String getArabicErrorMessage(dynamic error) {
   final errorText = error.toString();
   if (errorText.contains('Timeout') ||
       errorText.contains('took longer') ||
@@ -25,10 +24,7 @@ String getArabicErrorMessage(dynamic error) {
   return 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً.';
 }
 
-/// Shows the Add Review dialog.
-///
-/// Call this helper from any screen to open the review dialog
-/// with the required identifiers already injected.
+
 void showAddReviewDialog(
   BuildContext context, {
   required String targetOrganizationId,

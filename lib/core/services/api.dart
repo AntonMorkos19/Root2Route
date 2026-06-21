@@ -174,12 +174,6 @@ class ApiService {
     }
   }
 
-  /// Sends the device's FCM token to the backend so the server can deliver
-  /// push notifications to this specific device.
-  ///
-  /// - Endpoint : POST /api/v1/users/fcm-token
-  /// - Auth     : Bearer token is injected automatically by the Dio interceptor.
-  /// - Silent   : Errors are caught and logged — they never bubble up to the UI.
   Future<void> sendFcmToken() async {
     try {
       // Require an authenticated session before sending the token.
@@ -213,13 +207,8 @@ class ApiService {
     }
   }
 
-  /// Internal helper that retrieves the current FCM token from Firebase.
-  /// Returns null if Firebase Messaging is unavailable or the token cannot
-  /// be fetched (e.g. no network, permissions denied).
   Future<String?> _getFcmToken() async {
     try {
-      // Import kept local to avoid a hard dependency on firebase_messaging
-      // in every file that imports api.dart.
       final messaging = _firebaseMessagingInstance;
       return await messaging?.call();
     } catch (e) {
@@ -228,19 +217,8 @@ class ApiService {
     }
   }
 
-  // A late-bound callback so that api.dart does not need to import
-  // firebase_messaging directly. main.dart injects the provider once
-  // Firebase is fully initialised via [setFcmTokenProvider].
   static Future<String?> Function()? _firebaseMessagingInstance;
 
-  /// Call this once in main.dart (after Firebase.initializeApp) to register
-  /// the FCM token provider. Example:
-  ///
-  /// ```dart
-  /// ApiService.setFcmTokenProvider(
-  ///   () => FirebaseMessaging.instance.getToken(),
-  /// );
-  /// ```
   static void setFcmTokenProvider(Future<String?> Function() provider) {
     _firebaseMessagingInstance = provider;
   }
@@ -649,53 +627,6 @@ class ApiService {
       };
     } on DioException catch (e) {
       return {"success": false, "message": _extractApiError(e)};
-    }
-  }
-
-  Future<Map<String, dynamic>> changeOrganizationOwner({
-    required String organizationId,
-    required String newOwnerId,
-  }) async {
-    try {
-      final response = await _dio.put(
-        '/organizations/$organizationId/change-owner',
-        data: '"$newOwnerId"',
-        options: Options(headers: {'Content-Type': 'application/json'}),
-      );
-      return {
-        "success": true,
-        "data": response.data,
-        "message": "The transfer of ownership was successful.",
-      };
-    } on DioException catch (e) {
-      return {"success": false, "message": _extractApiError(e)};
-    }
-  }
-
-  Future<Map<String, dynamic>?> analyzeCropImage(File imageFile) async {
-    try {
-      String fileName = imageFile.path.split('/').last;
-      FormData formData = FormData.fromMap({
-        "ImageFile": await MultipartFile.fromFile(
-          imageFile.path,
-          filename: fileName,
-          contentType: DioMediaType('image', 'jpeg'),
-        ),
-      });
-
-      final response = await _dio.post(
-        '/model-analysis/analyze',
-        data: formData,
-        options: Options(
-          validateStatus: (status) => status! < 501,
-          headers: {"accept": "*/*", "Content-Type": "multipart/form-data"},
-        ),
-      );
-
-      if (response.data is Map<String, dynamic>) return response.data;
-      return null;
-    } catch (e) {
-      return null;
     }
   }
 

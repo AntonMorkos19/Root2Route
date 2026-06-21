@@ -8,15 +8,11 @@ import 'package:quickalert/quickalert.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
-import 'package:root2route/features/chat/cubit/chat_messages_cubit.dart';
-import 'package:root2route/features/auctions/data/models/auction_model.dart';
+ import 'package:root2route/features/auctions/data/models/auction_model.dart';
 import 'package:root2route/features/auth/ui/login_screen.dart';
-import 'package:root2route/features/chat/ui/chat_details_screen.dart';
-import 'package:root2route/core/services/api.dart';
-import 'package:root2route/features/chat/data/services/chat_service.dart';
-import 'package:root2route/core/services/storage_service.dart';
-import 'package:root2route/features/chat/ui/chat_rooms_screen.dart';
-import 'package:root2route/core/utils/image_utils.dart';
+ import 'package:root2route/core/services/api.dart';
+ import 'package:root2route/core/services/storage_service.dart';
+ import 'package:root2route/core/utils/image_utils.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
 
 class AuctionDetailsScreen extends StatefulWidget {

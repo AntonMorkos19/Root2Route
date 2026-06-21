@@ -12,6 +12,8 @@ import 'package:root2route/features/dashboards/ui/farmer/farmer_home_screen.dart
 import 'package:root2route/features/dashboards/ui/restaurant/restaurant_home_screen.dart';
 import 'package:root2route/features/dashboards/ui/factory/factory_home_screen.dart';
 import 'package:root2route/features/dashboards/ui/tradesman/tradesman_home_screen.dart';
+import 'package:root2route/features/withdrawals/presentation/screens/withdrawal_request_screen.dart';
+import 'package:root2route/features/withdrawals/presentation/screens/withdrawal_history_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:quickalert/quickalert.dart';
 
@@ -22,7 +24,8 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserver {
+class _ProfileScreenState extends State<ProfileScreen>
+    with WidgetsBindingObserver {
   bool _isCheckingStatus = true;
   @override
   void initState() {
@@ -61,9 +64,16 @@ class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserv
         final List dataList = orgsResult['data'] ?? [];
         for (var org in dataList) {
           if (org is Map) {
-            final orgId = org['id']?.toString() ?? org['organizationId']?.toString() ?? org['OrganizationId']?.toString();
+            final orgId =
+                org['id']?.toString() ??
+                org['organizationId']?.toString() ??
+                org['OrganizationId']?.toString();
             if (orgId == currentOrgId) {
-              final status = org['organizationStatus'] ?? org['status'] ?? org['OrganizationStatus'] ?? org['Status'];
+              final status =
+                  org['organizationStatus'] ??
+                  org['status'] ??
+                  org['OrganizationStatus'] ??
+                  org['Status'];
               if (status == 1 || status == '1') {
                 await StorageService().saveOrganizationStatus(1);
                 // Also silently refresh the token so the user gets owner claims
@@ -94,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserv
 
     try {
       final orgsResult = await ApiService().getMyOrganizations();
-      
+
       if (!mounted) return;
 
       bool isApproved = false;
@@ -105,11 +115,18 @@ class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserv
         final List dataList = orgsResult['data'] ?? [];
         for (var org in dataList) {
           if (org is Map) {
-            final status = org['organizationStatus'] ?? org['status'] ?? org['OrganizationStatus'] ?? org['Status'];
+            final status =
+                org['organizationStatus'] ??
+                org['status'] ??
+                org['OrganizationStatus'] ??
+                org['Status'];
             if (status == 1 || status == '1') {
               isApproved = true;
               approvedOrgType = org['type'] ?? org['Type'];
-              approvedOrgId = org['id']?.toString() ?? org['organizationId']?.toString() ?? org['OrganizationId']?.toString();
+              approvedOrgId =
+                  org['id']?.toString() ??
+                  org['organizationId']?.toString() ??
+                  org['OrganizationId']?.toString();
               break;
             }
           }
@@ -314,7 +331,8 @@ class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserv
                 ),
                 const SizedBox(height: 15),
                 // ── Manage Organizations / Pending Banner ──────────────
-                if (StorageService().hasOrganization && StorageService().organizationStatus == 0)
+                if (StorageService().hasOrganization &&
+                    StorageService().organizationStatus == 0)
                   if (_isCheckingStatus)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 24),
@@ -333,63 +351,74 @@ class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserv
                     // Pending review banner — tappable to check approval status
                     GestureDetector(
                       onTap: () => _checkApprovalStatus(),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        decoration: BoxDecoration(
-                          color: Colors.amber.shade50,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.amber.shade300),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.amber.withOpacity(0.08),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.amber.shade100,
-                                borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade50,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.amber.shade300),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.amber.withOpacity(0.08),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
                               ),
-                              child: Icon(Icons.hourglass_top_rounded, color: Colors.amber.shade800, size: 24),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'طلب إنشاء الشركة قيد مراجعة الإدارة ⏳',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.amber.shade900,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'اضغط هنا للتحقق من حالة الطلب',
-                                    style: TextStyle(
-                                      color: Colors.amber.shade700,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.hourglass_top_rounded,
+                                  color: Colors.amber.shade800,
+                                  size: 24,
+                                ),
                               ),
-                            ),
-                            Icon(Icons.refresh_rounded, color: Colors.amber.shade700, size: 20),
-                          ],
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'طلب إنشاء الشركة قيد مراجعة الإدارة ⏳',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.amber.shade900,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'اضغط هنا للتحقق من حالة الطلب',
+                                      style: TextStyle(
+                                        color: Colors.amber.shade700,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                Icons.refresh_rounded,
+                                color: Colors.amber.shade700,
+                                size: 20,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  )
+                    )
                 else
                   // Normal manage organizations tile
                   Padding(
@@ -420,7 +449,9 @@ class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserv
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ManageOrganizationsScreen(),
+                              builder:
+                                  (context) =>
+                                      const ManageOrganizationsScreen(),
                             ),
                           ).then((_) => setState(() {}));
                         },
@@ -475,7 +506,10 @@ class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserv
                         ],
                       ),
                       child: ListTile(
-                        leading: const Icon(Icons.star_rate, color: Colors.amber),
+                        leading: const Icon(
+                          Icons.star_rate,
+                          color: Colors.amber,
+                        ),
                         title: const Text(
                           'تقييمات العملاء',
                           style: TextStyle(fontWeight: FontWeight.w600),
@@ -524,16 +558,24 @@ class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserv
                         ],
                       ),
                       child: ListTile(
-                        leading: const Icon(Icons.language, color: AppColors.primary),
+                        leading: const Icon(
+                          Icons.language,
+                          color: AppColors.primary,
+                        ),
                         title: const Text(
                           'لوحة تحكم الشركة (ويب)',
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                         trailing: const Icon(Icons.open_in_browser, size: 20),
                         onTap: () async {
-                          final Uri url = Uri.parse('https://root2-route-front.vercel.app/');
+                          final Uri url = Uri.parse(
+                            'https://root2-route-front.vercel.app/',
+                          );
                           try {
-                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                            if (!await launchUrl(
+                              url,
+                              mode: LaunchMode.externalApplication,
+                            )) {
                               throw Exception('Could not launch url');
                             }
                           } catch (e) {
@@ -548,6 +590,72 @@ class _ProfileScreenState extends State<ProfileScreen> with WidgetsBindingObserv
                             }
                           }
                         },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  // ── Withdrawal Section ───────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          // ── طلب سحب جديد ──────────────────────────────
+                          ListTile(
+                            leading: const Icon(
+                              Icons.account_balance_wallet_rounded,
+                              color: AppColors.primary,
+                            ),
+                            title: const Text(
+                              'طلب سحب رصيد',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            trailing: const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => const WithdrawalRequestScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          //  SizedBox(height:10,),                          // ── سجل طلبات السحب ───────────────────────────
+                          //                 ListTile(
+                          //                   leading: const Icon(
+                          //                     Icons.history_rounded,
+                          //                     color: AppColors.primary,
+                          //                   ),
+                          //                   title: const Text(
+                          //                     'سجل طلبات السحب',
+                          //                     style: TextStyle(fontWeight: FontWeight.w600),
+                          //                   ),
+                          //                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                          //                   onTap: () {
+                          //                     Navigator.push(
+                          //                       context,
+                          //                       MaterialPageRoute(
+                          //                         builder: (_) => const WithdrawalHistoryScreen(),
+                          //                       ),
+                          //                     );
+                          //                   },
+                          //                 ),
+                        ],
                       ),
                     ),
                   ),

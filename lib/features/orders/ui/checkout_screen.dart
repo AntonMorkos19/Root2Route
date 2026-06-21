@@ -4,15 +4,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/components/custom_text_form_field.dart';
 import 'package:root2route/core/theme/app_colors.dart';
-import 'package:root2route/features/orders/data/services/order_service.dart';
 import 'package:root2route/core/services/storage_service.dart';
 import 'package:root2route/features/cart/data/services/cart_service.dart';
+import 'package:root2route/features/payment/data/repositories/payment_repository.dart';
 import 'package:root2route/features/shipments/ui/addresses_screen.dart';
 import 'package:root2route/features/shipments/cubit/shipment_address_cubit.dart';
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
 import 'package:root2route/features/shipments/data/models/shipment_address_model.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 import 'package:root2route/core/utils/snackbar_helper.dart';
+import 'package:root2route/features/orders/data/services/order_service.dart';
+import 'package:root2route/features/payment/logic/payment_cubit/payment_cubit.dart';
+import 'package:root2route/features/payment/presentation/screens/payment_webview_screen.dart';
+import 'package:root2route/features/payment/presentation/widgets/payment_method_sheet.dart';
 
 class CheckoutScreen extends StatefulWidget {
   static const String id = '/checkoutScreen';
@@ -88,7 +92,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     state is ShipmentAddressesLoaded
                         ? state.addresses
                         : <ShipmentAddressModel>[];
-
                 if (addresses.isEmpty) {
                   return Container(
                     padding: const EdgeInsets.all(24),
@@ -197,9 +200,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Future<void> _submitOrder() async {
+  /// Validates form, then shows the payment method bottom sheet.
+  void _onConfirmTapped() {
     if (_cartService.items.isEmpty) {
-      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+      QuickAlert.show(
+        confirmBtnText: 'موافق',
         context: context,
         type: QuickAlertType.warning,
         title: 'سلة فارغة',
@@ -209,91 +214,219 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return;
     }
 
+    if (!_formKey.currentState!.validate()) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => PaymentMethodSheet(
+        onCashSelected: () {
+          Navigator.pop(context); // close sheet
+          _confirmOrderWithCash();
+        },
+        onCardSelected: () {
+          Navigator.pop(context); // close sheet
+          _confirmOrderWithCard();
+        },
+      ),
+    );
+  }
+
+  /// Builds the order payload from the current form fields.
+  Map<String, dynamic> _buildOrderPayload() {
     final buyerId = StorageService().userId;
+    final itemsPayload =
+        _cartService.items.map((item) {
+          return {"productId": item['productId'], "quantity": item['quantity']};
+        }).toList();
 
-    Future<void> executeApiCall() async {
-      final itemsPayload =
-          _cartService.items.map((item) {
-            return {
-              "productId": item['productId'],
-              "quantity": item['quantity'],
-            };
-          }).toList();
+    final bNumber = _buildingNumberController.text.trim();
+    return {
+      "buyerId": buyerId,
+      "receiverName": _receiverNameController.text.trim(),
+      "receiverPhone": _receiverPhoneController.text.trim(),
+      "shippingCity": _shippingCityController.text.trim(),
+      "shippingStreet": _shippingStreetController.text.trim(),
+      "buildingNumber": bNumber.isEmpty ? "Not specified" : bNumber,
+      "items": itemsPayload,
+    };
+  }
 
-      final bNumber = _buildingNumberController.text.trim();
-      final payload = {
-        "buyerId": buyerId,
-        "receiverName": _receiverNameController.text.trim(),
-        "receiverPhone": _receiverPhoneController.text.trim(),
-        "shippingCity": _shippingCityController.text.trim(),
-        "shippingStreet": _shippingStreetController.text.trim(),
-        "buildingNumber": bNumber.isEmpty ? "Not specified" : bNumber,
-        "items": itemsPayload,
-      };
+  /// Extracts the order ID from the API response.
+  String? _extractOrderId(Map<String, dynamic> result) {
+    String? orderId =
+        (result['orderId'] ??
+                result['OrderId'] ??
+                result['id'] ??
+                result['Id'])
+            ?.toString();
 
-      QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
-        context: context,
-        type: QuickAlertType.loading,
-        title: 'جاري إنشاء الطلب...',
-        text: 'يرجى الانتظار',
-        barrierDismissible: false,
-      );
+    if (orderId == null && result['data'] != null) {
+      final data = result['data'];
+      if (data is Map) {
+        orderId =
+            (data['orderId'] ?? data['OrderId'] ?? data['id'] ?? data['Id'])
+                ?.toString();
+      } else {
+        orderId = data.toString();
+      }
+    }
 
-      final navigator = Navigator.of(context, rootNavigator: true);
+    if (orderId != null) {
+      orderId = orderId.replaceAll('"', '').trim();
+    }
+
+    return (orderId != null && orderId.isNotEmpty && orderId != "null")
+        ? orderId
+        : null;
+  }
+
+  /// Cash-on-delivery flow: create order → success alert → pop to first route.
+  Future<void> _confirmOrderWithCash() async {
+    final payload = _buildOrderPayload();
+
+    QuickAlert.show(
+      confirmBtnText: 'موافق',
+      context: context,
+      type: QuickAlertType.loading,
+      title: 'جاري إنشاء الطلب...',
+      text: 'يرجى الانتظار',
+      barrierDismissible: false,
+    );
+
+    try {
       final result = await _orderService.createOrder(payload);
 
-      navigator.pop();
-
       if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // dismiss loading
 
-      bool isActuallySuccess =
+      final isSuccess =
           result['success'] == true ||
           (result['message']?.toString().toLowerCase().contains('success') ??
               false);
 
-      if (isActuallySuccess) {
+      if (isSuccess) {
         context.read<CartCubit>().clearCart();
-        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', context: context, type: QuickAlertType.success, title: 'نجاح', text: 'تم تأكيد طلبك بنجاح. يمكنك متابعة منتجاتنا من الشاشة الرئيسية.',);
-        // السطر السحري ده بيقفل أي شاشات (دفع، عناوين، سلة) ويرجعك للناف بار الرئيسي
-        Navigator.of(context).popUntil((route) => route.isFirst);
+
+        await QuickAlert.show(
+          confirmBtnText: 'موافق',
+          context: context,
+          type: QuickAlertType.success,
+          title: 'تم تأكيد طلبك بنجاح!',
+          text: 'سيتم التواصل معك قريباً',
+          barrierDismissible: false,
+        );
+
+        if (mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       } else {
-        QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+        QuickAlert.show(
+          confirmBtnText: 'موافق',
           context: context,
           type: QuickAlertType.error,
-          title: 'فشل الدفع',
+          title: 'خطأ',
           text: result['message'] ?? 'حدث خطأ أثناء إنشاء الطلب.',
           barrierDismissible: false,
         );
       }
-    }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
 
-    if (_receiverPhoneController.text.trim().isNotEmpty &&
-        _shippingCityController.text.trim().isNotEmpty &&
-        _shippingStreetController.text.trim().isNotEmpty) {
-      if (_receiverNameController.text.trim().isEmpty) {
-        _receiverNameController.text =
-            StorageService().userFullName ?? 'غير معروف';
-      }
-      if (!_formKey.currentState!.validate()) return;
-      await executeApiCall();
-      return;
+      QuickAlert.show(
+        confirmBtnText: 'موافق',
+        context: context,
+        type: QuickAlertType.error,
+        title: 'خطأ',
+        text: e.toString().replaceFirst('Exception: ', ''),
+        barrierDismissible: false,
+      );
     }
+  }
 
-    _showAddressSelectionSheet((selectedAddress) async {
-      setState(() {
-        _receiverPhoneController.text = selectedAddress.phone;
-        _shippingCityController.text = selectedAddress.city;
-        _shippingStreetController.text = selectedAddress.street;
-        _buildingNumberController.text = selectedAddress.buildingNumber;
-        if (_receiverNameController.text.trim().isEmpty) {
-          _receiverNameController.text =
-              StorageService().userFullName ?? 'غير معروف';
+  /// Card-payment flow: create order → navigate to PayTabs WebView.
+  Future<void> _confirmOrderWithCard() async {
+    final payload = _buildOrderPayload();
+
+    QuickAlert.show(
+      confirmBtnText: 'موافق',
+      context: context,
+      type: QuickAlertType.loading,
+      title: 'جاري إنشاء الطلب...',
+      text: 'يرجى الانتظار',
+      barrierDismissible: false,
+    );
+
+    try {
+      final result = await _orderService.createOrder(payload);
+
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // dismiss loading
+
+      final isSuccess =
+          result['success'] == true ||
+          (result['message']?.toString().toLowerCase().contains('success') ??
+              false);
+
+      if (isSuccess) {
+        context.read<CartCubit>().clearCart();
+
+        print("====== السيرفر رد بالآتي ======");
+        print(result);
+        print("================================");
+
+        final orderId = _extractOrderId(result);
+
+        if (orderId != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (_) => BlocProvider(
+                    create: (_) => PaymentCubit(PaymentRepository()),
+                    child: PaymentWebViewScreen(orderId: orderId),
+                  ),
+            ),
+          );
+        } else {
+          await QuickAlert.show(
+            confirmBtnText: 'موافق',
+            context: context,
+            type: QuickAlertType.warning,
+            title: 'تنبيه',
+            text:
+                'تم إنشاء الطلب بنجاح، ولكن لم نتمكن من استخراج رقم الطلب لفتح بوابة الدفع.',
+            barrierDismissible: false,
+          );
+          if (mounted) {
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          }
         }
-      });
+      } else {
+        QuickAlert.show(
+          confirmBtnText: 'موافق',
+          context: context,
+          type: QuickAlertType.error,
+          title: 'خطأ',
+          text: result['message'] ?? 'حدث خطأ أثناء إنشاء الطلب.',
+          barrierDismissible: false,
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
 
-      if (!_formKey.currentState!.validate()) return;
-      await executeApiCall();
-    });
+      QuickAlert.show(
+        confirmBtnText: 'موافق',
+        context: context,
+        type: QuickAlertType.error,
+        title: 'خطأ',
+        text: e.toString().replaceFirst('Exception: ', ''),
+        barrierDismissible: false,
+      );
+    }
   }
 
   @override
@@ -326,6 +459,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: () => _showAddressSelectionSheet((address) {
+                        setState(() {
+                          _receiverNameController.text = address.fullName;
+                          _receiverPhoneController.text = address.phone;
+                          _shippingCityController.text = address.city;
+                          _shippingStreetController.text = address.street;
+                        });
+                      }),
+                      icon: const Icon(Icons.location_on, color: AppColors.primary),
+                      label: Text(
+                        'اختر من عناوينك المحفوظة',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -451,7 +607,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                   const SizedBox(height: 32),
                   ElevatedButton(
-                    onPressed: _submitOrder,
+                    onPressed: _onConfirmTapped,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 12),

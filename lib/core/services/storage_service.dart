@@ -11,11 +11,11 @@ class StorageService {
   static const String _keyUserFullName = 'user_full_name';
   static const String _keyIsLoggedIn = 'is_logged_in';
   static const String _keyTokenExpiry = 'token_expiry';
-  static const String _keyIsVerified = 'is_verified'; 
-  static const String _keyHasOrganization = 'has_organization'; 
+  static const String _keyIsVerified = 'is_verified';
+  static const String _keyHasOrganization = 'has_organization';
   static const String _keyIsFirstTime = 'is_first_time';
   static const String _keyIsExplicitGuest = 'is_explicit_guest';
-  
+
   static const String _keyRefreshToken = 'refresh_token';
   static const String _keyOrganizationId = 'organization_id';
   static const String _keyOrganizationType = 'organization_type';
@@ -60,13 +60,10 @@ class StorageService {
     await _prefs.setString(_keyOrganizationId, orgId);
   }
 
-  // ✅ Save organization existence status
   Future<void> saveHasOrganization(bool value) async {
     await _prefs.setBool(_keyHasOrganization, value);
   }
 
-  /// Atomically saves all active-organization fields in one call.
-  /// Call this when creating a new org OR switching between orgs.
   Future<void> saveOrganizationDetails({
     required String orgId,
     required int orgType,
@@ -117,7 +114,7 @@ class StorageService {
 
   // ✅ Read verification status
   bool get isVerified => _prefs.getBool(_keyIsVerified) ?? false;
-  
+
   bool get hasOrganization => _prefs.getBool(_keyHasOrganization) ?? false;
 
   bool get isFirstTime => _prefs.getBool(_keyIsFirstTime) ?? true;
@@ -143,7 +140,7 @@ class StorageService {
     await _prefs.remove(_keyUserFullName);
     await _prefs.remove(_keyIsLoggedIn);
     await _prefs.remove(_keyTokenExpiry);
-    await _prefs.remove(_keyIsVerified);  
+    await _prefs.remove(_keyIsVerified);
     await _prefs.remove(_keyHasOrganization);
     await _prefs.remove(_keyRefreshToken);
     await _prefs.remove(_keyOrganizationId);

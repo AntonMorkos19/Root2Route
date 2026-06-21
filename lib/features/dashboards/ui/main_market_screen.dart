@@ -40,7 +40,8 @@ class _MainMarketTabState extends State<MainMarketTab> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
 
-  // static const int _approvedStatus = 0; // تم إيقافها مؤقتاً عشان متبوظش الفلتر
+  // 🚀 تم التعديل هنا: الحالة 1 هي المقبولة والمتاحة في الداتا بيز
+  static const int _approvedStatus = 1;
 
   @override
   void initState() {
@@ -94,12 +95,8 @@ class _MainMarketTabState extends State<MainMarketTab> {
       final result = await _api.getAllProducts(
         pageNumber: _pageNumber,
         pageSize: _pageSize,
-        // تم إيقاف فلتر الـ status عشان نعرض اللي موجود في الداتابيز
-        // status: _approvedStatus,
-
-        // 🚀 تم إرجاع النوع 0 ليعرض المحاصيل زي تجربة الـ Postman/Swagger
-        productType: 0,
-
+        status: _approvedStatus, // هيبعت 1 للباك إند
+        // 🚀 تم مسح سطر الـ productType عشان الـ API يرجع كل المنتجات
         search: _searchQuery,
       );
       if (!mounted) return;

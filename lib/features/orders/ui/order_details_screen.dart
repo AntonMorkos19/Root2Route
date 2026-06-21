@@ -13,8 +13,7 @@ import 'package:root2route/features/orders/data/models/order_model.dart';
 import 'package:root2route/features/orders/data/services/order_service.dart';
 import 'package:root2route/features/reviews/ui/add_review_dialog.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
-import 'package:root2route/core/utils/snackbar_helper.dart';
-class OrderDetailsScreen extends StatefulWidget {
+ class OrderDetailsScreen extends StatefulWidget {
   final String orderId;
 
   /// Pass [isSellerView] = true when the seller is opening this screen

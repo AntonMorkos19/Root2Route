@@ -14,9 +14,9 @@ import 'package:root2route/features/chat/ui/chat_details_screen.dart';
 import 'package:root2route/features/chat/cubit/chat_messages_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
 import 'package:root2route/features/cart/cubit/cart_state.dart';
-import 'package:root2route/features/chat/ui/chat_rooms_screen.dart';
 import 'package:root2route/core/utils/image_utils.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
+
 class DetailsProductScreen extends StatefulWidget {
   final String productId;
 
@@ -314,66 +314,71 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
           left: 0,
           right: 0,
           height: MediaQuery.of(context).size.height * 0.45,
-          child:
-              imagesList.isNotEmpty
-                  ? Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: [
-                      PageView.builder(
-                        itemCount: imagesList.length,
-                        onPageChanged:
-                            (index) =>
-                                setState(() => _currentImageIndex = index),
-                        itemBuilder: (context, index) {
-                          String? imgUrl;
-                          if (imagesList[index] is Map) {
-                            imgUrl =
-                                imagesList[index]['url'] ??
-                                imagesList[index]['Url'];
-                          } else {
-                            imgUrl = imagesList[index].toString();
-                          }
+          child: imagesList.isNotEmpty
+              ? Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    PageView.builder(
+                      itemCount: imagesList.length,
+                      onPageChanged: (index) => setState(() => _currentImageIndex = index),
+                      itemBuilder: (context, index) {
+                        // 1. استخراج الرابط بشكل آمن
+                        String? imgUrl;
+                        if (imagesList[index] is Map) {
+                          imgUrl = imagesList[index]['url'] ?? imagesList[index]['Url'];
+                        } else {
+                          imgUrl = imagesList[index].toString();
+                        }
 
-                          return Image.network(
-                            imgUrl.fullImageUrl,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            },
-                            errorBuilder:
-                                (ctx, err, stack) => _buildPlaceholderImage(),
-                          );
-                        },
-                      ),
-                      // Indicators
-                      if (imagesList.length > 1)
-                        Positioned(
-                          bottom: 60,
-                          child: Row(
-                            children: List.generate(imagesList.length, (index) {
-                              return Container(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                ),
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color:
-                                      _currentImageIndex == index
-                                          ? AppColors.primary
-                                          : Colors.white70,
-                                ),
-                              );
-                            }),
-                          ),
+                        // 2. منطق تصحيح الرابط الاحترافي
+                        String finalUrl = imgUrl ?? '';
+                        if (finalUrl.startsWith('/')) {
+                          finalUrl = 'https://root2route.runasp.net$finalUrl';
+                        } else if (!finalUrl.startsWith('http')) {
+                          finalUrl = 'https://root2route.runasp.net/$finalUrl';
+                        }
+                        // استبدال localhost إن وجد
+                        finalUrl = finalUrl.replaceAll(
+                          'http://localhost:8081',
+                          'https://root2route.runasp.net',
+                        );
+
+                        // 3. عرض الصورة مع معالجة الأخطاء والتحميل
+                        return Image.network(
+                          finalUrl,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const Center(child: CircularProgressIndicator());
+                          },
+                          errorBuilder: (ctx, err, stack) =>
+                              _buildPlaceholderImage(), // هنا يظهر البديل الشيك عند الخطأ
+                        );
+                      },
+                    ),
+                    // Indicators (مؤشرات الصور)
+                    if (imagesList.length > 1)
+                      Positioned(
+                        bottom: 60,
+                        child: Row(
+                          children: List.generate(imagesList.length, (index) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _currentImageIndex == index
+                                    ? AppColors.primary
+                                    : Colors.white70,
+                              ),
+                            );
+                          }),
                         ),
-                    ],
-                  )
-                  : _buildPlaceholderImage(),
+                      ),
+                  ],
+                )
+              : _buildPlaceholderImage(),
         ),
 
         /// DETAILS CARD
@@ -383,8 +388,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-              boxShadow: [
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
                   blurRadius: 10,
@@ -613,7 +618,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
             child: ElevatedButton.icon(
               onPressed: () async {
                 if (isGuest) {
-                  QuickAlert.show(cancelBtnText: 'إلغاء', 
+                  QuickAlert.show(
+                    cancelBtnText: 'إلغاء',
                     context: context,
                     type: QuickAlertType.info,
                     title: 'تسجيل الدخول مطلوب',
@@ -629,7 +635,9 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
 
                 if (productOrgId.isEmpty) return;
 
-                QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+                QuickAlert.show(
+                  confirmBtnText: 'موافق',
+                  cancelBtnText: 'إلغاء',
                   context: context,
                   type: QuickAlertType.loading,
                   title: 'جاري بدء الدردشة...',
@@ -671,7 +679,9 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                   debugPrint(" STACK TRACE: $stackTrace");
                   if (context.mounted) {
                     Navigator.pop(context);
-                    QuickAlert.show(confirmBtnText: 'موافق', cancelBtnText: 'إلغاء', 
+                    QuickAlert.show(
+                      confirmBtnText: 'موافق',
+                      cancelBtnText: 'إلغاء',
                       context: context,
                       type: QuickAlertType.error,
                       title: 'خطأ',
@@ -708,7 +718,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
             child: ElevatedButton.icon(
               onPressed: () {
                 if (isGuest) {
-                  QuickAlert.show(cancelBtnText: 'إلغاء', 
+                  QuickAlert.show(
+                    cancelBtnText: 'إلغاء',
                     context: context,
                     type: QuickAlertType.info,
                     title: 'تسجيل الدخول مطلوب',

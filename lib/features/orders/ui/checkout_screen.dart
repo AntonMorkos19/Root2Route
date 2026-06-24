@@ -371,7 +371,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               false);
 
       if (isSuccess) {
-        context.read<CartCubit>().clearCart();
+        // NOTE: Do NOT call clearCart() here! The cart must remain intact
+        // until the PayTabs WebView confirms successful payment. clearCart()
+        // is called in PaymentWebViewScreen when PaymentCaptured state fires.
 
         print("====== السيرفر رد بالآتي ======");
         print(result);

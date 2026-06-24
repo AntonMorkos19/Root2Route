@@ -23,7 +23,7 @@ class _PlantsScreenState extends State<PlantsScreen> {
 
   @override
   void initState() {
-    super.initState();
+    super.initState();                                                                       
     _loadPlants();
     _searchController.addListener(_onSearchChanged);
   }

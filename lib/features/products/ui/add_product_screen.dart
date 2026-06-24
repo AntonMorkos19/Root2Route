@@ -141,7 +141,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           context: context,
           type: QuickAlertType.success,
           title: 'نجاح',
-          text: 'تم نشر المنتج بنجاح',
+          text: 'تم إضافة المنتج بنجاح، وسيتم نشره في السوق فور مراجعته من الإدارة',
         );
         if (mounted) {
           Navigator.pop(context, true); // Return to previous screen

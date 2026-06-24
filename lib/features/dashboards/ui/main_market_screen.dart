@@ -463,6 +463,14 @@ class _MainMarketTabState extends State<MainMarketTab> {
     final images = product['images'] ?? product['Images'];
     if (images != null && images is List && images.isNotEmpty) {
       imageUrl = images[0]?.toString();
+
+      // 🚀 كود لإنقاذ الموقف: تبديل الـ Localhost بالدومين الحقيقي لو الباك إند بعته بالغلط
+      if (imageUrl != null && imageUrl.contains('localhost:8081')) {
+        imageUrl = imageUrl.replaceAll(
+          'http://localhost:8081',
+          'https://root2route.runasp.net',
+        );
+      }
     }
 
     return InkWell(

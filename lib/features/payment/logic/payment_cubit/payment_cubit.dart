@@ -21,26 +21,39 @@ class PaymentCubit extends Cubit<PaymentState> {
     } on DioException catch (e) {
       print("🚀🚀🚀 ====== FULL API DEBUG ERROR ======");
       print("Request Path: ${e.requestOptions.path}");
-      print("Request Headers: ${e.requestOptions.headers}"); // This will show if the token is missing
+      print(
+        "Request Headers: ${e.requestOptions.headers}",
+      ); // This will show if the token is missing
       print("Response Status: ${e.response?.statusCode}");
-      print("Response Data: ${e.response?.data}"); // This will show the real backend error message
+      print(
+        "Response Data: ${e.response?.data}",
+      ); // This will show the real backend error message
       print("========================================");
-      emit(PaymentFailed("خطأ في الاتصال: ${e.response?.statusCode ?? 'Unknown'}"));
+      emit(
+        PaymentFailed("خطأ في الاتصال: ${e.response?.statusCode ?? 'Unknown'}"),
+      );
     } catch (e) {
       emit(PaymentFailed(e.toString()));
     }
   }
 
+  // في PaymentCubit — verifyPayment
   Future<void> verifyPayment(String transactionReference) async {
     emit(const PaymentVerifying());
     try {
       final result = await _repository.verifyPayment(transactionReference);
-      if (result.status.toLowerCase() == 'captured') {
+      print('=== VERIFY STATUS FROM MODEL: ${result.status} ===');
+      final status = result.status.toLowerCase().trim();
+      if (status == 'captured' ||
+          status == 'a' ||
+          status == 'paid' ||
+          status == 'approved') {
         emit(const PaymentCaptured());
       } else {
         emit(PaymentFailed('حالة الدفع: ${result.status}'));
       }
     } catch (e) {
+      print('=== VERIFY CUBIT CATCH: $e ===');
       emit(PaymentFailed(e.toString().replaceFirst('Exception: ', '')));
     }
   }

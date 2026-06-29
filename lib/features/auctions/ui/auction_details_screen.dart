@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,11 +6,11 @@ import 'package:quickalert/quickalert.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/auctions/cubit/auction_cubit.dart';
 import 'package:root2route/features/auctions/cubit/auction_state.dart';
- import 'package:root2route/features/auctions/data/models/auction_model.dart';
+import 'package:root2route/features/auctions/data/models/auction_model.dart';
 import 'package:root2route/features/auth/ui/login_screen.dart';
- import 'package:root2route/core/services/api.dart';
- import 'package:root2route/core/services/storage_service.dart';
- import 'package:root2route/core/utils/image_utils.dart';
+import 'package:root2route/core/services/api.dart';
+import 'package:root2route/core/services/storage_service.dart';
+import 'package:root2route/core/utils/image_utils.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
 
 class AuctionDetailsScreen extends StatefulWidget {
@@ -130,14 +128,17 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     if (lower.contains('ended') || lower.contains('closed')) {
       return 'انتهى وقت المزاد ولا يمكن إضافة مزايدة.';
     }
-    if (lower.contains('network') || lower.contains('timeout') || lower.contains('connection')) {
+    if (lower.contains('network') ||
+        lower.contains('timeout') ||
+        lower.contains('connection')) {
       return 'تعذّر الاتصال بالشبكة، يرجى التحقق من الاتصال والمحاولة مجدداً.';
     }
     return 'حدث خطأ أثناء إرسال المزايدة. يرجى المحاولة مرة أخرى.';
   }
 
   void _submitBid(AuctionModel auction) {
-    final double currentHighest = auction.currentHighestBid ?? auction.startingPrice;
+    final double currentHighest =
+        auction.currentHighestBid ?? auction.startingPrice;
     final double minRequired = currentHighest + auction.minimumBidIncrement;
 
     // ── Parse strictly as double (not string) ──
@@ -145,7 +146,8 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     final double? entered = double.tryParse(raw);
 
     if (entered == null || entered < minRequired) {
-      QuickAlert.show(cancelBtnText: 'إلغاء', 
+      QuickAlert.show(
+        cancelBtnText: 'إلغاء',
         context: context,
         type: QuickAlertType.warning,
         title: 'مبلغ غير كافٍ',
@@ -156,14 +158,19 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
       return;
     }
 
-    debugPrint('[🎯 SUBMIT BID via Cubit] auctionId=$_auctionId  amount=$entered');
-    context.read<AuctionCubit>().placeBid(auctionId: _auctionId, amount: entered);
+    debugPrint(
+      '[🎯 SUBMIT BID via Cubit] auctionId=$_auctionId  amount=$entered',
+    );
+    context.read<AuctionCubit>().placeBid(
+      auctionId: _auctionId,
+      amount: entered,
+    );
   }
-
 
   void _showBidBottomSheet(AuctionModel auction) {
     _bidController.clear();
-    final double currentHighest = auction.currentHighestBid ?? auction.startingPrice;
+    final double currentHighest =
+        auction.currentHighestBid ?? auction.startingPrice;
     final double minRequired = currentHighest + auction.minimumBidIncrement;
 
     final cubit = context.read<AuctionCubit>();
@@ -172,126 +179,145 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => BlocProvider.value(
-        value: cubit,
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: BlocBuilder<AuctionCubit, AuctionState>(
-            builder: (sheetCtx, state) {
-              final bool isBidding = state is BidLoading;
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                padding: EdgeInsets.fromLTRB(
-                  24, 24, 24,
-                  24 + MediaQuery.of(sheetCtx).viewInsets.bottom,
-                ),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Handle bar
-                  Center(
-                    child: Container(
-                      width: 48,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(2),
+      builder:
+          (_) => BlocProvider.value(
+            value: cubit,
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: BlocBuilder<AuctionCubit, AuctionState>(
+                builder: (sheetCtx, state) {
+                  final bool isBidding = state is BidLoading;
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: EdgeInsets.fromLTRB(
+                      24,
+                      24,
+                      24,
+                      24 + MediaQuery.of(sheetCtx).viewInsets.bottom,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(28),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Handle bar
+                        Center(
+                          child: Container(
+                            width: 48,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
 
-                  Text(
-                    'أضف مزايدتك',
-                    style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'الحد الأدنى المقبول: ${_fmt(minRequired)} ج.م',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 13.sp,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                        Text(
+                          'أضف مزايدتك',
+                          style: TextStyle(
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'الحد الأدنى المقبول: ${_fmt(minRequired)} ج.م',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 13.sp,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
 
-                  TextField(
-                    controller: _bidController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    enabled: !isBidding,
-                    textAlign: TextAlign.right,
-                    decoration: InputDecoration(
-                      hintText: 'مثال: ${_fmt(minRequired)}',
-                      hintTextDirection: TextDirection.rtl,
-                      suffixText: 'ج.م',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: isBidding ? null : () => _submitBid(auction),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: isBidding
-                          ? const SizedBox(
-                              height: 22,
-                              width: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              'تأكيد المزايدة',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                        TextField(
+                          controller: _bidController,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          enabled: !isBidding,
+                          textAlign: TextAlign.right,
+                          decoration: InputDecoration(
+                            hintText: 'مثال: ${_fmt(minRequired)}',
+                            hintTextDirection: TextDirection.rtl,
+                            suffixText: 'ج.م',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: AppColors.primary,
+                                width: 2,
                               ),
                             ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(
-                        'إلغاء',
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 15.sp,
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 24),
+
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed:
+                                isBidding ? null : () => _submitBid(auction),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              disabledBackgroundColor: AppColors.primary
+                                  .withOpacity(0.5),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child:
+                                isBidding
+                                    ? const SizedBox(
+                                      height: 22,
+                                      width: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                    : Text(
+                                      'تأكيد المزايدة',
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text(
+                              'إلغاء',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 15.sp,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
-            );
-          },
-        ),
-      ),
-    ),
+            ),
+          ),
     );
   }
 
- 
   String _fmt(double v) => PriceFormatter.format(v);
 
   String _translateStatus(String status) {
@@ -330,7 +356,11 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           ),
           backgroundColor: AppColors.primary,
           iconTheme: const IconThemeData(color: Colors.white),
-          titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+          titleTextStyle: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
         body: BlocConsumer<AuctionCubit, AuctionState>(
           listener: (context, state) {
@@ -343,7 +373,8 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
               if (Navigator.canPop(context)) {
                 Navigator.pop(context); // Close bottom sheet
               }
-              QuickAlert.show(cancelBtnText: 'إلغاء', 
+              QuickAlert.show(
+                cancelBtnText: 'إلغاء',
                 context: context,
                 type: QuickAlertType.success,
                 title: 'نجاح',
@@ -358,7 +389,10 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
             if (state is AuctionBidConcurrencyConflict) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('مستخدم آخر قام بالمزايدة! السعر تغير. حاول مرة أخرى.', style: TextStyle(color: Colors.white)),
+                  content: Text(
+                    'مستخدم آخر قام بالمزايدة! السعر تغير. حاول مرة أخرى.',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   backgroundColor: Colors.orange,
                   behavior: SnackBarBehavior.floating,
                 ),
@@ -367,7 +401,10 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
             if (state is AuctionLiveBidReceived) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('تم المزايدة بمبلغ ${_fmt(state.newAmount)} ج.م', style: const TextStyle(color: Colors.white)),
+                  content: Text(
+                    'تم المزايدة بمبلغ ${_fmt(state.newAmount)} ج.م',
+                    style: const TextStyle(color: Colors.white),
+                  ),
                   backgroundColor: Colors.blue,
                   behavior: SnackBarBehavior.floating,
                   duration: const Duration(seconds: 2),
@@ -387,7 +424,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                   ),
                   backgroundColor: Colors.redAccent,
                   behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               );
             }
@@ -397,7 +436,8 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
               _lastAuction = state.data;
             }
 
-            if ((state is AuctionLoading || state is AuctionInitial) && _lastAuction == null) {
+            if ((state is AuctionLoading || state is AuctionInitial) &&
+                _lastAuction == null) {
               return const Center(
                 child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
@@ -454,7 +494,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],
@@ -474,8 +516,12 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
 
     final String? pOrgId =
         _productData != null
-            ? (_productData!['organizationId'] ?? _productData!['OrganizationId'])?.toString()
-            : (auction.organizationId?.isNotEmpty == true ? auction.organizationId : null);
+            ? (_productData!['organizationId'] ??
+                    _productData!['OrganizationId'])
+                ?.toString()
+            : (auction.organizationId?.isNotEmpty == true
+                ? auction.organizationId
+                : null);
 
     final bool isOwner =
         !isGuest &&
@@ -490,7 +536,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _buildHeaderCard(auction),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
+      //    _buildQuantityPill(auction),
+          const SizedBox(height: 8),
           _buildInfoCard(auction),
           const SizedBox(height: 16),
           _buildCountdownCard(auction),
@@ -517,8 +565,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
 
           // Action buttons
           if (isOwner) ...[
-            if (auction.isActive)
-              _buildDisabledOwnerButton(),
+            if (auction.isActive) _buildDisabledOwnerButton(),
           ] else ...[
             _buildActionButtons(auction, isGuest),
           ],
@@ -535,7 +582,11 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
       icon: const Icon(Icons.storefront_outlined, color: Colors.white70),
       label: const Text(
         'أنت صاحب هذا المزاد',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white70),
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.white70,
+        ),
       ),
       style: ElevatedButton.styleFrom(
         disabledBackgroundColor: Colors.grey.shade400,
@@ -545,10 +596,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     );
   }
 
-  Widget _buildActionButtons(
-    AuctionModel auction,
-    bool isGuest,
-  ) {
+  Widget _buildActionButtons(AuctionModel auction, bool isGuest) {
     if (!auction.isActive) {
       return const SizedBox.shrink();
     }
@@ -576,11 +624,50 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           backgroundColor: AppColors.primary,
           disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
           padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
     );
   }
+
+  // Widget _buildQuantityPill(AuctionModel auction) {
+  //   if (auction.quantity == null || auction.quantity! <= 0)
+  //     return const SizedBox.shrink();
+  //   return Container(
+  //     margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+  //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+  //     decoration: BoxDecoration(
+  //       color: const Color(0xFF2d7a3a).withValues(alpha: 0.08),
+  //       borderRadius: BorderRadius.circular(20),
+  //       border: Border.all(
+  //         color: const Color(0xFF2d7a3a).withValues(alpha: 0.3),
+  //         width: 1.5,
+  //       ),
+  //     ),
+  //     child: Row(
+  //       mainAxisSize: MainAxisSize.min,
+  //       children: [
+  //         const Icon(
+  //           Icons.inventory_2_outlined,
+  //           size: 18,
+  //           color: Color(0xFF2d7a3a),
+  //         ),
+  //         const SizedBox(width: 8),
+  //         Text(
+  //           'الكمية : ${auction.quantity! % 1 == 0 ? auction.quantity!.toInt() : auction.quantity!.toStringAsFixed(1)} ${_toArabicUnit(auction.unit)}'
+  //               .trim(),
+  //           style: TextStyle(
+  //             fontSize: 14.sp,
+  //             color: const Color(0xFF2d7a3a),
+  //             fontWeight: FontWeight.w700,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   // ──────────────────────────────────────────────────────────────
   // Card builders
@@ -591,7 +678,8 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
 
     String? imageUrl = auction.productImage;
     if ((imageUrl == null || imageUrl.isEmpty) && _productData != null) {
-      imageUrl = _productData!['imageUrl'] ??
+      imageUrl =
+          _productData!['imageUrl'] ??
           _productData!['ImageUrl'] ??
           _productData!['image'] ??
           _productData!['Image'];
@@ -622,15 +710,16 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           // Product image
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: imageUrl != null && imageUrl.isNotEmpty
-                ? Image.network(
-                    imageUrl.fullImageUrl,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imagePlaceholder(),
-                  )
-                : _imagePlaceholder(),
+            child:
+                imageUrl != null && imageUrl.isNotEmpty
+                    ? Image.network(
+                      imageUrl.fullImageUrl,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _imagePlaceholder(),
+                    )
+                    : _imagePlaceholder(),
           ),
           const SizedBox(height: 16),
 
@@ -649,7 +738,10 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: statusColor.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(20),
@@ -680,7 +772,11 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Icon(Icons.image_not_supported_outlined, size: 48, color: Colors.grey.shade300),
+      child: Icon(
+        Icons.image_not_supported_outlined,
+        size: 48,
+        color: Colors.grey.shade300,
+      ),
     );
   }
 
@@ -708,11 +804,13 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           const Divider(height: 24),
           _infoRow(
             label: 'أعلى مزايدة حالياً',
-            value: auction.currentHighestBid != null
-                ? '${_fmt(auction.currentHighestBid!)} ج.م'
-                : 'لا توجد مزايدات بعد',
+            value:
+                auction.currentHighestBid != null
+                    ? '${_fmt(auction.currentHighestBid!)} ج.م'
+                    : 'لا توجد مزايدات بعد',
             icon: Icons.trending_up_rounded,
-            valueColor: auction.currentHighestBid != null ? AppColors.primary : null,
+            valueColor:
+                auction.currentHighestBid != null ? AppColors.primary : null,
           ),
           const Divider(height: 24),
           _infoRow(
@@ -720,6 +818,15 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
             value: '${_fmt(auction.minimumBidIncrement)} ج.م',
             icon: Icons.add_circle_outline_rounded,
           ),
+          if (auction.quantity != null && auction.quantity! > 0) ...[
+            const Divider(height: 24),
+            _infoRow(
+              label: 'الكمية ',
+              value: _formatQuantity(auction.quantity!, auction.unit),
+              icon: Icons.inventory_2_outlined,
+              valueColor: const Color(0xFF2d7a3a),
+            ),
+          ],
         ],
       ),
     );
@@ -849,11 +956,14 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
           final isTop = index == 0;
           return ListTile(
             leading: CircleAvatar(
-              backgroundColor: isTop
-                  ? AppColors.primary.withOpacity(0.15)
-                  : Colors.grey.withOpacity(0.1),
+              backgroundColor:
+                  isTop
+                      ? AppColors.primary.withOpacity(0.15)
+                      : Colors.grey.withOpacity(0.1),
               child: Icon(
-                isTop ? Icons.emoji_events_rounded : Icons.person_outline_rounded,
+                isTop
+                    ? Icons.emoji_events_rounded
+                    : Icons.person_outline_rounded,
                 color: isTop ? AppColors.primary : Colors.grey,
               ),
             ),
@@ -865,7 +975,10 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
               '${_fmt(bid.amount)} ج.م',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: isTop ? AppColors.primary : Theme.of(context).textTheme.bodyLarge?.color,
+                color:
+                    isTop
+                        ? AppColors.primary
+                        : Theme.of(context).textTheme.bodyLarge?.color,
                 fontSize: 15.sp,
               ),
             ),
@@ -873,6 +986,56 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
         },
       ),
     );
+  }
+
+  static String _formatQuantity(double qty, String? unit) {
+    final String lower = (unit ?? '').trim().toLowerCase();
+    if ((lower == 'kilogram' || lower == 'kg') && qty >= 1000) {
+      final double tons = qty / 1000;
+      final String tonsDisplay = tons % 1 == 0 ? tons.toInt().toString() : tons.toStringAsFixed(1);
+      return '$tonsDisplay طن';
+    }
+    if ((lower == 'gram' || lower == 'g') && qty >= 1000) {
+      final double kg = qty / 1000;
+      final String kgDisplay = kg % 1 == 0 ? kg.toInt().toString() : kg.toStringAsFixed(1);
+      return '$kgDisplay كيلوجرام';
+    }
+    final String qtyDisplay = qty % 1 == 0 ? qty.toInt().toString() : qty.toStringAsFixed(1);
+    return '$qtyDisplay ${_toArabicUnit(unit)}'.trim();
+  }
+
+  static String _toArabicUnit(String? unit) {
+    if (unit == null || unit.trim().isEmpty) return '';
+    switch (unit.trim().toLowerCase()) {
+      case 'kilogram':
+      case 'kg':
+        return 'كيلوجرام';
+      case 'ton':
+      case 'tonne':
+        return 'طن';
+      case 'gram':
+      case 'g':
+        return 'جرام';
+      case 'liter':
+      case 'litre':
+      case 'l':
+        return 'لتر';
+      case 'meter':
+      case 'm':
+        return 'متر';
+      case 'piece':
+      case 'pcs':
+      case 'unit':
+        return 'قطعة';
+      case 'box':
+        return 'صندوق';
+      case 'bag':
+        return 'شيكارة';
+      case 'quintal':
+        return 'قنطار';
+      default:
+        return unit;
+    }
   }
 }
 

@@ -10,7 +10,7 @@ import 'package:root2route/core/services/api.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
 import 'package:root2route/core/utils/image_utils.dart';
 
- class AuctionCard extends StatefulWidget {
+class AuctionCard extends StatefulWidget {
   final AuctionModel auction;
   final Map<String, dynamic>? productData; // Pre-fetched product data
   final VoidCallback? onTap;
@@ -38,8 +38,8 @@ import 'package:root2route/core/utils/image_utils.dart';
 
 class _AuctionCardState extends State<AuctionCard> {
   String? _imageUrl;
-  bool _isMyAuction = false; 
-  
+  bool _isMyAuction = false;
+
   @override
   void initState() {
     super.initState();
@@ -53,16 +53,18 @@ class _AuctionCardState extends State<AuctionCard> {
 
   void _applyProductData(Map<String, dynamic> data) {
     final currentUserOrgId = StorageService().currentUserOrgId;
-    
+
     // Resolve Image
-    String? img = data['imageUrl'] ?? data['ImageUrl'] ?? data['image'] ?? data['Image'];
+    String? img =
+        data['imageUrl'] ?? data['ImageUrl'] ?? data['image'] ?? data['Image'];
     if (img == null) {
       final imgs = data['images'] ?? data['Images'];
       if (imgs is List && imgs.isNotEmpty) img = imgs.first?.toString();
     }
 
     // Resolve Ownership
-    final pOrgId = (data['organizationId'] ?? data['OrganizationId'])?.toString();
+    final pOrgId =
+        (data['organizationId'] ?? data['OrganizationId'])?.toString();
     final bool isOwner = currentUserOrgId != null && currentUserOrgId == pOrgId;
 
     if (mounted) {
@@ -78,7 +80,7 @@ class _AuctionCardState extends State<AuctionCard> {
     if (currentUserOrgId == null || currentUserOrgId.isEmpty) {
       if (mounted) setState(() => _isMyAuction = false);
     }
-    
+
     // Fallback image fetch and accurate org check
     try {
       final res = await ApiService().getProductById(widget.auction.productId);
@@ -109,14 +111,18 @@ class _AuctionCardState extends State<AuctionCard> {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: widget.onTap ?? () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AuctionDetailsScreen(auctionId: auction.id),
-              ),
-            );
-          },
+          onTap:
+              widget.onTap ??
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) =>
+                            AuctionDetailsScreen(auctionId: auction.id),
+                  ),
+                );
+              },
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -139,17 +145,23 @@ class _AuctionCardState extends State<AuctionCard> {
                             style: TextStyle(
                               fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).textTheme.titleMedium?.color,
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium?.color,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'السعر المبدئي: ${PriceFormatter.format(auction.startingPrice)} جنيه',
+                            'السعرالمبدئي: ${PriceFormatter.format(auction.startingPrice)} جنيه',
                             style: TextStyle(
                               fontSize: 14.sp,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -161,6 +173,8 @@ class _AuctionCardState extends State<AuctionCard> {
                 ),
 
                 const SizedBox(height: 12),
+                _buildQuantityPill(auction),
+                const SizedBox(height: 12),
 
                 // ── Info Row ──
                 Container(
@@ -169,13 +183,16 @@ class _AuctionCardState extends State<AuctionCard> {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (auction.bidsCount > 0 || auction.currentHighestBid == null || auction.currentHighestBid! <= auction.startingPrice)
+                      if (auction.bidsCount > 0 ||
+                          auction.currentHighestBid == null ||
+                          auction.currentHighestBid! <= auction.startingPrice)
                         _buildInfoItem(
                           Icons.gavel_rounded,
                           '${auction.bidsCount} مزايدات',
@@ -315,8 +332,11 @@ class _AuctionCardState extends State<AuctionCard> {
         ),
         child: Row(
           children: [
-            Icon(Icons.flag_rounded,
-                size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.flag_rounded,
+              size: 16,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(width: 8),
             Text(
               auction.winnerName != null
@@ -375,13 +395,18 @@ class _AuctionCardState extends State<AuctionCard> {
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.person_outline,
-                        size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    Icon(
+                      Icons.person_outline,
+                      size: 14,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                     const SizedBox(width: 6),
                     Text(
                       'مزادك',
@@ -401,14 +426,18 @@ class _AuctionCardState extends State<AuctionCard> {
                 icon: Icons.gavel_rounded,
                 label: 'زايد الآن',
                 color: AppColors.primary,
-                onTap: widget.onBid ?? () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AuctionDetailsScreen(auctionId: auction.id),
-                    ),
-                  );
-                },
+                onTap:
+                    widget.onBid ??
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  AuctionDetailsScreen(auctionId: auction.id),
+                        ),
+                      );
+                    },
               ),
             ),
           const SizedBox(width: 8),
@@ -419,15 +448,22 @@ class _AuctionCardState extends State<AuctionCard> {
           child: _ActionButton(
             icon: Icons.bar_chart_rounded,
             label: 'المزايدات',
-            color: (auction.isActive || auction.isUpcoming) && !_isMyAuction ? Colors.blue.shade600 : AppColors.primary,
-            onTap: widget.onViewBids ?? () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AuctionDetailsScreen(auctionId: auction.id),
-                ),
-              );
-            },
+            color:
+                (auction.isActive || auction.isUpcoming) && !_isMyAuction
+                    ? Colors.blue.shade600
+                    : AppColors.primary,
+            onTap:
+                widget.onViewBids ??
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) =>
+                              AuctionDetailsScreen(auctionId: auction.id),
+                    ),
+                  );
+                },
           ),
         ),
         const SizedBox(width: 8),
@@ -467,6 +503,93 @@ class _AuctionCardState extends State<AuctionCard> {
             ),
           ),
       ],
+    );
+  }
+
+  static String _formatQuantity(double qty, String? unit) {
+    final String lower = (unit ?? '').trim().toLowerCase();
+    if ((lower == 'kilogram' || lower == 'kg') && qty >= 1000) {
+      final double tons = qty / 1000;
+      final String tonsDisplay = tons % 1 == 0 ? tons.toInt().toString() : tons.toStringAsFixed(1);
+      return '$tonsDisplay طن';
+    }
+    if ((lower == 'gram' || lower == 'g') && qty >= 1000) {
+      final double kg = qty / 1000;
+      final String kgDisplay = kg % 1 == 0 ? kg.toInt().toString() : kg.toStringAsFixed(1);
+      return '$kgDisplay كيلوجرام';
+    }
+    final String qtyDisplay = qty % 1 == 0 ? qty.toInt().toString() : qty.toStringAsFixed(1);
+    return '$qtyDisplay ${_toArabicUnit(unit)}'.trim();
+  }
+
+  static String _toArabicUnit(String? unit) {
+    if (unit == null || unit.trim().isEmpty) return '';
+    switch (unit.trim().toLowerCase()) {
+      case 'kilogram':
+      case 'kg':
+        return 'كيلوجرام';
+      case 'ton':
+      case 'tonne':
+        return 'طن';
+      case 'gram':
+      case 'g':
+        return 'جرام';
+      case 'liter':
+      case 'litre':
+      case 'l':
+        return 'لتر';
+      case 'meter':
+      case 'm':
+        return 'متر';
+      case 'piece':
+      case 'pcs':
+      case 'unit':
+        return 'قطعة';
+      case 'box':
+        return 'صندوق';
+      case 'bag':
+        return 'شيكارة';
+      case 'quintal':
+        return 'قنطار';
+      default:
+        return unit;
+    }
+  }
+
+  Widget _buildQuantityPill(AuctionModel auction) {
+    if (auction.quantity == null || auction.quantity! <= 0) {
+      return const SizedBox.shrink();
+    }
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2d7a3a).withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFF2d7a3a).withValues(alpha: 0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.inventory_2_outlined,
+            size: 18,
+            color: Color(0xFF2d7a3a),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'الكمية : ${_formatQuantity(auction.quantity!, auction.unit)}',
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: const Color(0xFF2d7a3a),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

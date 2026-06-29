@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -5,8 +6,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:root2route/core/theme/app_colors.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
+import 'package:root2route/features/orders/ui/cart_screen.dart';
+import 'package:root2route/features/orders/ui/checkout_screen.dart';
 import 'package:root2route/features/payment/logic/payment_cubit/payment_cubit.dart';
 import 'package:root2route/features/payment/logic/payment_cubit/payment_state.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:root2route/features/orders/data/services/order_service.dart';
 
 class PaymentWebViewScreen extends StatefulWidget {
   final String orderId;
@@ -19,17 +24,20 @@ class PaymentWebViewScreen extends StatefulWidget {
 
 class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
   late final PaymentCubit _cubit;
+  final OrderService _orderService = OrderService();
   InAppWebViewController? _webViewController;
   String? _transactionReference;
   bool _verificationTriggered = false;
   bool _isWebViewLoading = true;
   bool _userCancelled = false;
+  bool _isCancellingOrder = false;
 
   @override
   void initState() {
     super.initState();
     _cubit = context.read<PaymentCubit>();
     _cubit.createPayment(widget.orderId);
+    BackButtonInterceptor.add(_backButtonInterceptor);
   }
 
   /// Triggers verification exactly once, then lets BlocListener handle the rest.
@@ -40,9 +48,21 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
     _cubit.verifyPayment(_transactionReference!);
   }
 
-  Future<bool> _onWillPop() async {
-    if (_verificationTriggered) return true;
+  /// Called by PopScope — non-async wrapper to avoid hardware back bypass.
+  void _handleBackPress() async {
+    await _onWillPop();
+  }
 
+  /// Intercepts Android hardware back button before InAppWebView consumes it.
+  FutureOr<bool> _backButtonInterceptor(
+      bool stopDefaultButtonEvent, RouteInfo info) {
+    _handleBackPress();
+    return true; // true = block default back behavior
+  }
+
+  Future<void> _onWillPop() async {
+    if (_verificationTriggered) return;
+    
     final shouldLeave = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -86,7 +106,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'هل أنت متأكد من رغبتك في الخروج؟ سيتم التحقق من حالة الدفع تلقائياً.',
+                  'هل أنت متأكد من رغبتك في الخروج؟',
                   style: TextStyle(
                     fontSize: 16.sp,
                     color: Colors.grey.shade600,
@@ -130,7 +150,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                         ),
                         onPressed: () => Navigator.pop(context, true),
                         child: const Text(
-                          'خروج ',
+                          'خروج',
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -145,29 +165,31 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
       },
     );
 
-    if (shouldLeave == true) {
-      // If we have a transaction reference, verify before leaving
-      if (_transactionReference != null) {
-        _userCancelled = true;
-        _triggerVerification();
-        return false; // Let BlocListener handle pop after verify
-      }
-      // No transaction yet — user cancelled before payment page loaded.
-      // Just pop silently with a gentle snackbar.
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تم إلغاء الدفع'),
-            backgroundColor: AppColors.primary,
-            behavior: SnackBarBehavior.floating,
-            duration: Duration(seconds: 2),
+    if (shouldLeave == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('تم إلغاء الدفع'),
+          backgroundColor: AppColors.primary,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const CartScreen(
+            // If CheckoutScreen requires parameters, pass them here.
+            // Example: auctionId: widget.auctionId, 
           ),
-        );
-      }
-      return true;
+        ),
+      );
     }
+  }
 
-    return false;
+  @override
+  void dispose() {
+    BackButtonInterceptor.remove(_backButtonInterceptor);
+    super.dispose();
   }
 
   void _showOverlayLoading(BuildContext context, String text) {
@@ -209,16 +231,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        final bool shouldPop = await _onWillPop();
-        if (shouldPop && mounted) {
-          Navigator.pop(context, result);
-        }
-      },
-      child: BlocListener<PaymentCubit, PaymentState>(
+    return BlocListener<PaymentCubit, PaymentState>(
         listener: (context, state) {
           if (state is PaymentWebViewReady) {
             _transactionReference = state.transactionReference;
@@ -239,14 +252,13 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
               },
             );
           } else if (state is PaymentFailed) {
-            // Close loading overlay if it was showing
-            if (_verificationTriggered) {
-              Navigator.pop(context);
-            }
+            // Close loading overlay safely
+            try {
+              if (_verificationTriggered && Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
+            } catch (_) {}
 
-            // Graceful handling: if user intentionally cancelled (status is
-            // 'Pending' or similar), show a gentle snackbar instead of a
-            // scary red error alert.
             final msg = state.message.toLowerCase();
             final isUserCancellation =
                 _userCancelled ||
@@ -255,8 +267,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                 msg.contains('canceled');
 
             if (isUserCancellation) {
-              // Gentle exit — just pop and show a snackbar
-              Navigator.pop(context); // Pop WebView
+              if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('تم إلغاء الدفع'),
@@ -265,18 +276,27 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                   duration: Duration(seconds: 2),
                 ),
               );
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CheckoutScreen(
+                    // If CheckoutScreen requires parameters, pass them here.
+                    // Example: auctionId: widget.auctionId, 
+                  ),
+                ),
+              );
             } else {
-              // Real API / transaction failure — show red alert
+              if (!mounted) return;
               QuickAlert.show(
                 context: context,
                 type: QuickAlertType.error,
                 title: 'فشل الدفع',
                 text: state.message,
-                confirmBtnText: 'رجوع',
+                confirmBtnText: 'رجوع للسوق',
                 confirmBtnColor: AppColors.primary,
                 onConfirmBtnTap: () {
                   Navigator.pop(context); // Close alert
-                  Navigator.pop(context); // Pop WebView
+                  Navigator.pop(context); // Close WebView
                 },
               );
             }
@@ -297,6 +317,10 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
               backgroundColor: AppColors.primary,
               iconTheme: const IconThemeData(color: Colors.white),
               elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: _handleBackPress,
+              ),
             ),
             body: SafeArea(
               child: BlocBuilder<PaymentCubit, PaymentState>(
@@ -332,8 +356,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                           initialSettings: InAppWebViewSettings(
                             javaScriptEnabled: true,
                             transparentBackground: true,
-                            useShouldOverrideUrlLoading:
-                                true, // 👈 CRITICAL: must be true
+                            useShouldOverrideUrlLoading: true,
                           ),
                           onWebViewCreated: (controller) {
                             _webViewController = controller;
@@ -348,7 +371,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                             print(
                               '=== WebView Navigation (shouldOverride): $url ===',
                             );
-
                             if (url.contains('/payment/result') ||
                                 url.contains('/payment/success')) {
                               print(
@@ -364,11 +386,8 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                           onLoadStart: (controller, url) {
                             final urlString = url.toString();
                             print('=== onLoadStart: $urlString ===');
-
-                            // Show loading overlay while page loads
                             if (mounted)
                               setState(() => _isWebViewLoading = true);
-
                             if (urlString.contains('/payment/result') ||
                                 urlString.contains('/payment/success')) {
                               print(
@@ -383,11 +402,8 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                           onLoadStop: (controller, url) async {
                             final urlString = url.toString();
                             print('=== onLoadStop: $urlString ===');
-
-                            // Hide loading overlay — page has finished rendering
                             if (mounted)
                               setState(() => _isWebViewLoading = false);
-
                             if (urlString.contains('/payment/result') ||
                                 urlString.contains('/payment/success')) {
                               print(
@@ -397,7 +413,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                             }
                           },
 
-                          // ─── BACKUP INTERCEPTOR 3 (URL changes without navigation) ───
+                          // ─── BACKUP INTERCEPTOR 3 ───
                           onUpdateVisitedHistory: (
                             controller,
                             url,
@@ -405,7 +421,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                           ) {
                             final urlString = url.toString();
                             print('=== onUpdateVisitedHistory: $urlString ===');
-
                             if (urlString.contains('/payment/result') ||
                                 urlString.contains('/payment/success')) {
                               print(
@@ -417,9 +432,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                         ),
 
                         // ─── LOADING OVERLAY ───
-                        // Shows a centered spinner on top of the WebView while
-                        // the PayTabs page is loading, preventing the blank
-                        // white-screen flash.
                         if (_isWebViewLoading)
                           Container(
                             color: Theme.of(context).scaffoldBackgroundColor,
@@ -446,14 +458,11 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                     );
                   }
 
-                  // Fallback for Failed or Verifying states to just show empty while overlays take over
                   return const SizedBox.shrink();
                 },
               ),
             ),
           ),
-        ),
-      ),
-    );
+    ));
   }
 }

@@ -337,11 +337,8 @@ class _DetailsProductScreenState extends State<DetailsProductScreen> {
                         } else if (!finalUrl.startsWith('http')) {
                           finalUrl = 'https://root2route.runasp.net/$finalUrl';
                         }
-                        // استبدال localhost إن وجد
-                        finalUrl = finalUrl.replaceAll(
-                          'http://localhost:8081',
-                          'https://root2route.runasp.net',
-                        );
+                        // Use centralized image URL fixer
+                        finalUrl = finalUrl.fullImageUrl;
 
                         // 3. عرض الصورة مع معالجة الأخطاء والتحميل
                         return Image.network(

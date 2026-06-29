@@ -15,6 +15,8 @@ class AuctionModel {
   final String? organizationId;
   final String? title;
   final double? reservePrice;
+  final double? quantity;
+  final String? unit;
 
   const AuctionModel({
     required this.id,
@@ -33,6 +35,8 @@ class AuctionModel {
     this.organizationId,
     this.title,
     this.reservePrice,
+    this.quantity,
+    this.unit,
   });
 
   factory AuctionModel.fromJson(Map<String, dynamic> json) {
@@ -61,6 +65,8 @@ class AuctionModel {
       organizationId: (json['organizationId'] ?? json['OrganizationId'] ?? '').toString(),
       title: json['title'] ?? json['Title'],
       reservePrice: _parseNullableDouble(json['reservePrice'] ?? json['ReservePrice']),
+      quantity: _parseNullableDouble(json['quantity'] ?? json['Quantity']),
+      unit: json['unit'] ?? json['Unit'],
     );
   }
 
@@ -74,6 +80,8 @@ class AuctionModel {
       'endDate': endDate.toUtc().toIso8601String(),
       'title': title,
       'reservePrice': reservePrice,
+      'quantity': quantity,
+      'unit': unit,
     };
   }
 
@@ -94,6 +102,8 @@ class AuctionModel {
     String? organizationId,
     String? title,
     double? reservePrice,
+    double? quantity,
+    String? unit,
   }) {
     return AuctionModel(
       id: id ?? this.id,
@@ -112,6 +122,8 @@ class AuctionModel {
       organizationId: organizationId ?? this.organizationId,
       title: title ?? this.title,
       reservePrice: reservePrice ?? this.reservePrice,
+      quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
     );
   }
 

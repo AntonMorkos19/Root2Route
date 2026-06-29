@@ -84,6 +84,9 @@ class PaymentRepository {
         '/payment/paytabs/verify/$transactionReference',
       );
 
+      print('=== VERIFY RESPONSE STATUS: ${response.statusCode} ===');
+      print('=== VERIFY RESPONSE DATA: ${response.data} ===');
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = response.data['data'] ?? response.data;
         return PaymentVerifyModel.fromJson(data);
@@ -91,6 +94,7 @@ class PaymentRepository {
         throw Exception(response.data['message'] ?? 'فشل التحقق من حالة الدفع');
       }
     } on DioException catch (e) {
+      print('=== VERIFY DIO ERROR: ${e.response?.data} ===');
       if (e.response != null) {
         final errorMsg = e.response?.data['message'] ??
             e.response?.data['Message'] ??
@@ -99,6 +103,7 @@ class PaymentRepository {
       }
       throw Exception('تعذر الاتصال بالخادم أثناء التحقق من الدفع.');
     } catch (e) {
+      print('=== VERIFY CATCH ERROR: $e ===');
       throw Exception('حدث خطأ غير متوقع: $e');
     }
   }

@@ -8,6 +8,7 @@ import 'package:root2route/features/products/ui/add_product_screen.dart';
 import 'package:root2route/core/services/storage_service.dart';
 import 'package:root2route/core/utils/price_formatter.dart';
 import 'package:root2route/core/utils/image_utils.dart';
+import 'package:root2route/utils/quantity_formatter.dart';
 
 class MainMarketTab extends StatefulWidget {
   final String? organizationId;
@@ -355,40 +356,14 @@ class _MainMarketTabState extends State<MainMarketTab> {
 
   Widget _buildProductCard(BuildContext context, dynamic product) {
     final String name = product['name'] ?? product['Name'] ?? 'منتج غير معروف';
-    final dynamic stockRaw =
-        product['stockQuantity'] ?? product['StockQuantity'] ?? 0;
-    final int stockQty =
-        stockRaw is num
-            ? stockRaw.toInt()
-            : int.tryParse(stockRaw.toString()) ?? 0;
 
+    final dynamic stockRaw = product['stockQuantity'] ?? product['StockQuantity'] ?? 0;
+    final double? stockQty = stockRaw is num ? stockRaw.toDouble() : double.tryParse(stockRaw.toString());
+    
     final dynamic unitRaw = product['weightUnit'] ?? product['WeightUnit'];
-    String unitName = '';
-    if (unitRaw != null) {
-      if (unitRaw is String) {
-        final Map<String, String> _unitMap = {
-          'Kg': 'كجم',
-          'Kilogram': 'كجم',
-          'Liter': 'لتر',
-          'pkg': 'عبوة',
-          'Package': 'عبوة',
-        };
-        unitName = _unitMap[unitRaw] ?? unitRaw;
-      } else {
-        final idx = int.tryParse(unitRaw.toString()) ?? 0;
-        switch (idx) {
-          case 0:
-            unitName = 'كجم';
-            break;
-          case 1:
-            unitName = 'عبوة';
-            break;
-          case 2:
-            unitName = 'لتر';
-            break;
-        }
-      }
-    }
+    final String? unitStr = unitRaw?.toString();
+
+    final String formattedQuantity = QuantityFormatter.format(stockQty, unitStr);
 
     final dynamic typeRaw = product['productType'] ?? product['ProductType'];
     String typeStr = 'محصول';
@@ -463,14 +438,6 @@ class _MainMarketTabState extends State<MainMarketTab> {
     final images = product['images'] ?? product['Images'];
     if (images != null && images is List && images.isNotEmpty) {
       imageUrl = images[0]?.toString();
-
-      // 🚀 كود لإنقاذ الموقف: تبديل الـ Localhost بالدومين الحقيقي لو الباك إند بعته بالغلط
-      if (imageUrl != null && imageUrl.contains('localhost:8081')) {
-        imageUrl = imageUrl.replaceAll(
-          'http://localhost:8081',
-          'https://root2route.runasp.net',
-        );
-      }
     }
 
     return InkWell(
@@ -592,7 +559,7 @@ class _MainMarketTabState extends State<MainMarketTab> {
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(
-                            'المخزون: $stockQty ${unitName.isNotEmpty ? unitName : ''}',
+                            'المخزون: $formattedQuantity',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(

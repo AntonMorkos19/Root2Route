@@ -12,7 +12,6 @@ import 'package:root2route/features/shipments/cubit/shipment_address_cubit.dart'
 import 'package:root2route/features/shipments/cubit/shipment_state.dart';
 import 'package:root2route/features/shipments/data/models/shipment_address_model.dart';
 import 'package:root2route/features/cart/cubit/cart_cubit.dart';
-import 'package:root2route/core/utils/snackbar_helper.dart';
 import 'package:root2route/features/orders/data/services/order_service.dart';
 import 'package:root2route/features/payment/logic/payment_cubit/payment_cubit.dart';
 import 'package:root2route/features/payment/presentation/screens/payment_webview_screen.dart';
@@ -21,7 +20,10 @@ import 'package:root2route/features/payment/presentation/widgets/payment_method_
 class CheckoutScreen extends StatefulWidget {
   static const String id = '/checkoutScreen';
 
-  const CheckoutScreen({super.key});
+  final String? auctionId;
+  final String? title;
+
+  const CheckoutScreen({super.key, this.auctionId, this.title});
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
@@ -36,6 +38,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _buildingNumberController = TextEditingController();
 
   final OrderService _orderService = OrderService();
+  String? _pendingOrderId; // Tracks pending order to prevent duplicates
+  bool _isProcessing = false;
   final CartService _cartService = CartService();
 
   @override
@@ -202,7 +206,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   /// Validates form, then shows the payment method bottom sheet.
   void _onConfirmTapped() {
-    if (_cartService.items.isEmpty) {
+    // Only check cart when creating a NEW order.
+    // If _pendingOrderId is set, we're updating payment method on an existing order
+    // (e.g. returning from PaymentWebView), so cart contents don't matter.
+    if (_pendingOrderId == null && _cartService.items.isEmpty) {
       QuickAlert.show(
         confirmBtnText: 'موافق',
         context: context,
@@ -220,21 +227,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => PaymentMethodSheet(
-        onCashSelected: () {
-          Navigator.pop(context); // close sheet
-          _confirmOrderWithCash();
-        },
-        onCardSelected: () {
-          Navigator.pop(context); // close sheet
-          _confirmOrderWithCard();
-        },
-      ),
+      builder:
+          (_) => PaymentMethodSheet(
+            onCashSelected: () {
+              Navigator.pop(context); // close sheet
+              _handlePaymentSelection(0); // Assuming 0 is Cash
+            },
+            onCardSelected: () {
+              Navigator.pop(context); // close sheet
+              _handlePaymentSelection(1); // Assuming 1 is Card
+            },
+          ),
     );
   }
 
   /// Builds the order payload from the current form fields.
-  Map<String, dynamic> _buildOrderPayload() {
+  Map<String, dynamic> _buildOrderPayload(int paymentMethodId) {
     final buyerId = StorageService().userId;
     final itemsPayload =
         _cartService.items.map((item) {
@@ -249,6 +257,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       "shippingCity": _shippingCityController.text.trim(),
       "shippingStreet": _shippingStreetController.text.trim(),
       "buildingNumber": bNumber.isEmpty ? "Not specified" : bNumber,
+      "paymentMethod": paymentMethodId,
       "items": itemsPayload,
     };
   }
@@ -256,10 +265,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   /// Extracts the order ID from the API response.
   String? _extractOrderId(Map<String, dynamic> result) {
     String? orderId =
-        (result['orderId'] ??
-                result['OrderId'] ??
-                result['id'] ??
-                result['Id'])
+        (result['orderId'] ?? result['OrderId'] ?? result['id'] ?? result['Id'])
             ?.toString();
 
     if (orderId == null && result['data'] != null) {
@@ -282,124 +288,100 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         : null;
   }
 
-  /// Cash-on-delivery flow: create order → success alert → pop to first route.
-  Future<void> _confirmOrderWithCash() async {
-    final payload = _buildOrderPayload();
+  /// Idempotent Checkout Logic: Creates an order once, updates it thereafter.
+  Future<void> _handlePaymentSelection(int paymentMethodId) async {
+    if (_isProcessing) return;
+    _isProcessing = true;
+
+    print('=== _handlePaymentSelection ===');
+    print('paymentMethodId: $paymentMethodId');
+    print('_pendingOrderId: $_pendingOrderId');
 
     QuickAlert.show(
       confirmBtnText: 'موافق',
       context: context,
       type: QuickAlertType.loading,
-      title: 'جاري إنشاء الطلب...',
+      title: 'جاري تنفيذ الطلب...',
       text: 'يرجى الانتظار',
       barrierDismissible: false,
     );
 
+    bool isSuccess = false;
+    String? errorMessage;
+    String? orderIdToProcess;
+
     try {
-      final result = await _orderService.createOrder(payload);
+      if (_pendingOrderId == null) {
+        // First attempt: Create a brand new order
+        print('>>> Creating NEW order...');
+        final payload = _buildOrderPayload(paymentMethodId);
+        final result = await _orderService.createOrder(payload);
 
-      if (!mounted) return;
-      Navigator.of(context, rootNavigator: true).pop(); // dismiss loading
+        print('>>> createOrder result: $result');
 
-      final isSuccess =
-          result['success'] == true ||
-          (result['message']?.toString().toLowerCase().contains('success') ??
-              false);
-
-      if (isSuccess) {
-        context.read<CartCubit>().clearCart();
-
-        await QuickAlert.show(
-          confirmBtnText: 'موافق',
-          context: context,
-          type: QuickAlertType.success,
-          title: 'تم تأكيد طلبك بنجاح!',
-          text: 'سيتم التواصل معك قريباً',
-          barrierDismissible: false,
-        );
-
-        if (mounted) {
-          Navigator.of(context).popUntil((route) => route.isFirst);
+        if (result['success'] == true ||
+            (result['message']?.toString().toLowerCase().contains('success') ??
+                false)) {
+          isSuccess = true;
+          _pendingOrderId = _extractOrderId(result);
+          orderIdToProcess = _pendingOrderId;
+          print('>>> Order created. _pendingOrderId = $_pendingOrderId');
+        } else {
+          errorMessage = result['message'];
+          print('>>> Order creation FAILED: $errorMessage');
         }
       } else {
-        QuickAlert.show(
-          confirmBtnText: 'موافق',
-          context: context,
-          type: QuickAlertType.error,
-          title: 'خطأ',
-          text: result['message'] ?? 'حدث خطأ أثناء إنشاء الطلب.',
-          barrierDismissible: false,
+        // Subsequent attempt: Update the existing order's payment method
+        print(
+          '>>> Updating EXISTING order $_pendingOrderId with paymentMethod=$paymentMethodId...',
         );
+        final result = await _orderService.updateOrderPayment(
+          _pendingOrderId!,
+          paymentMethodId,
+        );
+
+        print('>>> updateOrderPayment result: $result');
+
+        if (result['success'] == true ||
+            (result['message']?.toString().toLowerCase().contains('success') ??
+                false)) {
+          isSuccess = true;
+          orderIdToProcess = _pendingOrderId;
+          print(
+            '>>> Order updated successfully. Reusing orderId = $_pendingOrderId',
+          );
+        } else {
+          errorMessage = result['message'];
+          print('>>> Order update FAILED: $errorMessage');
+        }
       }
-    } catch (e) {
-      if (!mounted) return;
-      Navigator.of(context, rootNavigator: true).pop();
-
-      QuickAlert.show(
-        confirmBtnText: 'موافق',
-        context: context,
-        type: QuickAlertType.error,
-        title: 'خطأ',
-        text: e.toString().replaceFirst('Exception: ', ''),
-        barrierDismissible: false,
-      );
-    }
-  }
-
-  /// Card-payment flow: create order → navigate to PayTabs WebView.
-  Future<void> _confirmOrderWithCard() async {
-    final payload = _buildOrderPayload();
-
-    QuickAlert.show(
-      confirmBtnText: 'موافق',
-      context: context,
-      type: QuickAlertType.loading,
-      title: 'جاري إنشاء الطلب...',
-      text: 'يرجى الانتظار',
-      barrierDismissible: false,
-    );
-
-    try {
-      final result = await _orderService.createOrder(payload);
 
       if (!mounted) return;
       Navigator.of(context, rootNavigator: true).pop(); // dismiss loading
 
-      final isSuccess =
-          result['success'] == true ||
-          (result['message']?.toString().toLowerCase().contains('success') ??
-              false);
-
-      if (isSuccess) {
-        // NOTE: Do NOT call clearCart() here! The cart must remain intact
-        // until the PayTabs WebView confirms successful payment. clearCart()
-        // is called in PaymentWebViewScreen when PaymentCaptured state fires.
-
-        print("====== السيرفر رد بالآتي ======");
-        print(result);
-        print("================================");
-
-        final orderId = _extractOrderId(result);
-
-        if (orderId != null) {
-          Navigator.push(
+      if (isSuccess && orderIdToProcess != null) {
+        if (paymentMethodId == 1) {
+          // 1 = Card
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder:
                   (_) => BlocProvider(
                     create: (_) => PaymentCubit(PaymentRepository()),
-                    child: PaymentWebViewScreen(orderId: orderId),
+                    child: PaymentWebViewScreen(orderId: orderIdToProcess!),
                   ),
             ),
           );
         } else {
+          // Cash on Delivery
+          _pendingOrderId = null;
+          context.read<CartCubit>().clearCart();
           await QuickAlert.show(
             confirmBtnText: 'موافق',
             context: context,
-            type: QuickAlertType.warning,
-            title: 'تنبيه',
-            text:
-                'تم إنشاء الطلب بنجاح، ولكن لم نتمكن من استخراج رقم الطلب لفتح بوابة الدفع.',
+            type: QuickAlertType.success,
+            title: 'تم تأكيد طلبك بنجاح!',
+            text: 'ستصلك إشعارات بتفاصيل طلبك',
             barrierDismissible: false,
           );
           if (mounted) {
@@ -407,28 +389,42 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           }
         }
       } else {
-        QuickAlert.show(
-          confirmBtnText: 'موافق',
-          context: context,
-          type: QuickAlertType.error,
-          title: 'خطأ',
-          text: result['message'] ?? 'حدث خطأ أثناء إنشاء الطلب.',
-          barrierDismissible: false,
+        _showRetryErrorAlert(
+          errorMessage ?? 'حدث خطأ أثناء معالجة الطلب.',
+          paymentMethodId,
         );
       }
     } catch (e) {
+      print('>>> _handlePaymentSelection EXCEPTION: $e');
       if (!mounted) return;
       Navigator.of(context, rootNavigator: true).pop();
-
-      QuickAlert.show(
-        confirmBtnText: 'موافق',
-        context: context,
-        type: QuickAlertType.error,
-        title: 'خطأ',
-        text: e.toString().replaceFirst('Exception: ', ''),
-        barrierDismissible: false,
+      _showRetryErrorAlert(
+        e.toString().replaceFirst('Exception: ', ''),
+        paymentMethodId,
       );
+    } finally {
+      _isProcessing = false;
     }
+  }
+
+  void _showRetryErrorAlert(String message, int lastPaymentMethodId) {
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.error,
+      title: 'خطأ',
+      text: message,
+      confirmBtnText: 'إعادة المحاولة',
+      cancelBtnText: 'إلغاء',
+      showCancelBtn: true,
+      onConfirmBtnTap: () {
+        Navigator.pop(context);
+        // Retry with the same payment method — reuses _pendingOrderId if set
+        _handlePaymentSelection(lastPaymentMethodId);
+      },
+      onCancelBtnTap: () {
+        Navigator.pop(context);
+      },
+    );
   }
 
   @override
@@ -464,15 +460,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton.icon(
-                      onPressed: () => _showAddressSelectionSheet((address) {
-                        setState(() {
-                          _receiverNameController.text = address.fullName;
-                          _receiverPhoneController.text = address.phone;
-                          _shippingCityController.text = address.city;
-                          _shippingStreetController.text = address.street;
-                        });
-                      }),
-                      icon: const Icon(Icons.location_on, color: AppColors.primary),
+                      onPressed:
+                          () => _showAddressSelectionSheet((address) {
+                            setState(() {
+                              _receiverNameController.text = address.fullName;
+                              _receiverPhoneController.text = address.phone;
+                              _shippingCityController.text = address.city;
+                              _shippingStreetController.text = address.street;
+                            });
+                          }),
+                      icon: const Icon(
+                        Icons.location_on,
+                        color: AppColors.primary,
+                      ),
                       label: Text(
                         'اختر من عناوينك المحفوظة',
                         style: TextStyle(

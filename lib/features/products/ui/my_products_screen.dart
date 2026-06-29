@@ -1191,14 +1191,6 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
 
     if (imagesList is List && imagesList.isNotEmpty) {
       imageUrl = imagesList.first?.toString();
-
-      // 🚀 السطر السحري عشان نعالج مشكلة الباك إند
-      if (imageUrl != null && imageUrl.contains('localhost:8081')) {
-        imageUrl = imageUrl.replaceAll(
-          'http://localhost:8081',
-          'https://root2route.runasp.net',
-        );
-      }
     }
 
     return Container(

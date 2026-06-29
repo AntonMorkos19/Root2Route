@@ -51,7 +51,52 @@ class OrderService {
   }
 
   // ──────────────────────────────────────────────
-  // 2. GET /order/MyOrders — Buyer's order list
+  // 2. PUT /order/UpdatePaymentMethod — Idempotent update
+  // ──────────────────────────────────────────────
+  Future<Map<String, dynamic>> updateOrderPayment(String orderId, int newPaymentMethodId) async {
+    try {
+      print('=== updateOrderPayment ===');
+      print('orderId: $orderId');
+      print('newPaymentMethod: $newPaymentMethodId');
+      print('URL: ${_dio.options.baseUrl}/order/Update/$orderId');
+
+      final response = await _dio.put(
+        '/order/Update/$orderId',
+        data: {'paymentMethod': newPaymentMethodId},
+        options: Options(validateStatus: (status) => status != null && status <= 400),
+      );
+
+      print('=== updateOrderPayment Response ===');
+      print('Status: ${response.statusCode}');
+      print('Body: ${response.data}');
+
+      final respBody = response.data;
+      if (respBody is Map) {
+        final isSuccess = respBody['succeeded'] == true || respBody['success'] == true;
+        return {
+          'success': isSuccess,
+          'data': respBody['data'],
+          'message': respBody['message'] ?? 'Order updated successfully',
+        };
+      }
+      return {
+        'success': response.statusCode == 200,
+        'data': respBody,
+        'message': 'Order updated successfully',
+      };
+    } on DioException catch (e) {
+      print('=== updateOrderPayment DioError ===');
+      print('Status: ${e.response?.statusCode}');
+      print('Data: ${e.response?.data}');
+      return _handleError(e);
+    } catch (e) {
+      print('=== updateOrderPayment Error: $e ===');
+      return {'success': false, 'data': null, 'message': 'Unexpected error: $e'};
+    }
+  }
+
+  // ──────────────────────────────────────────────
+  // 3. GET /order/MyOrders — Buyer's order list
   //    ⚠ Backend returns 400 even on success
   // ──────────────────────────────────────────────
   Future<Map<String, dynamic>> getMyOrders() async {
@@ -223,6 +268,38 @@ class OrderService {
         'success': response.statusCode == 200,
         'data': respBody,
         'message': 'Order cancelled',
+      };
+    } on DioException catch (e) {
+      return _handleError(e);
+    } catch (e) {
+      return {'success': false, 'data': null, 'message': 'Unexpected error: $e'};
+    }
+  }
+
+  // ──────────────────────────────────────────────
+  // 7. DELETE /api/v1/orders/{id} — Delete an abandoned order
+  // ──────────────────────────────────────────────
+  Future<Map<String, dynamic>> deleteOrder(String orderId) async {
+    try {
+      final safeOrderId = Uri.encodeComponent(orderId);
+      final response = await _dio.delete(
+        '/api/v1/orders/$safeOrderId',
+        options: Options(validateStatus: (status) => status != null && status <= 400),
+      );
+
+      final respBody = response.data;
+      if (respBody is Map) {
+        final isSuccess = respBody['succeeded'] == true || respBody['success'] == true;
+        return {
+          'success': isSuccess,
+          'data': respBody['data'],
+          'message': respBody['message'] ?? 'Order deleted',
+        };
+      }
+      return {
+        'success': response.statusCode == 200 || response.statusCode == 204,
+        'data': respBody,
+        'message': 'Order deleted',
       };
     } on DioException catch (e) {
       return _handleError(e);

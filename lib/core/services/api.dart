@@ -1243,7 +1243,13 @@ class ApiService {
   /// POST /api/v1/auctions/{id}/checkout
   Future<Map<String, dynamic>> checkoutAuction(String auctionId) async {
     try {
-      final response = await _dio.post('/auctions/$auctionId/checkout');
+      final response = await _dio.post(
+        '/auctions/$auctionId/checkout',
+        data: {},
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
 
       final respBody = response.data;
       if (respBody is Map) {
@@ -1396,6 +1402,48 @@ class ApiService {
       return {'success': false, 'message': 'Connection error: ${e.message}'};
     } catch (e) {
       return {'success': false, 'message': 'Unexpected error: $e'};
+    }
+  }
+
+  Future<List<AuctionModel>> getAuctionsWithQuantities() async {
+    try {
+      final response = await _dio.get('/auctions');
+      final data = response.data['data'] ?? [];
+      
+      List<AuctionModel> auctions = (data as List)
+          .map((json) => AuctionModel.fromJson(json))
+          .toList();
+
+      final updatedAuctions = await Future.wait(
+        auctions.map((auction) async {
+          try {
+            final productRes = await getProductById(auction.productId);
+            
+            if (productRes['success'] == true && productRes['data'] != null) {
+              final productData = productRes['data'];
+              
+              final quantity = double.tryParse(productData['stockQuantity']?.toString() ?? '0') ?? 0.0;
+              final unit = productData['weightUnit']?.toString() ?? 'kg';
+
+              return auction.copyWith(
+                quantity: quantity,
+                unit: unit,
+              );
+            }
+            
+            return auction.copyWith(quantity: 0.0, unit: 'N/A');
+          } catch (e) {
+            debugPrint('Failed to fetch product details for productId: ${auction.productId}. Error: $e');
+            return auction.copyWith(quantity: 0.0, unit: 'N/A');
+          }
+        }),
+      );
+
+      return updatedAuctions;
+    } on DioException catch (e) {
+      throw Exception(_extractApiError(e));
+    } catch (e) {
+      throw Exception("An unexpected error occurred: $e");
     }
   }
 
@@ -1602,9 +1650,26 @@ class ApiService {
       final response = await _dio.get(
         '/auctions/my-organization/$organizationId',
       );
-      return _parseList(
+      final auctions = _parseList(
         response.data,
       ).map((json) => AuctionModel.fromJson(json)).toList();
+      
+      return await Future.wait(
+        auctions.map((auction) async {
+          try {
+            final productRes = await getProductById(auction.productId);
+            if (productRes['success'] == true && productRes['data'] != null) {
+              final productData = productRes['data'];
+              final quantity = double.tryParse(productData['stockQuantity']?.toString() ?? '0') ?? 0.0;
+              final unit = productData['weightUnit']?.toString() ?? 'kg';
+              return auction.copyWith(quantity: quantity, unit: unit);
+            }
+            return auction;
+          } catch (_) {
+            return auction;
+          }
+        }),
+      );
     } on DioException catch (e) {
       throw AuctionException(_extractApiError(e));
     } catch (e) {
@@ -1676,7 +1741,17 @@ class ApiService {
       final response = await _dio.get('/auctions/$id');
       final data = _extractData(response.data);
       if (data is Map<String, dynamic>) {
-        return AuctionModel.fromJson(data);
+        var auction = AuctionModel.fromJson(data);
+        try {
+          final productRes = await getProductById(auction.productId);
+          if (productRes['success'] == true && productRes['data'] != null) {
+            final productData = productRes['data'];
+            final quantity = double.tryParse(productData['stockQuantity']?.toString() ?? '0') ?? 0.0;
+            final unit = productData['weightUnit']?.toString() ?? 'kg';
+            auction = auction.copyWith(quantity: quantity, unit: unit);
+          }
+        } catch (_) {}
+        return auction;
       }
       throw AuctionException('Invalid response format');
     } on DioException catch (e) {
